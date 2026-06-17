@@ -11,9 +11,17 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
-  "keywords": ["healthcare", "elder-care", "nivarak", "api"],
+  "keywords": [
+    "healthcare",
+    "elder-care",
+    "nivarak",
+    "api"
+  ],
   "author": "Nivarak Team",
   "license": "PROPRIETARY",
   "dependencies": {
@@ -38,6 +46,7 @@
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.6"
   }
 }

@@ -113,7 +113,8 @@ authRoutes.post('/invite', authMiddleware, requireRoles('admin', 'coordinator'),
     parsed.data.phone,
     parsed.data.fullName,
     parsed.data.role,
-    user.userId
+    user.userId,
+    user.roles || []
   );
 
   return c.json(successResponse(result), 201);

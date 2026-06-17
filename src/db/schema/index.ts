@@ -20,8 +20,9 @@ import {
   inet,
   index,
   uniqueIndex,
+  check,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 // ─── USERS ──────────────────────────────────────────────
 export const users = pgTable(
@@ -163,6 +164,7 @@ export const visits = pgTable(
       .references(() => users.id),
     attendingClinicians: jsonb('attending_clinicians').$type<string[]>().default([]),
     completedAt: timestamp('completed_at', { withTimezone: true }),
+    cancelledReason: text('cancelled_reason'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -170,6 +172,8 @@ export const visits = pgTable(
     index('visits_patient_date_idx').on(table.patientId, table.visitedAt),
     index('visits_created_by_idx').on(table.createdBy),
     index('visits_status_idx').on(table.status),
+    check('visits_status_check', sql`${table.status} IN ('draft', 'completed', 'cancelled')`),
+    check('visits_type_check', sql`${table.visitType} IN ('home_visit', 'clinic', 'teleconsult', 'emergency')`),
   ]
 );
 
@@ -200,10 +204,11 @@ export const vitals = pgTable(
       table.parameterType,
       table.recordedAt
     ),
+    check('vitals_source_check', sql`${table.source} IN ('manual', 'device', 'imported')`),
   ]
 );
 
-// ─── AGING_SCORES ───────────────────────────────────────
+// ─── AGING_SCORES (IAS-P v2.0) ─────────────────────────
 export const agingScores = pgTable(
   'aging_scores',
   {
@@ -215,17 +220,33 @@ export const agingScores = pgTable(
       .notNull()
       .references(() => users.id),
     assessedAt: timestamp('assessed_at', { withTimezone: true }).defaultNow().notNull(),
+    version: varchar('version', { length: 20 }).default('ias_p_v2').notNull(),
     parameters: jsonb('parameters').$type<Record<string, number>>().notNull(),
-    domainScores: jsonb('domain_scores').$type<Record<string, number>>().notNull(),
-    totalScore: integer('total_score').notNull(),
-    riskBand: varchar('risk_band', { length: 30 }).notNull(), // low, moderate, high, critical
+    domainScores: jsonb('domain_scores').$type<Record<string, any>>().notNull(),
+    rawScore: integer('raw_score').notNull(),
+    maxScore: integer('max_score').notNull(),
+    iasPercentage: numeric('ias_percentage', { precision: 5, scale: 2 }).notNull(),
+    riskBand: varchar('risk_band', { length: 30 }).notNull(),
     recommendedPathway: varchar('recommended_pathway', { length: 50 }).notNull(),
     clinicianPathwayOverride: varchar('clinician_pathway_override', { length: 50 }),
     overrideReason: text('override_reason'),
     visitId: uuid('visit_id').references(() => visits.id),
+    // ─── IAS-P v2.0 Proxy Metadata ─────
+    proxyRelationship: varchar('proxy_relationship', { length: 50 }),
+    proxyProximity: varchar('proxy_proximity', { length: 30 }),
+    visitFrequency: varchar('visit_frequency', { length: 30 }),
+    parentAge: integer('parent_age'),
+    livingSituation: varchar('living_situation', { length: 30 }),
+    livingSituationOther: varchar('living_situation_other', { length: 100 }),
+    // ─── Red Flags ─────
+    redFlags: jsonb('red_flags').$type<string[]>().default([]),
+    redFlagCount: integer('red_flag_count').default(0),
+    redFlagUrgency: varchar('red_flag_urgency', { length: 30 }),
   },
   (table) => [
     index('aging_scores_patient_time_idx').on(table.patientId, table.assessedAt),
+    index('aging_scores_version_idx').on(table.version),
+    check('aging_scores_risk_band_check', sql`${table.riskBand} IN ('strong_independent', 'independent_vulnerable', 'supported_independence', 'limited_independence', 'high_dependence', 'low', 'moderate', 'high', 'critical')`),
   ]
 );
 
@@ -262,6 +283,9 @@ export const tasks = pgTable(
     index('tasks_assigned_status_idx').on(table.assignedTo, table.status),
     index('tasks_due_status_idx').on(table.dueAt, table.status),
     index('tasks_status_idx').on(table.status),
+    check('tasks_status_check', sql`${table.status} IN ('created', 'assigned', 'in_progress', 'completed', 'escalated', 'cancelled')`),
+    check('tasks_priority_check', sql`${table.priority} IN ('low', 'medium', 'high', 'urgent')`),
+    check('tasks_category_check', sql`${table.category} IN ('medication', 'follow_up', 'lab', 'visit', 'equipment', 'other')`),
   ]
 );
 
@@ -273,13 +297,14 @@ export const alerts = pgTable(
     patientId: uuid('patient_id')
       .notNull()
       .references(() => patients.id),
-    alertType: varchar('alert_type', { length: 50 }).notNull(), // vital_threshold, risk_escalation, task_overdue, missed_visit
+    alertType: varchar('alert_type', { length: 50 }).notNull(), // vital_threshold, risk_escalation, task_overdue, missed_visit, red_flag_assessment
     severity: varchar('severity', { length: 20 }).notNull(), // info, warning, critical
     status: varchar('status', { length: 20 }).default('open').notNull(), // open, acknowledged, resolved
     title: varchar('title', { length: 255 }).notNull(),
     body: text('body'),
     sourceEntityType: varchar('source_entity_type', { length: 50 }),
     sourceEntityId: uuid('source_entity_id'),
+    deduplicationKey: varchar('deduplication_key', { length: 255 }),
     triggeredAt: timestamp('triggered_at', { withTimezone: true }).defaultNow().notNull(),
     acknowledgedBy: uuid('acknowledged_by').references(() => users.id),
     acknowledgedAt: timestamp('acknowledged_at', { withTimezone: true }),
@@ -290,6 +315,9 @@ export const alerts = pgTable(
     index('alerts_patient_status_idx').on(table.patientId, table.status),
     index('alerts_severity_status_idx').on(table.severity, table.status),
     index('alerts_triggered_at_idx').on(table.triggeredAt),
+    index('alerts_dedup_key_idx').on(table.deduplicationKey),
+    check('alerts_severity_check', sql`${table.severity} IN ('info', 'warning', 'critical')`),
+    check('alerts_status_check', sql`${table.status} IN ('open', 'acknowledged', 'resolved')`),
   ]
 );
 
@@ -387,6 +415,8 @@ export const alertRules = pgTable(
   },
   (table) => [
     index('alert_rules_patient_param_idx').on(table.patientId, table.parameterType),
+    check('alert_rules_condition_check', sql`${table.condition} IN ('lt', 'gt', 'lte', 'gte')`),
+    check('alert_rules_severity_check', sql`${table.severity} IN ('info', 'warning', 'critical')`),
   ]
 );
 
@@ -398,6 +428,7 @@ export const sessions = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id),
+    tokenFamilyId: varchar('token_family_id', { length: 36 }).notNull(),
     refreshTokenHash: text('refresh_token_hash').notNull(),
     deviceId: varchar('device_id', { length: 255 }),
     ipAddress: varchar('ip_address', { length: 45 }),
@@ -409,7 +440,7 @@ export const sessions = pgTable(
   },
   (table) => [
     index('sessions_user_idx').on(table.userId),
-    index('sessions_token_idx').on(table.refreshTokenHash),
+    index('sessions_family_idx').on(table.tokenFamilyId),
   ]
 );
 
@@ -428,6 +459,7 @@ export const otpStore = pgTable(
   },
   (table) => [
     index('otp_store_phone_idx').on(table.phone),
+    check('otp_purpose_check', sql`${table.purpose} IN ('login', 'verify', 'reset')`),
   ]
 );
 

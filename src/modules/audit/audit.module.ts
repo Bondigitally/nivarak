@@ -68,7 +68,7 @@ class AuditService {
         entityType: 'aging_score',
         entityId: data.scoreId,
         patientId: data.patientId,
-        newValue: { totalScore: data.totalScore, riskBand: data.riskBand },
+        newValue: { iasPercentage: data.iasPercentage, rawScore: data.rawScore, riskBand: data.riskBand, redFlagCount: data.redFlagCount },
       });
     });
 

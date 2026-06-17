@@ -3,6 +3,7 @@
  *
  * Modular monolith entry point.
  * Mounts all modules under /api/v1 with global middleware.
+ * Includes ABAC enforcement, rate limiting, and body size limits.
  */
 
 import { Hono } from 'hono';
@@ -10,6 +11,10 @@ import { cors } from 'hono/cors';
 import { config } from './config/index.js';
 import { requestLogger } from './middleware/request-logger.js';
 import { errorHandler } from './middleware/error-handler.js';
+import { requirePatientAccess } from './middleware/abac.js';
+import { rateLimiter } from './middleware/rate-limiter.js';
+import { authMiddleware } from './middleware/auth.js';
+import { testConnection } from './db/connection.js';
 
 // Module routes
 import { authRoutes } from './modules/auth/auth.routes.js';
@@ -46,7 +51,26 @@ app.use(
 
 app.use('*', requestLogger);
 
-// ─── Health Check ───────────────────────────────────────
+// ─── Request Body Size Limit ────────────────────────────
+// Default: 1MB for all routes. Document upload routes have separate 50MB limit.
+app.use('*', async (c, next) => {
+  const contentLength = c.req.header('content-length');
+  if (contentLength) {
+    const size = parseInt(contentLength, 10);
+    const isUploadRoute = c.req.path.includes('/documents');
+    const maxSize = isUploadRoute ? 50 * 1024 * 1024 : 1 * 1024 * 1024; // 50MB or 1MB
+    if (size > maxSize) {
+      return c.json({
+        success: false,
+        data: null,
+        error: { code: 'PAYLOAD_TOO_LARGE', message: `Request body exceeds ${isUploadRoute ? '50MB' : '1MB'} limit` },
+      }, 413);
+    }
+  }
+  await next();
+});
+
+// ─── Health Checks ──────────────────────────────────────
 app.get('/health', async (c) => {
   return c.json({
     status: 'healthy',
@@ -57,24 +81,50 @@ app.get('/health', async (c) => {
   });
 });
 
+app.get('/health/ready', async (c) => {
+  const dbOk = await testConnection();
+  if (!dbOk) {
+    return c.json({
+      status: 'not_ready',
+      checks: { database: 'failed' },
+      timestamp: new Date().toISOString(),
+    }, 503);
+  }
+  return c.json({
+    status: 'ready',
+    checks: { database: 'ok' },
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ─── API Routes (versioned: /api/v1) ───────────────────
 const api = new Hono();
 
-// Auth (no patient prefix)
-api.route('/auth', authRoutes);
+// Auth (rate limited: 10 OTP requests per minute, 20 login attempts per minute)
+const authWithRateLimit = new Hono();
+authWithRateLimit.use('*', rateLimiter({ windowMs: 60_000, max: 20, name: 'auth_general' }));
+authWithRateLimit.use('/request-otp', rateLimiter({ windowMs: 60_000, max: 10, name: 'auth_otp' }));
+authWithRateLimit.route('/', authRoutes);
+api.route('/auth', authWithRateLimit);
 
 // Resource routes
 api.route('/patients', patientRoutes);
 
-// Patient-nested routes (visits, vitals, scores, documents, alerts)
-// These are mounted on patientRoutes via parameter passthrough
-api.route('/patients/:id/visits', visitRoutes);
-api.route('/patients/:id/vitals', vitalsRoutes);
-api.route('/patients/:id/scores', patientScoringRoutes);
-api.route('/patients/:id/documents', documentRoutes);
-api.route('/patients/:id/alerts', patientAlertRoutes);
+// Patient-nested routes with ABAC enforcement
+// authMiddleware is applied inside each module, but ABAC is applied here at the router level
+const patientScoped = new Hono();
+patientScoped.use('*', authMiddleware);
+patientScoped.use('*', requirePatientAccess('id'));
 
-// Score calculation (non-patient-scoped)
+// Mount patient-scoped sub-routes through the ABAC-protected router
+patientScoped.route('/:id/visits', visitRoutes);
+patientScoped.route('/:id/vitals', vitalsRoutes);
+patientScoped.route('/:id/scores', patientScoringRoutes);
+patientScoped.route('/:id/documents', documentRoutes);
+patientScoped.route('/:id/alerts', patientAlertRoutes);
+api.route('/patients', patientScoped);
+
+// Score calculation (non-patient-scoped, public)
 api.route('/scores', scoringRoutes);
 
 // Top-level resource routes

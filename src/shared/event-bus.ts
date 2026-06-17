@@ -14,7 +14,8 @@ export interface DomainEvents {
   'visit.completed': { visitId: string; patientId: string; completedBy: string };
   'vital.recorded': { vitalId: string; patientId: string; parameterType: string; value: number; recordedBy: string };
   'vital.threshold_breached': { patientId: string; parameterType: string; value: number; threshold: number; severity: string };
-  'score.submitted': { scoreId: string; patientId: string; totalScore: number; riskBand: string; assessedBy: string };
+  'score.submitted': { scoreId: string; patientId: string; iasPercentage: number; rawScore: number; riskBand: string; redFlagCount: number; redFlagUrgency: string; assessedBy: string };
+  'score.red_flags_detected': { scoreId: string; patientId: string; redFlags: string[]; urgency: string; assessedBy: string };
   'risk_band.changed': { patientId: string; previousBand: string; newBand: string; scoreId: string };
   'task.created': { taskId: string; patientId: string; assignedTo: string | null; createdBy: string };
   'task.overdue': { taskId: string; patientId: string; assignedTo: string | null };

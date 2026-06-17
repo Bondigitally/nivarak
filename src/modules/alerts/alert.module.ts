@@ -57,6 +57,23 @@ class AlertService {
         body: `Task ${data.taskId} is past its due date.`,
         sourceEntityType: 'task',
         sourceEntityId: data.taskId,
+        deduplicationKey: `task_overdue:${data.taskId}`,
+      });
+    });
+
+    // IAS-P v2.0 red flags detected → create alert based on urgency
+    eventBus.on('score.red_flags_detected', async (data) => {
+      const severity = data.urgency === 'urgent_care_planning' ? 'critical' : 'warning';
+      const flagList = data.redFlags.join(', ').replace(/_/g, ' ');
+      await this.createAlert({
+        patientId: data.patientId,
+        alertType: 'red_flag_assessment',
+        severity,
+        title: `IAS-P Red Flags: ${data.urgency.replace(/_/g, ' ')}`,
+        body: `${data.redFlags.length} red flag(s) detected: ${flagList}`,
+        sourceEntityType: 'aging_score',
+        sourceEntityId: data.scoreId,
+        deduplicationKey: `red_flag:${data.patientId}:${data.scoreId}`,
       });
     });
 
@@ -79,7 +96,19 @@ class AlertService {
     body?: string;
     sourceEntityType?: string;
     sourceEntityId?: string;
+    deduplicationKey?: string;
   }) {
+    // Check for duplicate alert if deduplication key is provided
+    if (data.deduplicationKey) {
+      const existing = await queryClient`
+        SELECT id FROM alerts WHERE deduplication_key = ${data.deduplicationKey} AND status != 'resolved' LIMIT 1
+      `;
+      if (existing.length > 0) {
+        logger.debug({ deduplicationKey: data.deduplicationKey }, 'Alert deduplicated — skipping');
+        return existing[0];
+      }
+    }
+
     const [alert] = await db.insert(alerts).values({
       patientId: data.patientId,
       alertType: data.alertType,
@@ -88,6 +117,7 @@ class AlertService {
       body: data.body,
       sourceEntityType: data.sourceEntityType,
       sourceEntityId: data.sourceEntityId,
+      deduplicationKey: data.deduplicationKey,
       status: 'open',
     }).returning();
 

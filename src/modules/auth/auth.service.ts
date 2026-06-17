@@ -24,6 +24,16 @@ import {
 const SALT_ROUNDS = 12;
 const MAX_SESSIONS = 3;
 
+// Role hierarchy (higher index = higher privilege)
+const ROLE_HIERARCHY: Record<string, number> = {
+  patient: 0,
+  caregiver: 1,
+  nurse: 2,
+  doctor: 3,
+  coordinator: 4,
+  admin: 5,
+};
+
 export class AuthService {
   /**
    * Request OTP — generates and stores OTP for the given phone number.
@@ -250,43 +260,59 @@ export class AuthService {
 
   /**
    * Refresh access token using a valid refresh token.
+   * Uses tokenFamilyId for O(1) lookup instead of scanning all sessions.
+   * Format: refreshToken = `${tokenFamilyId}:${randomSecret}`
    */
   async refreshToken(
     refreshToken: string,
     ip?: string,
     userAgent?: string
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const tokenHash = await bcrypt.hash(refreshToken, SALT_ROUNDS);
+    // Parse token family ID from the refresh token
+    const colonIndex = refreshToken.indexOf(':');
+    if (colonIndex === -1) {
+      throw new AuthenticationError('Invalid refresh token format');
+    }
+    const tokenFamilyId = refreshToken.substring(0, colonIndex);
+    const tokenSecret = refreshToken.substring(colonIndex + 1);
 
-    // Find session (we need to check all sessions since bcrypt is one-way)
+    // O(1) lookup by tokenFamilyId (indexed)
     const sessionRows = await db
       .select()
       .from(sessions)
-      .where(
-        and(
-          eq(sessions.isRevoked, false),
-          gt(sessions.expiresAt, new Date())
-        )
-      );
+      .where(eq(sessions.tokenFamilyId, tokenFamilyId))
+      .limit(1);
 
-    let validSession = null;
-    for (const session of sessionRows) {
-      const matches = await bcrypt.compare(refreshToken, session.refreshTokenHash);
-      if (matches) {
-        validSession = session;
-        break;
-      }
-    }
-
-    if (!validSession) {
+    if (sessionRows.length === 0) {
       throw new AuthenticationError('Invalid or expired refresh token');
     }
 
+    const session = sessionRows[0];
+
+    // Check if session is revoked (potential token reuse / theft)
+    if (session.isRevoked) {
+      // Revoke ALL sessions for this user — possible token theft
+      await queryClient`UPDATE sessions SET is_revoked = true WHERE user_id = ${session.userId}`;
+      logger.warn({ userId: session.userId, tokenFamilyId }, 'Refresh token reuse detected — all sessions revoked');
+      throw new AuthenticationError('Refresh token has been revoked. All sessions invalidated for security.');
+    }
+
+    // Check expiry
+    if (session.expiresAt < new Date()) {
+      throw new AuthenticationError('Refresh token expired');
+    }
+
+    // Verify the token secret
+    const isValid = await bcrypt.compare(tokenSecret, session.refreshTokenHash);
+    if (!isValid) {
+      throw new AuthenticationError('Invalid refresh token');
+    }
+
     // Revoke old session (rotating refresh tokens)
-    await queryClient`UPDATE sessions SET is_revoked = true WHERE id = ${validSession.id}`;
+    await queryClient`UPDATE sessions SET is_revoked = true WHERE id = ${session.id}`;
 
     // Load user and roles
-    const userRows = await db.select().from(users).where(eq(users.id, validSession.userId)).limit(1);
+    const userRows = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
     if (userRows.length === 0) throw new AuthenticationError('User not found');
 
     const user = userRows[0];
@@ -312,13 +338,24 @@ export class AuthService {
 
   /**
    * Invite a new user — Admin/Coordinator flow.
+   * Enforces role hierarchy: inviter cannot assign roles above their own.
    */
   async inviteUser(
     phone: string,
     fullName: string,
     roleName: string,
-    invitedBy: string
+    invitedBy: string,
+    inviterRoles: string[] = []
   ): Promise<{ userId: string }> {
+    // Enforce role hierarchy
+    const inviterMaxLevel = Math.max(...inviterRoles.map(r => ROLE_HIERARCHY[r] ?? 0));
+    const targetLevel = ROLE_HIERARCHY[roleName] ?? 0;
+    if (targetLevel > inviterMaxLevel) {
+      throw new BusinessRuleError(
+        `Cannot assign role '${roleName}'. You can only assign roles at or below your own level.`
+      );
+    }
+
     // Check if user already exists
     let userRow = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
 
@@ -364,8 +401,11 @@ export class AuthService {
       { expiresIn: config.jwt.accessExpiry }
     );
 
-    const refreshToken = uuidv4();
-    const refreshTokenHash = await bcrypt.hash(refreshToken, SALT_ROUNDS);
+    // Generate refresh token with family ID for O(1) lookup
+    const tokenFamilyId = uuidv4();
+    const tokenSecret = uuidv4();
+    const refreshTokenRaw = `${tokenFamilyId}:${tokenSecret}`;
+    const refreshTokenHash = await bcrypt.hash(tokenSecret, SALT_ROUNDS);
 
     // Enforce max sessions
     const activeSessions = await db
@@ -385,13 +425,14 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
     await db.insert(sessions).values({
       userId,
+      tokenFamilyId,
       refreshTokenHash,
       ipAddress: ip,
       userAgent,
       expiresAt,
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken: refreshTokenRaw };
   }
 }
 
