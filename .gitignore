@@ -1,0 +1,11 @@
+.env
+node_modules/
+dist/
+uploads/
+*.log
+H:/npm-cache
+H:/npm-tmp
+coverage/
+
+# Ignore client folder not tracked in this repo
+client/
