@@ -27,7 +27,7 @@ const createDocumentSchema = z.object({
   storagePath: z.string().min(1),
   fileSizeBytes: z.number().int().positive().max(50 * 1024 * 1024), // 50MB max
   mimeType: z.string().refine((v) => ALLOWED_MIMES.includes(v), 'Unsupported file type'),
-  visitId: z.string().uuid().optional(),
+  encounterId: z.string().uuid().optional(),
 });
 
 // ─── Service ────────────────────────────────────────────
@@ -71,7 +71,7 @@ class DocumentService {
       fileSizeBytes: data.fileSizeBytes,
       mimeType: data.mimeType,
       uploadedBy,
-      visitId: data.visitId,
+      encounterId: data.encounterId,
       scanStatus: 'pending',
     }).returning();
 

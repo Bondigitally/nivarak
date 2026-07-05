@@ -210,7 +210,7 @@ export const submitIASSchema = z.object({
     'no_emergency_response',
   ])).default([]),
 
-  visitId: z.string().uuid().optional(),
+  encounterId: z.string().uuid().optional(),
   pathwayOverride: z.string().optional(),
   overrideReason: z.string().optional(),
 });
@@ -256,7 +256,7 @@ class ScoringService {
       recommendedPathway: result.recommendedPathway,
       clinicianPathwayOverride: data.pathwayOverride,
       overrideReason: data.overrideReason,
-      visitId: data.visitId,
+      encounterId: data.encounterId,
       // Proxy metadata
       proxyRelationship: data.proxyRelationship,
       proxyProximity: data.proxyProximity,

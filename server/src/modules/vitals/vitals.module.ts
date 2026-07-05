@@ -43,7 +43,7 @@ const recordVitalSchema = z.object({
   value: z.number(),
   unit: z.string().min(1),
   recordedAt: z.string().datetime(),
-  visitId: z.string().uuid().optional(),
+  encounterId: z.string().uuid().optional(),
   source: z.enum(['manual', 'device', 'imported']).default('manual'),
   notes: z.string().optional(),
 });
@@ -68,7 +68,7 @@ class VitalsService {
       unit: data.unit,
       recordedAt: new Date(data.recordedAt),
       recordedBy,
-      visitId: data.visitId,
+      encounterId: data.encounterId,
       source: data.source,
       notes: data.notes,
     }).returning();

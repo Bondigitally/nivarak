@@ -4,7 +4,17 @@
 
 import { Hono } from 'hono';
 import { authService } from './auth.service.js';
-import { requestOtpSchema, verifyOtpSchema, loginSchema, registerSchema, inviteSchema, changePasswordSchema } from './auth.schema.js';
+import {
+  requestOtpSchema,
+  verifyOtpSchema,
+  loginSchema,
+  registerSchema,
+  inviteSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  verifyResetCodeSchema,
+  resetPasswordSchema,
+} from './auth.schema.js';
 import { authMiddleware, requireRoles } from '../../middleware/auth.js';
 import { successResponse } from '../../shared/response.js';
 import { ValidationError } from '../../shared/errors.js';
@@ -118,4 +128,53 @@ authRoutes.post('/invite', authMiddleware, requireRoles('admin', 'coordinator'),
   );
 
   return c.json(successResponse(result), 201);
+});
+
+// POST /auth/forgot-password — Initiate email-based password reset
+authRoutes.post('/forgot-password', async (c) => {
+  const body = await c.req.json();
+  const parsed = forgotPasswordSchema.safeParse(body);
+  if (!parsed.success) {
+    throw new ValidationError('Validation failed', parsed.error.errors.map((e) => ({
+      field: e.path.join('.'),
+      message: e.message,
+    })));
+  }
+
+  const result = await authService.forgotPassword(parsed.data.email);
+  return c.json(successResponse(result));
+});
+
+// POST /auth/verify-reset-code — Validate the 6-digit reset code (non-consuming)
+authRoutes.post('/verify-reset-code', async (c) => {
+  const body = await c.req.json();
+  const parsed = verifyResetCodeSchema.safeParse(body);
+  if (!parsed.success) {
+    throw new ValidationError('Validation failed', parsed.error.errors.map((e) => ({
+      field: e.path.join('.'),
+      message: e.message,
+    })));
+  }
+
+  const result = await authService.verifyResetCode(parsed.data.email, parsed.data.code);
+  return c.json(successResponse(result));
+});
+
+// POST /auth/reset-password — Set new password (re-verifies code, consumes it, revokes sessions)
+authRoutes.post('/reset-password', async (c) => {
+  const body = await c.req.json();
+  const parsed = resetPasswordSchema.safeParse(body);
+  if (!parsed.success) {
+    throw new ValidationError('Validation failed', parsed.error.errors.map((e) => ({
+      field: e.path.join('.'),
+      message: e.message,
+    })));
+  }
+
+  const result = await authService.resetPassword(
+    parsed.data.email,
+    parsed.data.code,
+    parsed.data.newPassword,
+  );
+  return c.json(successResponse(result));
 });

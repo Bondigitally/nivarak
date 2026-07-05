@@ -24,7 +24,7 @@ const createTaskSchema = z.object({
   assignedTo: z.string().uuid().optional(),
   assignedRole: z.string().optional(),
   dueAt: z.string().datetime().optional(),
-  sourceVisitId: z.string().uuid().optional(),
+  sourceEncounterId: z.string().uuid().optional(),
   sourceAlertId: z.string().uuid().optional(),
 });
 
@@ -58,7 +58,7 @@ class TaskService {
       assignedRole: data.assignedRole,
       dueAt: data.dueAt ? new Date(data.dueAt) : undefined,
       createdBy,
-      sourceVisitId: data.sourceVisitId,
+      sourceEncounterId: data.sourceEncounterId,
       sourceAlertId: data.sourceAlertId,
     }).returning();
 

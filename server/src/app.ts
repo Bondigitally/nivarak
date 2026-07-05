@@ -19,7 +19,7 @@ import { testConnection } from './db/connection.js';
 // Module routes
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { patientRoutes } from './modules/patients/patient.routes.js';
-import { visitRoutes } from './modules/visits/visit.module.js';
+import { encounterRoutes } from './modules/encounters/encounter.module.js';
 import { vitalsRoutes } from './modules/vitals/vitals.module.js';
 import { scoringRoutes, patientScoringRoutes } from './modules/scoring/scoring.module.js';
 import { taskRoutes } from './modules/tasks/task.module.js';
@@ -117,7 +117,7 @@ patientScoped.use('*', authMiddleware);
 patientScoped.use('*', requirePatientAccess('id'));
 
 // Mount patient-scoped sub-routes through the ABAC-protected router
-patientScoped.route('/:id/visits', visitRoutes);
+patientScoped.route('/:id/encounters', encounterRoutes);
 patientScoped.route('/:id/vitals', vitalsRoutes);
 patientScoped.route('/:id/scores', patientScoringRoutes);
 patientScoped.route('/:id/documents', documentRoutes);

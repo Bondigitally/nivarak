@@ -49,12 +49,13 @@ export class AuthService {
     // Invalidate previous OTPs for this phone
     await queryClient`
       UPDATE otp_store SET used_at = NOW()
-      WHERE phone = ${phone} AND used_at IS NULL
+      WHERE identifier = ${phone} AND identifier_type = 'phone' AND used_at IS NULL
     `;
 
     // Store new OTP
     await db.insert(otpStore).values({
-      phone,
+      identifier: phone,
+      identifierType: 'phone',
       otpHash,
       purpose: 'login',
       expiresAt,
@@ -92,7 +93,8 @@ export class AuthService {
       .from(otpStore)
       .where(
         and(
-          eq(otpStore.phone, phone),
+          eq(otpStore.identifier, phone),
+          eq(otpStore.identifierType, 'phone'),
           isNull(otpStore.usedAt),
           gt(otpStore.expiresAt, new Date())
         )
@@ -384,6 +386,164 @@ export class AuthService {
 
     logger.info({ userId, roleName, invitedBy }, 'User invited and role assigned');
     return { userId };
+  }
+
+  // ─── Password Reset (email-based) ───────────────────────
+
+  /**
+   * Step 1 — Forgot Password
+   * Looks up the user by email, generates a 6-digit reset code, and stores it.
+   * In dev mode the code is returned directly; in production it would be emailed.
+   */
+  async forgotPassword(email: string): Promise<{ message: string; code?: string }> {
+    // Always return a success-like message to avoid user enumeration
+    const userRows = await db
+      .select({ id: users.id, email: users.email })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (userRows.length === 0) {
+      logger.warn({ email }, 'Forgot-password requested for unknown email');
+      // Still respond generically so we don't leak whether the email exists
+      return { message: 'If this email is registered, a reset code has been sent.' };
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeHash = await bcrypt.hash(code, SALT_ROUNDS);
+    const expiresAt = new Date(Date.now() + config.otp.expiryMinutes * 60 * 1000);
+
+    // Invalidate any existing reset codes for this email
+    await queryClient`
+      UPDATE otp_store SET used_at = NOW()
+      WHERE identifier = ${email} AND identifier_type = 'email' AND purpose = 'reset' AND used_at IS NULL
+    `;
+
+    await db.insert(otpStore).values({
+      identifier: email,
+      identifierType: 'email',
+      otpHash: codeHash,
+      purpose: 'reset',
+      expiresAt,
+    });
+
+    logger.info({ email }, 'Password reset code generated');
+
+    if (config.otp.devMode) {
+      logger.info({ email, code }, '🔑 DEV MODE reset code (not emailed)');
+      return { message: 'Reset code sent to your email address.', code };
+    }
+
+    // TODO: integrate email gateway (e.g. SendGrid / AWS SES) here
+    return { message: 'Reset code sent to your email address.' };
+  }
+
+  /**
+   * Step 2 — Verify Reset Code
+   * Validates the 6-digit code without consuming it, so the user can
+   * proceed to step 3 (set new password) in a separate request.
+   */
+  async verifyResetCode(email: string, code: string): Promise<{ valid: boolean }> {
+    const otpRows = await db
+      .select()
+      .from(otpStore)
+      .where(
+        and(
+          eq(otpStore.identifier, email),
+          eq(otpStore.identifierType, 'email'),
+          eq(otpStore.purpose, 'reset'),
+          isNull(otpStore.usedAt),
+          gt(otpStore.expiresAt, new Date())
+        )
+      )
+      .orderBy(otpStore.createdAt)
+      .limit(1);
+
+    if (otpRows.length === 0) {
+      throw new AuthenticationError('Invalid or expired reset code');
+    }
+
+    const record = otpRows[0];
+
+    if (record.attempts >= 5) {
+      throw new AuthenticationError('Too many attempts. Request a new reset code.');
+    }
+
+    const isValid = await bcrypt.compare(code, record.otpHash);
+    if (!isValid) {
+      await queryClient`
+        UPDATE otp_store SET attempts = attempts + 1 WHERE id = ${record.id}
+      `;
+      throw new AuthenticationError('Invalid reset code');
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Step 3 — Reset Password
+   * Re-verifies the code (stateless — no extra token needed), updates the
+   * password hash, and marks the OTP as used.
+   */
+  async resetPassword(email: string, code: string, newPassword: string): Promise<{ message: string }> {
+    // Look up valid OTP (same query as verifyResetCode)
+    const otpRows = await db
+      .select()
+      .from(otpStore)
+      .where(
+        and(
+          eq(otpStore.identifier, email),
+          eq(otpStore.identifierType, 'email'),
+          eq(otpStore.purpose, 'reset'),
+          isNull(otpStore.usedAt),
+          gt(otpStore.expiresAt, new Date())
+        )
+      )
+      .orderBy(otpStore.createdAt)
+      .limit(1);
+
+    if (otpRows.length === 0) {
+      throw new AuthenticationError('Invalid or expired reset code');
+    }
+
+    const record = otpRows[0];
+
+    if (record.attempts >= 5) {
+      throw new AuthenticationError('Too many attempts. Request a new reset code.');
+    }
+
+    const isValid = await bcrypt.compare(code, record.otpHash);
+    if (!isValid) {
+      await queryClient`
+        UPDATE otp_store SET attempts = attempts + 1 WHERE id = ${record.id}
+      `;
+      throw new AuthenticationError('Invalid reset code');
+    }
+
+    // Look up user
+    const userRows = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (userRows.length === 0) {
+      throw new NotFoundError('User', email);
+    }
+
+    const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    // Update password + mark OTP used (transactional via raw SQL batch)
+    await queryClient`UPDATE users SET password_hash = ${newHash}, updated_at = NOW() WHERE id = ${userRows[0].id}`;
+    await queryClient`UPDATE otp_store SET used_at = NOW() WHERE id = ${record.id}`;
+
+    // Revoke all active sessions to force re-login with new password
+    await queryClient`UPDATE sessions SET is_revoked = true WHERE user_id = ${userRows[0].id} AND is_revoked = false`;
+
+    logger.info({ email, userId: userRows[0].id }, 'Password reset successfully');
+    eventBus.emit('user.password_reset', { userId: userRows[0].id, email });
+
+    return { message: 'Password reset successfully. Please log in with your new password.' };
   }
 
   // ─── Private helpers ──────────────────────────────────

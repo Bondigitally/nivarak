@@ -143,37 +143,198 @@ export const caregiverLinks = pgTable(
   ]
 );
 
-// ─── VISITS ─────────────────────────────────────────────
-export const visits = pgTable(
-  'visits',
+// ─── ENCOUNTERS (replaces visits) ───────────────────────
+// 6-Domain Encounter Framework. Versioned: amendments link to originals.
+export const encounters = pgTable(
+  'encounters',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    patientId: uuid('patient_id')
-      .notNull()
-      .references(() => patients.id),
-    visitType: varchar('visit_type', { length: 50 }).notNull(), // home_visit, clinic, teleconsult, emergency
-    status: varchar('status', { length: 20 }).default('draft').notNull(), // draft, completed, cancelled
-    visitedAt: timestamp('visited_at', { withTimezone: true }).notNull(),
-    location: varchar('location', { length: 255 }),
-    chiefComplaint: text('chief_complaint'),
-    systemicExam: jsonb('systemic_exam'),
-    clinicalNotes: text('clinical_notes'),
-    medicationsReviewed: jsonb('medications_reviewed'),
-    createdBy: uuid('created_by')
-      .notNull()
-      .references(() => users.id),
-    attendingClinicians: jsonb('attending_clinicians').$type<string[]>().default([]),
+    patientId: uuid('patient_id').notNull().references(() => patients.id),
+    encounterDate: timestamp('encounter_date', { withTimezone: true }).notNull(),
+    encounterType: varchar('encounter_type', { length: 30 }).notNull(),
+    clinicianId: uuid('clinician_id').notNull().references(() => users.id),
+    clinicianRole: varchar('clinician_role', { length: 30 }).notNull(),
+    primaryReason: varchar('primary_reason', { length: 30 }).notNull(),
+    primaryReasonNotes: text('primary_reason_notes'),
+    overallClinicalImpression: varchar('overall_clinical_impression', { length: 30 }).notNull(),
+    nextVisitDate: date('next_visit_date'),
+    nextVisitFrequency: varchar('next_visit_frequency', { length: 20 }),
+    status: varchar('status', { length: 20 }).default('draft').notNull(),
+    version: integer('version').default(1).notNull(),
+    amendmentOf: uuid('amendment_of'), // self-ref FK handled in relations
+    amendmentReason: text('amendment_reason'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
-    cancelledReason: text('cancelled_reason'),
+    completedBy: uuid('completed_by').references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
-    index('visits_patient_date_idx').on(table.patientId, table.visitedAt),
-    index('visits_created_by_idx').on(table.createdBy),
-    index('visits_status_idx').on(table.status),
-    check('visits_status_check', sql`${table.status} IN ('draft', 'completed', 'cancelled')`),
-    check('visits_type_check', sql`${table.visitType} IN ('home_visit', 'clinic', 'teleconsult', 'emergency')`),
+    index('encounters_patient_date_idx').on(table.patientId, table.encounterDate),
+    index('encounters_clinician_idx').on(table.clinicianId),
+    index('encounters_status_idx').on(table.status),
+    check('encounters_type_check', sql`${table.encounterType} IN ('home_visit', 'telehealth', 'clinic', 'carer_report', 'emergency', 'review')`),
+    check('encounters_role_check', sql`${table.clinicianRole} IN ('gp', 'nurse', 'carer', 'physiotherapist', 'ot', 'social_worker', 'other')`),
+    check('encounters_reason_check', sql`${table.primaryReason} IN ('medical', 'medicines_review', 'mobility', 'social', 'nutritional', 'cognitive', 'routine', 'emergency', 'other')`),
+    check('encounters_impression_check', sql`${table.overallClinicalImpression} IN ('stable', 'monitor_closely', 'action_required', 'urgent')`),
+    check('encounters_status_check', sql`${table.status} IN ('draft', 'completed', 'amended')`),
+  ]
+);
+
+// ─── DOMAIN 1: MEDICAL & MEDICINES ──────────────────────
+export const encounterMedical = pgTable(
+  'encounter_medical',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    encounterId: uuid('encounter_id').notNull().references(() => encounters.id),
+    // Tier 1 — mandatory
+    medicationsStatus: varchar('medications_status', { length: 30 }).notNull(),
+    vitals: jsonb('vitals').$type<{
+      bpSystolic?: number; bpDiastolic?: number; pulse?: number;
+      weight?: number; temperature?: number; spo2?: number;
+    }>(),
+    chronicConditionStatus: varchar('chronic_condition_status', { length: 30 }).notNull(),
+    acuteConcernPresent: boolean('acute_concern_present').notNull(),
+    // Tier 2 — optional observations
+    medicationAdherence: varchar('medication_adherence', { length: 30 }),
+    sideEffects: jsonb('side_effects').$type<{ selected: string[]; other?: string }>(),
+    prescriberReviewNeeded: boolean('prescriber_review_needed'),
+    painLevel: integer('pain_level'),
+    clinicianNotes: text('clinician_notes'),
+    // Tier 3 — escalation
+    escalationLevel: varchar('escalation_level', { length: 30 }),
+    referredTo: varchar('referred_to', { length: 30 }),
+    referredToOther: text('referred_to_other'),
+    referralDate: date('referral_date'),
+    referralUrgency: varchar('referral_urgency', { length: 20 }),
+  },
+  (table) => [
+    uniqueIndex('enc_medical_encounter_idx').on(table.encounterId),
+    check('med_status_check', sql`${table.medicationsStatus} IN ('no_change', 'new_added', 'removed', 'dose_changed', 'concerns_flagged')`),
+    check('med_chronic_check', sql`${table.chronicConditionStatus} IN ('stable', 'deteriorating', 'improved', 'new_condition')`),
+  ]
+);
+
+// ─── DOMAIN 2: MOBILITY ────────────────────────────────
+export const encounterMobility = pgTable(
+  'encounter_mobility',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    encounterId: uuid('encounter_id').notNull().references(() => encounters.id),
+    // Tier 1
+    mobilityStatus: varchar('mobility_status', { length: 30 }).notNull(),
+    assistiveEquipment: jsonb('assistive_equipment').$type<string[]>().notNull(),
+    fallInLastPeriod: varchar('fall_in_last_period', { length: 10 }).notNull(), // yes / no / unknown
+    fallDate: date('fall_date'),
+    // Tier 2
+    gaitBalance: varchar('gait_balance', { length: 30 }),
+    transferAbility: varchar('transfer_ability', { length: 30 }),
+    painOnMovement: boolean('pain_on_movement'),
+    painOnMovementLocation: text('pain_on_movement_location'),
+    homeEnvironmentRisk: jsonb('home_environment_risk').$type<string[]>(),
+    clinicianNotes: text('clinician_notes'),
+    // Tier 3
+    formalAssessmentNeeded: boolean('formal_assessment_needed'),
+    formalAssessmentType: varchar('formal_assessment_type', { length: 30 }),
+    referralMobility: varchar('referral_mobility', { length: 30 }),
+    urgentMobilityConcern: boolean('urgent_mobility_concern'),
+  },
+  (table) => [
+    uniqueIndex('enc_mobility_encounter_idx').on(table.encounterId),
+    check('mob_status_check', sql`${table.mobilityStatus} IN ('no_change', 'improved', 'declined', 'first_visit')`),
+    check('mob_fall_check', sql`${table.fallInLastPeriod} IN ('yes', 'no', 'unknown')`),
+  ]
+);
+
+// ─── DOMAIN 3: SOCIAL ──────────────────────────────────
+export const encounterSocial = pgTable(
+  'encounter_social',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    encounterId: uuid('encounter_id').notNull().references(() => encounters.id),
+    // Tier 1
+    socialStatus: varchar('social_status', { length: 30 }).notNull(),
+    meaningfulSocialContact: varchar('meaningful_social_contact', { length: 30 }).notNull(),
+    livingSituation: varchar('living_situation', { length: 30 }).notNull(),
+    // Tier 2
+    isolationIndicators: jsonb('isolation_indicators').$type<string[]>(),
+    carerFamilyInvolvement: varchar('carer_family_involvement', { length: 30 }),
+    communityParticipation: varchar('community_participation', { length: 30 }),
+    safeguardingConcern: boolean('safeguarding_concern'),
+    technologyAccess: jsonb('technology_access').$type<string[]>(),
+    clinicianNotes: text('clinician_notes'),
+    // Tier 3
+    safeguardingLevel: varchar('safeguarding_level', { length: 30 }),
+    referralSocial: varchar('referral_social', { length: 50 }),
+  },
+  (table) => [
+    uniqueIndex('enc_social_encounter_idx').on(table.encounterId),
+    check('soc_status_check', sql`${table.socialStatus} IN ('no_change', 'improved', 'declined', 'first_visit')`),
+    check('soc_contact_check', sql`${table.meaningfulSocialContact} IN ('daily', 'several_times', 'once', 'none')`),
+    check('soc_living_check', sql`${table.livingSituation} IN ('alone', 'with_spouse', 'with_family', 'shared_care_home', 'other')`),
+  ]
+);
+
+// ─── DOMAIN 4: NUTRITIONAL ─────────────────────────────
+export const encounterNutritional = pgTable(
+  'encounter_nutritional',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    encounterId: uuid('encounter_id').notNull().references(() => encounters.id),
+    // Tier 1
+    nutritionalStatus: varchar('nutritional_status', { length: 30 }).notNull(),
+    appetiteChange: varchar('appetite_change', { length: 30 }).notNull(),
+    mealPreparation: varchar('meal_preparation', { length: 30 }).notNull(),
+    // Tier 2
+    weightValue: numeric('weight_value', { precision: 5, scale: 1 }),
+    weightSource: varchar('weight_source', { length: 20 }),
+    hydrationStatus: varchar('hydration_status', { length: 30 }),
+    dietaryRestrictions: jsonb('dietary_restrictions').$type<{ selected: string[]; allergy?: string }>(),
+    foodAccess: varchar('food_access', { length: 30 }),
+    supplementsInUse: varchar('supplements_in_use', { length: 500 }),
+    clinicianNotes: text('clinician_notes'),
+    // Tier 3
+    mustScore: integer('must_score'),
+    referralNutritional: varchar('referral_nutritional', { length: 30 }),
+    crossFlagCognitiveNutritional: boolean('cross_flag_cognitive_nutritional').default(false),
+  },
+  (table) => [
+    uniqueIndex('enc_nutritional_encounter_idx').on(table.encounterId),
+    check('nut_status_check', sql`${table.nutritionalStatus} IN ('no_change', 'concern_noted', 'improved', 'first_visit')`),
+    check('nut_appetite_check', sql`${table.appetiteChange} IN ('no_change', 'increased', 'decreased', 'very_poor', 'unable_to_assess')`),
+    check('nut_meal_check', sql`${table.mealPreparation} IN ('independent', 'needs_prompting', 'needs_assistance', 'cannot_prepare')`),
+  ]
+);
+
+// ─── DOMAIN 5: COGNITIVE ───────────────────────────────
+export const encounterCognitive = pgTable(
+  'encounter_cognitive',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    encounterId: uuid('encounter_id').notNull().references(() => encounters.id),
+    // Tier 1
+    cognitiveStatus: varchar('cognitive_status', { length: 30 }).notNull(),
+    orientationObserved: varchar('orientation_observed', { length: 30 }).notNull(),
+    consistencyWithPrevious: varchar('consistency_with_previous', { length: 30 }).notNull(),
+    // Tier 2
+    memoryConcernType: jsonb('memory_concern_type').$type<string[]>(),
+    behaviourChanges: jsonb('behaviour_changes').$type<string[]>(),
+    medicationManagementAbility: varchar('medication_management_ability', { length: 30 }),
+    capacityConcern: boolean('capacity_concern'),
+    carerCognitiveReport: varchar('carer_cognitive_report', { length: 30 }),
+    clinicianNotes: text('clinician_notes'),
+    // Tier 3
+    formalScreeningCompleted: boolean('formal_screening_completed'),
+    formalScreeningTool: varchar('formal_screening_tool', { length: 20 }),
+    formalScreenScore: numeric('formal_screen_score', { precision: 5, scale: 1 }),
+    referralCognitive: varchar('referral_cognitive', { length: 30 }),
+    crossFlagCognitiveNutritional: boolean('cross_flag_cognitive_nutritional').default(false),
+    crossFlagCognitiveMedicines: boolean('cross_flag_cognitive_medicines').default(false),
+  },
+  (table) => [
+    uniqueIndex('enc_cognitive_encounter_idx').on(table.encounterId),
+    check('cog_status_check', sql`${table.cognitiveStatus} IN ('no_change', 'improved', 'possible_decline', 'clear_decline', 'unable_to_assess')`),
+    check('cog_orient_check', sql`${table.orientationObserved} IN ('fully_oriented', 'minor_confusion', 'moderate_confusion', 'severely_disoriented')`),
+    check('cog_consist_check', sql`${table.consistencyWithPrevious} IN ('consistent', 'minor_discrepancies', 'significant_discrepancies', 'first_visit')`),
   ]
 );
 
@@ -185,7 +346,7 @@ export const vitals = pgTable(
     patientId: uuid('patient_id')
       .notNull()
       .references(() => patients.id),
-    visitId: uuid('visit_id').references(() => visits.id),
+    encounterId: uuid('encounter_id').references(() => encounters.id),
     parameterType: varchar('parameter_type', { length: 50 }).notNull(), // bp_systolic, bp_diastolic, hr, spo2, temp, weight, blood_glucose
     value: numeric('value', { precision: 10, scale: 2 }).notNull(),
     unit: varchar('unit', { length: 20 }).notNull(),
@@ -230,7 +391,7 @@ export const agingScores = pgTable(
     recommendedPathway: varchar('recommended_pathway', { length: 50 }).notNull(),
     clinicianPathwayOverride: varchar('clinician_pathway_override', { length: 50 }),
     overrideReason: text('override_reason'),
-    visitId: uuid('visit_id').references(() => visits.id),
+    encounterId: uuid('encounter_id').references(() => encounters.id),
     // ─── IAS-P v2.0 Proxy Metadata ─────
     proxyRelationship: varchar('proxy_relationship', { length: 50 }),
     proxyProximity: varchar('proxy_proximity', { length: 30 }),
@@ -269,7 +430,7 @@ export const tasks = pgTable(
     createdBy: uuid('created_by')
       .notNull()
       .references(() => users.id),
-    sourceVisitId: uuid('source_visit_id').references(() => visits.id),
+    sourceEncounterId: uuid('source_encounter_id').references(() => encounters.id),
     sourceAlertId: uuid('source_alert_id'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     completedBy: uuid('completed_by').references(() => users.id),
@@ -339,7 +500,7 @@ export const documents = pgTable(
     uploadedBy: uuid('uploaded_by')
       .notNull()
       .references(() => users.id),
-    visitId: uuid('visit_id').references(() => visits.id),
+    encounterId: uuid('encounter_id').references(() => encounters.id),
     isDeleted: boolean('is_deleted').default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -445,11 +606,15 @@ export const sessions = pgTable(
 );
 
 // ─── OTP STORE ──────────────────────────────────────────
+// Supports both phone (mobile OTP login) and email (password reset)
 export const otpStore = pgTable(
   'otp_store',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    phone: varchar('phone', { length: 15 }).notNull(),
+    /** The actual value — phone number (+91XXXXXXXXXX) or email address */
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    /** Discriminator so queries and indexes stay unambiguous */
+    identifierType: varchar('identifier_type', { length: 10 }).notNull(), // 'phone' | 'email'
     otpHash: text('otp_hash').notNull(),
     purpose: varchar('purpose', { length: 30 }).default('login').notNull(), // login, verify, reset
     attempts: integer('attempts').default(0).notNull(),
@@ -458,7 +623,8 @@ export const otpStore = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
-    index('otp_store_phone_idx').on(table.phone),
+    index('otp_store_identifier_type_idx').on(table.identifier, table.identifierType),
+    check('otp_identifier_type_check', sql`${table.identifierType} IN ('phone', 'email')`),
     check('otp_purpose_check', sql`${table.purpose} IN ('login', 'verify', 'reset')`),
   ]
 );
@@ -469,12 +635,13 @@ export const usersRelations = relations(users, ({ many }) => ({
   userRoles: many(userRoles),
   caregiverLinks: many(caregiverLinks),
   sessions: many(sessions),
+  encounters: many(encounters),
 }));
 
 export const patientsRelations = relations(patients, ({ one, many }) => ({
   createdByUser: one(users, { fields: [patients.createdBy], references: [users.id] }),
   caregiverLinks: many(caregiverLinks),
-  visits: many(visits),
+  encounters: many(encounters),
   vitals: many(vitals),
   agingScores: many(agingScores),
   tasks: many(tasks),
@@ -482,15 +649,41 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
   documents: many(documents),
 }));
 
-export const visitsRelations = relations(visits, ({ one, many }) => ({
-  patient: one(patients, { fields: [visits.patientId], references: [patients.id] }),
-  createdByUser: one(users, { fields: [visits.createdBy], references: [users.id] }),
+export const encountersRelations = relations(encounters, ({ one, many }) => ({
+  patient: one(patients, { fields: [encounters.patientId], references: [patients.id] }),
+  clinician: one(users, { fields: [encounters.clinicianId], references: [users.id] }),
+  medical: one(encounterMedical),
+  mobility: one(encounterMobility),
+  social: one(encounterSocial),
+  nutritional: one(encounterNutritional),
+  cognitive: one(encounterCognitive),
   vitals: many(vitals),
+  agingScores: many(agingScores),
+}));
+
+export const encounterMedicalRelations = relations(encounterMedical, ({ one }) => ({
+  encounter: one(encounters, { fields: [encounterMedical.encounterId], references: [encounters.id] }),
+}));
+
+export const encounterMobilityRelations = relations(encounterMobility, ({ one }) => ({
+  encounter: one(encounters, { fields: [encounterMobility.encounterId], references: [encounters.id] }),
+}));
+
+export const encounterSocialRelations = relations(encounterSocial, ({ one }) => ({
+  encounter: one(encounters, { fields: [encounterSocial.encounterId], references: [encounters.id] }),
+}));
+
+export const encounterNutritionalRelations = relations(encounterNutritional, ({ one }) => ({
+  encounter: one(encounters, { fields: [encounterNutritional.encounterId], references: [encounters.id] }),
+}));
+
+export const encounterCognitiveRelations = relations(encounterCognitive, ({ one }) => ({
+  encounter: one(encounters, { fields: [encounterCognitive.encounterId], references: [encounters.id] }),
 }));
 
 export const vitalsRelations = relations(vitals, ({ one }) => ({
   patient: one(patients, { fields: [vitals.patientId], references: [patients.id] }),
-  visit: one(visits, { fields: [vitals.visitId], references: [visits.id] }),
+  encounter: one(encounters, { fields: [vitals.encounterId], references: [encounters.id] }),
   recordedByUser: one(users, { fields: [vitals.recordedBy], references: [users.id] }),
 }));
 
@@ -498,8 +691,15 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
   patient: one(patients, { fields: [tasks.patientId], references: [patients.id] }),
   assignedToUser: one(users, { fields: [tasks.assignedTo], references: [users.id] }),
   createdByUser: one(users, { fields: [tasks.createdBy], references: [users.id] }),
+  sourceEncounter: one(encounters, { fields: [tasks.sourceEncounterId], references: [encounters.id] }),
 }));
 
 export const alertsRelations = relations(alerts, ({ one }) => ({
   patient: one(patients, { fields: [alerts.patientId], references: [patients.id] }),
+}));
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  patient: one(patients, { fields: [documents.patientId], references: [patients.id] }),
+  encounter: one(encounters, { fields: [documents.encounterId], references: [encounters.id] }),
+  uploadedByUser: one(users, { fields: [documents.uploadedBy], references: [users.id] }),
 }));

@@ -11,7 +11,8 @@ import { logger } from './logger.js';
 export interface DomainEvents {
   'patient.created': { patientId: string; createdBy: string };
   'caregiver.linked': { patientId: string; caregiverId: string; grantedBy: string };
-  'visit.completed': { visitId: string; patientId: string; completedBy: string };
+  'encounter.completed': { encounterId: string; patientId: string; completedBy: string };
+  'encounter.amended': { encounterId: string; originalId: string; patientId: string };
   'vital.recorded': { vitalId: string; patientId: string; parameterType: string; value: number; recordedBy: string };
   'vital.threshold_breached': { patientId: string; parameterType: string; value: number; threshold: number; severity: string };
   'score.submitted': { scoreId: string; patientId: string; iasPercentage: number; rawScore: number; riskBand: string; redFlagCount: number; redFlagUrgency: string; assessedBy: string };
@@ -25,6 +26,7 @@ export interface DomainEvents {
   'document.uploaded': { documentId: string; patientId: string; uploadedBy: string };
   'user.login': { userId: string; ip: string; userAgent: string };
   'user.login_failed': { phone: string; ip: string; reason: string };
+  'user.password_reset': { userId: string; email: string };
 }
 
 class TypedEventBus {

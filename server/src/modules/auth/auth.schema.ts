@@ -35,3 +35,26 @@ export const inviteSchema = z.object({
   fullName: z.string().min(2).max(255),
   role: z.enum(['patient', 'caregiver', 'nurse', 'doctor', 'coordinator', 'admin']),
 });
+
+// ─── Password Reset (email-based) ─────────────────────────
+
+/** Step 1 — user submits their email to initiate a reset */
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Must be a valid email address'),
+});
+
+/** Step 2 — user submits email + the 6-digit code they received */
+export const verifyResetCodeSchema = z.object({
+  email: z.string().email('Must be a valid email address'),
+  code: z.string().length(6, 'Reset code must be 6 digits'),
+});
+
+/**
+ * Step 3 — user submits email + code + new password.
+ * We re-verify the code here so the flow is stateless (no reset-token cookie needed).
+ */
+export const resetPasswordSchema = z.object({
+  email: z.string().email('Must be a valid email address'),
+  code: z.string().length(6, 'Reset code must be 6 digits'),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});

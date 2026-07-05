@@ -40,13 +40,23 @@ class AuditService {
       });
     });
 
-    eventBus.on('visit.completed', (data) => {
+    eventBus.on('encounter.completed', (data) => {
       this.log({
         actorId: data.completedBy,
-        action: 'visit.complete',
-        entityType: 'visit',
-        entityId: data.visitId,
+        action: 'encounter.complete',
+        entityType: 'encounter',
+        entityId: data.encounterId,
         patientId: data.patientId,
+      });
+    });
+
+    eventBus.on('encounter.amended', (data) => {
+      this.log({
+        action: 'encounter.amend',
+        entityType: 'encounter',
+        entityId: data.encounterId,
+        patientId: data.patientId,
+        oldValue: { originalId: data.originalId },
       });
     });
 
@@ -129,6 +139,15 @@ class AuditService {
         entityType: 'session',
         ipAddress: data.ip,
         newValue: { phone: data.phone, reason: data.reason },
+      });
+    });
+
+    eventBus.on('user.password_reset', (data) => {
+      this.log({
+        actorId: data.userId,
+        action: 'user.password_reset',
+        entityType: 'user',
+        entityId: data.userId,
       });
     });
   }

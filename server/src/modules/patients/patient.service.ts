@@ -260,11 +260,11 @@ export class PatientService {
   async getPatientSummary(patientId: string, authUser: AuthUser) {
     const patient = await this.getPatient(patientId, authUser);
 
-    // Count linked caregivers, recent visits, open tasks, open alerts
+    // Count linked caregivers, recent encounters, open tasks, open alerts
     const [stats] = await queryClient`
       SELECT
         (SELECT COUNT(*) FROM caregiver_links WHERE patient_id = ${patientId} AND revoked_at IS NULL) as caregiver_count,
-        (SELECT COUNT(*) FROM visits WHERE patient_id = ${patientId} AND status = 'completed') as visit_count,
+        (SELECT COUNT(*) FROM encounters WHERE patient_id = ${patientId} AND status = 'completed') as encounter_count,
         (SELECT COUNT(*) FROM tasks WHERE patient_id = ${patientId} AND status NOT IN ('completed', 'cancelled')) as open_task_count,
         (SELECT COUNT(*) FROM alerts WHERE patient_id = ${patientId} AND status = 'open') as open_alert_count,
         (SELECT total_score FROM aging_scores WHERE patient_id = ${patientId} ORDER BY assessed_at DESC LIMIT 1) as latest_score,
@@ -275,7 +275,7 @@ export class PatientService {
       ...patient,
       summary: {
         caregiverCount: Number(stats.caregiver_count),
-        visitCount: Number(stats.visit_count),
+        encounterCount: Number(stats.encounter_count),
         openTaskCount: Number(stats.open_task_count),
         openAlertCount: Number(stats.open_alert_count),
         latestScore: stats.latest_score ? Number(stats.latest_score) : null,

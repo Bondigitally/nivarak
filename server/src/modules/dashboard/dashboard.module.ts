@@ -48,9 +48,9 @@ dashboardRoutes.get('/doctor', requireRoles('doctor', 'admin'), async (c) => {
   const [stats] = await queryClient`
     SELECT
       (SELECT COUNT(DISTINCT patient_id) FROM caregiver_links WHERE user_id = ${user.userId} AND revoked_at IS NULL) as my_patients,
-      (SELECT COUNT(*) FROM visits WHERE created_by = ${user.userId} AND created_at >= NOW() - INTERVAL '7 days') as recent_visits,
+      (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${user.userId} AND created_at >= NOW() - INTERVAL '7 days') as recent_encounters,
       (SELECT COUNT(*) FROM tasks WHERE (assigned_to = ${user.userId} OR created_by = ${user.userId}) AND status NOT IN ('completed', 'cancelled')) as pending_tasks,
-      (SELECT COUNT(*) FROM visits WHERE created_by = ${user.userId} AND status = 'draft') as draft_visits
+      (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${user.userId} AND status = 'draft') as draft_encounters
   `;
 
   // Recent patients with risk bands
@@ -67,9 +67,9 @@ dashboardRoutes.get('/doctor', requireRoles('doctor', 'admin'), async (c) => {
 
   return c.json(successResponse({
     myPatients: Number(stats.my_patients),
-    recentVisits: Number(stats.recent_visits),
+    recentEncounters: Number(stats.recent_encounters),
     pendingTasks: Number(stats.pending_tasks),
-    draftVisits: Number(stats.draft_visits),
+    draftEncounters: Number(stats.draft_encounters),
     recentPatients,
   }));
 });
@@ -98,7 +98,7 @@ dashboardRoutes.get('/admin', requireRoles('admin'), async (c) => {
       (SELECT COUNT(*) FROM users WHERE is_active = true) as total_users,
       (SELECT COUNT(*) FROM users WHERE last_login_at >= NOW() - INTERVAL '24 hours') as active_today,
       (SELECT COUNT(*) FROM patients WHERE is_active = true) as total_patients,
-      (SELECT COUNT(*) FROM visits WHERE created_at >= NOW() - INTERVAL '7 days') as visits_this_week,
+      (SELECT COUNT(*) FROM encounters WHERE created_at >= NOW() - INTERVAL '7 days') as encounters_this_week,
       (SELECT COUNT(*) FROM tasks WHERE created_at >= NOW() - INTERVAL '7 days') as tasks_this_week,
       (SELECT COUNT(*) FROM alerts WHERE triggered_at >= NOW() - INTERVAL '24 hours') as alerts_today,
       (SELECT COUNT(*) FROM audit_logs WHERE occurred_at >= NOW() - INTERVAL '24 hours') as audit_entries_today,
@@ -109,7 +109,7 @@ dashboardRoutes.get('/admin', requireRoles('admin'), async (c) => {
     totalUsers: Number(stats.total_users),
     activeToday: Number(stats.active_today),
     totalPatients: Number(stats.total_patients),
-    visitsThisWeek: Number(stats.visits_this_week),
+    encountersThisWeek: Number(stats.encounters_this_week),
     tasksThisWeek: Number(stats.tasks_this_week),
     alertsToday: Number(stats.alerts_today),
     auditEntriesToday: Number(stats.audit_entries_today),
