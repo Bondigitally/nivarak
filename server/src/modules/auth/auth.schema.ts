@@ -3,6 +3,23 @@ import { z } from 'zod';
 /** Indian phone number format: +91XXXXXXXXXX */
 const indianPhoneRegex = /^\+91[6-9]\d{9}$/;
 
+const passwordSchema = z.string().superRefine((value, ctx) => {
+  if (!value) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Please enter your password' });
+    return;
+  }
+
+  const failed: string[] = [];
+  if (value.length < 8) failed.push('Password must be at least 8 characters.');
+  if (!/[A-Z]/.test(value)) failed.push('Password must contain an uppercase letter.');
+  if (!/[0-9]/.test(value)) failed.push('Password must contain a number.');
+  if (!/[^A-Za-z0-9]/.test(value)) failed.push('Password must contain a special character.');
+
+  for (const message of failed) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  }
+});
+
 export const requestOtpSchema = z.object({
   phone: z.string().regex(indianPhoneRegex, 'Must be a valid Indian mobile number (+91XXXXXXXXXX)'),
 });
@@ -14,18 +31,18 @@ export const verifyOtpSchema = z.object({
 
 export const loginSchema = z.object({
   phone: z.string().regex(indianPhoneRegex, 'Must be a valid Indian mobile number'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  newPassword: passwordSchema,
 });
 
 export const registerSchema = z.object({
   phone: z.string().regex(indianPhoneRegex, 'Must be a valid Indian mobile number'),
   fullName: z.string().min(2).max(255),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   email: z.string().email().optional(),
   preferredLanguage: z.string().max(10).default('en'),
 });
@@ -56,5 +73,5 @@ export const verifyResetCodeSchema = z.object({
 export const resetPasswordSchema = z.object({
   email: z.string().email('Must be a valid email address'),
   code: z.string().length(6, 'Reset code must be 6 digits'),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  newPassword: passwordSchema,
 });

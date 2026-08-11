@@ -1,8 +1,21 @@
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="p-8">
-      <header className="mb-4 font-semibold text-indigo-600">Layout: (auth)</header>
-      <main>{children}</main>
-    </div>
-  );
+import { headers } from 'next/headers';
+import { AuthLayout } from '@/components/auth/layout/AuthLayout';
+import { PORTALS } from '@/lib/auth/portals';
+import type { Portal } from '@/types/auth';
+
+/**
+ * Shared shell for login / register / forgot-password / invite.
+ * Keeps AuthLayout (hero + preload) mounted across soft navigations
+ * so only the AuthCard content remounts.
+ */
+export default async function AuthRouteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const headerList = await headers();
+  const portal = (headerList.get('x-nivarak-portal') ?? 'consumer') as Portal;
+  const variant = PORTALS[portal].layout;
+
+  return <AuthLayout variant={variant}>{children}</AuthLayout>;
 }
