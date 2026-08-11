@@ -2,13 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -18,6 +15,9 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-chart-8: var(--chart-8);
+  --color-chart-7: var(--chart-7);
+  --color-chart-6: var(--chart-6);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -39,82 +39,69 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Only three radius tokens — design.md */
+  --radius-default: var(--radius);
+  --radius-large: var(--radius-large);
+  --radius-full: var(--radius-full);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Background & surface */
+  --background: #F8F5FA; /* Background/Primary */
+  --foreground: #1A1A1A; /* Text/Primary */
+  --card: #FFFFFF; /* Surface/Primary */
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF; /* Surface/Elevated */
+  --popover-foreground: #1A1A1A;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Brand */
+  --primary: #6C318E; /* Brand/Primary/Default */
+  --primary-hover: #5F2B7D; /* Brand/Primary/Hover */
+  --primary-active: #52256C; /* Brand/Primary/Active */
+  --primary-disabled: #CDB6D9; /* Brand/Primary/Disabled */
+  --primary-foreground: #FFFFFF; /* Text/Inverse */
+
+  /* Neutral surfaces */
+  --secondary: #FCFBFD; /* Surface/Secondary */
+  --secondary-foreground: #1A1A1A;
+  --muted: #FCFBFD; /* Surface/Secondary */
+  --muted-foreground: #5F6368; /* Text/Secondary */
+  --accent: #F7F5F9; /* Surface/Hover */
+  --accent-foreground: #1A1A1A;
+
+  /* Border & text states */
+  --destructive: #DC2626; /* Error/Text */
+  --border: #E9E4ED; /* Border/Primary */
+  --border-disabled: #EFEAF2; /* Border/Disabled */
+  --text-disabled: #B3B7BF; /* Text/Disabled */
+  --input: #E9E4ED; /* Border/Primary */
+  --ring: #A66BCF; /* Brand/Primary/FocusRing */
+  --border-focus: #B98BD0; /* Border/Focus */
+
+  /* Charts — design.md vitals palette */
+  --chart-1: #6C318E; /* Chart/Brand Linear */
+  --chart-2: #FA4B42; /* Chart/BP Systolic */
+  --chart-3: #147AD6; /* Chart/BP Diastolic */
+  --chart-4: #7086FD; /* Chart/Heart Rate */
+  --chart-5: #0EA5B1; /* Chart/SpO₂ */
+  --chart-6: #5B8DEF; /* Chart/Blood Glucose */
+  --chart-7: #F97316; /* Chart/Temperature */
+  --chart-8: #1E0E28; /* Chart/Brand Linear (gradient end) */
+
+  /* Radius — only three tokens */
+  --radius: 0.875rem; /* 14px — Radius/Default */
+  --radius-large: 1.25rem; /* 20px — Radius/Large */
+  --radius-full: 9999px; /* Radius/Full */
+
+  /* Sidebar — maps to Surface / Brand / Border tokens */
+  --sidebar: #FFFFFF; /* Surface/Primary */
+  --sidebar-foreground: #1A1A1A; /* Text/Primary */
+  --sidebar-primary: #6C318E; /* Brand/Primary/Default */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F2EBF9; /* Surface/Selected */
+  --sidebar-accent-foreground: #6C318E;
+  --sidebar-border: #E9E4ED; /* Border/Primary */
+  --sidebar-ring: #A66BCF; /* Brand/Primary/FocusRing */
 }
 
 @layer base {
