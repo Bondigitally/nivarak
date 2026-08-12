@@ -8,40 +8,35 @@ import { Button } from '@/components/ui/button';
 import { AuthCheckbox } from '@/components/auth/primitives/AuthCheckbox';
 import { AuthField } from '@/components/auth/primitives/AuthField';
 import { PasswordStrength } from '@/components/auth/primitives/PasswordStrength';
-import type { PortalConfig } from '@/lib/auth/portals';
 import { ApiError } from '@/lib/api';
 import { authType } from '@/lib/auth/typography';
 import { passwordSchema } from '@/lib/auth/password';
 
-function buildSchema(requireTerms: boolean) {
-  return z
-    .object({
-      fullName: z.string().min(2, 'Enter your full name'),
-      email: z.string().email('Enter a valid email address'),
-      password: passwordSchema,
-      confirmPassword: z.string().min(1, 'Confirm your password'),
-      agreeToTerms: z.boolean(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: 'Passwords do not match',
-      path: ['confirmPassword'],
-    })
-    .refine((data) => !requireTerms || data.agreeToTerms, {
-      message: 'You must agree to the terms',
-      path: ['agreeToTerms'],
-    });
-}
+const schema = z
+  .object({
+    fullName: z.string().min(2, 'Enter your full name'),
+    email: z.string().email('Enter a valid email address'),
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, 'Confirm your password'),
+    agreeToTerms: z.boolean(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.agreeToTerms, {
+    message: 'You must agree to the terms',
+    path: ['agreeToTerms'],
+  });
 
-type FormValues = z.infer<ReturnType<typeof buildSchema>>;
+type FormValues = z.infer<typeof schema>;
 
 interface CompleteProfileStepProps {
-  portal: PortalConfig;
   defaultName?: string;
   onSubmit: (values: FormValues) => Promise<void>;
 }
 
 export function CompleteProfileStep({
-  portal,
   defaultName = '',
   onSubmit,
 }: CompleteProfileStepProps) {
@@ -52,7 +47,7 @@ export function CompleteProfileStep({
     watch,
     formState: { errors, isSubmitting, isSubmitted },
   } = useForm<FormValues>({
-    resolver: zodResolver(buildSchema(portal.layout === 'split')),
+    resolver: zodResolver(schema),
     defaultValues: {
       fullName: defaultName,
       email: '',
@@ -89,7 +84,7 @@ export function CompleteProfileStep({
 
       <AuthField
         id="email"
-        label={portal.emailLabel}
+        label="Email"
         type="email"
         error={errors.email?.message}
         {...register('email')}
@@ -117,14 +112,12 @@ export function CompleteProfileStep({
         {...register('confirmPassword')}
       />
 
-      {portal.layout === 'split' && (
-        <AuthCheckbox
-          id="agreeToTerms"
-          className="items-start"
-          label="I agree to the Terms & Conditions and Privacy Policy"
-          {...register('agreeToTerms')}
-        />
-      )}
+      <AuthCheckbox
+        id="agreeToTerms"
+        className="items-start"
+        label="I agree to the Terms & Conditions and Privacy Policy"
+        {...register('agreeToTerms')}
+      />
 
       {errors.agreeToTerms && (
         <p className={authType.error}>{errors.agreeToTerms.message}</p>

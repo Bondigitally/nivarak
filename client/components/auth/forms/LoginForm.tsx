@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Call02Icon, Mail02Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
-import type { PortalConfig } from '@/lib/auth/portals';
 import { AuthCheckbox } from '@/components/auth/primitives/AuthCheckbox';
 import { AuthField } from '@/components/auth/primitives/AuthField';
 import { OrDivider } from '@/components/auth/primitives/OrDivider';
@@ -19,7 +18,7 @@ import { getHomeUrlForRoles } from '@/lib/auth/roles';
 import { authType } from '@/lib/auth/typography';
 import { loginPasswordSchema } from '@/lib/auth/password';
 
-const consumerSchema = z.object({
+const credentialsSchema = z.object({
   email: z
     .string()
     .min(1, 'Please enter your email address')
@@ -28,40 +27,28 @@ const consumerSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-const staffSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Please enter your email address')
-    .email('Enter a valid work email address'),
-  password: loginPasswordSchema,
-  rememberMe: z.boolean().optional(),
-});
-
-type CredentialsValues = z.infer<typeof consumerSchema>;
+type CredentialsValues = z.infer<typeof credentialsSchema>;
 type LoginMethod = 'email' | 'phone';
 
 interface LoginFormProps {
-  portal: PortalConfig;
   loginMethod: LoginMethod;
   onLoginMethodChange: (method: LoginMethod) => void;
   onSuccess?: () => void;
 }
 
 export function LoginForm({
-  portal,
   loginMethod,
   onLoginMethodChange,
   onSuccess,
 }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
-  const isConsumer = portal.layout === 'split';
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = useForm<CredentialsValues>({
-    resolver: zodResolver(isConsumer ? consumerSchema : staffSchema),
+    resolver: zodResolver(credentialsSchema),
     defaultValues: { rememberMe: false },
     mode: 'onChange',
   });
@@ -80,9 +67,7 @@ export function LoginForm({
   async function handleCredentialsSubmit(_: CredentialsValues) {
     setError(null);
     setError(
-      isConsumer
-        ? 'Email sign-in is coming soon. Continue with phone number to log in.'
-        : 'Work email sign-in is coming soon. Continue with phone OTP for now.',
+      'Email sign-in is coming soon. Continue with phone number to log in.',
     );
   }
 
@@ -139,7 +124,7 @@ export function LoginForm({
           >
             <AuthField
               id="email"
-              label={portal.emailLabel}
+              label="Email"
               type="email"
               placeholder="Enter your email"
               error={errors.email?.message}
