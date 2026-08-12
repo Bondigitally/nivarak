@@ -1,5 +1,3 @@
-export type Portal = 'consumer' | 'care-team' | 'admin';
-
 export type AuthMode = 'login' | 'register' | 'forgot-password';
 
 export type AuthMethod = 'email' | 'phone';
