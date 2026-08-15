@@ -144,7 +144,7 @@ export const caregiverLinks = pgTable(
 );
 
 // ─── ENCOUNTERS (replaces visits) ───────────────────────
-// 6-Domain Encounter Framework. Versioned: amendments link to originals.
+// Domain Encounter Framework. Versioned: amendments link to originals.
 export const encounters = pgTable(
   'encounters',
   {
@@ -581,53 +581,7 @@ export const alertRules = pgTable(
   ]
 );
 
-// ─── SESSIONS ───────────────────────────────────────────
-export const sessions = pgTable(
-  'sessions',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id),
-    tokenFamilyId: varchar('token_family_id', { length: 36 }).notNull(),
-    refreshTokenHash: text('refresh_token_hash').notNull(),
-    deviceId: varchar('device_id', { length: 255 }),
-    ipAddress: varchar('ip_address', { length: 45 }),
-    userAgent: text('user_agent'),
-    lastActiveAt: timestamp('last_active_at', { withTimezone: true }).defaultNow().notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    isRevoked: boolean('is_revoked').default(false),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => [
-    index('sessions_user_idx').on(table.userId),
-    index('sessions_family_idx').on(table.tokenFamilyId),
-  ]
-);
 
-// ─── OTP STORE ──────────────────────────────────────────
-// Supports both phone (mobile OTP login) and email (password reset)
-export const otpStore = pgTable(
-  'otp_store',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    /** The actual value — phone number (+91XXXXXXXXXX) or email address */
-    identifier: varchar('identifier', { length: 255 }).notNull(),
-    /** Discriminator so queries and indexes stay unambiguous */
-    identifierType: varchar('identifier_type', { length: 10 }).notNull(), // 'phone' | 'email'
-    otpHash: text('otp_hash').notNull(),
-    purpose: varchar('purpose', { length: 30 }).default('login').notNull(), // login, verify, reset
-    attempts: integer('attempts').default(0).notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    usedAt: timestamp('used_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => [
-    index('otp_store_identifier_type_idx').on(table.identifier, table.identifierType),
-    check('otp_identifier_type_check', sql`${table.identifierType} IN ('phone', 'email')`),
-    check('otp_purpose_check', sql`${table.purpose} IN ('login', 'verify', 'reset')`),
-  ]
-);
 
 // ─── RELATIONS ──────────────────────────────────────────
 
