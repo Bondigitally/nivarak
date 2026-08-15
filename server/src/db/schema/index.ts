@@ -17,7 +17,6 @@ import {
   integer,
   bigint,
   jsonb,
-  inet,
   index,
   uniqueIndex,
   check,
@@ -32,7 +31,6 @@ export const users = pgTable(
     phone: varchar('phone', { length: 15 }).notNull(),
     email: varchar('email', { length: 255 }),
     fullName: varchar('full_name', { length: 255 }).notNull(),
-    passwordHash: text('password_hash'),
     preferredLanguage: varchar('preferred_language', { length: 10 }).default('en'),
     avatarUrl: text('avatar_url'),
     isActive: boolean('is_active').default(true).notNull(),
@@ -588,7 +586,6 @@ export const alertRules = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   userRoles: many(userRoles),
   caregiverLinks: many(caregiverLinks),
-  sessions: many(sessions),
   encounters: many(encounters),
 }));
 

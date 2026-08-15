@@ -12,9 +12,6 @@ import { AuthField } from '@/components/auth/primitives/AuthField';
 import { PasswordStrength } from '@/components/auth/primitives/PasswordStrength';
 import { OtpInput } from '@/components/auth/primitives/OtpInput';
 import {
-  forgotPassword,
-  verifyResetCode,
-  resetPassword,
   ApiError,
 } from '@/lib/api';
 import { authType } from '@/lib/auth/typography';
@@ -125,11 +122,7 @@ export function ForgotPasswordForm({
         return;
       }
 
-      const result = await forgotPassword(values.email);
-      setEmail(values.email);
-      setDevCode(result.code ?? null);
-      setOtp('');
-      goTo('otp');
+      throw new ApiError(501, 'Password reset will use Cognito. Not wired yet.');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to send reset code.');
     } finally {
@@ -155,8 +148,7 @@ export function ForgotPasswordForm({
         return;
       }
 
-      await verifyResetCode(email, otp);
-      goTo('reset');
+      throw new ApiError(501, 'Password reset will use Cognito. Not wired yet.');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Invalid or expired code.');
     } finally {
@@ -174,12 +166,7 @@ export function ForgotPasswordForm({
         return;
       }
 
-      await resetPassword({
-        email,
-        code: otp,
-        newPassword: values.password,
-      });
-      goTo('success');
+      throw new ApiError(501, 'Password reset will use Cognito. Not wired yet.');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to reset password.');
     } finally {
@@ -198,9 +185,7 @@ export function ForgotPasswordForm({
         return;
       }
 
-      const result = await forgotPassword(email);
-      setDevCode(result.code ?? null);
-      setOtp('');
+      throw new ApiError(501, 'Password reset will use Cognito. Not wired yet.');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to resend code.');
     } finally {
@@ -318,7 +303,7 @@ export function ForgotPasswordForm({
         id="email"
         label="Email"
         type="email"
-        placeholder="you@example.com"
+        placeholder="Enter your email"
         error={emailForm.formState.errors.email?.message}
         {...emailForm.register('email')}
       />

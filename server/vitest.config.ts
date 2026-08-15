@@ -5,7 +5,6 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'postgres://dummy:dummy@localhost:5432/dummy',
       JWT_ACCESS_SECRET: 'dummy_access_secret',
-      JWT_REFRESH_SECRET: 'dummy_refresh_secret'
     },
     globals: true,
     environment: 'node',

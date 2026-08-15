@@ -1,8 +1,8 @@
 /**
  * AuthModule — Service Layer
  *
- * Handles OTP generation/verification, JWT issuance, password login,
- * user registration, session management, and invite flows.
+ * App-level user provisioning (invite, logout).
+ * Sign-up, sign-in, OTP, and passwords are handled by Cognito.
  */
 
 import { eq } from 'drizzle-orm';
@@ -13,7 +13,6 @@ import {
   NotFoundError,
   BusinessRuleError,
 } from '../../shared/errors.js';
-
 
 // Role hierarchy (higher index = higher privilege)
 const ROLE_HIERARCHY: Record<string, number> = {
@@ -26,17 +25,11 @@ const ROLE_HIERARCHY: Record<string, number> = {
 };
 
 export class AuthService {
-
-
   /**
-   * Logout — revoke current session.
+   * Logout — placeholder until Cognito GlobalSignOut is wired.
    */
   async logout(userId: string): Promise<void> {
-    await queryClient`
-      UPDATE sessions SET is_revoked = true
-      WHERE user_id = ${userId} AND is_revoked = false
-    `;
-    logger.info({ userId }, 'User logged out (all sessions revoked)');
+    logger.info({ userId }, 'User logged out');
   }
 
   /**
@@ -50,8 +43,7 @@ export class AuthService {
     invitedBy: string,
     inviterRoles: string[] = []
   ): Promise<{ userId: string }> {
-    // Enforce role hierarchy
-    const inviterMaxLevel = Math.max(...inviterRoles.map(r => ROLE_HIERARCHY[r] ?? 0));
+    const inviterMaxLevel = Math.max(...inviterRoles.map((r) => ROLE_HIERARCHY[r] ?? 0));
     const targetLevel = ROLE_HIERARCHY[roleName] ?? 0;
     if (targetLevel > inviterMaxLevel) {
       throw new BusinessRuleError(
@@ -59,12 +51,10 @@ export class AuthService {
       );
     }
 
-    // Check if user already exists
     let userRow = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
 
     let userId: string;
     if (userRow.length === 0) {
-      // Create user without password (they'll set it on first login)
       const [newUser] = await db
         .insert(users)
         .values({ phone, fullName })
@@ -74,11 +64,9 @@ export class AuthService {
       userId = userRow[0].id;
     }
 
-    // Find role
     const roleRow = await db.select().from(roles).where(eq(roles.name, roleName)).limit(1);
     if (roleRow.length === 0) throw new NotFoundError('Role', roleName);
 
-    // Assign role (upsert)
     await queryClient`
       INSERT INTO user_roles (user_id, role_id, assigned_by)
       VALUES (${userId}, ${roleRow[0].id}, ${invitedBy})
