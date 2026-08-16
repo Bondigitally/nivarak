@@ -12,6 +12,7 @@ import { AuthenticationError, AuthorizationError } from '../shared/errors.js';
 import { db } from '../db/connection.js';
 import { users, userRoles, roles, caregiverLinks } from '../db/schema/index.js';
 import { eq, and, isNull } from 'drizzle-orm';
+import type { Permission } from '../shared/permissions.js';
 
 export interface AuthUser {
   userId: string;
@@ -89,7 +90,7 @@ export function requireRoles(...allowedRoles: string[]) {
 /**
  * Permission guard — checks for specific permission strings.
  */
-export function requirePermission(permission: string) {
+export function requirePermission(permission: Permission) {
   return async (c: Context, next: Next): Promise<void | Response> => {
     const user = c.get('user');
     if (!user) throw new AuthenticationError();
@@ -106,43 +107,41 @@ export function requirePermission(permission: string) {
  * Load full user context including roles, permissions, and linked patients.
  */
 async function loadUserContext(userId: string): Promise<AuthUser | null> {
-  const userRows = await db
-    .select({
-      id: users.id,
-      phone: users.phone,
-      fullName: users.fullName,
-      isActive: users.isActive,
-    })
-    .from(users)
-    .where(and(eq(users.id, userId), eq(users.isActive, true)))
-    .limit(1);
+  const [userRows, roleRows, linkRows] = await Promise.all([
+    db
+      .select({
+        id: users.id,
+        phone: users.phone,
+        fullName: users.fullName,
+        isActive: users.isActive,
+      })
+      .from(users)
+      .where(and(eq(users.id, userId), eq(users.isActive, true)))
+      .limit(1),
+    db
+      .select({
+        roleName: roles.name,
+        permissions: roles.permissions,
+      })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, userId)),
+    db
+      .select({ patientId: caregiverLinks.patientId })
+      .from(caregiverLinks)
+      .where(
+        and(
+          eq(caregiverLinks.userId, userId),
+          isNull(caregiverLinks.revokedAt)
+        )
+      ),
+  ]);
 
   if (userRows.length === 0) return null;
   const userRow = userRows[0];
 
-  // Load roles and permissions
-  const roleRows = await db
-    .select({
-      roleName: roles.name,
-      permissions: roles.permissions,
-    })
-    .from(userRoles)
-    .innerJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(userRoles.userId, userId));
-
   const userRoleNames = roleRows.map((r) => r.roleName);
   const allPermissions = [...new Set(roleRows.flatMap((r) => r.permissions || []))];
-
-  // Load linked patient IDs (for ABAC)
-  const linkRows = await db
-    .select({ patientId: caregiverLinks.patientId })
-    .from(caregiverLinks)
-    .where(
-      and(
-        eq(caregiverLinks.userId, userId),
-        isNull(caregiverLinks.revokedAt)
-      )
-    );
 
   return {
     userId: userRow.id,
