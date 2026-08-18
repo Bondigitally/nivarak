@@ -6,7 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 
 /** Underline on hover — opacity fade */
 export const linkUnderlineClassName = cn(
@@ -19,7 +19,7 @@ export const linkUnderlineClassName = cn(
 const buttonVariants = cva(
   cn(
     'inline-flex items-center justify-center gap-2 whitespace-nowrap',
-    authType.button,
+    typo.button,
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:stroke-[1.5] [&_svg_*]:stroke-[1.5]',
   ),
   {

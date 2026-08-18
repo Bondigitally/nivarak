@@ -1,4 +1,4 @@
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 
 interface OrDividerProps {
   children?: React.ReactNode;
@@ -9,7 +9,7 @@ export function OrDivider({ children }: OrDividerProps) {
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="h-px flex-1 bg-border" />
-        <span className={`${authType.caption} uppercase tracking-[0.06em]`}>OR</span>
+        <span className={`${typo.caption} uppercase tracking-[0.06em]`}>OR</span>
         <div className="h-px flex-1 bg-border" />
       </div>
       {children}
