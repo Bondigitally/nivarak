@@ -34,9 +34,9 @@ function AuthShell({
         initial={false}
         animate={{ opacity: ready ? 1 : 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-6 pointer-events-none lg:items-end lg:justify-center lg:px-16"
+        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-auth-shell-x py-auth-shell-y pointer-events-none lg:items-end lg:justify-center"
       >
-        <div className="pointer-events-auto w-full max-w-180">{children}</div>
+        <div className="pointer-events-auto w-full lg:max-w-auth-card">{children}</div>
       </motion.div>
     </div>
   );

@@ -14,7 +14,7 @@ interface AuthCardProps {
   flowKey?: string;
 }
 
-/** Design: 720px · 20px radius · 64px pad · 32px section gap · soft Shadow/SM */
+/** Fluid card: width, padding, and section gap scale with the viewport */
 export function AuthCard({
   children,
   className,
@@ -30,9 +30,9 @@ export function AuthCard({
   return (
     <div
       className={cn(
-        'flex w-full max-w-180 flex-col gap-8 rounded-[20px] border border-border bg-card',
-        'p-8 shadow-[0_2px_8px_rgba(17,24,39,0.05)]',
-        'lg:gap-8 lg:p-16',
+        'flex w-full flex-col gap-auth-section rounded-large border border-border bg-card',
+        'lg:max-w-auth-card',
+        'px-auth-pad-x py-auth-pad-y shadow-[0_2px_8px_rgba(17,24,39,0.05)]',
         className,
       )}
     >

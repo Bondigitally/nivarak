@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { OtpInput } from '@/components/auth/primitives/OtpInput';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import { cn } from '@/lib/utils';
 
 interface OtpVerifyStepProps {
@@ -11,6 +11,8 @@ interface OtpVerifyStepProps {
   destination: string;
   submitLabel?: string;
   changeDestinationLabel?: string;
+  /** When false, parent already rendered the title (e.g. AuthHeader) */
+  showHeading?: boolean;
   onVerify?: (otp: string) => Promise<void> | void;
   onResend?: () => void;
   onChangeDestination?: () => void;
@@ -24,6 +26,7 @@ export function OtpVerifyStep({
   destination,
   submitLabel = 'Verify & Continue',
   changeDestinationLabel = 'Change Email',
+  showHeading = true,
   onVerify,
   onResend,
   onChangeDestination,
@@ -50,33 +53,36 @@ export function OtpVerifyStep({
   }
 
   return (
-    <div className="flex w-full flex-col gap-8">
-      <div className="flex w-full flex-col gap-2">
-        <h1 className={authType.headingXxl}>Enter Verification Code</h1>
-        <p className={authType.bodyL}>
-          We&apos;ve sent a 6-digit verification code to{' '}
-          <span className="text-foreground">{destination}</span>
-        </p>
+    <div className="flex w-full flex-col gap-6">
+      {showHeading && (
+        <div className="flex w-full flex-col gap-2">
+          <h1 className={typo.headingXxl}>Enter Verification Code</h1>
+          <p className={typo.bodyL}>
+            We&apos;ve sent a 6-digit OTP on{' '}
+            <span className="text-foreground">{destination}</span>
+          </p>
+        </div>
+      )}
+
+      <div className="flex w-full flex-col gap-1">
+        <OtpInput value={otp} onChange={setOtp} disabled={loading} error={error ?? undefined} />
+        <Button
+          type="button"
+          size="cta"
+          className="w-full"
+          loading={loading}
+          onClick={handleVerify}
+        >
+          {submitLabel}
+        </Button>
       </div>
-
-      <OtpInput value={otp} onChange={setOtp} disabled={loading} error={error ?? undefined} />
-
-      <Button
-        type="button"
-        size="cta"
-        className="w-full"
-        loading={loading}
-        onClick={handleVerify}
-      >
-        {submitLabel}
-      </Button>
 
       <div className="flex w-full flex-col items-center gap-2 text-center">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className={authType.bodyM}>Haven&apos;t received the OTP?</span>
+          <span className={typo.bodyM}>Haven&apos;t received the OTP?</span>
           <button
             type="button"
-            className={cn(authType.link, 'disabled:opacity-50')}
+            className={cn(typo.link, 'disabled:opacity-50')}
             disabled={loading}
             onClick={onResend}
           >
@@ -85,7 +91,7 @@ export function OtpVerifyStep({
         </div>
         <button
           type="button"
-          className={cn(authType.link, 'disabled:opacity-50')}
+          className={cn(typo.link, 'disabled:opacity-50')}
           disabled={loading}
           onClick={onChangeDestination}
         >

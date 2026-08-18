@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, type ReactNode } from 'react';
 import type { AuthMode } from '@/types/auth';
 import { AuthCard } from '@/components/auth/layout/AuthCard';
 import { AuthHeader } from '@/components/auth/primitives/AuthHeader';
@@ -13,14 +12,22 @@ import type { ForgotPasswordStep } from '@/components/auth/forms/ForgotPasswordF
 import { PhoneOtpStep } from '@/components/auth/steps/PhoneOtpStep';
 import { CompleteProfileStep } from '@/components/auth/steps/CompleteProfileStep';
 import { ApiError } from '@/lib/api';
-import { authType } from '@/lib/auth/typography';
 
-type RegisterStep = 'phone-otp' | 'complete-profile';
+type RegisterStep = 'phone' | 'otp' | 'complete-profile';
 type LoginMethod = 'email' | 'phone';
 
 interface AuthScreenProps {
   mode: AuthMode;
   initialPhone?: string;
+}
+
+function otpOnPhoneSubtitle(phone: string): ReactNode {
+  return (
+    <>
+      We&apos;ve sent a 6-digit OTP on{' '}
+      <span className="text-foreground">{phone}</span>
+    </>
+  );
 }
 
 const FORGOT_COPY: Record<
@@ -47,30 +54,35 @@ const FORGOT_COPY: Record<
 
 export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
   const [registerStep, setRegisterStep] = useState<RegisterStep>(
-    initialPhone ? 'complete-profile' : 'phone-otp',
+    initialPhone ? 'complete-profile' : 'phone',
   );
   const [phone, setPhone] = useState(initialPhone ?? '');
-  const [registerOtpSent, setRegisterOtpSent] = useState(false);
-  const [registerError, setRegisterError] = useState<string | null>(null);
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('phone');
+  const [loginOtpSent, setLoginOtpSent] = useState(false);
+  const [loginPhone, setLoginPhone] = useState('');
   const [forgotStep, setForgotStep] = useState<ForgotPasswordStep>('email');
 
-  let title = mode === 'login' ? 'Welcome Back' : 'Create Your Account';
-  let subtitle =
+  let title: string = mode === 'login' ? 'Welcome Back' : 'Create Your Account';
+  let subtitle: ReactNode =
     mode === 'login'
       ? loginMethod === 'email'
         ? 'Enter your email and password to continue'
         : 'Enter your phone number to login'
       : 'Enter your phone number to get started';
 
-  if (mode === 'forgot-password') {
+  if (mode === 'login' && loginOtpSent) {
+    title = 'Enter Verification Code';
+    subtitle = loginPhone
+      ? otpOnPhoneSubtitle(loginPhone)
+      : 'Enter the 6-digit OTP sent to your phone';
+  } else if (mode === 'forgot-password') {
     title = FORGOT_COPY[forgotStep].title;
     subtitle = FORGOT_COPY[forgotStep].subtitle;
   } else if (mode === 'register') {
     if (registerStep === 'complete-profile') {
       title = 'Complete Your Profile';
       subtitle = 'Your phone is verified. Finish setting up your account.';
-    } else if (registerOtpSent) {
+    } else if (registerStep === 'otp') {
       title = 'Enter Verification Code';
       subtitle = phone
         ? `We've sent a 6-digit code to ${phone}`
@@ -83,14 +95,12 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
 
   const flowKey =
     mode === 'login'
-      ? `login-${loginMethod}`
+      ? loginOtpSent
+        ? 'login-otp'
+        : `login-${loginMethod}`
       : mode === 'forgot-password'
         ? `forgot-${forgotStep}`
-        : registerStep === 'complete-profile'
-          ? 'register-onboarding'
-          : registerOtpSent
-            ? 'register-otp'
-            : 'register-phone';
+        : `register-${registerStep}`;
 
   async function handleRegisterOtpVerified(mobile: string) {
     setPhone(mobile);
@@ -101,10 +111,8 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
     fullName: string;
     email: string;
     password: string;
-    confirmPassword: string;
     agreeToTerms: boolean;
   }) {
-    setRegisterError(null);
     throw new ApiError(501, 'Account creation will use Cognito. Not wired yet.');
   }
 
@@ -113,7 +121,7 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
       <AuthFlowTransition
         flowKey={flowKey}
         playInitial
-        className="flex flex-col gap-8"
+        className="flex flex-col gap-auth-stack"
       >
         <AuthHeader title={title} subtitle={subtitle} />
 
@@ -121,49 +129,34 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
           <LoginForm
             loginMethod={loginMethod}
             onLoginMethodChange={setLoginMethod}
+            phoneOtpSent={loginOtpSent}
+            phone={loginPhone}
+            onPhoneOtpPhaseChange={(phase, mobile) => {
+              setLoginOtpSent(phase === 'otp');
+              if (mobile) setLoginPhone(mobile);
+            }}
           />
         ) : mode === 'forgot-password' ? (
           <ForgotPasswordForm onStepChange={setForgotStep} />
-        ) : registerStep === 'phone-otp' ? (
+        ) : registerStep === 'complete-profile' ? (
+          <CompleteProfileStep onSubmit={handleCompleteProfile} />
+        ) : (
           <PhoneOtpStep
             onVerified={handleRegisterOtpVerified}
             submitLabel="Verify & Continue"
+            initialPhone={phone || undefined}
+            initialOtpSent={registerStep === 'otp'}
             onPhaseChange={(phase, mobile) => {
-              setRegisterOtpSent(phase === 'otp');
+              setRegisterStep(phase === 'otp' ? 'otp' : 'phone');
               if (mobile) setPhone(mobile);
             }}
           />
-        ) : (
-          <>
-            {registerError && (
-              <p className={authType.error} role="alert">
-                {registerError}
-              </p>
-            )}
-            <CompleteProfileStep
-              onSubmit={async (values) => {
-                try {
-                  await handleCompleteProfile(values);
-                } catch (err) {
-                  setRegisterError(
-                    err instanceof ApiError ? err.message : 'Registration failed.',
-                  );
-                  throw err;
-                }
-              }}
-            />
-          </>
         )}
 
-        {mode === 'login' ? (
-          <AuthFooter variant="signup" />
-        ) : mode === 'forgot-password' ? null : (
-          <div className="flex items-center justify-center gap-2 py-1 text-center">
-            <span className={authType.bodyM}>Already have an account?</span>
-            <Link href="/login" className={authType.link}>
-              Log In
-            </Link>
-          </div>
+        {((mode === 'login' && loginOtpSent) ||
+        (mode === 'register' && registerStep === 'otp') ||
+        mode === 'forgot-password') ? null : (
+          <AuthFooter variant={mode === 'login' ? 'signup' : 'login'} />
         )}
       </AuthFlowTransition>
     </AuthCard>
