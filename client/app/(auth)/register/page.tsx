@@ -1,8 +1,21 @@
-export default function RegisterPage() {
+import { headers } from 'next/headers';
+import { AuthScreen } from '@/components/auth/AuthScreen';
+import type { Portal } from '@/types/auth';
+
+interface RegisterPageProps {
+  searchParams: Promise<{ phone?: string }>;
+}
+
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+  const headerList = await headers();
+  const portal = (headerList.get('x-nivarak-portal') ?? 'consumer') as Portal;
+  const params = await searchParams;
+
   return (
-    <div>
-      <h1 className="text-xl font-bold">Register Page</h1>
-      <p className="text-muted-foreground">Route: /register</p>
-    </div>
+    <AuthScreen
+      portal={portal}
+      mode="register"
+      initialPhone={params.phone}
+    />
   );
 }

@@ -1,0 +1,563 @@
+NIVARAK
+Preventive Medical Supervision for Independent Ageing
+COMPREHENSIVE GERIATRIC ASSESSMENT
+Home Visit — Clinical Assessment Form
+VISIT & PATIENT DETAILS
+Date of visit:
+Time:
+Visit number:
+Assessing clinician:
+Designation / qualification:
+Patient full name:
+Date of birth:
+Age:
+Gender:
+Home address:
+Patient mobile:
+Family contact name & number:
+Family location (city / country):
+Relationship to patient:
+Living situation
+□ Alone     □ With spouse / partner     □ With adult child     □ With hired help     □ Care home / assisted living
+Primary language
+□ English     □ Hindi     □ Marathi     □ Other
+Referral source:
+GP / primary physician name:
+SECTION 1  —  MEDICAL HISTORY & ACTIVE DIAGNOSES
+1.1  Active diagnoses
+#
+Diagnosis
+Duration / onset
+Treating specialist / hospital
+1
+2
+3
+4
+5
+6
+7
+1.2  Relevant past history
+⚠  Include previous major illnesses, surgeries, significant investigations.
+Past medical / surgical history:
+1.3  Family history
+Relevant family history (heart disease, diabetes, dementia, cancer, osteoporosis):
+1.4  Hospitalisation — last 2 years
+Date
+Reason / diagnosis
+Hospital
+Duration / outcome
+1.5  Allergies
+Known allergies (drug / food / other) and reactions:
+SECTION 2  —  MEDICATION REVIEW
+⚠  Apply STOPP/START criteria. Flag: Beers-list drugs, anticholinergics, nephrotoxics, sedatives, antihypertensives with postural risk, polypharmacy (≥5 drugs).
+#
+Drug name & dose
+Frequency
+Indication
+Duration
+Concerns / flags
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+Total medications:
+Supplements / OTC / herbal:
+Medications stopped by patient independently:
+Adherence
+□ Good     □ Occasional misses     □ Frequent misses     □ Unable to assess
+Administration
+□ Self-manages     □ Carer administers     □ Blister pack used     □ Swallowing difficulty     □ Cannot open packaging
+Medication storage
+□ Appropriate     □ Concerns noted
+Medication review summary / recommendations (STOPP/START / deprescribing):
+SECTION 3  —  PHYSICAL ASSESSMENT
+3.1  Vitals
+BP (sitting)
+Pulse
+SpO2
+Temp
+Weight (kg)
+Height (cm)
+BMI
+Postural BP (lying → standing)
+□ Not checked     □ No drop     □ Drop >20 mmHg systolic     □ Symptomatic on standing
+⚠  Check lying BP after 5 min, then immediate / 1 min / 3 min standing. Postural hypotension = drop >20 mmHg systolic or >10 mmHg diastolic with symptoms.
+Nutritional appearance
+□ Normal     □ Loose skin / recent weight loss     □ Poorly fitting clothing     □ Cachexia / wasting
+3.2  Systemic examination
+⚠  Document all systems. Note findings relevant to active diagnoses. Describe all abnormals.
+Cardiovascular
+□ Normal     □ Irregular rhythm     □ Murmur     □ Peripheral oedema     □ Raised JVP     □ Other
+Respiratory
+□ Normal     □ Wheeze     □ Crepitations     □ Reduced air entry     □ Other
+Abdomen
+□ Normal     □ Tenderness     □ Organomegaly     □ Ascites     □ Constipation suspected     □ Other
+Neurological (gross)
+□ Normal     □ Focal deficit     □ Tremor     □ Rigidity     □ Sensory loss     □ Other
+Musculoskeletal
+□ Normal     □ Joint swelling / OA     □ Kyphosis / postural change     □ Limited range of movement     □ Pain on movement     □ Other
+Skin
+□ Normal     □ Oedema     □ Pressure area risk     □ Ulcer / wound     □ Rash     □ Pallor     □ Other
+Feet
+□ Normal     □ Oedema     □ Ulcer / wound     □ Fungal nails     □ Poor perfusion     □ Sensory loss     □ Inappropriate footwear
+Oral health
+□ Normal     □ Dentures — well fitting     □ Dentures — poor fit     □ Dental concerns     □ Poor hygiene
+Vision (gross)
+□ Normal / corrected     □ Reduced acuity     □ Not assessed
+Hearing (gross)
+□ Normal / aided     □ Reduced     □ Not assessed
+Examination findings — additional detail:
+SECTION 4  —  MOBILITY, BALANCE & FALLS
+⚠  BGS: Perform mobility assessment in all older adults with frailty. TUG and chair stand are standard home visit tests requiring no equipment.
+4.1  Falls history
+Falls in last 12 months
+□ None     □ One fall     □ Two or more falls
+If falls occurred — circumstances
+□ Mechanical / trip     □ Dizziness / postural     □ Blackout / syncope     □ No warning / unexplained     □ Night-time (toilet trip)     □ Unable to recall
+Consequences of falls
+□ None     □ Soft tissue injury     □ Fracture     □ Loss of confidence     □ Restricted activity
+Fear of falling
+□ None     □ Mild — some avoided activities     □ Significant restriction of activity
+Last fall (date / approximate):
+Was medical attention sought?:
+4.2  Mobility assessment
+Walking aids
+□ None     □ Walking stick     □ Zimmer frame / walker     □ Wheelchair     □ Housebound
+Outdoor mobility
+□ Independent outdoors     □ Outdoors with company only     □ Indoors only     □ Bedbound / chair-bound
+Timed Up and Go (TUG)
+Time (secs):
+Interpretation:
+⚠  Normal <12 secs (age 65–99). >12 secs: mobility impairment. Note: only perform if patient can walk without aid.
+180-degree turn test
+Steps to turn:
+Interpretation:
+⚠  ≥5 steps: increased falls risk / balance impairment.
+Gait speed (4 metres)
+Time (secs):
+Interpretation:
+⚠  >5 secs (i.e. <0.8 m/s): slow gait speed — higher falls and mortality risk.
+Chair stand (without arms)
+□ Able     □ Requires arms     □ Unable
+Gait pattern observed
+□ Normal     □ Shuffling / short steps     □ Wide-based     □ Antalgic     □ Parkinsonian features     □ Foot drop     □ Ataxic     □ Circumduction
+Balance (clinical impression)
+□ Normal     □ Mild impairment     □ Moderate impairment — risk of falls     □ Severe — requires constant support
+Mobility / gait / falls observations:
+4.3  Environmental fall hazards observed
+Hazards
+□ None obvious     □ Loose mats / carpets     □ Poor lighting     □ Cluttered walkways     □ No grab rails (bathroom / toilet)     □ Wet bathroom floor     □ Steps without rail     □ Low seating
+Environmental observations / recommendations:
+SECTION 5  —  BONE HEALTH
+Fragility fracture history
+□ None     □ Wrist     □ Vertebral / height loss     □ Hip     □ Other low-impact fracture
+Osteoporosis diagnosis
+□ None known     □ Confirmed osteoporosis     □ Osteopenia     □ Unknown
+Risk factors
+□ Female post-menopausal     □ Prolonged steroid use     □ Low BMI (<20)     □ Excess alcohol     □ Smoking     □ Sedentary     □ Family history of osteoporosis     □ Malabsorption
+FRAX / QFracture score (if available):
+DXA result (if available):
+Serum calcium:
+Alkaline phosphatase:
+Vitamin D (25-OH):
+Current bone health treatment
+□ None     □ Calcium + Vitamin D supplementation     □ Bisphosphonate     □ Other treatment     □ Not assessed
+Sunlight exposure
+□ Adequate     □ Limited     □ Minimal
+Bone health assessment / plan:
+SECTION 6  —  COGNITIVE ASSESSMENT
+⚠  Use GP-Cog (5 min, includes informant interview) or MoCA (requires registration at mocatest.org). AMTS is a fast screen but misses executive dysfunction.
+6.1  Screening tool
+GP-Cog (patient section)
+Score / 9:
+Interpretation:
+GP-Cog (informant score)
+Score / 6:
+Interpretation:
+⚠  GP-Cog: patient ≤5 and/or informant ≤3 suggests further assessment needed.
+MoCA (if used)
+Score / 30:
+Interpretation:
+⚠  MoCA: ≥26 normal; 18–25 mild impairment; <18 moderate-severe.
+AMTS (if used)
+Score / 10:
+Interpretation:
+⚠  AMTS: ≥8 normal; 7 borderline; ≤6 suggests cognitive impairment.
+6.2  Cognitive observations
+Alertness / attention
+□ Normal     □ Easily distracted     □ Drowsy     □ Hypervigilant
+Orientation
+□ Fully oriented     □ Disoriented to time     □ Disoriented to place     □ Confused
+Memory (clinical impression)
+□ Normal     □ Mild forgetfulness — not affecting daily life     □ Affecting daily functioning     □ Significant decline
+Language / communication
+□ Normal     □ Word-finding difficulty     □ Reduced fluency     □ Significant impairment
+Informant report (last 12 months)
+□ No concerns     □ Forgetful but manageable     □ Affecting daily tasks     □ Marked deterioration
+Delirium risk
+□ No delirium features     □ Possible delirium — acute / fluctuating confusion     □ Active delirium — refer
+⚠  Use 4AT for rapid delirium screen if acute confusion present. Delirium = acute onset + inattention + fluctuating course.
+Cognitive assessment detail / clinical observations:
+SECTION 7  —  PSYCHOLOGICAL ASSESSMENT — MOOD & DEPRESSION
+⚠  Depression prevalence 5–10% in over-65s; frequently under-recognised. Ask mood questions privately where possible.
+Geriatric Depression Scale — GDS-15
+Score / 15:
+Interpretation:
+⚠  GDS-15: 0–4 normal; 5–8 mild; 9–11 moderate; 12–15 severe depression.
+PHQ-2 screen (if GDS not used)
+□ Negative     □ Positive — proceed to GDS or PHQ-9
+7.1  Mood observations
+Affect
+□ Euthymic     □ Flat / blunted     □ Tearful     □ Anxious     □ Irritable
+Psychomotor
+□ Normal     □ Retardation noted     □ Agitation noted
+Sleep
+□ Normal     □ Difficulty initiating     □ Early waking     □ Excessive daytime sleep
+Suicidal ideation
+□ None     □ Passive thoughts only     □ Active ideation — requires urgent referral
+⚠  Risk factors for suicide in older people: male gender, social isolation, bereavement, chronic pain, alcohol use, previous attempts.
+Anxiety
+□ None     □ Mild — not affecting function     □ Affecting daily activities     □ Significant
+Loneliness / isolation
+□ Good social contact     □ Mild isolation     □ Significant isolation     □ Housebound and alone
+Psychological observations / management plan:
+SECTION 8  —  DELIRIUM ASSESSMENT
+⚠  Delirium = acute confusional state, usually with fluctuating course. Diagnose using Confusion Assessment Method (CAM). Community prevalence 1–2%; rises to 14% in over-85s.
+8.1  4AT rapid assessment
+Item
+Finding
+Score
+Alertness (AVPU)
+0 / 4
+AMT4 (age, DOB, place, year)
+0 / 1 / 2
+Attention (months of year backwards)
+0 / 1 / 2
+Acute change / fluctuating course
+0 / 4
+TOTAL 4AT SCORE
+/ 12
+⚠  4AT ≥4: possible delirium. 1–3: possible cognitive impairment. 0: delirium / severe cognitive impairment unlikely.
+8.2  CAM criteria (if delirium suspected)
+1. Acute onset & fluctuating course
+□ No     □ Yes
+2. Inattention
+□ No     □ Yes
+3. Disorganised thinking
+□ No     □ Yes
+4. Altered consciousness
+□ Alert (normal)     □ Hyperalert     □ Drowsy     □ Stuporous
+⚠  CAM diagnosis: features 1 AND 2, plus EITHER 3 OR 4.
+Delirium assessment observations / precipitants / management plan:
+SECTION 9  —  FUNCTIONAL ASSESSMENT (ADL & iADL)
+9.1  Barthel Index — Activities of Daily Living
+⚠  Score each item. Document change from prior level. Barthel ceiling effect: patient may score well yet still depend on others for iADL.
+Activity
+Independent
+With help
+Unable
+Score
+Feeding (10)
+□
+□
+□
+Bathing (5)
+□
+□
+□
+Grooming (5)
+□
+□
+□
+Dressing (10)
+□
+□
+□
+Bowel control (10)
+□
+□
+□
+Bladder control (10)
+□
+□
+□
+Toilet use (10)
+□
+□
+□
+Transfers — bed to chair (15)
+□
+□
+□
+Mobility on level surface (15)
+□
+□
+□
+Stairs (10)
+□
+□
+□
+TOTAL BARTHEL SCORE
+Score:            / 100
+9.2  Nottingham Extended ADL — Instrumental Activities
+Activity
+Independent
+With help
+Unable / comment
+Managing medications
+□
+□
+Managing finances / bills
+□
+□
+Using telephone / smartphone
+□
+□
+Shopping / ordering groceries
+□
+□
+Preparing meals
+□
+□
+Housekeeping / laundry
+□
+□
+Using transport / travelling outdoors
+□
+□
+Driving
+□
+□
+Functional trajectory — change from prior level (patient / family report):
+SECTION 10  —  SOCIAL & ENVIRONMENTAL ASSESSMENT
+⚠  Social and financial circumstances directly impact physical and mental wellbeing, treatment adherence, and frequency of emergency attendance.
+10.1  Social circumstances
+Primary carer / support
+□ None — fully independent     □ Spouse / partner     □ Adult child (co-resident)     □ Adult child (nearby)     □ Hired domestic / carer     □ Formal care agency
+Carer strain
+□ No carer     □ Carer coping well     □ Some strain noted     □ Significant carer burden
+Social engagement
+□ Active     □ Some social contact     □ Minimal — risk of isolation     □ Completely isolated
+Community participation
+□ Religious / social group     □ Exercise / walking group     □ Neighbourhood / colony contact     □ None
+Driving / transport
+□ Drives independently     □ Uses public transport     □ Dependent on others     □ Housebound
+Financial situation (care planning relevance)
+□ Self-sufficient     □ Family-supported     □ Potential concerns
+10.2  Home environment
+Property type
+□ Independent house     □ Apartment / flat     □ Gated community     □ Joint family household     □ Care home / assisted living
+Stairs / steps
+□ None     □ Steps at entry only     □ Internal stairs used regularly
+Bathroom safety
+□ Safe — grab rails present     □ No grab rails     □ Non-slip mat absent     □ Combined shower / bath risk     □ Commode / bath chair in use
+Safety devices
+□ Personal alarm / emergency button     □ Smoke detector     □ None
+Social / environmental observations / referrals:
+SECTION 11  —  URINARY INCONTINENCE
+⚠  Screen all older patients. Two in five women over 60 affected. Urgency to toilet significantly increases falls risk.
+Continence status
+□ Fully continent     □ Stress incontinence     □ Urge incontinence     □ Mixed     □ Overflow / incomplete emptying     □ Functional incontinence
+Onset
+□ Long-standing     □ Recent / new change
+Severity
+□ Occasional leakage only     □ Regular pads / protection required     □ Significant / affecting daily life
+Nocturia
+□ None     □ 1×/night     □ 2–3×/night     □ >3×/night
+Urgency to toilet (falls risk)
+□ No urgency     □ Mild urgency     □ Significant urgency — rushing     □ Incontinence en route to toilet
+Relevant examination
+□ Normal abdomen and perineum     □ PR / pelvic examination performed     □ Bladder palpable     □ Not examined
+Urine dipstick result:
+MSU sent?:
+Incontinence assessment / management plan:
+SECTION 12  —  NUTRITIONAL ASSESSMENT & WEIGHT
+MUST score
+Score:
+Interpretation:
+⚠  MUST 0: low risk. 1: medium risk — observe. ≥2: high risk — refer dietitian. Unintentional weight loss >5% in 1 month or >10% in 6 months is a red flag.
+Weight today (kg):
+Weight 3 months ago (patient report):
+Weight change (kg):
+Appetite
+□ Good     □ Reduced     □ Poor — skipping meals     □ Very poor — minimal intake
+Swallowing
+□ Normal     □ Occasional coughing / choking     □ Difficulty with solids     □ Difficulty with liquids — refer for SLT
+Oral health (impact on eating)
+□ Not affecting eating     □ Mild     □ Significantly limiting food intake
+Taste changes
+□ None     □ Foods taste bland     □ Foods taste salty / sweet — altered     □ Off food due to taste
+Hydration
+□ Adequate     □ Borderline — encourage fluids     □ Likely dehydrated
+Alcohol intake
+□ None     □ Occasional / social     □ Regular — within safe limits     □ Excess / concern
+Dietary history / observations / plan (include protein, vitamin D, calcium assessment):
+SECTION 13  —  END OF LIFE & ADVANCE CARE PLANNING
+⚠  Many principles of CGA overlap with end of life care. Frailty correlates with prognosis but is often missed due to insidious progression. Raise sensitively where appropriate.
+Prognosis awareness
+□ Patient appears to have realistic awareness     □ Limited awareness     □ Prefers not to discuss
+Advance care planning discussed
+□ Not yet raised     □ Introduced — patient open to discussion     □ Advance statement in place     □ ADRT in place     □ Lasting Power of Attorney in place
+Preferred place of care (if discussed)
+□ Home     □ Hospital     □ Hospice / palliative unit     □ Not discussed
+CPR decision (if discussed)
+□ Not discussed     □ DNACPR in place     □ For full resuscitation
+Palliative / supportive care needs
+□ None currently     □ Symptom control needs identified     □ Palliative care referral indicated
+Carer awareness of patient's wishes
+□ Yes — family aware     □ Partial awareness     □ Not discussed with family
+End of life / advance care planning notes:
+SECTION 14  —  INVESTIGATIONS
+14.1  Recent results available
+Test
+Result
+Date
+Action / flag
+Urea & electrolytes
+Serum creatinine / eGFR
+Glucose / HbA1c
+Full blood count (FBC)
+Haemoglobin
+Liver function tests
+Calcium / phosphate
+Thyroid function (TSH)
+Vitamin D (25-OH)
+Vitamin B12 / folate
+Lipid profile
+C-reactive protein (CRP)
+PSA (if appropriate)
+ECG
+Chest X-ray
+Urinalysis / MSU
+Bone density (DXA)
+Other
+14.2  Investigations ordered from this visit
+Tests requested today:
+SECTION 15  —  FRAILTY SYNDROME SUMMARY FLAGS
+⚠  Tick all that apply. These feed the problem list and care plan priorities.
+□
+Falls — one or more in last 12 months
+□
+Polypharmacy (≥5 drugs)
+□
+Delirium — recent or current episode
+□
+Unintentional weight loss (>5% in 3 months)
+□
+Cognitive impairment identified
+□
+Depression screen positive
+□
+Urinary incontinence — new or worsening
+□
+Bone health risk / fragility fracture history
+□
+Reduced mobility — new decline
+□
+Pain — chronic, affecting function
+□
+Significant social isolation
+□
+Caregiver strain
+□
+High-risk prescribing identified
+□
+Swallowing / nutrition concerns
+□
+End of life — advance care planning needed
+□
+Environmental hazards identified
+SECTION 16  —  PROBLEM LIST
+⚠  Develop collaboratively with patient and family. Prioritise: acute / high-risk problems first. Problems in frailty often interact — average of 6 per patient.
+#
+Domain
+Problem / issue identified
+Priority (High / Medium / Low)
+1
+Medical
+2
+Medical
+3
+Medicines
+4
+Mobility / bone
+5
+Cognitive
+6
+Psychological
+7
+Nutritional
+8
+Social / environmental
+9
+Continence
+10
+End of life / advance care
+SECTION 17  —  PERSONALISED CARE & SUPPORT PLAN
+⚠  BGS: Care planning is a continuous, collaborative process — not a one-off event. Goals should be patient-centred, SMART, and linked to functional outcomes that matter to the individual.
+17.1  What matters most to the patient
+Patient's goals in their own words (Goal 1):
+Patient's goals in their own words (Goal 2):
+Family / carer concerns and priorities:
+17.2  Action plan
+#
+Action / intervention
+Responsible person
+Timeframe
+Status
+1
+2
+3
+4
+5
+6
+7
+8
+17.3  Referrals made / planned
+Referral to
+Reason
+Urgency
+Date sent
+17.4  Escalation plan
+⚠  Document clearly so patient, family and carer know what to do if condition changes between reviews.
+Signs / symptoms requiring prompt GP or specialist contact:
+Signs / symptoms requiring emergency services (999 / ambulance):
+17.5  Review plan
+Next scheduled review:
+Review type (home visit / teleconsult / clinic):
+Other review / follow-up arrangements:
+SECTION 18  —  MENTAL CAPACITY
+⚠  Capacity is assumed present unless shown otherwise. Capacity is decision-specific — assess for each significant decision separately.
+Capacity (re: decisions discussed today)
+□ Capacity assumed — no concerns     □ Capacity formally assessed — present     □ Capacity formally assessed — absent for specific decision     □ Capacity uncertain — further assessment needed
+Formal capacity assessment performed
+□ Not required     □ Yes — documented separately
+Lasting Power of Attorney in place
+□ No     □ Yes — health and welfare     □ Yes — property and financial     □ Both
+Named next of kin / decision-maker
+□ Patient manages own decisions     □ Family member (named below)     □ Legal guardian / attorney
+Named decision-maker / attorney (if applicable):
+Mental capacity notes:
+SECTION 19  —  CLINICIAN SIGN-OFF
+Assessing clinician (print name):
+Designation / qualification:
+Signature:
+Date:
+Time assessment completed:
+Total visit duration (mins):
+Patient / family informed of findings
+□ Yes — verbal debrief given     □ Written report to follow     □ Pending supervisor review
+Summary impression / key clinical concerns for supervising clinician:
+Reviewed by (supervising clinician):
+Date reviewed:
+Reviewer signature:
+Countersignature date:
+Confidential clinical record  —  Nivarak Preventive Eldercare  |  Pune, India

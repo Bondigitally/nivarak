@@ -1,0 +1,480 @@
+NIVARAK PORTAL SYSTEM
+Data Field Specification — 6 Domain Encounter Framework
+For Tech Architecture Meeting | Friday
+Purpose of this document
+This specification defines the data fields required for each of the 6 care domains within a Nivarak encounter record. Every visit — home visit, telehealth, carer observation, or professional assessment — must capture a status indicator for all 6 domains. Fields are organised into three tiers:
+TIER 1: Quick Status (mandatory on every encounter — cannot submit without this)
+TIER 2: Observation Notes (optional free-text, completed when something is noted)
+TIER 3: Escalation Flag (triggers a follow-up action or specialist referral)
+💊  DOMAIN 1 — Medical & Medicines
+Anchor domain — opens every encounter. Captures current medication status, vitals, chronic condition review, and acute concerns. Most clinicians default to this domain so it sets the clinical baseline for the full record.
+Tier 1 — Quick Status Fields (mandatory)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Medications Status
+Single select
+Yes
+No change / New medication added / Medication removed / Dose changed / Concerns flagged
+Any change or concern flagged
+Vitals Recorded
+Checkbox + values
+Yes
+BP, pulse, weight, temperature, SpO2 — each optional sub-field
+BP >160/100 or <90/60; SpO2 <94%; Temp >38.5°C
+Chronic Condition Status
+Single select
+Yes
+Stable / Deteriorating / Improved / New condition identified
+Deteriorating or new condition
+Acute Concern Present
+Boolean
+Yes
+Yes / No
+Yes → mandatory notes + referral prompt
+Tier 2 — Observation Notes (optional)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Medication Adherence Observed
+Single select
+No
+Taking as prescribed / Partial adherence / Not taking / Unable to assess
+Partial or not taking
+Side Effects Reported
+Multi-select + text
+No
+Nausea / Dizziness / Fatigue / Confusion / Other (free text)
+Confusion → cognitive domain flag
+Prescriber Review Needed
+Boolean
+No
+Yes / No
+Yes → auto-task to GP/specialist
+Pain Level
+Numeric (0–10)
+No
+0 = none, 10 = severe
+Score ≥7
+Clinician Notes — Medical
+Free text
+No
+Open text field, 2000 char max
+—
+Tier 3 — Escalation Fields
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Escalation Level
+Single select
+No
+None / Monitor / GP Review / Emergency Referral
+Emergency Referral → alert sent
+Referred To
+Single select + text
+No
+GP / Specialist / Hospital / Pharmacist / Other
+—
+Referral Date / Urgency
+Date + select
+No
+Routine (14 days) / Urgent (48hrs) / Emergency (same day)
+Urgent or Emergency → notification
+🦿  DOMAIN 2 — Mobility
+Captured through observation during the visit rather than as a formal test. Observed movement during greeting, transitioning to chair, or reaching for items provides baseline data. Formal assessment is an escalation, not a default.
+Tier 1 — Quick Status Fields (mandatory)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Mobility Status — Observed
+Single select
+Yes
+No change from last visit / Improved / Declined / First visit baseline
+Declined → formal assessment prompt
+Assistive Equipment in Use
+Multi-select
+Yes
+None / Walking stick / Frame / Rollator / Wheelchair / Hoist / Other
+New equipment since last visit → note required
+Fall in Last Period
+Boolean + date
+Yes
+Yes (date) / No / Unknown
+Yes → mandatory falls risk assessment
+Tier 2 — Observation Notes (optional)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Gait & Balance — Observed
+Single select
+No
+Normal / Steady with aid / Unsteady / Unable to mobilise
+Unsteady or unable to mobilise
+Transfer Ability
+Single select
+No
+Independent / Needs prompting / Needs assistance / Fully dependent
+Needs assistance → carer plan review
+Pain on Movement
+Boolean + location
+No
+Yes (location free text) / No
+Yes → medical domain flag
+Home Environment Risk
+Multi-select
+No
+Trip hazards / Poor lighting / Stairs without rail / Wet room needed / None identified
+3+ risks → OT referral prompt
+Clinician Notes — Mobility
+Free text
+No
+Open text field, 2000 char max
+—
+Tier 3 — Escalation Fields
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Formal Assessment Needed
+Boolean + type
+No
+Yes (Falls Risk / TUG / Berg Balance / Other) / No
+Yes → task created
+Referral — Mobility
+Single select
+No
+Physiotherapy / OT / Falls Clinic / GP / None
+—
+Urgent Mobility Concern
+Boolean
+No
+Yes / No
+Yes → same-day notification to care coordinator
+👥  DOMAIN 3 — Social
+The hardest domain to capture systematically. Must be framed as structured observation — not conversation. Fields focus on isolation indicators, social contact frequency, and changes to living situation. The portal should prompt for specifics rather than general impressions.
+Tier 1 — Quick Status Fields (mandatory)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Social Status
+Single select
+Yes
+No change / Improved / Declined / First visit baseline
+Declined → isolation screen prompt
+Meaningful Social Contact (last 7 days)
+Single select
+Yes
+Daily / Several times / Once / None
+None → isolation flag
+Living Situation
+Single select
+Yes
+Alone / With spouse or partner / With family / Shared care home / Other
+Change from previous → notes required
+Tier 2 — Observation Notes (optional)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Isolation Indicators Observed
+Multi-select
+No
+Withdrawn / Not engaging / Expressing loneliness / Unkempt appearance / None
+2+ indicators → social referral prompt
+Carer / Family Involvement
+Single select
+No
+Active and supportive / Present but limited / Absent / No carer
+Absent → safeguarding check
+Community Participation
+Single select
+No
+Regular / Occasional / Rare / None
+None → community connector referral
+Safeguarding Concern
+Boolean
+No
+Yes / No
+Yes → mandatory escalation protocol
+Technology Access
+Multi-select
+No
+Smartphone / Tablet / Computer / Video call capable / None
+None → digital inclusion referral
+Clinician Notes — Social
+Free text
+No
+Open text field, 2000 char max
+—
+Tier 3 — Escalation Fields
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Safeguarding Level
+Single select
+No
+None / Low concern / Moderate / High — refer immediately
+Moderate or High → immediate protocol
+Referral — Social
+Single select
+No
+Social Worker / Community Connector / Volunteer Service / Carer Support / None
+—
+🥗  DOMAIN 4 — Nutritional
+Frequently under-captured unless malnutrition is obvious. Structured as a brief prompt-based screen on every visit, with escalation to dietitian or formal MUST score when red flags are present. Nutritional and cognitive domains should be cross-flagged when both show concurrent decline.
+Tier 1 — Quick Status Fields (mandatory)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Nutritional Status
+Single select
+Yes
+No change / Concern noted / Improved / First visit baseline
+Concern noted → Tier 2 completion required
+Appetite Change Since Last Visit
+Single select
+Yes
+No change / Increased / Decreased / Very poor / Unable to assess
+Decreased or very poor → weight check prompt
+Meal Preparation Capability
+Single select
+Yes
+Independent / Needs prompting / Needs assistance / Cannot prepare meals
+Cannot prepare → urgent care plan review
+Tier 2 — Observation Notes (optional)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Weight — Recorded or Estimated
+Numeric (kg) + source
+No
+Recorded (scale) / Estimated by clinician / Self-reported / Not assessed
+Loss >3kg since last visit → referral
+Hydration Status — Observed
+Single select
+No
+Adequate / Possibly dehydrated / Clearly dehydrated
+Dehydrated → medical domain flag
+Dietary Restrictions or Needs
+Multi-select + text
+No
+Diabetic / Dysphagia / Renal / Vegetarian / Cultural / Allergy (free text)
+Dysphagia → SALT referral prompt
+Food Access / Supply
+Single select
+No
+Adequate / Limited / Insufficient / Relies on delivery service
+Insufficient → social domain cross-flag
+Supplements in Use
+Free text
+No
+Open text, 500 char max
+—
+Clinician Notes — Nutritional
+Free text
+No
+Open text field, 2000 char max
+—
+Tier 3 — Escalation Fields
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+MUST Score
+Numeric (0–4+)
+No
+0 = low risk / 1 = medium / 2+ = high risk
+Score 2+ → dietitian referral
+Referral — Nutritional
+Single select
+No
+Dietitian / SALT / GP / Meals on Wheels / Food Bank / None
+—
+Cross-Flag: Cognitive + Nutritional
+Auto-generated
+No
+System flag if both domains show decline in same encounter
+Both declining → priority review
+🧠  DOMAIN 5 — Cognitive
+Embedded in natural encounter flow rather than presented as a formal test. Observed orientation, consistency of information, and ability to follow the visit itself are more valuable than snapshot test scores. Change from previous visit is the primary clinical signal. Formal screening is an escalation trigger, not default.
+Tier 1 — Quick Status Fields (mandatory)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Cognitive Status — Observed
+Single select
+Yes
+No change / Appears improved / Possible decline / Clear decline / Unable to assess
+Possible or clear decline → formal screen prompt
+Orientation — Observed During Visit
+Single select
+Yes
+Fully oriented / Minor confusion / Moderate confusion / Severely disoriented
+Moderate or severe → urgent review
+Consistency with Previous Record
+Single select
+Yes
+Consistent / Minor discrepancies / Significant discrepancies / First visit
+Significant discrepancies → cognitive flag
+Tier 2 — Observation Notes (optional)
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Memory Concern — Type Observed
+Multi-select
+No
+Short-term / Long-term / Procedural / Word-finding / No concern
+2+ types → formal assessment
+Behaviour Changes Noted
+Multi-select
+No
+Agitation / Withdrawal / Repetition / Wandering / Paranoia / None
+Agitation + wandering → safety plan review
+Medication Management Ability
+Single select
+No
+Manages independently / Needs prompting / Cannot manage independently
+Cannot manage → medicines domain cross-flag
+Capacity Concern
+Boolean
+No
+Yes / No
+Yes → formal capacity assessment required
+Carer Cognitive Report
+Single select
+No
+Carer reports no change / Carer reports concerns / No carer present
+Carer reports concerns → prioritise formal review
+Clinician Notes — Cognitive
+Free text
+No
+Open text field, 2000 char max
+—
+Tier 3 — Escalation Fields
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Formal Screening Completed
+Boolean + tool
+No
+Yes (MoCA / MMSE / 4AT / Abbreviated / Other) / No
+Score below threshold → referral
+Formal Screen Score
+Numeric
+No
+Tool-dependent range — linked to selected tool
+Below cut-off → memory service referral
+Referral — Cognitive
+Single select
+No
+Memory Service / Psychiatry / Neurologist / GP / None
+—
+Cross-Flag: Cognitive + Nutritional
+Auto-generated
+No
+System flag when both decline in same encounter
+Both declining → priority review
+Cross-Flag: Cognitive + Medicines
+Auto-generated
+No
+System flag when cognitive decline + medication non-adherence observed
+Both present → urgent medicines review
+📋  ENCOUNTER-LEVEL FIELDS — Apply to Every Visit
+These fields are not domain-specific but must be captured on every encounter record. They provide the longitudinal framework that links all 6 domain records to a person, a time, and a clinician.
+Core Encounter Metadata
+Field Name
+Input Type
+Required
+Options / Range
+Escalation Trigger
+Person ID
+Auto-generated
+Yes
+Unique identifier linked to patient record
+—
+Encounter Date & Time
+DateTime picker
+Yes
+ISO 8601 format stored in UTC
+—
+Encounter Type
+Single select
+Yes
+Home Visit / Telehealth / Clinic / Carer Report / Emergency / Review
+—
+Clinician / Professional ID
+Auto (login)
+Yes
+Linked to authenticated user role
+—
+Clinician Role
+Auto (login)
+Yes
+GP / Nurse / Carer / Physiotherapist / OT / Social Worker / Other
+—
+Primary Reason for Visit
+Single select + text
+Yes
+Medical / Medicines Review / Mobility / Social / Nutritional / Cognitive / Routine / Emergency / Other
+—
+All 6 Domains — Status Completed
+System validation
+Yes
+Cannot submit unless Tier 1 status field completed for all 6 domains
+Incomplete → form blocked from submission
+Overall Clinical Impression
+Single select
+Yes
+Stable / Monitor closely / Action required / Urgent — same day action
+Urgent → immediate notification
+Next Visit — Recommended
+Date + frequency
+No
+Date picker + Daily / Weekly / Fortnightly / Monthly / As needed
+—
+Encounter Completed By
+Auto (login) + confirm
+Yes
+Confirmed by clinician on submission
+—
+⚙️  NOTES FOR THE TECH ARCHITECT
+Data model requirements
+Every encounter record links to a Person ID — not a visit ID. This enables longitudinal domain comparison across visits.
+All Tier 1 status fields must be completed before record submission. System validation at form level — not advisory warnings.
+Cross-domain flags (Cognitive + Nutritional; Cognitive + Medicines) are system-generated — not manually entered. Logic runs on submission.
+Escalation flags must link to a task or notification record — not just a field value. The system must route the escalation, not just record it.
+Even if a simple form/spreadsheet is used in phase 1, field names and value sets must match this specification exactly to enable clean migration.
+Role-based access: clinician role (from login) determines which domains show expanded fields vs. quick status only.
+Version each encounter record — no in-place edits after submission. Amendments create a new linked record with reason for amendment.
+Key questions to resolve in the meeting
+What triggers a notification and to whom — care coordinator, GP, family? Where does escalation routing logic live?
+Is the interim data collection (pre-portal) Google Forms, Airtable, or a lightweight web form? Must match this field spec.
+How are formal screening scores (MoCA, MUST, TUG etc.) stored — raw score only, or full sub-scores?
+What is the data retention and GDPR compliance framework — especially for cognitive capacity and safeguarding records?

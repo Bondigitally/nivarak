@@ -1,8 +1,10 @@
-export default function LoginPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-bold">Login Page</h1>
-      <p className="text-muted-foreground">Route: /login</p>
-    </div>
-  );
+import { headers } from 'next/headers';
+import { AuthScreen } from '@/components/auth/AuthScreen';
+import type { Portal } from '@/types/auth';
+
+export default async function LoginPage() {
+  const headerList = await headers();
+  const portal = (headerList.get('x-nivarak-portal') ?? 'consumer') as Portal;
+
+  return <AuthScreen portal={portal} mode="login" />;
 }

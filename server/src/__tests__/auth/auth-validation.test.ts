@@ -87,7 +87,7 @@ describe('Auth Schemas', () => {
       const data = {
         phone: '+919876543210',
         fullName: 'Rajesh Kumar',
-        password: 'securePass123',
+        password: 'securePass123!',
       };
       expect(registerSchema.safeParse(data).success).toBe(true);
     });
@@ -96,7 +96,7 @@ describe('Auth Schemas', () => {
       const data = {
         phone: '+919876543210',
         fullName: 'Rajesh Kumar',
-        password: 'securePass123',
+        password: 'securePass123!',
         email: 'rajesh@example.com',
       };
       expect(registerSchema.safeParse(data).success).toBe(true);
@@ -106,7 +106,7 @@ describe('Auth Schemas', () => {
       const data = {
         phone: '+919876543210',
         fullName: 'Rajesh Kumar',
-        password: 'securePass123',
+        password: 'securePass123!',
         email: 'not-an-email',
       };
       expect(registerSchema.safeParse(data).success).toBe(false);
@@ -116,7 +116,7 @@ describe('Auth Schemas', () => {
       const data = {
         phone: '+919876543210',
         fullName: 'R',
-        password: 'securePass123',
+        password: 'securePass123!',
       };
       expect(registerSchema.safeParse(data).success).toBe(false);
     });
