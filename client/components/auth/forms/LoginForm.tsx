@@ -31,11 +31,17 @@ type LoginMethod = 'email' | 'phone';
 interface LoginFormProps {
   loginMethod: LoginMethod;
   onLoginMethodChange: (method: LoginMethod) => void;
+  phoneOtpSent?: boolean;
+  phone?: string;
+  onPhoneOtpPhaseChange?: (phase: 'phone' | 'otp', phone: string) => void;
 }
 
 export function LoginForm({
   loginMethod,
   onLoginMethodChange,
+  phoneOtpSent = false,
+  phone,
+  onPhoneOtpPhaseChange,
 }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -94,9 +100,15 @@ export function LoginForm({
     <>
       {loginMethod === 'phone' ? (
         <div className="flex w-full flex-col gap-8">
-          <PhoneOtpStep onVerified={handlePhoneOtpVerified} submitLabel="Log In" />
+          <PhoneOtpStep
+            onVerified={handlePhoneOtpVerified}
+            submitLabel="Log In"
+            initialPhone={phone || undefined}
+            initialOtpSent={phoneOtpSent}
+            onPhaseChange={onPhoneOtpPhaseChange}
+          />
 
-          <OrDivider>{secondaryActions}</OrDivider>
+          {!phoneOtpSent && <OrDivider>{secondaryActions}</OrDivider>}
         </div>
       ) : (
         <div className="flex w-full flex-col gap-8">
