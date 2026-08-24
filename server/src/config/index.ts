@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-const requiredVars = ['DATABASE_URL', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'] as const;
+const requiredVars = ['DATABASE_URL', 'JWT_ACCESS_SECRET'] as const;
 
 for (const key of requiredVars) {
   if (!process.env[key]) {
@@ -20,15 +20,6 @@ export const config = {
 
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET!,
-    refreshSecret: process.env.JWT_REFRESH_SECRET!,
-    accessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
-    refreshExpiry: process.env.JWT_REFRESH_EXPIRY || '30d',
-  },
-
-  otp: {
-    expiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES || '5', 10),
-    length: parseInt(process.env.OTP_LENGTH || '6', 10),
-    devMode: process.env.OTP_DEV_MODE === 'true',
   },
 
   cors: {

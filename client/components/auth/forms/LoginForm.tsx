@@ -12,9 +12,7 @@ import { AuthCheckbox } from '@/components/auth/primitives/AuthCheckbox';
 import { AuthField } from '@/components/auth/primitives/AuthField';
 import { OrDivider } from '@/components/auth/primitives/OrDivider';
 import { PhoneOtpStep } from '@/components/auth/steps/PhoneOtpStep';
-import { verifyOtp, ApiError } from '@/lib/api';
-import { saveAuthTokens } from '@/lib/auth';
-import { getHomeUrlForRoles } from '@/lib/auth/roles';
+import { ApiError } from '@/lib/api';
 import { authType } from '@/lib/auth/typography';
 import { loginPasswordSchema } from '@/lib/auth/password';
 
@@ -33,13 +31,11 @@ type LoginMethod = 'email' | 'phone';
 interface LoginFormProps {
   loginMethod: LoginMethod;
   onLoginMethodChange: (method: LoginMethod) => void;
-  onSuccess?: () => void;
 }
 
 export function LoginForm({
   loginMethod,
   onLoginMethodChange,
-  onSuccess,
 }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -57,12 +53,6 @@ export function LoginForm({
     onLoginMethodChange(loginMethod);
   }, [loginMethod, onLoginMethodChange]);
 
-  async function finishLogin(accessToken: string, refreshToken: string, roles: string[]) {
-    saveAuthTokens(accessToken, refreshToken);
-    onSuccess?.();
-    window.location.href = getHomeUrlForRoles(roles);
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function handleCredentialsSubmit(_: CredentialsValues) {
     setError(null);
@@ -71,16 +61,8 @@ export function LoginForm({
     );
   }
 
-  async function handlePhoneOtpVerified(phone: string, otp: string) {
-    const result = await verifyOtp(phone, otp);
-    if (result.registrationRequired) {
-      window.location.href = `/register?phone=${encodeURIComponent(phone)}`;
-      return;
-    }
-    if (!result.accessToken || !result.refreshToken || !result.user) {
-      throw new ApiError(400, 'Sign in failed.');
-    }
-    await finishLogin(result.accessToken, result.refreshToken, result.user.roles);
+  async function handlePhoneOtpVerified(_phone: string, _otp: string) {
+    throw new ApiError(501, 'Sign in will use Cognito. Not wired yet.');
   }
 
   const secondaryActions =

@@ -12,14 +12,7 @@ import { ForgotPasswordForm } from '@/components/auth/forms/ForgotPasswordForm';
 import type { ForgotPasswordStep } from '@/components/auth/forms/ForgotPasswordForm';
 import { PhoneOtpStep } from '@/components/auth/steps/PhoneOtpStep';
 import { CompleteProfileStep } from '@/components/auth/steps/CompleteProfileStep';
-import {
-  loginWithPassword,
-  registerUser,
-  verifyOtp,
-  ApiError,
-} from '@/lib/api';
-import { saveAuthTokens } from '@/lib/auth';
-import { getHomeUrlForRoles } from '@/lib/auth/roles';
+import { ApiError } from '@/lib/api';
 import { authType } from '@/lib/auth/typography';
 
 type RegisterStep = 'phone-otp' | 'complete-profile';
@@ -99,22 +92,12 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
             ? 'register-otp'
             : 'register-phone';
 
-  async function handleRegisterOtpVerified(mobile: string, otp: string) {
-    const result = await verifyOtp(mobile, otp);
-    if (result.registrationRequired) {
-      setPhone(mobile);
-      setRegisterStep('complete-profile');
-      return;
-    }
-    if (result.accessToken && result.refreshToken && result.user) {
-      saveAuthTokens(result.accessToken, result.refreshToken);
-      window.location.href = getHomeUrlForRoles(result.user.roles);
-      return;
-    }
-    throw new ApiError(400, 'Verification failed.');
+  async function handleRegisterOtpVerified(mobile: string) {
+    setPhone(mobile);
+    setRegisterStep('complete-profile');
   }
 
-  async function handleCompleteProfile(values: {
+  async function handleCompleteProfile(_values: {
     fullName: string;
     email: string;
     password: string;
@@ -122,16 +105,7 @@ export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
     agreeToTerms: boolean;
   }) {
     setRegisterError(null);
-    await registerUser({
-      phone,
-      fullName: values.fullName,
-      password: values.password,
-      email: values.email,
-    });
-
-    const loginResult = await loginWithPassword(phone, values.password);
-    saveAuthTokens(loginResult.accessToken, loginResult.refreshToken);
-    window.location.href = getHomeUrlForRoles(loginResult.user.roles);
+    throw new ApiError(501, 'Account creation will use Cognito. Not wired yet.');
   }
 
   return (

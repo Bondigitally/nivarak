@@ -7,7 +7,6 @@ import {
   PhoneField,
   isValidPhoneNumber,
 } from '@/components/auth/primitives/PhoneField';
-import { requestOtp } from '@/lib/api';
 import { OtpInput } from '@/components/auth/primitives/OtpInput';
 import { ApiError } from '@/lib/api';
 import { authType } from '@/lib/auth/typography';
@@ -58,8 +57,6 @@ export function PhoneOtpStep({
         return;
       }
 
-      const result = await requestOtp(phone);
-      setDevCode(result.otp ?? null);
       setOtpSent(true);
       onPhaseChange?.('otp', phone);
     } catch (err) {

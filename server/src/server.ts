@@ -44,10 +44,6 @@ async function main() {
       logger.info(`  Health:  http://localhost:${info.port}/health`);
       logger.info(`  Ready:   http://localhost:${info.port}/health/ready`);
       logger.info(`  API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
-
-      if (config.otp.devMode) {
-        logger.info('  🔑 OTP Dev Mode: OTPs will be logged to console (not sent via SMS)');
-      }
     }
   );
 

@@ -1,6 +1,4 @@
-import { config } from '../config/index.js';
-import { db, queryClient } from './connection.js';
-import { roles } from './schema/index.js';
+import { queryClient } from './connection.js';
 import { logger } from '../shared/logger.js';
 
 /**

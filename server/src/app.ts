@@ -100,10 +100,9 @@ app.get('/health/ready', async (c) => {
 // ─── API Routes (versioned: /api/v1) ───────────────────
 const api = new Hono();
 
-// Auth (rate limited: 10 OTP requests per minute, 20 login attempts per minute)
+// Auth (rate limited: 20 requests per minute)
 const authWithRateLimit = new Hono();
 authWithRateLimit.use('*', rateLimiter({ windowMs: 60_000, max: 20, name: 'auth_general' }));
-authWithRateLimit.use('/request-otp', rateLimiter({ windowMs: 60_000, max: 10, name: 'auth_otp' }));
 authWithRateLimit.route('/', authRoutes);
 api.route('/auth', authWithRateLimit);
 
