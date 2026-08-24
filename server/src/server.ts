@@ -37,10 +37,10 @@ async function main() {
       port: config.port,
     },
     (info) => {
-      logger.info(`✓ Server running at http://localhost:${info.port}`);
-      logger.info(`  Health:  http://localhost:${info.port}/health`);
-      logger.info(`  Ready:   http://localhost:${info.port}/health/ready`);
-      logger.info(`  API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
+      logger.info(`Server running at http://localhost:${info.port}`);
+      logger.info(`Health:  http://localhost:${info.port}/health`);
+      logger.info(`Ready:   http://localhost:${info.port}/health/ready`);
+      logger.info(`API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
     }
   );
 

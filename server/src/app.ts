@@ -89,7 +89,6 @@ app.get('/health/ready', async (c) => {
 
 const api = new Hono();
 
-// Auth (rate limited: 20 requests per minute)
 const authWithRateLimit = new Hono();
 authWithRateLimit.use('*', rateLimiter({ windowMs: 60_000, max: 20, name: 'auth_general' }));
 authWithRateLimit.route('/', authRoutes);
