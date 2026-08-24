@@ -13,17 +13,14 @@ import { seedRoles } from './db/seed.js';
 import { logger } from './shared/logger.js';
 
 async function main() {
-  logger.info('╔══════════════════════════════════════════╗');
-  logger.info('║       Nivarak API — Elder Care Platform  ║');
-  logger.info('║       Phase 1 MVP — Modular Monolith     ║');
-  logger.info('╚══════════════════════════════════════════╝');
+  logger.info('Nivarak API — Elder Care Platform (modular monolith)');
   logger.info({ env: config.nodeEnv, port: config.port }, 'Starting server...');
 
   // Test database connection
   const dbConnected = await testConnection();
   if (!dbConnected) {
-    logger.warn('⚠ Database not connected — server starting in API-only mode');
-    logger.warn('⚠ Run `npm run db:push` to create tables, ensure PostgreSQL is running');
+    logger.warn('Database not connected - server starting in API-only mode');
+    logger.warn('Run `npm run db:push` to create tables, and ensure PostgreSQL is running');
   } else {
     // Seed default roles
     try {
@@ -40,12 +37,21 @@ async function main() {
       port: config.port,
     },
     (info) => {
-      logger.info(`✓ Server running at http://localhost:${info.port}`);
-      logger.info(`  Health:  http://localhost:${info.port}/health`);
-      logger.info(`  Ready:   http://localhost:${info.port}/health/ready`);
-      logger.info(`  API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
+      logger.info(`Server running at http://localhost:${info.port}`);
+      logger.info(`Health:  http://localhost:${info.port}/health`);
+      logger.info(`Ready:   http://localhost:${info.port}/health/ready`);
+      logger.info(`API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
     }
   );
+
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.fatal({ port: config.port }, `Port ${config.port} is already in use`);
+      process.exit(1);
+    }
+    logger.fatal({ err }, 'HTTP server error');
+    process.exit(1);
+  });
 
   // ─── Graceful Shutdown ──────────────────────────────────
   let isShuttingDown = false;

@@ -5,9 +5,10 @@
 import { Hono } from 'hono';
 import { patientService } from './patient.service.js';
 import { createPatientSchema, updatePatientSchema, linkCaregiverSchema, patientQuerySchema } from './patient.schema.js';
-import { authMiddleware, requireRoles, requirePermission } from '../../middleware/auth.js';
+import { authMiddleware, requirePermission } from '../../middleware/auth.js';
 import { successResponse, paginatedResponse } from '../../shared/response.js';
 import { ValidationError } from '../../shared/errors.js';
+import { PERMISSIONS } from '../../shared/permissions.js';
 
 export const patientRoutes = new Hono();
 
@@ -15,7 +16,7 @@ export const patientRoutes = new Hono();
 patientRoutes.use('*', authMiddleware);
 
 // POST /patients — Create patient
-patientRoutes.post('/', requirePermission('patients.create'), async (c) => {
+patientRoutes.post('/', requirePermission(PERMISSIONS.PATIENTS_CREATE), async (c) => {
   const body = await c.req.json();
   const parsed = createPatientSchema.safeParse(body);
   if (!parsed.success) {
@@ -52,7 +53,7 @@ patientRoutes.get('/:id', async (c) => {
 });
 
 // PUT /patients/:id — Update patient profile
-patientRoutes.put('/:id', requirePermission('patients.edit'), async (c) => {
+patientRoutes.put('/:id', requirePermission(PERMISSIONS.PATIENTS_EDIT), async (c) => {
   const body = await c.req.json();
   const parsed = updatePatientSchema.safeParse(body);
   if (!parsed.success) {
@@ -75,7 +76,7 @@ patientRoutes.get('/:id/summary', async (c) => {
 });
 
 // POST /patients/:id/caregivers — Link caregiver
-patientRoutes.post('/:id/caregivers', requirePermission('patients.link_caregiver'), async (c) => {
+patientRoutes.post('/:id/caregivers', requirePermission(PERMISSIONS.PATIENTS_LINK_CAREGIVER), async (c) => {
   const body = await c.req.json();
   const parsed = linkCaregiverSchema.safeParse(body);
   if (!parsed.success) {
@@ -91,7 +92,7 @@ patientRoutes.post('/:id/caregivers', requirePermission('patients.link_caregiver
 });
 
 // DELETE /patients/:id/caregivers/:userId — Unlink caregiver
-patientRoutes.delete('/:id/caregivers/:userId', requirePermission('patients.link_caregiver'), async (c) => {
+patientRoutes.delete('/:id/caregivers/:userId', requirePermission(PERMISSIONS.PATIENTS_LINK_CAREGIVER), async (c) => {
   await patientService.unlinkCaregiver(c.req.param('id')!, c.req.param('userId')!);
   return c.json(successResponse({ message: 'Caregiver unlinked' }));
 });

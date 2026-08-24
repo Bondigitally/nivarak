@@ -4,7 +4,7 @@
  * Tests Zod validation for the IAS-P v2.0 submission and dry-run schemas.
  */
 import { describe, it, expect } from 'vitest';
-import { submitIASSchema, dryRunSchema } from '../../modules/scoring/scoring.module.js';
+import { submitIASSchema, dryRunSchema } from '../../modules/scoring/scoring.schema.js';
 
 // Helper: valid full submission payload
 function validSubmission() {

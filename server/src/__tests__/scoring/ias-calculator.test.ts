@@ -10,7 +10,7 @@ import {
   evaluateRedFlagUrgency,
   IAS_DOMAINS,
   ALL_IAS_PARAMETERS,
-} from '../../modules/scoring/scoring.module.js';
+} from '../../modules/scoring/ias-calculator.js';
 
 // Helper: create parameters with all items set to the same value
 function allParams(value: number): Record<string, number> {
