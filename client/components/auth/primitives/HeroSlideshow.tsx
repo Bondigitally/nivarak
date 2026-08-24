@@ -13,7 +13,8 @@ import {
 
 const INTERVAL_MS = 4200;
 const SLIDE_FADE = { duration: 1.15, ease: 'easeInOut' as const };
-const INDICATOR_TRANSITION = { duration: 0.45, ease: 'easeInOut' as const };
+const PILL_WIDTH_PX = 72;
+const DOT_SIZE_PX = 8;
 
 function PageIndicator({
   total,
@@ -27,7 +28,7 @@ function PageIndicator({
   durationMs: number;
 }) {
   return (
-    <div className="absolute bottom-14.75 left-25.5 z-20 flex items-center gap-1">
+    <div className="absolute bottom-14.75 left-25.5 z-20 flex items-center gap-1 contain-[layout] transform-[translateZ(0)]">
       {Array.from({ length: total }).map((_, index) => {
         const isActive = index === active;
         return (
@@ -37,24 +38,21 @@ function PageIndicator({
             aria-label={`Go to slide ${index + 1}`}
             aria-current={isActive ? 'true' : undefined}
             onClick={() => onSelect(index)}
-            className="relative flex h-8 items-center justify-center"
+            className="relative flex h-8 appearance-none items-center border-0 bg-transparent p-0"
           >
-            <motion.span
+            <span
               aria-hidden
-              animate={{
-                width: isActive ? 72 : 8,
-                height: 8,
-              }}
-              transition={INDICATOR_TRANSITION}
               className={cn(
-                'relative block overflow-hidden rounded-full',
+                'relative block h-2 overflow-hidden rounded-[4px]',
+                'motion-safe:transition-[width,background-color] motion-safe:duration-400 motion-safe:ease-in-out',
                 isActive ? 'bg-white/35' : 'bg-white/70 hover:bg-white',
               )}
+              style={{ width: isActive ? PILL_WIDTH_PX : DOT_SIZE_PX }}
             >
               {isActive && (
                 <motion.span
                   key={active}
-                  className="absolute inset-0 origin-left rounded-full bg-white"
+                  className="absolute inset-0 origin-left bg-white"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{
@@ -63,7 +61,7 @@ function PageIndicator({
                   }}
                 />
               )}
-            </motion.span>
+            </span>
           </button>
         );
       })}
