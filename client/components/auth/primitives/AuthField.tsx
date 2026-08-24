@@ -4,7 +4,7 @@ import { forwardRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import {
   Tooltip,
   TooltipContent,
@@ -14,13 +14,32 @@ import {
 
 export const authInputClassName = cn(
   'h-12 w-full rounded-[14px] border border-border bg-card px-4',
-  authType.input,
+  typo.input,
   'placeholder:text-[#9CA3AF] placeholder:font-sans', // Text/Placeholder
   'transition-[border-color,box-shadow] duration-150 ease-in-out',
   'hover:border-[#D4CDDA]',
   'focus-visible:border-[#B98BD0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A66BCF]/40',
   'disabled:cursor-not-allowed disabled:opacity-50',
 );
+
+/** Reserved one-line slot so errors never shift the card or crowd the next label */
+export function AuthFieldError({
+  error,
+  className,
+}: {
+  error?: string | null;
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn(typo.error, 'min-h-auth-error truncate', className)}
+      role={error ? 'alert' : undefined}
+      aria-hidden={!error}
+    >
+      {error?.split('\n')[0] ?? ''}
+    </p>
+  );
+}
 
 interface AuthFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -52,8 +71,8 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
     const visibilityLabel = showPassword ? 'Hide password' : 'Show password';
 
     return (
-      <div className={cn('flex w-full flex-col gap-2', className)}>
-        <label htmlFor={id} className={authType.label}>
+      <div className={cn('flex w-full flex-col gap-auth-field', className)}>
+        <label htmlFor={id} className={typo.label}>
           {label}
         </label>
         <div className="relative">
@@ -92,9 +111,9 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
                     aria-label={visibilityLabel}
                   >
                     {showPassword ? (
-                      <EyeOff className="size-5" strokeWidth={1.5} />
-                    ) : (
                       <Eye className="size-5" strokeWidth={1.5} />
+                    ) : (
+                      <EyeOff className="size-5" strokeWidth={1.5} />
                     )}
                   </motion.button>
                 </TooltipTrigger>
@@ -105,15 +124,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
             </TooltipProvider>
           )}
         </div>
-        {error && (
-          <div className="flex flex-col gap-1" role="alert">
-            {error.split('\n').map((message) => (
-              <p key={message} className={authType.error}>
-                {message}
-              </p>
-            ))}
-          </div>
-        )}
+        <AuthFieldError error={error} />
       </div>
     );
   },

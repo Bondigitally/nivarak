@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import {
   COUNTRY_DIAL_CODES,
   COUNTRY_DIAL_CODES_ORDERED,
@@ -13,7 +13,10 @@ import {
   getNationalLength,
   type CountryDialCode,
 } from '@/lib/auth/country-codes';
-import { authInputClassName } from '@/components/auth/primitives/AuthField';
+import {
+  AuthFieldError,
+  authInputClassName,
+} from '@/components/auth/primitives/AuthField';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,8 +89,8 @@ export function PhoneField({
   }
 
   return (
-    <div className={cn('flex w-full flex-col gap-2', className)}>
-      <label htmlFor={id} className={authType.label}>
+    <div className={cn('flex w-full flex-col gap-auth-field', className)}>
+      <label htmlFor={id} className={typo.label}>
         {label}
       </label>
 
@@ -100,86 +103,81 @@ export function PhoneField({
           disabled && 'cursor-not-allowed opacity-50',
         )}
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild disabled={disabled}>
-            <button
-              type="button"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild disabled={disabled}>
+              <button
+                type="button"
+                className={cn(
+                  'inline-flex h-full shrink-0 items-center gap-1 rounded-[10px] px-1.5',
+                  typo.input,
+                  'outline-none transition-colors hover:bg-[#F8F5FA]',
+                  'focus-visible:bg-[#F8F5FA] disabled:pointer-events-none',
+                )}
+                aria-label="Select country code"
+              >
+                <span className="tabular-nums">{country.dialCode}</span>
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={16}
+                  strokeWidth={1.5}
+                  className="text-muted-foreground"
+                />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="start"
+              sideOffset={8}
               className={cn(
-                'inline-flex h-full shrink-0 items-center gap-1 rounded-[10px] px-1.5',
-                authType.input,
-                'outline-none transition-colors hover:bg-[#F8F5FA]',
-                'focus-visible:bg-[#F8F5FA] disabled:pointer-events-none',
+                'max-h-64 w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-[14px] border-border bg-card p-1.5 shadow-md',
+                typo.input,
               )}
-              aria-label="Select country code"
             >
-              <span className="tabular-nums">{country.dialCode}</span>
-              <HugeiconsIcon
-                icon={ArrowDown01Icon}
-                size={16}
-                strokeWidth={1.5}
-                className="text-muted-foreground"
-              />
-            </button>
-          </DropdownMenuTrigger>
+              {COUNTRY_DIAL_CODES_ORDERED.map((item) => {
+                const selected = item.iso === country.iso;
 
-          <DropdownMenuContent
-            align="start"
-            sideOffset={8}
+                return (
+                  <DropdownMenuItem
+                    key={item.iso}
+                    onSelect={() => handleCountrySelect(item)}
+                    className={cn(
+                      'cursor-pointer gap-3 rounded-[10px] px-3 py-2.5',
+                      typo.input,
+                      selected && 'bg-[#F8F5FA] text-foreground',
+                    )}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                    <span className="shrink-0 tabular-nums text-muted-foreground">
+                      {item.dialCode}
+                    </span>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
+
+          <input
+            id={id}
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            disabled={disabled}
+            value={national}
+            maxLength={maxNationalLength}
+            onChange={(event) => handleNationalChange(event.target.value)}
+            placeholder={placeholder}
+            aria-invalid={!!error}
             className={cn(
-              'max-h-64 w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-[14px] border-border bg-card p-1.5 shadow-md',
-              authType.input,
+              'h-full min-w-0 flex-1 bg-transparent outline-none',
+              typo.input,
+              'placeholder:text-[#9CA3AF]',
+              'disabled:cursor-not-allowed',
             )}
-          >
-            {COUNTRY_DIAL_CODES_ORDERED.map((item) => {
-              const selected = item.iso === country.iso;
-
-              return (
-                <DropdownMenuItem
-                  key={item.iso}
-                  onSelect={() => handleCountrySelect(item)}
-                  className={cn(
-                    'cursor-pointer gap-3 rounded-[10px] px-3 py-2.5',
-                    authType.input,
-                    selected && 'bg-[#F8F5FA] text-foreground',
-                  )}
-                >
-                  <span className="min-w-0 flex-1 truncate">{item.name}</span>
-                  <span className="shrink-0 tabular-nums text-muted-foreground">
-                    {item.dialCode}
-                  </span>
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
-
-        <input
-          id={id}
-          type="tel"
-          inputMode="numeric"
-          autoComplete="tel-national"
-          disabled={disabled}
-          value={national}
-          maxLength={maxNationalLength}
-          onChange={(event) => handleNationalChange(event.target.value)}
-          placeholder={placeholder}
-          aria-invalid={!!error}
-          className={cn(
-            'h-full min-w-0 flex-1 bg-transparent outline-none',
-            authType.input,
-            'placeholder:text-[#9CA3AF]',
-            'disabled:cursor-not-allowed',
-          )}
-        />
+          />
       </div>
-
-      {error && (
-        <p className={authType.error} role="alert">
-          {error}
-        </p>
-      )}
+      <AuthFieldError error={error} />
     </div>
   );
 }

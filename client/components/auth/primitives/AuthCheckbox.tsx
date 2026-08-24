@@ -4,7 +4,7 @@ import { forwardRef, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { CheckIcon } from '@hugeicons/core-free-icons';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import { cn } from '@/lib/utils';
 
 const CHECK_EASE = [0.22, 1, 0.36, 1] as const;
@@ -27,7 +27,7 @@ export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
     return (
       <label
         htmlFor={id}
-        className={cn('group flex cursor-pointer items-center gap-3', authType.control, className)}
+        className={cn('group flex cursor-pointer items-center gap-3', typo.control, className)}
       >
         <input
           ref={ref}
@@ -72,7 +72,7 @@ export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
             )}
           </AnimatePresence>
         </motion.span>
-        {label}
+        <span>{label}</span>
       </label>
     );
   },

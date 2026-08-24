@@ -9,12 +9,11 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { AuthField } from '@/components/auth/primitives/AuthField';
-import { PasswordStrength } from '@/components/auth/primitives/PasswordStrength';
 import { OtpInput } from '@/components/auth/primitives/OtpInput';
 import {
   ApiError,
 } from '@/lib/api';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import { passwordSchema } from '@/lib/auth/password';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +57,7 @@ function BackToLoginLink({ className }: { className?: string }) {
       href="/login"
       className={cn(
         'inline-flex items-center justify-center gap-1.5 self-center',
-        authType.bodyM,
+        typo.bodyM,
         'text-muted-foreground transition-colors hover:text-foreground',
         className,
       )}
@@ -97,12 +96,6 @@ export function ForgotPasswordForm({
     resolver: zodResolver(resetSchema),
     defaultValues: { password: '', confirmPassword: '' },
   });
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const resetPasswordValue = resetForm.watch('password');
-  const resetPasswordEmptyError =
-    resetForm.formState.errors.password?.message === 'Please enter your password'
-      ? resetForm.formState.errors.password.message
-      : undefined;
 
   function goTo(next: ForgotPasswordStep) {
     setStep(next);
@@ -196,7 +189,7 @@ export function ForgotPasswordForm({
   if (step === 'success') {
     return (
       <div className="flex w-full flex-col items-center gap-6">
-        <p className={cn(authType.bodyL, 'w-full text-center')}>
+        <p className={cn(typo.bodyL, 'w-full text-center')}>
           Your password has been updated. You can now log in with your new password.
         </p>
         <BackToLoginLink />
@@ -206,119 +199,114 @@ export function ForgotPasswordForm({
 
   if (step === 'reset') {
     return (
-      <form
-        onSubmit={resetForm.handleSubmit(handleResetPassword)}
-        className="flex w-full flex-col gap-6"
-      >
-        <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-6">
+        <form
+          onSubmit={resetForm.handleSubmit(handleResetPassword)}
+          className="flex w-full flex-col gap-1"
+        >
           <AuthField
             id="password"
             label="New password"
             type="password"
-            error={resetPasswordEmptyError}
+            error={resetForm.formState.errors.password?.message}
             {...resetForm.register('password')}
           />
-          <PasswordStrength
-            value={resetPasswordValue ?? ''}
-            forceVisible={
-              resetForm.formState.isSubmitted &&
-              !!resetForm.formState.errors.password
-            }
+          <AuthField
+            id="confirmPassword"
+            label="Confirm password"
+            type="password"
+            error={resetForm.formState.errors.confirmPassword?.message}
+            {...resetForm.register('confirmPassword')}
           />
-        </div>
-        <AuthField
-          id="confirmPassword"
-          label="Confirm password"
-          type="password"
-          error={resetForm.formState.errors.confirmPassword?.message}
-          {...resetForm.register('confirmPassword')}
-        />
 
-        {error && (
-          <p className={authType.error} role="alert">
-            {error}
-          </p>
-        )}
-
-        <Button type="submit" size="cta" className="w-full" loading={loading}>
-          Reset Password
-        </Button>
-
-        <BackToLoginLink />
-      </form>
-    );
-  }
-
-  if (step === 'otp') {
-    return (
-      <div className="flex w-full flex-col gap-6">
-        <p className={authType.bodyM}>
-          We sent a 6-digit code to <span className="text-foreground">{email}</span>
-        </p>
-
-        {devCode && (
-          <p className={cn(authType.bodyS, 'rounded-[14px] border border-border bg-muted px-3 py-2')}>
-            Dev code: <span className="font-medium text-foreground">{devCode}</span>
-          </p>
-        )}
-
-        <div className="flex flex-col gap-1.5">
-          <span className={authType.label}>Verification code</span>
-          <OtpInput value={otp} onChange={setOtp} disabled={loading} error={error ?? undefined} />
-        </div>
-
-        <Button
-          type="button"
-          size="cta"
-          className="w-full"
-          loading={loading}
-          onClick={handleVerifyOtp}
-        >
-          Verify Code
-        </Button>
-
-        <div className="flex items-center justify-center gap-2 text-center">
-          <span className={authType.bodyM}>Didn&apos;t get a code?</span>
-          <button
-            type="button"
-            className={`${authType.link} disabled:opacity-50`}
-            disabled={loading}
-            onClick={handleResend}
-          >
-            Resend
-          </button>
-        </div>
+          {error && (
+            <p className={typo.error} role="alert">
+              {error}
+            </p>
+          )}
+          <Button type="submit" size="cta" className="w-full" loading={loading}>
+            Reset Password
+          </Button>
+        </form>
 
         <BackToLoginLink />
       </div>
     );
   }
 
-  return (
-    <form
-      onSubmit={emailForm.handleSubmit(handleSendCode)}
-      className="flex w-full flex-col gap-6"
-    >
-      <AuthField
-        id="email"
-        label="Email"
-        type="email"
-        placeholder="Enter your email"
-        error={emailForm.formState.errors.email?.message}
-        {...emailForm.register('email')}
-      />
-
-      {error && (
-        <p className={authType.error} role="alert">
-          {error}
+  if (step === 'otp') {
+    return (
+      <div className="flex w-full flex-col gap-6">
+        <p className={typo.bodyM}>
+          We sent a 6-digit code to <span className="text-foreground">{email}</span>
         </p>
-      )}
 
-      <Button type="submit" size="cta" className="w-full" loading={loading}>
-        Send Reset Code
-      </Button>
+        {devCode && (
+          <p className={cn(typo.bodyS, 'rounded-[14px] border border-border bg-muted px-3 py-2')}>
+            Dev code: <span className="font-medium text-foreground">{devCode}</span>
+          </p>
+        )}
+
+        <div className="flex w-full flex-col gap-1">
+          <div className="flex flex-col gap-2">
+            <span className={typo.label}>Verification code</span>
+            <OtpInput value={otp} onChange={setOtp} disabled={loading} error={error ?? undefined} />
+          </div>
+          <Button
+            type="button"
+            size="cta"
+            className="w-full"
+            loading={loading}
+            onClick={handleVerifyOtp}
+          >
+            Verify Code
+          </Button>
+        </div>
+
+        <div className="flex w-full flex-col items-center gap-2">
+          <div className="flex items-center justify-center gap-2 text-center">
+            <span className={typo.bodyM}>Didn&apos;t get a code?</span>
+            <button
+              type="button"
+              className={`${typo.link} disabled:opacity-50`}
+              disabled={loading}
+              onClick={handleResend}
+            >
+              Resend
+            </button>
+          </div>
+          <BackToLoginLink />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <form
+        onSubmit={emailForm.handleSubmit(handleSendCode)}
+        className="flex w-full flex-col gap-1"
+      >
+        <AuthField
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="Enter your email"
+          error={emailForm.formState.errors.email?.message}
+          {...emailForm.register('email')}
+        />
+
+        {error && (
+          <p className={typo.error} role="alert">
+            {error}
+          </p>
+        )}
+        <Button type="submit" size="cta" className="w-full" loading={loading}>
+          Send Reset Code
+        </Button>
+      </form>
 
       <BackToLoginLink />
-    </form>
+    </div>
   );
 }

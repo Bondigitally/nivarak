@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { AuthCheckbox } from '@/components/auth/primitives/AuthCheckbox';
-import { AuthField } from '@/components/auth/primitives/AuthField';
-import { PasswordStrength } from '@/components/auth/primitives/PasswordStrength';
+import { AuthField, AuthFieldError } from '@/components/auth/primitives/AuthField';
 import { ApiError } from '@/lib/api';
-import { authType } from '@/lib/auth/typography';
+import { typo } from '@/lib/tokens/typography';
 import { passwordSchema } from '@/lib/auth/password';
 
 const schema = z
@@ -17,12 +17,7 @@ const schema = z
     fullName: z.string().min(2, 'Enter your full name'),
     email: z.string().email('Enter a valid email address'),
     password: passwordSchema,
-    confirmPassword: z.string().min(1, 'Confirm your password'),
     agreeToTerms: z.boolean(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
   })
   .refine((data) => data.agreeToTerms, {
     message: 'You must agree to the terms',
@@ -44,25 +39,17 @@ export function CompleteProfileStep({
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting, isSubmitted },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       fullName: defaultName,
       email: '',
       password: '',
-      confirmPassword: '',
       agreeToTerms: false,
     },
+    mode: 'onChange',
   });
-
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const passwordValue = watch('password');
-  const passwordEmptyError =
-    errors.password?.message === 'Please enter your password'
-      ? errors.password.message
-      : undefined;
 
   async function handleFormSubmit(values: FormValues) {
     setError(null);
@@ -74,10 +61,11 @@ export function CompleteProfileStep({
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex w-full flex-col gap-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex w-full flex-col gap-1">
       <AuthField
         id="fullName"
         label="Full name"
+        placeholder="Enter your full name"
         error={errors.fullName?.message}
         {...register('fullName')}
       />
@@ -86,50 +74,60 @@ export function CompleteProfileStep({
         id="email"
         label="Email"
         type="email"
+        placeholder="Enter your email"
         error={errors.email?.message}
         {...register('email')}
       />
 
-      <div className="flex w-full flex-col gap-3">
-        <AuthField
-          id="password"
-          label="Password"
-          type="password"
-          error={passwordEmptyError}
-          {...register('password')}
+      <AuthField
+        id="password"
+        label="Password"
+        type="password"
+        placeholder="Enter your password"
+        error={errors.password?.message}
+        {...register('password')}
+      />
+
+      <div className="flex w-full flex-col">
+        <AuthCheckbox
+          id="agreeToTerms"
+          className="items-start"
+          label={
+            <>
+              I agree to the{' '}
+              <Link
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={typo.link}
+                onClick={(event) => event.stopPropagation()}
+              >
+                Terms & Conditions
+              </Link>{' '}
+              and{' '}
+              <Link
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={typo.link}
+                onClick={(event) => event.stopPropagation()}
+              >
+                Privacy Policy
+              </Link>
+            </>
+          }
+          {...register('agreeToTerms')}
         />
-        <PasswordStrength
-          value={passwordValue ?? ''}
-          forceVisible={isSubmitted && !!errors.password}
-        />
+        <AuthFieldError />
       </div>
 
-      <AuthField
-        id="confirmPassword"
-        label="Confirm password"
-        type="password"
-        error={errors.confirmPassword?.message}
-        {...register('confirmPassword')}
-      />
-
-      <AuthCheckbox
-        id="agreeToTerms"
-        className="items-start"
-        label="I agree to the Terms & Conditions and Privacy Policy"
-        {...register('agreeToTerms')}
-      />
-
-      {errors.agreeToTerms && (
-        <p className={authType.error}>{errors.agreeToTerms.message}</p>
-      )}
-
       {error && (
-        <p className={authType.error} role="alert">
+        <p className={typo.error} role="alert">
           {error}
         </p>
       )}
 
-      <Button type="submit" size="cta" className="w-full" loading={isSubmitting}>
+      <Button type="submit" size="cta" className="w-full" loading={isSubmitting} disabled={!isValid}>
         Create Account
       </Button>
     </form>

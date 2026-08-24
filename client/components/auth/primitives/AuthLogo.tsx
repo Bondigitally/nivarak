@@ -16,16 +16,13 @@ export function AuthLogo() {
   }
 
   return (
-    <div
-      className="relative shrink-0"
-      style={{ width: AUTH_LOGO.displayWidth, height: AUTH_LOGO.displayHeight }}
-    >
+    <div className="relative size-auth-logo shrink-0">
       <Image
         src={AUTH_LOGO.src}
         alt={AUTH_LOGO.alt}
         width={AUTH_LOGO.width}
         height={AUTH_LOGO.height}
-        sizes={`${AUTH_LOGO.displayWidth}px`}
+        sizes="4.5rem"
         quality={AUTH_LOGO.quality}
         preload
         className="size-full object-contain object-left"

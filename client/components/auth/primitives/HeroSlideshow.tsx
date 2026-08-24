@@ -13,7 +13,8 @@ import {
 
 const INTERVAL_MS = 4200;
 const SLIDE_FADE = { duration: 1.15, ease: 'easeInOut' as const };
-const INDICATOR_TRANSITION = { duration: 0.45, ease: 'easeInOut' as const };
+const PILL_WIDTH_PX = 72;
+const DOT_SIZE_PX = 8;
 
 function PageIndicator({
   total,
@@ -39,31 +40,29 @@ function PageIndicator({
             onClick={() => onSelect(index)}
             className="relative flex h-8 items-center justify-center"
           >
-            <motion.span
+            <span
               aria-hidden
-              animate={{
-                width: isActive ? 72 : 8,
-                height: 8,
-              }}
-              transition={INDICATOR_TRANSITION}
               className={cn(
-                'relative block overflow-hidden rounded-full',
+                'relative block h-2 overflow-hidden rounded-[4px]',
+                'motion-safe:transition-[width,background-color] motion-safe:duration-400 motion-safe:ease-in-out',
                 isActive ? 'bg-white/35' : 'bg-white/70 hover:bg-white',
               )}
+              style={{ width: isActive ? PILL_WIDTH_PX : DOT_SIZE_PX }}
             >
               {isActive && (
-                <motion.span
+                <span
                   key={active}
-                  className="absolute inset-0 origin-left rounded-full bg-white"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{
-                    duration: durationMs / 1000,
-                    ease: 'linear',
+                  className="hero-indicator-fill absolute inset-y-0 left-0 h-full bg-white"
+                  style={{
+                    width: PILL_WIDTH_PX,
+                    animationDuration: `${durationMs}ms`,
+                    animationTimingFunction: 'linear',
+                    animationFillMode: 'forwards',
+                    animationName: 'hero-indicator-fill',
                   }}
                 />
               )}
-            </motion.span>
+            </span>
           </button>
         );
       })}

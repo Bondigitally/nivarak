@@ -2,8 +2,11 @@
 
 import { useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { authType } from '@/lib/auth/typography';
-import { authInputClassName } from '@/components/auth/primitives/AuthField';
+import { typo } from '@/lib/tokens/typography';
+import {
+  AuthFieldError,
+  authInputClassName,
+} from '@/components/auth/primitives/AuthField';
 
 interface OtpInputProps {
   value: string;
@@ -52,8 +55,8 @@ export function OtpInput({
   }
 
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
-      <div className="flex w-full items-center justify-center gap-3 sm:gap-8 lg:gap-12">
+    <div className={cn('flex flex-col gap-2', className)}>
+      <div className="flex w-full items-center justify-between gap-2">
         {Array.from({ length }).map((_, index) => (
           <input
             key={index}
@@ -70,18 +73,14 @@ export function OtpInput({
             onPaste={handlePaste}
             className={cn(
               authInputClassName,
-              authType.bodyL,
-              'size-12 shrink-0 px-0 text-center text-foreground shadow-[0_1px_2px_rgba(228,229,231,0.24)]',
+              typo.bodyL,
+              'size-12 min-w-0 shrink px-0 text-center text-foreground shadow-[0_1px_2px_rgba(228,229,231,0.24)]',
             )}
             aria-label={`Digit ${index + 1}`}
           />
         ))}
       </div>
-      {error && (
-        <p className={cn(authType.error, 'text-center')} role="alert">
-          {error}
-        </p>
-      )}
+      <AuthFieldError error={error} className="text-center" />
     </div>
   );
 }

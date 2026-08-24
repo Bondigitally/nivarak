@@ -42,6 +42,5 @@ export interface CompleteRegistrationValues {
   fullName: string;
   email: string;
   password: string;
-  confirmPassword: string;
   agreeToTerms: boolean;
 }
