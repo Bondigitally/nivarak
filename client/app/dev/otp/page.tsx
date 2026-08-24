@@ -15,7 +15,7 @@ export default function DevPhoneOtpPage() {
   const router = useRouter();
 
   return (
-    <AuthLayout variant="split">
+    <AuthLayout>
       <AuthCard flowKey="dev-otp">
         {/* TEMP MOCK — pure OTP UI, no phone field / no API */}
         <OtpVerifyStep

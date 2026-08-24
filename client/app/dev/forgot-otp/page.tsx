@@ -15,7 +15,7 @@ export default function DevForgotOtpPage() {
   const router = useRouter();
 
   return (
-    <AuthLayout variant="split">
+    <AuthLayout>
       <AuthCard flowKey="dev-forgot-otp">
         {/* TEMP MOCK — pure OTP UI, no email field / no API */}
         <OtpVerifyStep

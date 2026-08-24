@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { AuthMode, Portal } from '@/types/auth';
-import { PORTALS } from '@/lib/auth/portals';
+import type { AuthMode } from '@/types/auth';
 import { AuthCard } from '@/components/auth/layout/AuthCard';
-import { RoleBadge } from '@/components/auth/primitives/RoleBadge';
 import { AuthHeader } from '@/components/auth/primitives/AuthHeader';
 import { AuthFooter } from '@/components/auth/primitives/AuthFooter';
 import { AuthFlowTransition } from '@/components/auth/primitives/AuthFlowTransition';
@@ -28,7 +26,6 @@ type RegisterStep = 'phone-otp' | 'complete-profile';
 type LoginMethod = 'email' | 'phone';
 
 interface AuthScreenProps {
-  portal: Portal;
   mode: AuthMode;
   initialPhone?: string;
 }
@@ -55,8 +52,7 @@ const FORGOT_COPY: Record<
   },
 };
 
-export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
-  const config = PORTALS[portal];
+export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
   const [registerStep, setRegisterStep] = useState<RegisterStep>(
     initialPhone ? 'complete-profile' : 'phone-otp',
   );
@@ -66,13 +62,13 @@ export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('phone');
   const [forgotStep, setForgotStep] = useState<ForgotPasswordStep>('email');
 
-  const loginSubtitle =
-    mode === 'login' && loginMethod === 'email'
-      ? config.loginSubtitle
-      : 'Enter your phone number to login';
-
-  let title = mode === 'login' ? config.loginTitle : config.registerTitle;
-  let subtitle = mode === 'login' ? loginSubtitle : config.registerSubtitle;
+  let title = mode === 'login' ? 'Welcome Back' : 'Create Your Account';
+  let subtitle =
+    mode === 'login'
+      ? loginMethod === 'email'
+        ? 'Enter your email and password to continue'
+        : 'Enter your phone number to login'
+      : 'Enter your phone number to get started';
 
   if (mode === 'forgot-password') {
     title = FORGOT_COPY[forgotStep].title;
@@ -140,8 +136,6 @@ export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
 
   return (
     <AuthCard flowKey={flowKey}>
-      {config.badge && <RoleBadge>{config.badge}</RoleBadge>}
-
       <AuthFlowTransition
         flowKey={flowKey}
         playInitial
@@ -151,7 +145,6 @@ export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
 
         {mode === 'login' ? (
           <LoginForm
-            portal={config}
             loginMethod={loginMethod}
             onLoginMethodChange={setLoginMethod}
           />
@@ -174,7 +167,6 @@ export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
               </p>
             )}
             <CompleteProfileStep
-              portal={config}
               onSubmit={async (values) => {
                 try {
                   await handleCompleteProfile(values);
@@ -190,11 +182,7 @@ export function AuthScreen({ portal, mode, initialPhone }: AuthScreenProps) {
         )}
 
         {mode === 'login' ? (
-          config.footer === 'signup' ? (
-            <AuthFooter variant="signup" />
-          ) : (
-            <AuthFooter variant="contact-admin" />
-          )
+          <AuthFooter variant="signup" />
         ) : mode === 'forgot-password' ? null : (
           <div className="flex items-center justify-center gap-2 py-1 text-center">
             <span className={authType.bodyM}>Already have an account?</span>

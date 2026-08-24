@@ -4,8 +4,8 @@ export const AUTH_LOGO = {
   /** Intrinsic source dimensions — original kept; next/image serves smaller AVIF/WebP */
   width: 1024,
   height: 1024,
-  displayWidth: 80,
-  displayHeight: 80,
+  displayWidth: 72,
+  displayHeight: 72,
   /** High quality for sharp mark + wordmark at small display size */
   quality: 90,
 } as const;

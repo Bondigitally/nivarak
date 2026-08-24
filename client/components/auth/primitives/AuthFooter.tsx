@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import type { AuthFooterVariant } from '@/lib/auth/portals';
 import { authType } from '@/lib/auth/typography';
+
+export type AuthFooterVariant = 'invite' | 'contact-admin' | 'signup';
 
 interface AuthFooterProps {
   variant: AuthFooterVariant;
