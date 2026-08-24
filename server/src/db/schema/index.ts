@@ -1,10 +1,29 @@
 /**
- * Nivarak — Complete Database Schema (Drizzle ORM)
- *
- * All 13 core tables from the architecture document, Section 7.
- * Each table matches the data model specification exactly.
+ * Drizzle schema barrel — tables live in domain files; relations stay here
+ * so every table is defined before any relation is declared.
  */
 
+export { users, roles, userRoles } from './users.js';
+export { patients, caregiverLinks } from './patients.js';
+export {
+  encounters,
+  encounterMedical,
+  encounterMobility,
+  encounterSocial,
+  encounterNutritional,
+  encounterCognitive,
+} from './encounters.js';
+export { vitals } from './vitals.js';
+export { agingScores } from './scoring.js';
+export { tasks } from './tasks.js';
+export { alerts, alertRules } from './alerts.js';
+export { documents } from './documents.js';
+export { notifications } from './notifications.js';
+export { auditLogs } from './audit.js';
+
+import { relations } from 'drizzle-orm';
+import { users, userRoles } from './users.js';
+import { patients, caregiverLinks } from './patients.js';
 import {
   pgTable,
   uuid,

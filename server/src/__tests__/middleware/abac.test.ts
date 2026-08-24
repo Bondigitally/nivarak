@@ -3,7 +3,7 @@
  *
  * Tests attribute-based access control logic for patient-scoped routes.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // ─── Replicate ABAC logic for unit testing ───
 const BROAD_ACCESS_ROLES = ['admin', 'coordinator', 'doctor', 'nurse'];

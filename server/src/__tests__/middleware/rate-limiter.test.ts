@@ -3,7 +3,7 @@
  *
  * Tests in-memory rate limiting logic.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Simplified rate limiter logic for unit testing ───
 class RateLimiterStore {

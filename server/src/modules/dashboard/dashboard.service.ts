@@ -1,18 +1,6 @@
-/**
- * DashboardModule — Role-specific dashboard queries
- */
-
-import { Hono } from 'hono';
 import { queryClient } from '../../db/connection.js';
-import { authMiddleware, requireRoles } from '../../middleware/auth.js';
-import { successResponse } from '../../shared/response.js';
 
-// ─── Routes ─────────────────────────────────────────────
-export const dashboardRoutes = new Hono();
-dashboardRoutes.use('*', authMiddleware);
-
-// GET /dashboard/coordinator
-dashboardRoutes.get('/coordinator', requireRoles('coordinator', 'admin'), async (c) => {
+export async function getCoordinatorDashboard() {
   const [stats] = await queryClient`
     SELECT
       (SELECT COUNT(*) FROM tasks WHERE status NOT IN ('completed', 'cancelled') AND due_at <= NOW() + INTERVAL '24 hours') as tasks_due_today,
@@ -26,7 +14,7 @@ dashboardRoutes.get('/coordinator', requireRoles('coordinator', 'admin'), async 
       (SELECT COUNT(*) FROM tasks WHERE status = 'escalated') as escalated_tasks
   `;
 
-  return c.json(successResponse({
+  return {
     tasksDueToday: Number(stats.tasks_due_today),
     openAlerts: Number(stats.open_alerts),
     criticalAlerts: Number(stats.critical_alerts),
@@ -38,61 +26,54 @@ dashboardRoutes.get('/coordinator', requireRoles('coordinator', 'admin'), async 
       high_dependency: Number(stats.high_dependency_count),
     },
     escalatedTasks: Number(stats.escalated_tasks),
-  }));
-});
+  };
+}
 
-// GET /dashboard/doctor
-dashboardRoutes.get('/doctor', requireRoles('doctor', 'admin'), async (c) => {
-  const user = c.get('user');
+export async function getDoctorDashboard(userId: string) {
+  const [stats, recentPatients] = await Promise.all([
+    queryClient`
+      SELECT
+        (SELECT COUNT(DISTINCT patient_id) FROM caregiver_links WHERE user_id = ${userId} AND revoked_at IS NULL) as my_patients,
+        (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${userId} AND created_at >= NOW() - INTERVAL '7 days') as recent_encounters,
+        (SELECT COUNT(*) FROM tasks WHERE (assigned_to = ${userId} OR created_by = ${userId}) AND status NOT IN ('completed', 'cancelled')) as pending_tasks,
+        (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${userId} AND status = 'draft') as draft_encounters
+    `.then((rows) => rows[0]),
+    queryClient`
+      SELECT p.id, p.full_name, p.current_care_pathway,
+        (SELECT risk_band FROM aging_scores WHERE patient_id = p.id ORDER BY assessed_at DESC LIMIT 1) as risk_band,
+        (SELECT ias_percentage FROM aging_scores WHERE patient_id = p.id ORDER BY assessed_at DESC LIMIT 1) as latest_score
+      FROM patients p
+      JOIN caregiver_links cl ON cl.patient_id = p.id
+      WHERE cl.user_id = ${userId} AND cl.revoked_at IS NULL AND p.is_active = true
+      ORDER BY p.updated_at DESC
+      LIMIT 10
+    `,
+  ]);
 
-  const [stats] = await queryClient`
-    SELECT
-      (SELECT COUNT(DISTINCT patient_id) FROM caregiver_links WHERE user_id = ${user.userId} AND revoked_at IS NULL) as my_patients,
-      (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${user.userId} AND created_at >= NOW() - INTERVAL '7 days') as recent_encounters,
-      (SELECT COUNT(*) FROM tasks WHERE (assigned_to = ${user.userId} OR created_by = ${user.userId}) AND status NOT IN ('completed', 'cancelled')) as pending_tasks,
-      (SELECT COUNT(*) FROM encounters WHERE clinician_id = ${user.userId} AND status = 'draft') as draft_encounters
-  `;
-
-  // Recent patients with risk bands
-  const recentPatients = await queryClient`
-    SELECT p.id, p.full_name, p.current_care_pathway,
-      (SELECT risk_band FROM aging_scores WHERE patient_id = p.id ORDER BY assessed_at DESC LIMIT 1) as risk_band,
-      (SELECT total_score FROM aging_scores WHERE patient_id = p.id ORDER BY assessed_at DESC LIMIT 1) as latest_score
-    FROM patients p
-    JOIN caregiver_links cl ON cl.patient_id = p.id
-    WHERE cl.user_id = ${user.userId} AND cl.revoked_at IS NULL AND p.is_active = true
-    ORDER BY p.updated_at DESC
-    LIMIT 10
-  `;
-
-  return c.json(successResponse({
+  return {
     myPatients: Number(stats.my_patients),
     recentEncounters: Number(stats.recent_encounters),
     pendingTasks: Number(stats.pending_tasks),
     draftEncounters: Number(stats.draft_encounters),
     recentPatients,
-  }));
-});
+  };
+}
 
-// GET /dashboard/caregiver
-dashboardRoutes.get('/caregiver', requireRoles('caregiver'), async (c) => {
-  const user = c.get('user');
-
-  const linkedPatients = await queryClient`
+export async function getCaregiverDashboard(userId: string) {
+  const patients = await queryClient`
     SELECT p.id, p.full_name, p.current_care_pathway,
       (SELECT risk_band FROM aging_scores WHERE patient_id = p.id ORDER BY assessed_at DESC LIMIT 1) as risk_band,
       (SELECT COUNT(*) FROM alerts WHERE patient_id = p.id AND status = 'open') as open_alerts,
       (SELECT COUNT(*) FROM tasks WHERE patient_id = p.id AND status NOT IN ('completed', 'cancelled')) as open_tasks
     FROM patients p
     JOIN caregiver_links cl ON cl.patient_id = p.id
-    WHERE cl.user_id = ${user.userId} AND cl.revoked_at IS NULL AND p.is_active = true
+    WHERE cl.user_id = ${userId} AND cl.revoked_at IS NULL AND p.is_active = true
   `;
 
-  return c.json(successResponse({ patients: linkedPatients }));
-});
+  return { patients };
+}
 
-// GET /dashboard/admin
-dashboardRoutes.get('/admin', requireRoles('admin'), async (c) => {
+export async function getAdminDashboard() {
   const [stats] = await queryClient`
     SELECT
       (SELECT COUNT(*) FROM users WHERE is_active = true) as total_users,
@@ -105,7 +86,7 @@ dashboardRoutes.get('/admin', requireRoles('admin'), async (c) => {
       (SELECT COUNT(*) FROM documents) as total_documents
   `;
 
-  return c.json(successResponse({
+  return {
     totalUsers: Number(stats.total_users),
     activeToday: Number(stats.active_today),
     totalPatients: Number(stats.total_patients),
@@ -114,5 +95,5 @@ dashboardRoutes.get('/admin', requireRoles('admin'), async (c) => {
     alertsToday: Number(stats.alerts_today),
     auditEntriesToday: Number(stats.audit_entries_today),
     totalDocuments: Number(stats.total_documents),
-  }));
-});
+  };
+}

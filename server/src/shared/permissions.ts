@@ -1,0 +1,147 @@
+/**
+ * Single permission catalog.
+ * Seed and requirePermission() must use these strings — never ad-hoc literals.
+ */
+
+export const PERMISSIONS = {
+  PROFILE_VIEW_OWN: 'profile.view_own',
+
+  PATIENTS_CREATE: 'patients.create',
+  PATIENTS_VIEW: 'patients.view',
+  PATIENTS_VIEW_LINKED: 'patients.view_linked',
+  PATIENTS_EDIT: 'patients.edit',
+  PATIENTS_LINK_CAREGIVER: 'patients.link_caregiver',
+
+  ENCOUNTERS_VIEW: 'encounters.view',
+  ENCOUNTERS_CREATE: 'encounters.create',
+  ENCOUNTERS_EDIT: 'encounters.edit',
+  ENCOUNTERS_COMPLETE: 'encounters.complete',
+  ENCOUNTERS_AMEND: 'encounters.amend',
+
+  VITALS_VIEW: 'vitals.view',
+  VITALS_RECORD: 'vitals.record',
+
+  SCORES_VIEW: 'scores.view',
+  SCORES_SUBMIT: 'scores.submit',
+
+  TASKS_CREATE: 'tasks.create',
+  TASKS_ASSIGN: 'tasks.assign',
+  TASKS_COMPLETE: 'tasks.complete',
+  TASKS_COMPLETE_OWN: 'tasks.complete_own',
+
+  DOCUMENTS_VIEW: 'documents.view',
+  DOCUMENTS_UPLOAD: 'documents.upload',
+
+  ALERTS_VIEW: 'alerts.view',
+  ALERTS_VIEW_OWN: 'alerts.view_own',
+  ALERT_RULES_CONFIGURE: 'alert_rules.configure',
+
+  USERS_MANAGE: 'users.manage',
+  AUDIT_LOGS_VIEW: 'audit_logs.view',
+  SYSTEM_CONFIGURE: 'system.configure',
+} as const;
+
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+const P = PERMISSIONS;
+
+export const ROLE_PERMISSIONS: Record<string, readonly Permission[]> = {
+  patient: [
+    P.PROFILE_VIEW_OWN,
+    P.VITALS_VIEW,
+    P.ENCOUNTERS_VIEW,
+    P.SCORES_VIEW,
+    P.DOCUMENTS_VIEW,
+    P.ALERTS_VIEW_OWN,
+  ],
+  caregiver: [
+    P.PROFILE_VIEW_OWN,
+    P.PATIENTS_VIEW_LINKED,
+    P.VITALS_VIEW,
+    P.ENCOUNTERS_VIEW,
+    P.SCORES_VIEW,
+    P.DOCUMENTS_VIEW,
+    P.DOCUMENTS_UPLOAD,
+    P.ALERTS_VIEW,
+    P.TASKS_COMPLETE_OWN,
+  ],
+  nurse: [
+    P.PROFILE_VIEW_OWN,
+    P.PATIENTS_VIEW,
+    P.PATIENTS_EDIT,
+    P.ENCOUNTERS_VIEW,
+    P.ENCOUNTERS_CREATE,
+    P.ENCOUNTERS_EDIT,
+    P.ENCOUNTERS_COMPLETE,
+    P.ENCOUNTERS_AMEND,
+    P.VITALS_RECORD,
+    P.VITALS_VIEW,
+    P.SCORES_SUBMIT,
+    P.SCORES_VIEW,
+    P.TASKS_CREATE,
+    P.TASKS_COMPLETE,
+    P.DOCUMENTS_UPLOAD,
+    P.DOCUMENTS_VIEW,
+    P.ALERTS_VIEW,
+  ],
+  doctor: [
+    P.PROFILE_VIEW_OWN,
+    P.PATIENTS_CREATE,
+    P.PATIENTS_VIEW,
+    P.PATIENTS_EDIT,
+    P.PATIENTS_LINK_CAREGIVER,
+    P.ENCOUNTERS_VIEW,
+    P.ENCOUNTERS_CREATE,
+    P.ENCOUNTERS_EDIT,
+    P.ENCOUNTERS_COMPLETE,
+    P.ENCOUNTERS_AMEND,
+    P.VITALS_RECORD,
+    P.VITALS_VIEW,
+    P.SCORES_SUBMIT,
+    P.SCORES_VIEW,
+    P.TASKS_CREATE,
+    P.TASKS_ASSIGN,
+    P.TASKS_COMPLETE,
+    P.DOCUMENTS_UPLOAD,
+    P.DOCUMENTS_VIEW,
+    P.ALERTS_VIEW,
+    P.ALERT_RULES_CONFIGURE,
+  ],
+  coordinator: [
+    P.PROFILE_VIEW_OWN,
+    P.PATIENTS_CREATE,
+    P.PATIENTS_VIEW,
+    P.PATIENTS_EDIT,
+    P.PATIENTS_LINK_CAREGIVER,
+    P.VITALS_VIEW,
+    P.SCORES_VIEW,
+    P.ENCOUNTERS_VIEW,
+    P.TASKS_CREATE,
+    P.TASKS_ASSIGN,
+    P.TASKS_COMPLETE,
+    P.DOCUMENTS_UPLOAD,
+    P.DOCUMENTS_VIEW,
+    P.ALERTS_VIEW,
+    P.ALERT_RULES_CONFIGURE,
+  ],
+  admin: [
+    P.PROFILE_VIEW_OWN,
+    P.PATIENTS_CREATE,
+    P.PATIENTS_VIEW,
+    P.PATIENTS_EDIT,
+    P.PATIENTS_LINK_CAREGIVER,
+    P.ENCOUNTERS_VIEW,
+    P.VITALS_VIEW,
+    P.SCORES_VIEW,
+    P.TASKS_CREATE,
+    P.TASKS_ASSIGN,
+    P.TASKS_COMPLETE,
+    P.DOCUMENTS_UPLOAD,
+    P.DOCUMENTS_VIEW,
+    P.ALERTS_VIEW,
+    P.ALERT_RULES_CONFIGURE,
+    P.USERS_MANAGE,
+    P.AUDIT_LOGS_VIEW,
+    P.SYSTEM_CONFIGURE,
+  ],
+};

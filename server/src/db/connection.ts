@@ -16,10 +16,10 @@ export const db = drizzle(queryClient, { schema, logger: config.isDev });
 export async function testConnection(): Promise<boolean> {
   try {
     await queryClient`SELECT 1 as health_check`;
-    logger.info('✓ Database connection established');
+    logger.info('Database connection established');
     return true;
   } catch (error) {
-    logger.error({ error }, '✗ Database connection failed');
+    logger.error({ error }, 'Database connection failed');
     return false;
   }
 }
