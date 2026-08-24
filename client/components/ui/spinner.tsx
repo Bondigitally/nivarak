@@ -6,7 +6,7 @@ interface SpinnerProps {
   label?: string;
 }
 
-/** Default monochrome ring spinner */
+/** Brand ring spinner — used for full-page / route loaders */
 export function Spinner({ className, label = 'Loading' }: SpinnerProps) {
   return (
     <span
@@ -14,7 +14,7 @@ export function Spinner({ className, label = 'Loading' }: SpinnerProps) {
       aria-label={label}
       className={cn(
         'inline-block size-8 shrink-0 animate-spin rounded-full',
-        'border-2 border-neutral-300 border-t-neutral-800',
+        'border-2 border-primary/20 border-t-primary',
         className,
       )}
     />
