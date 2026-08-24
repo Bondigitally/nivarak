@@ -4,8 +4,7 @@
  * Patient CRUD, caregiver linking, consent management.
  */
 
-import { eq, and, like, sql, isNull, desc, count } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { eq, and, sql, isNull, desc, count } from 'drizzle-orm';
 import { db, queryClient } from '../../db/connection.js';
 import { patients, caregiverLinks, users } from '../../db/schema/index.js';
 import { eventBus } from '../../shared/event-bus.js';
