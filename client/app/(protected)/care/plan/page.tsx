@@ -1,0 +1,105 @@
+"use client";
+
+import Link from "next/link";
+import { DashboardPageFrame } from "@/features/dashboard/components/HomeTopBar";
+import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
+import { DashboardIconButton } from "@/features/dashboard/components/DashboardIconButton";
+import {
+  dashboardGridClass,
+  dashboardGridFullClass,
+  dashboardGridHalfClass,
+  dashboardPageShellClass,
+} from "@/features/dashboard/data/dashboard-styles";
+import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
+import { ActionPlanCard } from "@/features/care-plan/components/ActionPlanCard";
+import { ReferralsCard } from "@/features/care-plan/components/ReferralsCard";
+import { CallCareTeamCard } from "@/features/care-plan/components/CallCareTeamCard";
+import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ClipboardListIcon, EnergyIcon } from "@hugeicons/core-free-icons";
+
+export default function CarePlanPage() {
+  const data = getHomeDashboardData();
+  const notificationCount = data?.notificationCount ?? 3;
+  const carePlan = data?.carePlan ?? null;
+
+  return (
+    <DashboardPageFrame notificationCount={notificationCount}>
+      <DashboardReveal className={cn(dashboardPageShellClass)}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-1">
+            <h1 className={typo.headingXxl}>Care Plan</h1>
+            <p className={typo.bodyL}>
+              Review your completed health assessments and monitor your progress over time.
+            </p>
+          </div>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DashboardIconButton
+                  type="button"
+                  aria-label="Quick menu"
+                  className="shrink-0 text-primary"
+                >
+                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.75} color="currentColor" />
+                </DashboardIconButton>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Quick menu</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {carePlan ? (
+          <div className={dashboardGridClass}>
+            <div className={dashboardGridFullClass}>
+              <ActionPlanCard actions={carePlan.actions} />
+            </div>
+            <div className={dashboardGridHalfClass}>
+              <ReferralsCard referrals={carePlan.referrals} />
+            </div>
+            <div className={dashboardGridHalfClass}>
+              <CallCareTeamCard triggers={carePlan.callTriggers} />
+            </div>
+          </div>
+        ) : (
+          <div className="flex min-h-95 flex-col items-center justify-center rounded-xl border border-[#E9E4ED] bg-white p-6">
+            <div className="flex max-w-105 flex-col items-center text-center">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2EBF6] text-[#6C318E]">
+                <HugeiconsIcon
+                  icon={ClipboardListIcon}
+                  size={32}
+                  strokeWidth={1.75}
+                  color="currentColor"
+                />
+              </div>
+              <h2 className="font-sans text-xl font-semibold leading-7 text-[#1A1A1A]">
+                No care plan yet
+              </h2>
+              <p className="mt-2 text-sm font-normal leading-5 text-[#5F6368]">
+                Once assessments are complete, your personalized care plan, referrals, and care
+                guidance will show up here.
+              </p>
+              <Button
+                type="button"
+                variant="default"
+                size="default"
+                className="mt-6 px-6 text-sm font-medium"
+                asChild
+              >
+                <Link href="/health/assessments">View Assessments</Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </DashboardReveal>
+    </DashboardPageFrame>
+  );
+}
