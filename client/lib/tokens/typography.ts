@@ -43,6 +43,10 @@ export const typo = {
   /** Overline — 11px Medium / 16px — uppercase only */
   overline:
     'text-[11px] font-medium uppercase leading-4 tracking-wide text-muted-foreground',
+  /** Logo wordmark — Rounded Elegance */
+  logo: 'font-logo text-base font-normal leading-6 tracking-[0.08em] text-foreground',
+  /** Sidebar nav item — Body M */
+  sidebarItem: 'text-sm font-normal leading-5',
 
   /**
    * Compositions (size token + color role from design.md)

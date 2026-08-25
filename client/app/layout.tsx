@@ -1,12 +1,8 @@
-import { Hanken_Grotesk } from 'next/font/google';
 import type { Metadata } from 'next';
+import { hanken, roundedElegance } from '@/lib/fonts';
 import './globals.css';
-
-const hanken = Hanken_Grotesk({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-sans',
-});
+// Prewired in app-shell; enabled in restructure/auth-lib when features/auth/lib/amplify lands.
+// import { ConfigureAmplify } from '@/features/auth/lib/amplify';
 
 export const metadata: Metadata = {
   title: 'Nivarak',
@@ -15,8 +11,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={hanken.variable}>
-      <body className="min-h-screen font-sans antialiased">{children}</body>
+    <html
+      lang="en"
+      className={`${hanken.variable} ${roundedElegance.variable} ${hanken.className}`}
+    >
+      <body className="min-h-screen font-sans antialiased">
+        {/* <ConfigureAmplify /> */}
+        {children}
+      </body>
     </html>
   );
 }
