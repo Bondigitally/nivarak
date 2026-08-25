@@ -1,4 +1,4 @@
-import { AuthLayout } from '@/components/auth/layout/AuthLayout';
+import { AuthLayout } from '@/features/auth/components/layout/AuthLayout';
 
 /**
  * Shared shell for login / register / forgot-password / invite.
