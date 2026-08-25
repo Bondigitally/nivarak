@@ -105,11 +105,13 @@ export function SpotlightSearch({
   }, [query]);
 
   useEffect(() => {
-    setMounted(true);
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {
-    setActiveIndex(0);
+    const id = window.setTimeout(() => setActiveIndex(0), 0);
+    return () => window.clearTimeout(id);
   }, [query, open]);
 
   useEffect(() => {

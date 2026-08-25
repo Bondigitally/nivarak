@@ -74,7 +74,9 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
   }, []);
 
   useEffect(() => {
-    if (!open) setQuery("");
+    if (open) return;
+    const id = window.setTimeout(() => setQuery(""), 0);
+    return () => window.clearTimeout(id);
   }, [open]);
 
   useEffect(() => {
