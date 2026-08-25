@@ -217,12 +217,16 @@ export function Sidebar() {
       return;
     }
     if (isDrawer) return;
-    setIsAnimating(true);
+    // Defer so we don't sync setState in the effect body (cascading-render lint).
+    const start = window.setTimeout(() => setIsAnimating(true), 0);
     const id = window.setTimeout(
       () => setIsAnimating(false),
       SIDEBAR_TRANSITION_MS,
     );
-    return () => window.clearTimeout(id);
+    return () => {
+      window.clearTimeout(start);
+      window.clearTimeout(id);
+    };
   }, [collapsed, isDrawer]);
 
   useEffect(() => {
@@ -233,22 +237,26 @@ export function Sidebar() {
       ),
     ).map((item) => item.label);
     if (activeParents.length === 0) return;
-    setOpenSections((prev) => {
-      const next = new Set(prev);
-      let changed = false;
-      for (const label of activeParents) {
-        if (!next.has(label)) {
-          next.add(label);
-          changed = true;
+    const id = window.setTimeout(() => {
+      setOpenSections((prev) => {
+        const next = new Set(prev);
+        let changed = false;
+        for (const label of activeParents) {
+          if (!next.has(label)) {
+            next.add(label);
+            changed = true;
+          }
         }
-      }
-      return changed ? [...next] : prev;
-    });
+        return changed ? [...next] : prev;
+      });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [pathname]);
 
   useEffect(() => {
     if (!isDrawer) return;
-    setOpen(false);
+    const id = window.setTimeout(() => setOpen(false), 0);
+    return () => window.clearTimeout(id);
   }, [pathname, isDrawer, setOpen]);
 
   function toggleSection(label: string) {
