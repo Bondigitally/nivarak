@@ -1,81 +1,209 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
-  Home,
-  Heart,
-  ShieldCheck,
-  Users,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  MoreHorizontal,
-} from "lucide-react";
+  Home12Icon,
+  HealthIcon,
+  HealtcareIcon,
+  UserMultiple02Icon,
+  Settings01Icon,
+  Logout01Icon,
+  ChevronRightIcon,
+  Cancel01Icon,
+} from "@hugeicons/core-free-icons";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { typo } from "@/lib/tokens/typography";
+import { roundedElegance } from "@/lib/fonts";
+import {
+  SIDEBAR_TRANSITION_MS,
+  SIDEBAR_WIDTH_COLLAPSED,
+  SIDEBAR_WIDTH_EXPANDED,
+  useSidebar,
+} from "@/components/layout/sidebar-context";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import type { UserRole } from "@/features/auth/lib/roles";
 
 type NavChild = {
   label: string;
   href: string;
+  roles?: UserRole[];
 };
 
 type NavItem = {
   label: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: React.ElementType<any>;
+  icon: IconSvgElement;
   href?: string;
   children?: NavChild[];
+  roles?: UserRole[];
 };
-
-// ─── Navigation config ────────────────────────────────────────────────────────
-// Note: icon library is lucide-react (installed); design.md specifies Hugeicons
-// — swap icon imports when @hugeicons/react is added to the project.
 
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Home",
-    icon: Home,
-    href: "/protected/dashboard",
+    icon: Home12Icon,
+    href: "/dashboard",
   },
   {
     label: "Health",
-    icon: Heart,
+    icon: HealthIcon,
     children: [
-      { label: "Vitals", href: "/protected/health/vitals" },
-      { label: "Risk Status", href: "/protected/health/risk" },
-      { label: "Health Records", href: "/protected/health/records" },
+      { label: "Assessments", href: "/health/assessments" },
+      { label: "Vitals", href: "/health/vitals" },
+      { label: "Health Records", href: "/health/records" },
     ],
   },
   {
     label: "Care",
-    icon: ShieldCheck,
-    href: "/protected/care",
+    icon: HealtcareIcon,
+    children: [
+      { label: "Care Plan", href: "/care/plan" },
+      { label: "Medications", href: "/care/medications" },
+      { label: "Tasks", href: "/care/tasks" },
+      { label: "Appointments", href: "/care/appointments" },
+    ],
   },
   {
     label: "Care Team",
-    icon: Users,
-    href: "/protected/care-team",
+    icon: UserMultiple02Icon,
+    href: "/care-team",
   },
 ];
 
-// ─── Style helpers ────────────────────────────────────────────────────────────
+const USER_NAME = "Alex";
 
-const NAV_BASE =
-  "flex items-center gap-3 rounded-[14px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A66BCF]";
-const NAV_PAD = "px-3 py-[10px]"; // 10px vertical → 44px row height with 14px line-height + padding
-const NAV_INACTIVE = "text-[#5F6368] hover:bg-[#F7F5F9] hover:text-[#1A1A1A]";
-const NAV_ACTIVE = "bg-[#F2EBF9] text-[#6C318E] font-medium";
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
+  // Idle = Text/Secondary; hover = Surface/Hover + Text/Primary.
+  // Active = Surface/Selected + Brand/Primary (not Primary/Active pressed).
+  const NAV_IDLE =
+    "text-muted-foreground hover:bg-accent hover:text-foreground";
+  const NAV_ACTIVE = "bg-sidebar-accent text-sidebar-accent-foreground";
+const SUBMENU_MOTION = {
+  duration: 0.2,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
+const CHROME = "flex shrink-0 items-center";
+/** Expanded row — pairs with nav `p-2`. */
+const NAV_BTN =
+  "flex h-11 w-full items-center gap-2 rounded-[14px] px-2 py-3";
+/** Icon rail hit target — pairs with collapsed `w-14` (56px) + `p-1.5`. */
+const COLLAPSED_BTN =
+  "flex size-10 shrink-0 items-center justify-center rounded-[14px]";
+/** Left inset so a size-10 control is centered in the 56px clipped rail. */
+const COLLAPSED_ICON_INSET = "pl-2"; // (56 - 40) / 2 = 8px
 
-// ─── Component ────────────────────────────────────────────────────────────────
+/**
+ * Horizontal rule for the sidebar chrome.
+ * `inset`: 8px gutters (40px in the 56px rail). Otherwise full-bleed.
+ */
+function SidebarDivider({
+  collapsed,
+  inset = false,
+  /** Set when nested inside nav `p-2` so sizing is vs the full chrome width. */
+  bleedNavPadding = false,
+}: {
+  collapsed: boolean;
+  inset?: boolean;
+  bleedNavPadding?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none shrink-0",
+        inset && "px-2",
+        // Collapsed: cancel chrome `pl-2` so alignment is vs the 56px viewport.
+        // Expanded + nav: cancel nav `p-2` so sizing matches chrome-level dividers.
+        collapsed
+          ? "-ml-2 w-14"
+          : bleedNavPadding
+            ? "-mx-2 w-[calc(100%+1rem)]"
+            : "w-full",
+      )}
+    >
+      <div className="h-px w-full bg-border" />
+    </div>
+  );
+}
+
+function NavIcon({
+  icon,
+  size = 19,
+  strokeWidth = 1.75,
+}: {
+  icon: IconSvgElement;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  return (
+    <HugeiconsIcon
+      icon={icon}
+      size={size}
+      strokeWidth={strokeWidth}
+      absoluteStrokeWidth={false}
+      color="currentColor"
+      className="shrink-0"
+    />
+  );
+}
+
+function CollapsedTip({
+  label,
+  enabled,
+  children,
+}: {
+  label: string;
+  enabled: boolean;
+  children: ReactNode;
+}) {
+  if (!enabled) return children;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right" align="center">
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [openSections, setOpenSections] = useState<string[]>(["Health"]);
+  const { collapsed, setCollapsed, isDrawer, open: drawerOpen, setOpen, openSignOut } =
+    useSidebar();
+  const [openSections, setOpenSections] = useState<string[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
   const pathname = usePathname();
+  const skipAnimRef = useRef(true);
+  // Drawer always shows the expanded chrome; desktop can collapse to the icon rail.
+  const railCollapsed = !isDrawer && collapsed;
+  const width = railCollapsed
+    ? SIDEBAR_WIDTH_COLLAPSED
+    : SIDEBAR_WIDTH_EXPANDED;
+  // Tooltips only after the rail has settled collapsed — avoids Radix mount mid-transition.
+  const tipsEnabled = railCollapsed && !isAnimating;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
@@ -83,238 +211,397 @@ export function Sidebar() {
   const isParentActive = (item: NavItem) =>
     item.children?.some((c) => isActive(c.href)) ?? false;
 
-  // In collapsed mode: auto-expand the sidebar, then open the section.
-  const handleSectionClick = (label: string) => {
-    if (collapsed) {
+  useEffect(() => {
+    if (skipAnimRef.current) {
+      skipAnimRef.current = false;
+      return;
+    }
+    if (isDrawer) return;
+    setIsAnimating(true);
+    const id = window.setTimeout(
+      () => setIsAnimating(false),
+      SIDEBAR_TRANSITION_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [collapsed, isDrawer]);
+
+  useEffect(() => {
+    const activeParents = NAV_ITEMS.filter((item) =>
+      item.children?.some(
+        (child) =>
+          pathname === child.href || pathname.startsWith(child.href + "/"),
+      ),
+    ).map((item) => item.label);
+    if (activeParents.length === 0) return;
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      for (const label of activeParents) {
+        if (!next.has(label)) {
+          next.add(label);
+          changed = true;
+        }
+      }
+      return changed ? [...next] : prev;
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isDrawer) return;
+    setOpen(false);
+  }, [pathname, isDrawer, setOpen]);
+
+  function toggleSection(label: string) {
+    if (railCollapsed) {
       setCollapsed(false);
       setOpenSections((prev) =>
-        prev.includes(label) ? prev : [...prev, label]
+        prev.includes(label) ? prev : [...prev, label],
       );
-    } else {
-      setOpenSections((prev) =>
-        prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
-      );
+      return;
     }
-  };
+    setOpenSections((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label],
+    );
+  }
 
-  return (
-    <aside
+  const chrome = (
+    <div
       className={cn(
-        // Layout
-        "relative flex h-screen flex-col shrink-0",
-        // Surface — Surface/Primary (white) + Border/Primary right edge
-        "bg-white border-r border-[#E9E4ED]",
-        // Smooth width transition (Motion/Normal 250ms)
-        "transition-[width] duration-250 ease-in-out overflow-hidden",
-        collapsed ? "w-16" : "w-60"
+        "flex h-full flex-col",
+        railCollapsed ? COLLAPSED_ICON_INSET : undefined,
       )}
+      style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
-      {/* ── Brand header ─────────────────────────────────────── */}
-      {/* Height: 64px — aligns with typical top nav bar */}
       <div
         className={cn(
-          "flex items-center h-16 border-b border-[#E9E4ED] shrink-0",
-          collapsed ? "justify-center px-3" : "gap-3 px-4"
+          CHROME,
+          "h-14 min-h-14",
+          railCollapsed ? "py-1.5" : "p-2",
         )}
       >
-        {/* Logo mark — 32×32, radius 10px */}
-        <div className="size-8 rounded-[10px] bg-[#6C318E] flex items-center justify-center shrink-0">
-          <span className="text-white text-[13px] font-bold leading-none select-none">
-            N
-          </span>
-        </div>
+        <div
+          className={cn(
+            "flex min-w-0 items-center",
+            railCollapsed ? "w-10" : "w-full gap-1",
+          )}
+        >
+          <Link
+            href="/dashboard"
+            className={cn(
+              FOCUS,
+              railCollapsed
+                ? COLLAPSED_BTN
+                : "flex min-w-0 flex-1 items-center gap-2 rounded-[14px] px-2",
+            )}
+            aria-label="Nivarak home"
+            onClick={() => {
+              if (isDrawer) setOpen(false);
+            }}
+          >
+            <span className="flex size-10 shrink-0 items-center justify-center">
+              <Image
+                src="/images/nivarak-logo-no-text.png"
+                alt=""
+                width={40}
+                height={40}
+                className="size-10 object-contain"
+              />
+            </span>
+            {!railCollapsed ? (
+              <span className="flex min-w-0 flex-1 flex-col gap-0">
+                <span
+                  className={cn(
+                    "truncate",
+                    roundedElegance.className,
+                    typo.logo,
+                    "text-2xl leading-6 tracking-[0.08em]",
+                  )}
+                >
+                  nivarak
+                </span>
+                <span className={cn("truncate", typo.caption)}>
+                  Unifying Eldercare
+                </span>
+              </span>
+            ) : null}
+          </Link>
 
-        {!collapsed && (
-          <div className="min-w-0">
-            {/* Body M Semibold */}
-            <p className="text-[14px] font-semibold text-[#1A1A1A] leading-5 truncate">
-              Nivarak
-            </p>
-            {/* Caption — Overline / mist-text */}
-            <p className="text-[11px] text-[#8A8F98] leading-4 truncate">
-              Caring Harmony
-            </p>
-          </div>
-        )}
+          {isDrawer && !railCollapsed ? (
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={() => setOpen(false)}
+              className={cn(
+                FOCUS,
+                "inline-flex size-10 shrink-0 items-center justify-center rounded-[14px] text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+            >
+              <HugeiconsIcon
+                icon={Cancel01Icon}
+                size={19}
+                strokeWidth={1.75}
+                color="currentColor"
+              />
+            </button>
+          ) : null}
+        </div>
       </div>
 
-      {/* ── Collapse / expand toggle ─────────────────────────── */}
-      {/* Floating pill button overlapping the sidebar edge */}
-      <button
-        onClick={() => setCollapsed((c) => !c)}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className={cn(
-          "absolute top-13 -right-3 z-20",
-          "size-6 flex items-center justify-center",
-          "rounded-full bg-white border border-[#E9E4ED]",
-          "text-[#8A8F98] hover:text-[#6C318E] hover:border-[#6C318E]",
-          "transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A66BCF]"
-        )}
-      >
-        {collapsed ? (
-          <ChevronRight size={12} strokeWidth={2} />
-        ) : (
-          <ChevronLeft size={12} strokeWidth={2} />
-        )}
-      </button>
+      <SidebarDivider collapsed={railCollapsed} />
 
-      {/* ── Main navigation ──────────────────────────────────── */}
-      {/* py-3 px-2: 12px top/bottom, 8px side — items are inset from sidebar edge */}
       <nav
-        className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-0.5"
+        className={cn(
+          "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto",
+          railCollapsed ? "py-1.5 pr-0" : "p-2",
+        )}
         aria-label="Main navigation"
       >
         {NAV_ITEMS.map((item) => {
-          // ── Expandable section ──────────────────────────────
           if (item.children) {
-            const open = openSections.includes(item.label);
             const parentActive = isParentActive(item);
+            const sectionOpen = openSections.includes(item.label);
+            const open = !railCollapsed && sectionOpen;
 
             return (
-              <div key={item.label}>
-                {/* Parent toggle */}
-                <button
-                  onClick={() => handleSectionClick(item.label)}
-                  aria-expanded={!collapsed && open}
-                  className={cn(
-                    NAV_BASE,
-                    NAV_PAD,
-                    "w-full",
-                    parentActive ? NAV_ACTIVE : NAV_INACTIVE,
-                    collapsed && "justify-center"
-                  )}
-                >
-                  <item.icon size={20} strokeWidth={1.5} className="shrink-0" />
-                  {!collapsed && (
-                    <>
-                      <span className="flex-1 text-left text-[14px] leading-5">
-                        {item.label}
-                      </span>
-                      {/* Chevron rotates on open — Motion/Normal 200ms */}
-                      <ChevronDown
-                        size={14}
-                        strokeWidth={2}
-                        className={cn(
-                          "shrink-0 text-[#8A8F98] transition-transform duration-200",
-                          open && "rotate-180"
-                        )}
-                      />
-                    </>
-                  )}
-                </button>
-
-                {/* Sub-items — indented with a hairline left border */}
-                {!collapsed && open && (
-                  <div className="mt-1 ml-8 space-y-0.5 border-l border-[#F0EDF3] pl-2">
-                    {item.children.map((child) => {
-                      const active = isActive(child.href);
-                      return (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={cn(
-                            NAV_BASE,
-                            // Compact sub-item: 36px height (py-2 = 8px × 2 + 20px line-height)
-                            "px-3 py-2",
-                            "text-[13px] leading-5",
-                            active ? NAV_ACTIVE : NAV_INACTIVE
-                          )}
+              <div
+                key={item.label}
+                className={cn(
+                  "flex flex-col",
+                  railCollapsed ? "w-10" : "w-full",
+                )}
+              >
+                <CollapsedTip label={item.label} enabled={tipsEnabled}>
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(item.label)}
+                    aria-expanded={open}
+                    aria-label={item.label}
+                    className={cn(
+                      typo.sidebarItem,
+                      railCollapsed ? COLLAPSED_BTN : NAV_BTN,
+                      parentActive && !open ? NAV_ACTIVE : NAV_IDLE,
+                      FOCUS,
+                    )}
+                  >
+                    <NavIcon icon={item.icon} />
+                    {!railCollapsed ? (
+                      <>
+                        <span className="min-w-0 flex-1 truncate text-left">
+                          {item.label}
+                        </span>
+                        <motion.span
+                          className="inline-flex size-4.75 shrink-0 text-muted-foreground"
+                          animate={{ rotate: open ? 90 : 0 }}
+                          transition={SUBMENU_MOTION}
                         >
-                          {child.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                          <NavIcon icon={ChevronRightIcon} size={19} />
+                        </motion.span>
+                      </>
+                    ) : null}
+                  </button>
+                </CollapsedTip>
+
+                {/* Skip AnimatePresence while collapsed so width transition
+                    doesn't compete with height:auto exit animations. */}
+                {railCollapsed ? null : (
+                  <AnimatePresence initial={false}>
+                    {sectionOpen ? (
+                      <motion.div
+                        key={`${item.label}-submenu`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={SUBMENU_MOTION}
+                        className="w-full overflow-hidden"
+                      >
+                        <div className="flex flex-col px-3.5 pt-2">
+                          <div className="flex flex-col gap-1 border-l-2 border-border py-0.5 pl-2.5">
+                            {item.children.map((child) => {
+                              const active = isActive(child.href);
+                              return (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  aria-current={active ? "page" : undefined}
+                                  className={cn(
+                                    typo.sidebarItem,
+                                    "flex h-9 items-center rounded-[14px] py-2 pr-2 pl-4",
+                                    active ? NAV_ACTIVE : NAV_IDLE,
+                                    FOCUS,
+                                  )}
+                                >
+                                  <span className="truncate">{child.label}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 )}
               </div>
             );
           }
 
-          // ── Leaf nav item ───────────────────────────────────
           const active = item.href ? isActive(item.href) : false;
+
           return (
-            <Link
+            <CollapsedTip
               key={item.label}
-              href={item.href!}
-              className={cn(
-                NAV_BASE,
-                NAV_PAD,
-                "text-[14px] leading-5",
-                active ? NAV_ACTIVE : NAV_INACTIVE,
-                collapsed && "justify-center"
-              )}
+              label={item.label}
+              enabled={tipsEnabled}
             >
-              <item.icon size={20} strokeWidth={1.5} className="shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
+              <Link
+                href={item.href!}
+                aria-label={item.label}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  typo.sidebarItem,
+                  railCollapsed ? COLLAPSED_BTN : NAV_BTN,
+                  active ? NAV_ACTIVE : NAV_IDLE,
+                  FOCUS,
+                )}
+              >
+                <NavIcon icon={item.icon} />
+                {!railCollapsed ? (
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                ) : null}
+              </Link>
+            </CollapsedTip>
           );
         })}
+
+        <div className="flex w-full flex-col">
+          <SidebarDivider
+            collapsed={railCollapsed}
+            inset
+            bleedNavPadding
+          />
+          <div
+            className={cn(
+              "pt-2",
+              railCollapsed ? "flex w-10 justify-center" : "w-full",
+            )}
+          >
+            <CollapsedTip label="Settings" enabled={tipsEnabled}>
+              <Link
+                href="/settings"
+                aria-label="Settings"
+                aria-current={
+                  isActive("/settings") ? "page" : undefined
+                }
+                className={cn(
+                  typo.sidebarItem,
+                  railCollapsed ? COLLAPSED_BTN : NAV_BTN,
+                  isActive("/settings") ? NAV_ACTIVE : NAV_IDLE,
+                  FOCUS,
+                )}
+              >
+                <NavIcon icon={Settings01Icon} />
+                {!railCollapsed ? (
+                  <span className="min-w-0 flex-1 truncate">Settings</span>
+                ) : null}
+              </Link>
+            </CollapsedTip>
+          </div>
+        </div>
       </nav>
 
-      {/* ── Border/Divider separator ─────────────────────────── */}
-      <div className="mx-2 h-px bg-[#F0EDF3]" />
+      <SidebarDivider collapsed={railCollapsed} />
 
-      {/* ── Settings (bottom of nav, above profile) ──────────── */}
-      <div className="px-2 py-2">
-        <Link
-          href="/protected/settings"
-          className={cn(
-            NAV_BASE,
-            NAV_PAD,
-            "text-[14px] leading-5",
-            isActive("/protected/settings") ? NAV_ACTIVE : NAV_INACTIVE,
-            collapsed && "justify-center"
-          )}
-        >
-          <Settings size={20} strokeWidth={1.5} className="shrink-0" />
-          {!collapsed && <span>Settings</span>}
-        </Link>
-      </div>
-
-      {/* ── User profile footer ──────────────────────────────── */}
-      {/* 64px height to match header; px-3 py-3 */}
       <div
         className={cn(
-          "border-t border-[#E9E4ED] py-3 flex items-center gap-2.5 shrink-0",
-          collapsed ? "justify-center px-3" : "px-3"
+          CHROME,
+          "h-14 min-h-14",
+          railCollapsed ? "py-1.5" : "p-2",
         )}
       >
-        {/* Avatar — 32×32 full-circle, Surface/Selected bg */}
-        <div className="size-8 rounded-full bg-[#F2EBF9] flex items-center justify-center shrink-0">
-          <span className="text-[#6C318E] text-[12px] font-semibold leading-none select-none">
-            A
-          </span>
-        </div>
-
-        {!collapsed && (
-          <>
-            <div className="flex-1 min-w-0">
-              {/* Label — 13px Medium */}
-              <p className="text-[13px] font-medium text-[#1A1A1A] leading-5 truncate">
-                Alex
-              </p>
-              {/* Caption — 11px, mist-text */}
-              <p className="text-[11px] text-[#8A8F98] leading-4 truncate">
-                alex@example.com
-              </p>
-            </div>
-
-            {/* Options button — 28×28 ghost icon */}
+        {railCollapsed ? (
+          <CollapsedTip label={USER_NAME} enabled={tipsEnabled}>
             <button
-              aria-label="User options"
+              type="button"
+              aria-label={USER_NAME}
+              onClick={() => setCollapsed(false)}
+              className={cn(COLLAPSED_BTN, FOCUS)}
+            >
+              <Avatar />
+            </button>
+          </CollapsedTip>
+        ) : (
+          <div className="flex w-full items-center gap-2 px-2">
+            <Avatar />
+            <div className="min-w-0 flex-1">
+              <p
+                className={cn("truncate", typo.sidebarItem, "text-foreground")}
+              >
+                {USER_NAME}
+              </p>
+              <p className={cn("truncate", typo.caption)}>m@example.com</p>
+            </div>
+            <button
+              type="button"
+              aria-label="Sign out"
+              onClick={openSignOut}
               className={cn(
-                "size-7 flex items-center justify-center rounded-lg",
-                "text-[#8A8F98] hover:text-[#5F6368] hover:bg-[#F7F5F9]",
-                "transition-colors duration-150",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A66BCF]"
+                "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                "text-muted-foreground hover:text-destructive",
+                FOCUS,
               )}
             >
-              <MoreHorizontal size={16} strokeWidth={1.5} />
+              <NavIcon icon={Logout01Icon} size={19} />
             </button>
-          </>
+          </div>
         )}
       </div>
-    </aside>
+    </div>
+  );
+
+  if (isDrawer) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Sheet open={drawerOpen} onOpenChange={setOpen}>
+          <SheetContent
+            side="left"
+            showCloseButton={false}
+            className="w-(--sidebar-width) max-w-(--sidebar-width) gap-0 border-r border-sidebar-border bg-sidebar p-0 font-sans shadow-lg"
+            style={
+              {
+                "--sidebar-width": `${SIDEBAR_WIDTH_EXPANDED}px`,
+              } as CSSProperties
+            }
+          >
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Main app navigation
+            </SheetDescription>
+            {chrome}
+          </SheetContent>
+        </Sheet>
+      </TooltipProvider>
+    );
+  }
+
+  return (
+    <>
+      <TooltipProvider delayDuration={200}>
+        <aside
+          className="relative z-10 flex h-full shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar font-sans transition-[width] duration-200 ease-out"
+          style={{ width, transitionDuration: `${SIDEBAR_TRANSITION_MS}ms` }}
+        >
+          {/* Expanded chrome is always full width; outer aside clips to the icon rail when collapsed.
+              Collapsed: pl-2 centers size-10 icons in the 56px viewport ((56-40)/2). */}
+          {chrome}
+        </aside>
+      </TooltipProvider>
+    </>
+  );
+}
+
+function Avatar() {
+  return (
+    <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sidebar-border bg-sidebar-accent text-xs font-semibold text-sidebar-primary">
+      A
+    </span>
   );
 }
