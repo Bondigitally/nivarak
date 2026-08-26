@@ -1,7 +1,12 @@
 import { NotificationSnooze01Icon } from "@hugeicons/core-free-icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { dashboardCardClass, dashboardCardHeaderClass, dashboardListItemClass } from "../data/dashboard-styles";
+import {
+  dashboardCardClass,
+  dashboardCardHeaderClass,
+  dashboardDividedRowClass,
+  dashboardRowDividerClass,
+} from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { ActivityItem } from "../data/home-data";
 
@@ -15,17 +20,23 @@ export function RecentActivityCard({ items }: { items: ActivityItem[] | null }) 
         <ViewAllLink />
       </div>
       {items && items.length > 0 ? (
-        <ul className="flex flex-col">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className={cn(
-                dashboardListItemClass,
-                "flex flex-col gap-1 border-b border-[rgba(220,226,243,0.3)] py-3 first:pt-0 last:border-b-0 last:pb-0",
-              )}
-            >
-              <p className={typo.headingS}>{item.title}</p>
-              <p className={cn(typo.caption, "text-[rgba(77,68,80,0.6)]")}>{item.timestamp}</p>
+        <ul className="flex min-w-0 flex-col">
+          {items.map((item, index) => (
+            <li key={item.id} className="relative">
+              {index > 0 ? (
+                <div className={dashboardRowDividerClass} aria-hidden />
+              ) : null}
+              <div
+                className={cn(
+                  dashboardDividedRowClass,
+                  "-mx-2 flex flex-col gap-1 px-2 py-3.5",
+                )}
+              >
+                <p className={typo.headingS}>{item.title}</p>
+                <p className={cn(typo.caption, "text-tertiary-foreground/60")}>
+                  {item.timestamp}
+                </p>
+              </div>
             </li>
           ))}
         </ul>

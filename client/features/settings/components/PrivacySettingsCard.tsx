@@ -20,18 +20,16 @@ export function PrivacySettingsCard({
     <section className={cn(dashboardCardClass, "flex flex-col gap-6 p-6")}>
       <SettingsSectionHeader icon={UserShield01Icon} title="Privacy" />
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-        <div className="min-w-0 flex-1 rounded-lg border border-border bg-[#F8F5FA] p-4">
-          <div className="min-w-0 space-y-2">
-            <p className={cn(typo.button, "font-bold text-[#531575]")}>{title}</p>
-            <p className={cn(typo.caption, "text-[#4D4450]")}>{body}</p>
-          </div>
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div className="min-w-0 space-y-2">
+          <p className={cn(typo.headingS, "text-primary-active")}>{title}</p>
+          <p className={cn(typo.caption, "text-muted-foreground")}>{body}</p>
         </div>
 
         <Button
           asChild
           variant="primary-outline"
-          className="w-full shrink-0 shadow-[0_1px_2px_rgba(17,24,39,0.04)] md:w-auto [&_svg]:size-4.75"
+          className="w-full shrink-0 shadow-[0_1px_2px_rgba(17,24,39,0.04)] sm:w-auto [&_svg]:size-4.75"
         >
           <Link href="/care-team">
             Manage linked caregivers
