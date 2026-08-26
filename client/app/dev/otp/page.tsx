@@ -7,9 +7,9 @@
  */
 
 import { useRouter } from 'next/navigation';
-import { AuthLayout } from '@/components/auth/layout/AuthLayout';
-import { AuthCard } from '@/components/auth/layout/AuthCard';
-import { OtpVerifyStep } from '@/components/auth/steps/OtpVerifyStep';
+import { AuthLayout } from '@/features/auth/components/layout/AuthLayout';
+import { AuthCard } from '@/features/auth/components/layout/AuthCard';
+import { OtpVerifyStep } from '@/features/auth/components/steps/OtpVerifyStep';
 
 export default function DevPhoneOtpPage() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { AuthScreen } from '@/components/auth/AuthScreen';
+import { AuthScreen } from '@/features/auth/components/AuthScreen';
 
 interface InviteAcceptPageProps {
   searchParams: Promise<{ token?: string; phone?: string }>;

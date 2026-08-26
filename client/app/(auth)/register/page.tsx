@@ -1,4 +1,4 @@
-import { AuthScreen } from '@/components/auth/AuthScreen';
+import { AuthScreen } from '@/features/auth/components/AuthScreen';
 
 interface RegisterPageProps {
   searchParams: Promise<{ phone?: string }>;
