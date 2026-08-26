@@ -7,7 +7,7 @@ import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
 
 export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
   return (
-    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-[#E9E4ED] bg-white p-6">
+    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center gap-2.5">
         <span className="inline-flex size-4 shrink-0 text-destructive" aria-hidden>
           <HugeiconsIcon
@@ -17,13 +17,13 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
             color="currentColor"
           />
         </span>
-        <h2 className={cn(typo.headingL, "font-medium text-[#1F2937]")}>
+        <h2 className={cn(typo.headingL, "font-medium text-foreground")}>
           When to call care team
         </h2>
         <SectionInfoButton info="Warning signs that mean you should contact your care team right away. Use Call Care Team for urgent help." />
       </div>
 
-      <div className="rounded-[14px] bg-[#FEF2F2] px-4 py-3">
+      <div className="rounded-[14px] bg-destructive-muted px-4 py-3">
         <ul className="flex flex-col gap-2">
           {triggers.map((trigger) => (
             <li key={trigger} className="flex items-center gap-2.5">
@@ -31,7 +31,7 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
                 className="size-1.5 shrink-0 rounded-full bg-destructive"
                 aria-hidden
               />
-              <span className="text-sm font-normal leading-5 text-[#374151]">
+              <span className="text-sm font-normal leading-5 text-muted-foreground">
                 {trigger}
               </span>
             </li>

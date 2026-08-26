@@ -64,7 +64,7 @@ export default function HealthRecordsPage() {
         <div
           role="region"
           aria-label="Upload health records"
-          className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-xl bg-white px-5 py-6"
+          className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-xl bg-card px-5 py-6"
           style={{
             border: "1px dashed #C4A9D9",
             boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.04)",
@@ -80,11 +80,11 @@ export default function HealthRecordsPage() {
             aria-hidden
             tabIndex={-1}
           />
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F2EBF6] text-[#6C318E]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sidebar-accent text-primary">
             <HugeiconsIcon icon={CloudUploadIcon} size={28} strokeWidth={1.75} color="currentColor" />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
-            <p className="font-sans text-base font-semibold leading-6 text-[#1A1A1A]">
+            <p className="font-sans text-base font-semibold leading-6 text-foreground">
               Drag &amp; Drop files here
             </p>
             <p className={typo.caption}>
@@ -113,7 +113,7 @@ export default function HealthRecordsPage() {
 
         {/* Categories */}
         <div className="flex flex-col gap-3">
-          <SectionTitle className="flex-none pr-0 text-[#1A1A1A]">
+          <SectionTitle className="flex-none pr-0 text-foreground">
             Categories
           </SectionTitle>
           <div className="grid grid-cols-1 gap-dash-gutter md:grid-cols-2 xl:grid-cols-4">
@@ -125,7 +125,7 @@ export default function HealthRecordsPage() {
 
         {/* All Documents */}
         <div
-          className="flex flex-col items-stretch justify-start self-stretch rounded-xl bg-white"
+          className="flex flex-col items-stretch justify-start self-stretch rounded-xl bg-card"
           style={{
             outline: "1px #E5E2E1 solid",
             outlineOffset: "-1px",
@@ -134,10 +134,10 @@ export default function HealthRecordsPage() {
         >
           <div className="flex flex-col gap-dash-gutter self-stretch px-5 pt-5 pb-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex shrink-0 items-center gap-2">
-              <h2 className="font-sans text-[22px] font-semibold leading-7 text-[#1A1A1A]">
+              <h2 className="font-sans text-[22px] font-semibold leading-7 text-foreground">
                 All Documents
               </h2>
-              <span className="rounded-full bg-[#F2EBF6] px-2 py-0.5 font-sans text-xs font-bold text-[#6C318E]">
+              <span className="rounded-full bg-sidebar-accent px-2 py-0.5 font-sans text-xs font-bold text-primary">
                 {filteredDocuments.length}
               </span>
               <SectionInfoButton info="Every uploaded health document in one place. Search, filter, view, or download files." />
@@ -166,7 +166,7 @@ export default function HealthRecordsPage() {
                   aria-label="Search documents"
                   className={cn(
                     typo.input,
-                    "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#9CA3AF] [&::-webkit-search-cancel-button]:hidden"
+                    "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-placeholder [&::-webkit-search-cancel-button]:hidden"
                   )}
                 />
                 {query.trim() ? (
@@ -206,10 +206,10 @@ export default function HealthRecordsPage() {
           <div className="overflow-hidden self-stretch rounded-b-xl px-5 pt-2 pb-2">
             {filteredDocuments.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-1 px-4 py-10 text-center">
-                <p className="font-sans text-sm font-medium leading-5 text-[#1A1A1A]">
+                <p className="font-sans text-sm font-medium leading-5 text-foreground">
                   No documents found
                 </p>
-                <p className="font-sans text-sm font-normal leading-5 text-[#5F6368]">
+                <p className="font-sans text-sm font-normal leading-5 text-muted-foreground">
                   Try a different search or filter.
                 </p>
               </div>
@@ -221,16 +221,16 @@ export default function HealthRecordsPage() {
                     return (
                       <li
                         key={doc.id}
-                        className="flex items-start gap-3 border-b border-[#F0EDF3] py-3 first:pt-1 last:border-b-0"
+                        className="flex items-start gap-3 border-b border-divider py-3 first:pt-1 last:border-b-0"
                       >
                         <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-[10px]", bg)}>
                           <HugeiconsIcon icon={icon} size={19} strokeWidth={1.75} color={color} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-sans text-sm font-medium leading-5 text-[#201A25]">{doc.name}</p>
-                          <p className="mt-1 font-sans text-sm font-normal leading-5 text-[#5F6368]">
+                          <p className="font-sans text-sm font-medium leading-5 text-foreground">{doc.name}</p>
+                          <p className="mt-1 font-sans text-sm font-normal leading-5 text-muted-foreground">
                             <span>{doc.date}</span>
-                            <span className="mx-1.5 text-[#C4BDC9]" aria-hidden>·</span>
+                            <span className="mx-1.5 text-tertiary-foreground" aria-hidden>·</span>
                             <span>{doc.size}</span>
                           </p>
                         </div>
@@ -243,7 +243,7 @@ export default function HealthRecordsPage() {
                   <li className="py-3 text-center">
                     <button
                       type="button"
-                      className="font-sans text-sm font-medium leading-5 text-[#5F6368] outline-none transition-colors hover:text-[#6C318E]"
+                      className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-primary"
                     >
                       Load More
                     </button>
@@ -259,14 +259,14 @@ export default function HealthRecordsPage() {
                       <col className="w-14" />
                     </colgroup>
                     <thead>
-                      <tr className="bg-[#F3F0F6]">
-                        <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                      <tr className="bg-muted">
+                        <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Document Name
                         </th>
-                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Date
                         </th>
-                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Size
                         </th>
                         <th scope="col" className="h-11 w-14 rounded-r-xl px-2">
@@ -278,34 +278,34 @@ export default function HealthRecordsPage() {
                       {filteredDocuments.map((doc) => {
                         const { icon, bg, color } = DOC_ICON_MAP[doc.type];
                         return (
-                          <tr key={doc.id} className="transition-colors duration-100 hover:bg-[#FAFAFA]">
-                            <td className="border-b border-[#F0EDF3] px-4 py-3">
+                          <tr key={doc.id} className="transition-colors duration-100 hover:bg-accent">
+                            <td className="border-b border-divider px-4 py-3">
                               <div className="flex min-w-0 items-center gap-3">
                                 <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-[10px]", bg)}>
                                   <HugeiconsIcon icon={icon} size={19} strokeWidth={1.75} color={color} />
                                 </div>
-                                <span className="truncate font-sans text-sm font-medium leading-5 text-[#201A25]">
+                                <span className="truncate font-sans text-sm font-medium leading-5 text-foreground">
                                   {doc.name}
                                 </span>
                               </div>
                             </td>
-                            <td className="border-b border-[#F0EDF3] px-4 py-3 font-sans text-sm font-normal leading-5 text-[#5F6368] whitespace-nowrap">
+                            <td className="border-b border-divider px-4 py-3 font-sans text-sm font-normal leading-5 text-muted-foreground whitespace-nowrap">
                               {doc.date}
                             </td>
-                            <td className="border-b border-[#F0EDF3] px-4 py-3 font-sans text-sm font-normal leading-5 text-[#5F6368] whitespace-nowrap">
+                            <td className="border-b border-divider px-4 py-3 font-sans text-sm font-normal leading-5 text-muted-foreground whitespace-nowrap">
                               {doc.size}
                             </td>
-                            <td className="w-14 border-b border-[#F0EDF3] px-2 py-3 text-right">
+                            <td className="w-14 border-b border-divider px-2 py-3 text-right">
                               <DocActionsMenu />
                             </td>
                           </tr>
                         );
                       })}
-                      <tr className="transition-colors duration-100 hover:bg-[#FAFAFA]">
+                      <tr className="transition-colors duration-100 hover:bg-accent">
                         <td colSpan={4} className="px-4 py-3 text-center">
                           <button
                             type="button"
-                            className="font-sans text-sm font-medium leading-5 text-[#5F6368] outline-none transition-colors hover:text-[#6C318E]"
+                            className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-primary"
                           >
                             Load More
                           </button>

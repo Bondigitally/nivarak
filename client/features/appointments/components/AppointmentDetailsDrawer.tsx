@@ -51,19 +51,19 @@ const statusStyles: Record<
   { className: string; showCheck: boolean }
 > = {
   Confirmed: {
-    className: "border-[rgba(16,185,129,0.2)] bg-[#ECFDF5] text-[#10B981]",
+    className: "border-[rgba(16,185,129,0.2)] bg-success-muted text-success",
     showCheck: true,
   },
   Scheduled: {
-    className: "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]",
+    className: "border-info-muted bg-info-muted text-info",
     showCheck: false,
   },
   Completed: {
-    className: "border-[#E5E7EB] bg-[#F9FAFB] text-[#4B5563]",
+    className: "border-border bg-muted text-muted-foreground",
     showCheck: false,
   },
   Cancelled: {
-    className: "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]",
+    className: "border-destructive-muted bg-destructive-muted text-destructive",
     showCheck: false,
   },
 };
@@ -87,7 +87,7 @@ function FieldLabel({
 
 function IconChip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#F4F9FF] text-[#1A1A1A]">
+    <span className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-info-muted text-foreground">
       {children}
     </span>
   );
@@ -119,12 +119,12 @@ export function AppointmentDetailsDrawer({
         side={sheetSide}
         showCloseButton={false}
         className={cn(
-          "flex w-full flex-col gap-0 overflow-hidden bg-white p-0",
+          "flex w-full flex-col gap-0 overflow-hidden bg-card p-0",
           "shadow-[0_12px_24px_rgba(17,24,39,0.12)]",
           "data-[state=closed]:duration-300 data-[state=open]:duration-500",
           isCompact
-            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-[20px] border-t border-[#E9E4ED] sm:max-w-none"
-            : "h-full w-full max-w-none border-l border-[#E9E4ED] rounded-bl-[20px] rounded-tl-[20px] sm:max-w-xl",
+            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-[20px] border-t border-border sm:max-w-none"
+            : "h-full w-full max-w-none border-l border-border rounded-bl-[20px] rounded-tl-[20px] sm:max-w-xl",
         )}
       >
         {appointment ? (
@@ -134,13 +134,13 @@ export function AppointmentDetailsDrawer({
                 className="flex shrink-0 items-center justify-center pt-3"
                 aria-hidden
               >
-                <span className="h-1 w-10 rounded-full bg-[#E9E4ED]" />
+                <span className="h-1 w-10 rounded-full bg-border" />
               </div>
             ) : null}
-            <SheetHeader className="shrink-0 space-y-0 border-b border-[#E9E4ED] px-6 py-5 text-left sm:px-8 sm:py-6">
+            <SheetHeader className="shrink-0 space-y-0 border-b border-border px-6 py-5 text-left sm:px-8 sm:py-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 flex-col gap-1">
-                  <SheetTitle className={cn(typo.headingXl, "text-[#1A1A1A]")}>
+                  <SheetTitle className={cn(typo.headingXl, "text-foreground")}>
                     {appointment.visitType}
                   </SheetTitle>
                   <SheetDescription className={cn(typo.bodyL, "text-muted-foreground")}>
@@ -205,7 +205,7 @@ export function AppointmentDetailsDrawer({
                     >
                       Time window
                     </FieldLabel>
-                    <p className={cn(typo.bodyL, "pl-9 text-[#1A1A1A]")}>
+                    <p className={cn(typo.bodyL, "pl-9 text-foreground")}>
                       {appointment.timeWindowLabel}
                     </p>
                   </div>
@@ -227,7 +227,7 @@ export function AppointmentDetailsDrawer({
                     </FieldLabel>
                     <div className="flex items-center gap-3 pl-9">
                       {appointment.clinicianAvatarUrl ? (
-                        <span className="relative size-10 shrink-0 overflow-hidden rounded-full border border-[#E9E4ED] bg-[#E9E0E8]">
+                        <span className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border bg-border">
                           <Image
                             src={appointment.clinicianAvatarUrl}
                             alt=""
@@ -237,12 +237,12 @@ export function AppointmentDetailsDrawer({
                           />
                         </span>
                       ) : (
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#E9E4ED] bg-[#F2EBF9] text-sm font-semibold text-(--primary-active)">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-sidebar-accent text-sm font-semibold text-primary-active">
                           {appointment.clinicianInitials}
                         </span>
                       )}
                       <div className="min-w-0">
-                        <p className={cn(typo.headingS, "text-sm leading-5 text-[#1A1A1A]")}>
+                        <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
                           {appointment.clinician}
                         </p>
                         <p className={cn(typo.caption, "text-muted-foreground")}>
@@ -268,8 +268,8 @@ export function AppointmentDetailsDrawer({
                       {locationLabel}
                     </FieldLabel>
                     {appointment.addressLines && appointment.addressLines.length > 0 ? (
-                      <div className="rounded-lg border border-[#E9E4ED] bg-[#FBF1FA] p-4">
-                        <p className={cn(typo.bodyL, "text-[#1A1A1A]")}>
+                      <div className="rounded-lg border border-border bg-sidebar-accent p-4">
+                        <p className={cn(typo.bodyL, "text-foreground")}>
                           {appointment.addressLines.map((line) => (
                             <span key={line} className="block">
                               {line}
@@ -278,7 +278,7 @@ export function AppointmentDetailsDrawer({
                         </p>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-lg border border-[#E9E4ED] bg-[#FBF1FA] p-4">
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-sidebar-accent p-4">
                         <HugeiconsIcon
                           icon={
                             appointment.placeKind === "video"
@@ -290,7 +290,7 @@ export function AppointmentDetailsDrawer({
                           color="currentColor"
                           className="shrink-0 text-muted-foreground"
                         />
-                        <p className={cn(typo.bodyL, "text-[#1A1A1A]")}>
+                        <p className={cn(typo.bodyL, "text-foreground")}>
                           {appointment.placeLabel}
                         </p>
                       </div>
@@ -299,15 +299,15 @@ export function AppointmentDetailsDrawer({
 
                   <div className="flex flex-col gap-2">
                     <FieldLabel>Reason for visit</FieldLabel>
-                    <p className={cn(typo.bodyL, "text-[#1A1A1A]")}>
+                    <p className={cn(typo.bodyL, "text-foreground")}>
                       {appointment.reason}
                     </p>
                   </div>
                 </div>
 
                 {appointment.showMap ? (
-                  <div className="relative h-40 w-full overflow-hidden rounded-lg border border-[#E9E4ED] bg-[#EFE5EE]">
-                    <div className="absolute inset-0 flex items-center justify-center text-[#C4B5C8]">
+                  <div className="relative h-40 w-full overflow-hidden rounded-lg border border-border bg-sidebar-accent">
+                    <div className="absolute inset-0 flex items-center justify-center text-tertiary-foreground">
                       <HugeiconsIcon
                         icon={Image01Icon}
                         size={48}
@@ -316,7 +316,7 @@ export function AppointmentDetailsDrawer({
                       />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-white/80 to-transparent p-2">
-                      <span className="inline-flex rounded bg-white/90 px-2 py-1 text-xs leading-4 text-[#1A1A1A] backdrop-blur-[2px]">
+                      <span className="inline-flex rounded bg-card/90 px-2 py-1 text-xs leading-4 text-foreground backdrop-blur-[2px]">
                         View full map
                       </span>
                     </div>
@@ -327,7 +327,7 @@ export function AppointmentDetailsDrawer({
 
             <SheetFooter
               className={cn(
-                "mt-auto flex shrink-0 flex-col gap-3 border-t border-[#E9E4ED] bg-white p-6 sm:flex-col sm:space-x-0 sm:p-8",
+                "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card p-6 sm:flex-col sm:space-x-0 sm:p-8",
                 !isCompact && "rounded-bl-[20px]",
               )}
             >

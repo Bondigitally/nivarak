@@ -53,13 +53,13 @@ function PermissionSwitch({
       className={cn(
         "relative h-6 w-12 shrink-0 rounded-full transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        checked ? "bg-primary" : "bg-[#D1D5DB]",
+        checked ? "bg-primary" : "bg-border",
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "absolute top-0.5 size-5 rounded-[10px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform",
+          "absolute top-0.5 size-5 rounded-[10px] bg-card shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform",
           checked ? "left-6.5" : "left-0.5",
         )}
       />
@@ -71,7 +71,7 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }
   return (
     <Label
       htmlFor={htmlFor}
-      className={cn(typo.button, "font-semibold tracking-[0.14px] text-[#1F1A20]")}
+      className={cn(typo.button, "font-semibold tracking-[0.14px] text-foreground")}
     >
       {children}
     </Label>
@@ -79,8 +79,8 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }
 }
 
 const fieldClassName = cn(
-  "h-auto min-h-12 w-full rounded-[14px] border border-[#E9E0E8] bg-white px-4 py-3.5 text-base shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
-  "placeholder:text-[#7E7481] focus-visible:ring-1 focus-visible:ring-ring",
+  "h-auto min-h-12 w-full rounded-[14px] border border-border bg-card px-4 py-3.5 text-base shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
+  "placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring",
 );
 
 export function InviteCaregiverDialog() {
@@ -122,7 +122,7 @@ export function InviteCaregiverDialog() {
         <DialogOverlay className="z-100" />
         <DialogPrimitive.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,900px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-[#E9E0E8] bg-white p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
+            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,900px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-border bg-card p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
             "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -132,8 +132,8 @@ export function InviteCaregiverDialog() {
             (event.currentTarget as HTMLElement).focus();
           }}
         >
-        <div className="flex shrink-0 items-center justify-between border-b border-[#E9E0E8] px-8 pb-4.25 pt-6">
-          <DialogTitle className={cn(typo.headingXl, "text-[#1F1A20]")}>
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-8 pb-4.25 pt-6">
+          <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
             Invite a family caregiver
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -143,7 +143,7 @@ export function InviteCaregiverDialog() {
             <button
               type="button"
               aria-label="Close"
-              className="inline-flex size-8 items-center justify-center rounded-full text-[#4D4450] shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.75} color="currentColor" />
             </button>
@@ -172,14 +172,14 @@ export function InviteCaregiverDialog() {
                     type="button"
                     className={cn(
                       fieldClassName,
-                      "flex items-center text-left outline-none transition-colors hover:bg-[#F8F5FA]",
+                      "flex items-center text-left outline-none transition-colors hover:bg-background",
                       "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     )}
                   >
                     <span
                       className={cn(
                         "min-w-0 flex-1 text-base leading-6",
-                        relationship ? "text-[#1F1A20]" : "text-[#1F1A20]",
+                        relationship ? "text-foreground" : "text-foreground",
                       )}
                     >
                       {relationship ?? "Select relationship"}
@@ -189,7 +189,7 @@ export function InviteCaregiverDialog() {
                       size={16}
                       strokeWidth={1.75}
                       color="currentColor"
-                      className="shrink-0 text-[#4D4450]"
+                      className="shrink-0 text-muted-foreground"
                     />
                   </button>
                 </DropdownMenuTrigger>
@@ -204,7 +204,7 @@ export function InviteCaregiverDialog() {
                       onSelect={() => setRelationship(item)}
                       className={cn(
                         "cursor-pointer rounded-[10px] px-3 py-2.5 text-base",
-                        relationship === item && "bg-[#F8F5FA]",
+                        relationship === item && "bg-background",
                       )}
                     >
                       {item}
@@ -216,8 +216,8 @@ export function InviteCaregiverDialog() {
 
             <div className="flex flex-col gap-1">
               <FieldLabel htmlFor="caregiver-mobile">Mobile number</FieldLabel>
-              <div className="flex overflow-hidden rounded-[14px] border border-[#E9E0E8] bg-white shadow-[0_2px_8px_rgba(17,24,39,0.05)]">
-                <span className="inline-flex shrink-0 items-center border-r border-[#E9E0E8] bg-[#F8F5FA] px-4 text-base leading-6 text-[#4D4450]">
+              <div className="flex overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_2px_8px_rgba(17,24,39,0.05)]">
+                <span className="inline-flex shrink-0 items-center border-r border-border bg-background px-4 text-base leading-6 text-muted-foreground">
                   +91
                 </span>
                 <Input
@@ -229,7 +229,7 @@ export function InviteCaregiverDialog() {
                     setMobile(event.target.value.replace(/\D/g, "").slice(0, 10))
                   }
                   placeholder="00000 00000"
-                  className="h-auto min-h-12 flex-1 rounded-none border-0 bg-transparent px-4 py-3.5 text-base shadow-none placeholder:text-[#7E7481] focus-visible:ring-0"
+                  className="h-auto min-h-12 flex-1 rounded-none border-0 bg-transparent px-4 py-3.5 text-base shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
                 />
               </div>
             </div>
@@ -247,13 +247,13 @@ export function InviteCaregiverDialog() {
             </div>
           </div>
 
-          <div className="h-px w-full bg-[#E9E0E8]" />
+          <div className="h-px w-full bg-border" />
 
           <section className="flex flex-col gap-4 pb-2">
-            <h3 className={cn(typo.button, "font-semibold tracking-[0.14px] text-[#1F1A20]")}>
+            <h3 className={cn(typo.button, "font-semibold tracking-[0.14px] text-foreground")}>
               Permissions
             </h3>
-            <div className="flex flex-col gap-4 rounded-[14px] border border-[#E9E0E8] bg-[#F8F5FA] p-6">
+            <div className="flex flex-col gap-4 rounded-[14px] border border-border bg-background p-6">
               {CAREGIVER_PERMISSIONS.map((permission) => {
                 const switchId = `permission-${permission.id}`;
                 return (
@@ -264,11 +264,11 @@ export function InviteCaregiverDialog() {
                     <div className="min-w-0 flex-1">
                       <label
                         htmlFor={switchId}
-                        className="block text-base leading-6 text-[#1F1A20]"
+                        className="block text-base leading-6 text-foreground"
                       >
                         {permission.label}
                       </label>
-                      <p className={cn(typo.caption, "text-[#4D4450]")}>
+                      <p className={cn(typo.caption, "text-muted-foreground")}>
                         {permission.description}
                       </p>
                     </div>
@@ -289,12 +289,12 @@ export function InviteCaregiverDialog() {
           </section>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-3 border-t border-[#E9E0E8] px-8 pb-5 pt-5.25">
+        <div className="flex shrink-0 flex-col gap-3 border-t border-border px-8 pb-5 pt-5.25">
           <div className="flex gap-2">
             <Button
               type="button"
               variant="secondary"
-              className="h-11 flex-1 font-semibold tracking-[0.14px] text-[#5F6368]"
+              className="h-11 flex-1 font-semibold tracking-[0.14px] text-muted-foreground"
               onClick={() => setInviteCaregiverOpen(false)}
             >
               Cancel
@@ -308,7 +308,7 @@ export function InviteCaregiverDialog() {
             </Button>
           </div>
           <div className="flex items-center justify-center gap-2 pt-1">
-            <span className="inline-flex size-4 shrink-0 text-[#2563EB]" aria-hidden>
+            <span className="inline-flex size-4 shrink-0 text-info" aria-hidden>
               <HugeiconsIcon
                 icon={InformationCircleIcon}
                 size={16}
@@ -316,7 +316,7 @@ export function InviteCaregiverDialog() {
                 color="currentColor"
               />
             </span>
-            <p className={cn(typo.caption, "text-center text-[#6B7280]")}>
+            <p className={cn(typo.caption, "text-center text-muted-foreground")}>
               An invitation will be sent via SMS and email to the caregiver.
             </p>
           </div>

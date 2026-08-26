@@ -36,7 +36,7 @@ const GAP_RATIO = 0.011;
  * ~180 around the circle ≈ 35–40 sticks in the remaining ~21% (matches reference density).
  */
 const TICK_COUNT = 180;
-const TICK_COLOR = "#6C318E";
+const TICK_COLOR = "var(--primary)";
 const FULL_TICKS = Array.from({ length: TICK_COUNT }, (_, index) => {
   const angle = ((index + 0.5) / TICK_COUNT) * Math.PI * 2 - Math.PI / 2;
   const cos = Math.cos(angle);
@@ -60,6 +60,7 @@ const RING_ENTER_DELAY = 0.12;
 const RING_ENTER_DURATION = 0.45;
 const RING_FILL_DELAY = RING_ENTER_DELAY + RING_ENTER_DURATION;
 
+/** Matches --primary / --chart-8 — literal hex required for lerpHex. */
 const GRADIENT_START = "#6C318E";
 const GRADIENT_END = "#1E0E28";
 /** Dense segments so the color appears to travel along the circular path. */
@@ -250,9 +251,9 @@ function ScoreRing({
 
       <div className="absolute inset-0 flex items-center justify-center">
         {isEmpty ? (
-          <p className="flex items-baseline text-[#9CA3AF]">
+          <p className="flex items-baseline text-placeholder">
             <span className="text-[28px] leading-none font-medium">–</span>
-            <span className={cn(typo.headingS, "text-[#9CA3AF]")}>/ {maxScore}</span>
+            <span className={cn(typo.headingS, "text-placeholder")}>/ {maxScore}</span>
           </p>
         ) : (
           <p className="flex items-baseline">
@@ -262,7 +263,7 @@ function ScoreRing({
             >
               {reducedMotion ? score : 0}
             </span>
-            <span className="text-base leading-4 font-semibold text-[#5F6368]">
+            <span className="text-base leading-4 font-semibold text-muted-foreground">
               / {maxScore}
             </span>
           </p>
@@ -286,7 +287,7 @@ function ViewReportButton() {
       onBlur={() => setHovered(false)}
     >
       View Report
-      <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-white text-primary">
+      <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-card text-primary">
         <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={14} className="size-3.5" hovered={hovered} />
       </span>
     </Button>
@@ -341,21 +342,21 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
 
   return (
     <section className={cn(
-      "flex flex-col items-stretch gap-5 overflow-hidden rounded-xl border border-[#E9E4ED] px-5 py-4 shadow-[0px_2px_8px_rgba(17,24,39,0.05)]",
+      "flex flex-col items-stretch gap-5 overflow-hidden rounded-xl border border-border px-5 py-4 shadow-[0px_2px_8px_rgba(17,24,39,0.05)]",
       "sm:flex-row sm:items-center sm:justify-between",
-      variant === "dashboard" ? "bg-[linear-gradient(225deg,rgba(239,230,247,0.6)_0%,rgba(255,255,255,1)_60%)]" : "bg-white"
+      variant === "dashboard" ? "bg-[linear-gradient(225deg,rgba(239,230,247,0.6)_0%,rgba(255,255,255,1)_60%)]" : "bg-card"
     )}>
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-full bg-[#FCFCFD] text-[#0D665F]">
+            <span className="flex size-8 items-center justify-center rounded-full bg-muted text-success">
               <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={1.75} color="currentColor" />
             </span>
             <p
               className={cn(
                 typo.overline,
                 "tracking-[0.6px]",
-                isFilled ? "text-primary" : "text-[#9CA3AF]",
+                isFilled ? "text-primary" : "text-placeholder",
               )}
             >
               {isFilled ? assessment.overline : "No active assessment"}
@@ -376,12 +377,12 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
         <div className="flex flex-wrap items-center gap-2">
           {isFilled ? (
             <>
-              <span className="inline-flex h-7 items-center gap-1.75 overflow-visible rounded-[14px] bg-[#E8F8F2] px-2.5 text-[13px] font-semibold leading-none text-[#168A61]">
-                <StatusBadgeDot className="bg-[#22B77A]" pulse />
+              <span className="inline-flex h-7 items-center gap-1.75 overflow-visible rounded-[14px] bg-success-muted px-2.5 text-[13px] font-semibold leading-none text-success">
+                <StatusBadgeDot className="bg-success" pulse />
                 {assessment.statusLabel}
               </span>
               {assessment.deltaLabel ? (
-                <span className="text-xs font-medium text-[#168A61]/80">
+                <span className="text-xs font-medium text-success/80">
                   {assessment.deltaLabel}
                 </span>
               ) : null}
@@ -391,10 +392,10 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
               <span
                 className={cn(
                   statusBadgeClass,
-                  "gap-1.5 bg-[#F3F4F6] text-muted-foreground",
+                  "gap-1.5 bg-muted text-muted-foreground",
                 )}
               >
-                <StatusBadgeDot className="bg-[#9CA3AF]" />
+                <StatusBadgeDot className="bg-placeholder" />
                 Pending
               </span>
               <span className="text-xs font-medium text-muted-foreground">

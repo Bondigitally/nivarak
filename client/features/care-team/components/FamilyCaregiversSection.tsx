@@ -17,7 +17,7 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
   return (
     <article
       className={cn(
-        "flex w-full flex-col gap-4 rounded-[14px] border border-[#D0C2D1] bg-white px-4 py-5 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        "flex w-full flex-col gap-4 rounded-[14px] border border-border bg-card px-4 py-5 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:py-6",
       )}
     >
@@ -32,10 +32,10 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
           />
         </div>
         <div className="min-w-0">
-          <h3 className={cn(typo.headingL, "truncate text-[#1F1A20]")}>
+          <h3 className={cn(typo.headingL, "truncate text-foreground")}>
             {caregiver.name}
           </h3>
-          <p className={cn(typo.bodyS, "text-[#4D4450]")}>
+          <p className={cn(typo.bodyS, "text-muted-foreground")}>
             {caregiver.relationship}
           </p>
         </div>
@@ -51,7 +51,7 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
       <Button
         type="button"
         variant="link"
-        className="hidden shrink-0 text-[#531575] no-underline after:hidden hover:no-underline hover:after:opacity-0 focus-visible:after:opacity-0 sm:inline-flex"
+        className="hidden shrink-0 text-primary-active no-underline after:hidden hover:no-underline hover:after:opacity-0 focus-visible:after:opacity-0 sm:inline-flex"
       >
         Manage
       </Button>
@@ -63,12 +63,12 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
   return (
     <div
       className={cn(
-        "flex w-full flex-col gap-4 rounded-[14px] border border-dashed border-[#D0C2D1] bg-white p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        "flex w-full flex-col gap-4 rounded-[14px] border border-dashed border-border bg-card p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:p-6",
       )}
     >
       <div className="flex min-w-0 items-center gap-4">
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-[#D0C2D1] bg-white text-[#4D4450]">
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-card text-muted-foreground">
           <HugeiconsIcon
             icon={Add01Icon}
             size={16}
@@ -76,7 +76,7 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
             color="currentColor"
           />
         </span>
-        <p className="text-lg font-normal leading-7 text-[#4D4450]">
+        <p className="text-lg font-normal leading-7 text-muted-foreground">
           Add Family Member
         </p>
       </div>
@@ -109,7 +109,7 @@ export function FamilyCaregiversSection({
     >
       <SectionTitle
         info="Family members and friends who help with your care. Invite new caregivers or manage existing ones."
-        className="flex-none pr-0 text-[#1F1A20]"
+        className="flex-none pr-0 text-foreground"
       >
         Family caregivers
       </SectionTitle>

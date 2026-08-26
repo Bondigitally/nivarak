@@ -113,7 +113,7 @@ export function PhoneField({
         className={cn(
           authInputClassName,
           'flex items-center gap-3 px-3',
-          'focus-within:border-[#B98BD0] focus-within:ring-2 focus-within:ring-[#A66BCF]/40',
+          'focus-within:border-border-focus focus-within:ring-2 focus-within:ring-ring/40',
           error && 'border-destructive focus-within:ring-destructive/30',
           disabled && 'cursor-not-allowed opacity-50',
         )}
@@ -125,8 +125,8 @@ export function PhoneField({
                 className={cn(
                   'inline-flex h-full shrink-0 items-center gap-1 rounded-[10px] px-1.5',
                   typo.input,
-                  'outline-none transition-colors hover:bg-[#F8F5FA]',
-                  'focus-visible:bg-[#F8F5FA] disabled:pointer-events-none',
+                  'outline-none transition-colors hover:bg-background',
+                  'focus-visible:bg-background disabled:pointer-events-none',
                 )}
                 aria-label="Select country code"
               >
@@ -164,7 +164,7 @@ export function PhoneField({
                       className={cn(
                         'cursor-pointer gap-3 rounded-[10px] px-3 py-2.5',
                         typo.input,
-                        selected && 'bg-[#F8F5FA] text-foreground',
+                        selected && 'bg-background text-foreground',
                       )}
                     >
                       <span className="min-w-0 flex-1 truncate">{item.name}</span>
@@ -194,7 +194,7 @@ export function PhoneField({
             className={cn(
               'h-full min-w-0 flex-1 bg-transparent outline-none',
               typo.input,
-              'placeholder:text-[#9CA3AF]',
+              'placeholder:text-placeholder',
               'disabled:cursor-not-allowed',
             )}
           />

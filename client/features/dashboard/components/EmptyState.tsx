@@ -38,11 +38,11 @@ export function EmptyState({
         className,
       )}
     >
-      <span className="flex size-16 items-center justify-center rounded-full bg-[#F2EBF6] text-primary">
+      <span className="flex size-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
         <HugeiconsIcon icon={icon} size={32} strokeWidth={1.75} color="currentColor" />
       </span>
       <div className="flex max-w-dash-search flex-col items-center gap-1.5 text-center">
-        <h3 className={cn(typo.headingL, "text-[#151A27]")}>{title}</h3>
+        <h3 className={cn(typo.headingL, "text-foreground")}>{title}</h3>
         <p className={typo.bodyM}>{body}</p>
       </div>
       {actionLabel ? (
@@ -62,7 +62,7 @@ export function SectionInfoButton({ info }: { info: string }) {
           <button
             type="button"
             aria-label="Section info"
-            className="inline-flex size-[19px] shrink-0 items-center justify-center self-center rounded-sm text-[#2563EB] outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
+            className="inline-flex size-[19px] shrink-0 items-center justify-center self-center rounded-sm text-info outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-info/40"
           >
             <HugeiconsIcon
               icon={InformationDiamondIcon}

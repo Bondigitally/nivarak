@@ -14,16 +14,16 @@ const STATUS_STYLES: Record<
   CarePlanReferral["status"],
   { bg: string; text: string }
 > = {
-  Scheduled: { bg: "bg-[#F8F5FA]", text: "text-[#5F6368]" },
-  Pending: { bg: "bg-[#FFFBEB]", text: "text-[#B45309]" },
+  Scheduled: { bg: "bg-background", text: "text-muted-foreground" },
+  Pending: { bg: "bg-warning-muted", text: "text-warning" },
 };
 
 export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) {
   return (
-    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-[#E9E4ED] bg-white p-6">
+    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-border bg-card p-6">
       <SectionTitle
         info="Specialist and therapy referrals arranged by your care team, with scheduling status for each."
-        className="flex-none pr-0 text-[20px] text-[#1A1A1A]"
+        className="flex-none pr-0 text-[20px] text-foreground"
       >
         Referrals
       </SectionTitle>
@@ -35,10 +35,10 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
           return (
             <li
               key={referral.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-[#E9E4ED] bg-[#FAF9FB] p-4"
+              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted p-4"
             >
               <div className="flex min-w-0 items-center gap-2">
-                <span className="inline-flex size-4.75 shrink-0 text-[#1F1A20]" aria-hidden>
+                <span className="inline-flex size-4.75 shrink-0 text-foreground" aria-hidden>
                   <HugeiconsIcon
                     icon={REFERRAL_ICONS[referral.icon]}
                     size={19}
@@ -46,7 +46,7 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
                     color="currentColor"
                   />
                 </span>
-                <span className="truncate text-base font-normal leading-6 text-[#1F1A20]">
+                <span className="truncate text-base font-normal leading-6 text-foreground">
                   {referral.label}
                 </span>
               </div>

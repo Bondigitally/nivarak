@@ -93,8 +93,8 @@ export const CATEGORIES = [
 ];
 
 export const DOC_ICON_MAP: Record<DocType, { icon: IconSvgElement; bg: string; color: string }> = {
-  lab: { icon: ActivityIcon, bg: "bg-[#EFF6FF]", color: "#2563EB" },
-  imaging: { icon: Image01Icon, bg: "bg-[#FFF7ED]", color: "#EA580C" },
-  notes: { icon: FileEditIcon, bg: "bg-[#F5F3FF]", color: "#7C3AED" },
-  medication: { icon: MedicineSyrupIcon, bg: "bg-[#F0FDF4]", color: "#16A34A" },
+  lab: { icon: ActivityIcon, bg: "bg-info-muted", color: "var(--info)" },
+  imaging: { icon: Image01Icon, bg: "bg-warning-muted", color: "var(--chart-7)" },
+  notes: { icon: FileEditIcon, bg: "bg-sidebar-accent", color: "var(--primary)" },
+  medication: { icon: MedicineSyrupIcon, bg: "bg-success-muted", color: "var(--success)" },
 };

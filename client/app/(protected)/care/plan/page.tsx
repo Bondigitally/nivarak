@@ -70,9 +70,9 @@ export default function CarePlanPage() {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-95 flex-col items-center justify-center rounded-xl border border-[#E9E4ED] bg-white p-6">
+          <div className="flex min-h-95 flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
             <div className="flex max-w-105 flex-col items-center text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2EBF6] text-[#6C318E]">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
                 <HugeiconsIcon
                   icon={ClipboardListIcon}
                   size={32}
@@ -80,10 +80,10 @@ export default function CarePlanPage() {
                   color="currentColor"
                 />
               </div>
-              <h2 className="font-sans text-xl font-semibold leading-7 text-[#1A1A1A]">
+              <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">
                 No care plan yet
               </h2>
-              <p className="mt-2 text-sm font-normal leading-5 text-[#5F6368]">
+              <p className="mt-2 text-sm font-normal leading-5 text-muted-foreground">
                 Once assessments are complete, your personalized care plan, referrals, and care
                 guidance will show up here.
               </p>

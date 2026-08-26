@@ -22,13 +22,13 @@ import { dashboardCardClass } from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { HeartRateSeries, VitalsSnapshot } from "../data/home-data";
 
-const SYSTOLIC_COLOR = "#FF5372";
-const DIASTOLIC_COLOR = "#4A3AFF";
-const HEART_RATE_COLOR = "#7086FD";
-const STATUS_COLOR = "#22C55E";
-const GRID_STROKE = "#E8E4EC";
+const SYSTOLIC_COLOR = "var(--chart-2)";
+const DIASTOLIC_COLOR = "var(--chart-3)";
+const HEART_RATE_COLOR = "var(--chart-4)";
+const STATUS_COLOR = "var(--success)";
+const GRID_STROKE = "var(--divider)";
 const AXIS_TICK = {
-  fill: "#8A8F98",
+  fill: "var(--tertiary-foreground)",
   fontSize: 12,
   fontWeight: 400,
 } as const;
@@ -99,7 +99,7 @@ const HR_DATES: Record<string, string> = {
 };
 
 const tooltipCursor = {
-  stroke: "#C4C0C9",
+  stroke: "var(--tertiary-foreground)",
   strokeWidth: 1,
   strokeDasharray: "4 4",
 };
@@ -108,7 +108,7 @@ function lineActiveDot(color: string) {
   return {
     r: 5,
     fill: color,
-    stroke: "#fff",
+    stroke: "var(--card)",
     strokeWidth: 2,
   };
 }
@@ -158,7 +158,7 @@ function BloodPressureTooltip({
         label="Status"
         value={point.statusLabel}
         color={STATUS_COLOR}
-        valueClassName="text-[#22C55E]"
+        valueClassName="text-success"
       />
     </ChartTooltipPanel>
   );
@@ -187,7 +187,7 @@ function HeartRateTooltip({
         label="Status"
         value={point.statusLabel}
         color={STATUS_COLOR}
-        valueClassName="text-[#22C55E]"
+        valueClassName="text-success"
       />
     </ChartTooltipPanel>
   );
@@ -217,9 +217,9 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
               icon={BloodPressureIcon}
               size={19}
               strokeWidth={1.75}
-              color="#DC2626"
+              color="var(--destructive)"
             />
-            <span className={cn(typo.label, "text-[#4D4450]")}>{data.label}</span>
+            <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
           </div>
           <p className={cn(typo.bodyS, "shrink-0")}>{data.updatedAgo}</p>
         </div>
@@ -233,7 +233,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
               >
                 {data.systolic}
               </span>
-              <span className={cn(typo.headingXxl, "leading-none text-[#9CA3AF]")}>
+              <span className={cn(typo.headingXxl, "leading-none text-placeholder")}>
                 /
               </span>
               <span
@@ -243,7 +243,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
                 {data.diastolic}
               </span>
             </span>
-            <span className={cn(typo.caption, "text-[#6B7280]")}>{data.unit}</span>
+            <span className={cn(typo.caption, "text-muted-foreground")}>{data.unit}</span>
           </p>
           <div className="ml-auto flex items-center gap-4">
             <span className="flex items-center gap-2">
@@ -251,7 +251,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
                 className="size-2.5 shrink-0 rounded-xs"
                 style={{ backgroundColor: SYSTOLIC_COLOR }}
               />
-              <span className={cn(typo.bodyM, "font-medium text-[#1F2937]")}>
+              <span className={cn(typo.bodyM, "font-medium text-foreground")}>
                 Systolic
               </span>
             </span>
@@ -260,7 +260,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
                 className="size-2.5 shrink-0 rounded-xs"
                 style={{ backgroundColor: DIASTOLIC_COLOR }}
               />
-              <span className={cn(typo.bodyM, "font-medium text-[#1F2937]")}>
+              <span className={cn(typo.bodyM, "font-medium text-foreground")}>
                 Diastolic
               </span>
             </span>
@@ -357,7 +357,7 @@ function HeartRateChart({
               strokeWidth={1.75}
               color={HEART_RATE_COLOR}
             />
-            <span className={cn(typo.label, "text-[#4D4450]")}>{data.label}</span>
+            <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
           </div>
           <p className={cn(typo.bodyS, "shrink-0")}>{updatedAgo}</p>
         </div>
@@ -370,7 +370,7 @@ function HeartRateChart({
             >
               {data.bpm}
             </span>
-            <span className={cn(typo.caption, "text-[#6B7280]")}>{data.unit}</span>
+            <span className={cn(typo.caption, "text-muted-foreground")}>{data.unit}</span>
           </p>
           <div className="ml-auto flex items-center gap-4">
             <span className="flex items-center gap-2">
@@ -378,7 +378,7 @@ function HeartRateChart({
                 className="size-2.5 shrink-0 rounded-xs"
                 style={{ backgroundColor: HEART_RATE_COLOR }}
               />
-              <span className={cn(typo.bodyM, "font-medium text-[#1F2937]")}>
+              <span className={cn(typo.bodyM, "font-medium text-foreground")}>
                 Heart Rate
               </span>
             </span>

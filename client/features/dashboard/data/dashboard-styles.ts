@@ -21,7 +21,7 @@ export const dashboardDividedRowClass =
   "before:transition-opacity before:duration-150 hover:before:opacity-100";
 
 export const dashboardRowDividerClass =
-  "pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-[#F0EDF3]";
+  "pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-divider";
 
 /** Pill/status badge size — matches Confirmed/Scheduled on appointments */
 export const statusBadgeClass =
@@ -29,7 +29,7 @@ export const statusBadgeClass =
 
 /** Search field — width tracks --ui-scale / max-w-dash-search */
 export const dashboardSearchBarClass =
-  "box-border flex h-dash-control min-h-dash-control w-full max-w-dash-search min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-full border border-border bg-white py-1 pr-1 pl-4 shadow-[0px_1px_2px_rgba(17,24,39,0.04)]";
+  "box-border flex h-dash-control min-h-dash-control w-full max-w-dash-search min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-full border border-border bg-card py-1 pr-1 pl-4 shadow-[0px_1px_2px_rgba(17,24,39,0.04)]";
 
 /**
  * Standard page shell under HomeTopBar.

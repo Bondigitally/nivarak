@@ -27,14 +27,14 @@ const PERIOD_STYLES: Record<
 > = {
   morning: {
     label: "Morning",
-    bg: "bg-[#E6F3FF]",
-    text: "text-[#0066CC]",
+    bg: "bg-info-muted",
+    text: "text-info",
     icon: Sun03Icon,
   },
   evening: {
     label: "Evening",
-    bg: "bg-[#FFF2E6]",
-    text: "text-[#CC6600]",
+    bg: "bg-warning-muted",
+    text: "text-warning",
     icon: Moon02Icon,
   },
 };
@@ -71,7 +71,7 @@ function AdherenceButtons({
         className={cn(
           buttonClass,
           status === "taken" &&
-            "border-[#34C759] text-[#34C759] hover:bg-[#34C759]/5 hover:text-[#34C759] active:bg-[#34C759]/10 active:text-[#34C759]",
+            "border-success text-success hover:bg-success/5 hover:text-success active:bg-success/10 active:text-success",
         )}
       >
         <HugeiconsIcon icon={Tick02Icon} size={16} strokeWidth={1.75} color="currentColor" />
@@ -85,7 +85,7 @@ function AdherenceButtons({
         className={cn(
           buttonClass,
           status === "skipped" &&
-            "border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30]/5 hover:text-[#FF3B30] active:bg-[#FF3B30]/10 active:text-[#FF3B30]",
+            "border-destructive text-destructive hover:bg-destructive/5 hover:text-destructive active:bg-destructive/10 active:text-destructive",
         )}
       >
         <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.75} color="currentColor" />
@@ -107,10 +107,10 @@ function MedicationMeta({
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className={cn(typo.headingXl, "text-[20px] leading-7.5 text-[#1F1A20]")}>
+        <h2 className={cn(typo.headingXl, "text-[20px] leading-7.5 text-foreground")}>
           {medication.name}
         </h2>
-        <span className="text-base font-normal leading-6 text-[#4D4450]">{medication.dosage}</span>
+        <span className="text-base font-normal leading-6 text-muted-foreground">{medication.dosage}</span>
       </div>
       <div className="flex flex-wrap items-center gap-4">
         <span className="inline-flex items-center gap-1 text-muted-foreground">

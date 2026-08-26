@@ -29,27 +29,27 @@ const statusConfig: Record<
   { pillBg: string; pillText: string; dot: string }
 > = {
   Normal: {
-    pillBg: "bg-[#ECFDF5]",
-    pillText: "text-[#10B981]",
-    dot: "bg-[#10B981]",
+    pillBg: "bg-success-muted",
+    pillText: "text-success",
+    dot: "bg-success",
   },
   Low: {
-    pillBg: "bg-[#FAF8E0]",
-    pillText: "text-[#CA8A04]",
-    dot: "bg-[#CA8A04]",
+    pillBg: "bg-warning-muted",
+    pillText: "text-warning",
+    dot: "bg-warning",
   },
   Elevated: {
-    pillBg: "bg-[#FCECEC]",
-    pillText: "text-[#DC2626]",
-    dot: "bg-[#DC2626]",
+    pillBg: "bg-destructive-muted",
+    pillText: "text-destructive",
+    dot: "bg-destructive",
   },
 };
 
 const VITALS: VitalCardData[] = [
   {
     id: "bp",
-    iconBg: "bg-[#FFF5F5]",
-    iconColor: "#DC2626",
+    iconBg: "bg-destructive-muted",
+    iconColor: "var(--destructive)",
     icon: BloodPressureIcon,
     label: "BP",
     value: "120/80",
@@ -58,8 +58,8 @@ const VITALS: VitalCardData[] = [
   },
   {
     id: "hr",
-    iconBg: "bg-[#FFF6FB]",
-    iconColor: "#EC4899",
+    iconBg: "bg-sidebar-accent",
+    iconColor: "var(--chart-4)",
     icon: Cardiogram02Icon,
     label: "Heart Rate",
     value: "57",
@@ -68,8 +68,8 @@ const VITALS: VitalCardData[] = [
   },
   {
     id: "glucose",
-    iconBg: "bg-[#EEFBFE]",
-    iconColor: "#06B6D4",
+    iconBg: "bg-info-muted",
+    iconColor: "var(--chart-6)",
     icon: LabsIcon,
     label: "Blood Glucose",
     value: "126",
@@ -78,8 +78,8 @@ const VITALS: VitalCardData[] = [
   },
   {
     id: "spo2",
-    iconBg: "bg-[#F4F9FF]",
-    iconColor: "#2563EB",
+    iconBg: "bg-info-muted",
+    iconColor: "var(--info)",
     icon: LungsIcon,
     label: "SpO₂",
     value: "98",
@@ -88,14 +88,14 @@ const VITALS: VitalCardData[] = [
   },
   {
     id: "temp",
-    iconBg: "bg-[#FEF8EF]",
-    iconColor: "#F59E0B",
+    iconBg: "bg-warning-muted",
+    iconColor: "var(--chart-7)",
     icon: TemperatureIcon,
     label: "Temp",
     value: "36.8",
     unit: "°C",
     status: "Normal",
-    unitColor: "text-[#5F6368]",
+    unitColor: "text-muted-foreground",
   },
 ];
 
@@ -104,8 +104,8 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
 
   return (
     <div
-      className="flex h-full min-h-38 w-full flex-col items-start justify-between gap-4 rounded-[14px] bg-white px-5 py-3"
-      style={{ outline: "1px #E9E4ED solid", outlineOffset: "-1px" }}
+      className="flex h-full min-h-38 w-full flex-col items-start justify-between gap-4 rounded-[14px] bg-card px-5 py-3"
+      style={{ outline: "1px solid var(--border)", outlineOffset: "-1px" }}
     >
       <div className="self-stretch flex flex-col justify-start items-start gap-2">
         <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
@@ -123,20 +123,20 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
                 color={vital.iconColor}
               />
             </div>
-            <div className="text-[#5F6368] text-base font-semibold leading-6 font-sans">
+            <div className="text-muted-foreground text-base font-semibold leading-6 font-sans">
               {vital.label}
             </div>
           </div>
         </div>
         <div className="self-stretch flex flex-col justify-start items-start gap-2">
           <div className="justify-start items-center gap-2.5 inline-flex">
-            <div className="text-[#201A25] text-[22px] font-bold leading-7 font-sans">
+            <div className="text-foreground text-[22px] font-bold leading-7 font-sans">
               {vital.value}
             </div>
             <div
               className={cn(
                 "text-sm font-normal leading-5 font-sans",
-                vital.unitColor || "text-[#1A1A1A]"
+                vital.unitColor || "text-foreground"
               )}
             >
               {vital.unit}
@@ -144,7 +144,7 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
           </div>
         </div>
       </div>
-      <div className="self-stretch h-px bg-[#F0EDF3]" />
+      <div className="self-stretch h-px bg-divider" />
       <div className="self-stretch flex-1 flex justify-between items-center">
         <div
           className={cn(

@@ -33,7 +33,7 @@ export function CareTeamCard({ members }: { members: CareTeamMember[] | null }) 
                   "-mx-2 flex items-center gap-3 px-2 py-3.5",
                 )}
               >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-[#F2EBF9] text-sm font-semibold text-(--primary-active)">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-sidebar-accent text-sm font-semibold text-primary-active">
                   {member.initials}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -43,7 +43,7 @@ export function CareTeamCard({ members }: { members: CareTeamMember[] | null }) 
                       <span
                         className={cn(
                           statusBadgeClass,
-                          "bg-[#ECFDF5] text-[#047857]",
+                          "bg-success-muted text-success",
                         )}
                       >
                         Available

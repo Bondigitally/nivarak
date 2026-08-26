@@ -35,15 +35,15 @@ export default function VitalsPage() {
 
         {!hasVitals && (
           /* Empty State */
-          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-[#E9E4ED] bg-white p-6">
+          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
             <div className="flex max-w-[480px] flex-col items-center text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2EBF6] text-[#6C318E]">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
                 <HugeiconsIcon icon={Medicine02Icon} size={32} strokeWidth={1.75} color="currentColor" />
               </div>
-              <h2 className="font-sans text-xl font-semibold leading-7 text-[#151A27]">
+              <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">
                 No vitals recorded yet
               </h2>
-              <p className="mt-2 text-sm font-normal leading-5 text-[#5F6368]">
+              <p className="mt-2 text-sm font-normal leading-5 text-muted-foreground">
                 Record your first vitals reading to start tracking BP, pulse, SpO₂, temperature, and more over time.
               </p>
               <Button
