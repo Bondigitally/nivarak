@@ -5,8 +5,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-hanken);
+  --font-heading: var(--font-hanken);
+  --font-logo: var(--font-rounded-elegance);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -57,9 +58,27 @@
   --spacing-auth-error: clamp(1rem, 0.75rem + 0.6vh, 1.25rem);
   --text-auth-title: clamp(1.375rem, 1rem + 1.6vh, 2rem);
   --text-auth-title--line-height: 1.25;
+
+  /* Dashboard chrome — fixed design sizes; density via --ui-scale where applied */
+  --max-width-dash-search: 30rem;
+  /* Standard protected layout: 24px page pad · 16px gutters / section gaps */
+  --spacing-dash-pad-x: 1.5rem;
+  --spacing-dash-pad-y: 0.75rem;
+  --spacing-dash-gutter: 1rem;
+  --spacing-dash-gap: 1rem;
+  --spacing-dash-topbar-gap: 1rem;
+  --spacing-dash-control: 2.75rem;
 }
 
 :root {
+  /*
+   * App UI density — viewport-based, not device inches.
+   * 1512px CSS width (typical 14" laptop) = 100%. Below that, scale
+   * continuously so a 13" Air (~1280–1440) gets denser chrome without
+   * special-casing inch sizes. Floor keeps tablet/mobile readable.
+   */
+  --ui-scale: clamp(0.8, calc(1 + (100vw - 1512px) * 0.001667), 1);
+
   /* Background & surface */
   --background: #F8F5FA; /* Background/Primary */
   --foreground: #1A1A1A; /* Text/Primary */
@@ -122,12 +141,69 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    /*
+     * Reserve classic-scrollbar space so short/long pages share one width.
+     * Overlay-scrollbar OSes (default macOS) ignore this — correct behavior.
+     */
+    scrollbar-gutter: stable;
   }
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: clip;
+  }
+}
+
+/* Logo wordmark — next/font sets --font-rounded-elegance on <html> */
+@layer utilities {
+  .font-logo {
+    font-family: var(--font-rounded-elegance), var(--font-hanken), sans-serif;
+  }
+}
+
+/*
+ * Protected app shell — viewport-sized flex frame.
+ *
+ * Scroll lives on [data-dashboard-scroll], not html/body.
+ * Use width 100% (not 100vw) so the classic scrollbar cannot force a
+ * horizontal overflow gutter.
+ */
+.protected-shell {
+  width: 100%;
+  height: 100dvh;
+}
+
+html:has(.protected-shell),
+body:has(.protected-shell) {
+  overflow: hidden;
+}
+
+/* Shell pages scroll in main — don’t also reserve a root gutter */
+html:has(.protected-shell) {
+  scrollbar-gutter: auto;
+}
+
+[data-dashboard-scroll] {
+  scrollbar-gutter: auto;
+}
+
+/*
+ * react-remove-scroll pads <body> by the measured scrollbar gap. With
+ * scrollbar-gutter already reserving that space (on html and/or main),
+ * the extra pad double-shifts the layout when a dialog opens.
+ */
+body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
+/*
+ * Horizontal scrollable containers — scroll-x only, no vertical reflow.
+ */
+.horizontal-scroll-stable {
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* Hero indicator progress — transform-only so it stays on the compositor */
