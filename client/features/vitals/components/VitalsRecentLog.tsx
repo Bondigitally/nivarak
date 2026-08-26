@@ -267,7 +267,7 @@ export function VitalsRecentLog() {
                 <tr key={headerGroup.id}>
                   <th colSpan={COLUMNS.length} className="px-0 pt-3 pb-0">
                     {/* Lavender pill header — same as assessments table */}
-                    <div className="mx-6 flex h-11 items-center bg-muted rounded-[14px]">
+                    <div className="mx-6 flex h-11 items-center bg-table-header rounded-[14px]">
                       {headerGroup.headers.map((header) => {
                         const canSort = header.column.getCanSort();
                         const sorted = header.column.getIsSorted();

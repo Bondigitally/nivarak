@@ -259,7 +259,7 @@ export default function HealthRecordsPage() {
                       <col className="w-14" />
                     </colgroup>
                     <thead>
-                      <tr className="bg-muted">
+                      <tr className="bg-table-header">
                         <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Document Name
                         </th>

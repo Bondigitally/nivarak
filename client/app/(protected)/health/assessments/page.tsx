@@ -65,7 +65,7 @@ export default function AssessmentsPage() {
                       <col className="w-14" />
                     </colgroup>
                     <thead>
-                      <tr className="bg-muted">
+                      <tr className="bg-table-header">
                         <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Assessment Name
                         </th>
@@ -82,10 +82,7 @@ export default function AssessmentsPage() {
                     </thead>
                     <tbody>
                       {ASSESSMENT_ROWS.map((row, index) => (
-                        <tr
-                          key={index}
-                          className="transition-colors duration-300 ease-out hover:bg-accent"
-                        >
+                        <tr key={index} className="transition-colors duration-300 ease-out hover:bg-accent">
                           <td className="truncate border-b border-divider px-4 py-3 font-sans text-sm font-medium leading-5 text-foreground">
                             {row.name}
                           </td>

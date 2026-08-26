@@ -27,7 +27,7 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
       <div className="w-full overflow-x-auto">
         <table className="w-full min-w-[620px] border-collapse">
           <thead>
-            <tr className="border-b border-border bg-background">
+            <tr className="border-b border-border bg-table-header">
               <th
                 scope="col"
                 className="h-11 px-6 text-left text-sm font-medium leading-5 text-muted-foreground"

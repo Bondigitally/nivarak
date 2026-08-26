@@ -43,6 +43,7 @@
   --color-tertiary-foreground: var(--tertiary-foreground);
   --color-placeholder: var(--placeholder);
   --color-muted: var(--muted);
+  --color-table-header: var(--table-header);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
@@ -113,6 +114,7 @@
   --secondary-foreground: #1A1A1A;
   --muted: #FCFBFD; /* Surface/Secondary */
   --muted-foreground: #5F6368; /* Text/Secondary */
+  --table-header: #F3F0F6; /* Surface/TableHeader */
   --tertiary-foreground: #8A8F98; /* Text/Tertiary */
   --placeholder: #9CA3AF; /* Text/Placeholder */
   --accent: #F7F5F9; /* Surface/Hover */
