@@ -1,8 +1,9 @@
+import { Sidebar } from "@/components/layout/sidebar";
 import { SidebarProvider } from "@/components/layout/sidebar-context";
+import { SignOutDialog } from "@/components/layout/sign-out-dialog";
+import { BookVisitModal } from "@/features/appointments/components/BookVisitModal";
+import { InviteCaregiverDialog } from "@/features/care-team/components/InviteCaregiverDialog";
 
-/**
- * Provider shell only — Sidebar chrome / modals land in restructure/nav-shell.
- */
 export default function ProtectedLayout({
   children,
 }: {
@@ -10,14 +11,19 @@ export default function ProtectedLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="protected-shell min-h-screen bg-[#F8F5FA] font-sans">
+      {/* In-flow sidebar + scrolling main */}
+      <div className="protected-shell flex overflow-hidden bg-[#F8F5FA] font-sans">
+        <Sidebar />
         <main
           data-dashboard-scroll
-          className="min-h-screen overflow-y-auto overscroll-y-contain"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain"
         >
           {children}
         </main>
       </div>
+      <SignOutDialog />
+      <BookVisitModal />
+      <InviteCaregiverDialog />
     </SidebarProvider>
   );
 }
