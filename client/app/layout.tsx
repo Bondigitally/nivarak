@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { hanken, roundedElegance } from '@/lib/fonts';
 import './globals.css';
-// Prewired in app-shell; enabled in restructure/auth-lib when features/auth/lib/amplify lands.
-// import { ConfigureAmplify } from '@/features/auth/lib/amplify';
+import { ConfigureAmplify } from '@/features/auth/lib/amplify';
 
 export const metadata: Metadata = {
   title: 'Nivarak',
@@ -16,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${hanken.variable} ${roundedElegance.variable} ${hanken.className}`}
     >
       <body className="min-h-screen font-sans antialiased">
-        {/* <ConfigureAmplify /> */}
+        <ConfigureAmplify />
         {children}
       </body>
     </html>
