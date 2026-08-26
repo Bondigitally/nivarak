@@ -21,7 +21,12 @@ import {
   ChevronRightIcon,
   Cancel01Icon,
 } from "@hugeicons/core-free-icons";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useAnimationControls,
+  useReducedMotion,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
 import { roundedElegance } from "@/lib/fonts";
@@ -52,12 +57,16 @@ type NavChild = {
   roles?: UserRole[];
 };
 
+/** One-shot transform when a parent nav item becomes active. */
+type NavIconMotion = "lift" | "pulse" | "shift" | "gear";
+
 type NavItem = {
   label: string;
   icon: IconSvgElement;
   href?: string;
   children?: NavChild[];
   roles?: UserRole[];
+  iconMotion: NavIconMotion;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -65,10 +74,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Home",
     icon: Home12Icon,
     href: "/dashboard",
+    iconMotion: "lift",
   },
   {
     label: "Health",
     icon: HealthIcon,
+    iconMotion: "pulse",
     children: [
       { label: "Assessments", href: "/health/assessments" },
       { label: "Vitals", href: "/health/vitals" },
@@ -78,6 +89,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "Care",
     icon: HealtcareIcon,
+    iconMotion: "lift",
     children: [
       { label: "Care Plan", href: "/care/plan" },
       { label: "Medications", href: "/care/medications" },
@@ -89,6 +101,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Care Team",
     icon: UserMultiple02Icon,
     href: "/care-team",
+    iconMotion: "shift",
   },
 ];
 
@@ -96,14 +109,32 @@ const USER_NAME = "Alex";
 
 const FOCUS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
-  // Idle = Text/Secondary; hover = Surface/Hover + Text/Primary.
-  // Active = Surface/Selected + Brand/Primary (not Primary/Active pressed).
-  const NAV_IDLE =
-    "text-muted-foreground hover:bg-accent hover:text-foreground";
-  const NAV_ACTIVE = "bg-sidebar-accent text-sidebar-accent-foreground";
+// Idle = Text/Secondary (via typo.sidebarItem); hover = Surface/Hover + Text/Primary.
+// Active = Surface/Selected + Brand/Primary (via typo.sidebarItemActive).
+const NAV_IDLE = "hover:bg-accent hover:text-foreground";
+const NAV_ACTIVE = "bg-sidebar-accent";
 const SUBMENU_MOTION = {
-  duration: 0.2,
+  duration: 0.32,
   ease: [0.22, 1, 0.36, 1] as const,
+};
+/** Chevron open/close — separate from parent icon active-state motion. */
+const CHEVRON_MOTION = {
+  duration: 0.24,
+  ease: "easeOut" as const,
+};
+const NAV_ICON_MOTION = {
+  duration: 0.24,
+  ease: "easeOut" as const,
+};
+
+const NAV_ICON_ACTIVE_FRAMES: Record<
+  NavIconMotion,
+  { y?: number[]; scale?: number[]; x?: number[]; rotate?: number[] }
+> = {
+  lift: { y: [0, -2, 0] },
+  pulse: { scale: [1, 1.08, 1] },
+  shift: { x: [0, 2, 0] },
+  gear: { rotate: [0, 24, 0] },
 };
 const CHROME = "flex shrink-0 items-center";
 /** Expanded row — pairs with nav `p-2`. */
@@ -167,6 +198,69 @@ function NavIcon({
       color="currentColor"
       className="shrink-0"
     />
+  );
+}
+
+/**
+ * Plays a one-shot transform when `active` flips false → true.
+ * Does not loop while active; skips entirely under prefers-reduced-motion.
+ */
+function AnimatedNavIcon({
+  icon,
+  active,
+  motion: motionType,
+  size = 19,
+  strokeWidth = 1.75,
+}: {
+  icon: IconSvgElement;
+  active: boolean;
+  motion: NavIconMotion;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const controls = useAnimationControls();
+  const prevActive = useRef(active);
+  const skipInitial = useRef(true);
+
+  useEffect(() => {
+    if (skipInitial.current) {
+      skipInitial.current = false;
+      prevActive.current = active;
+      return;
+    }
+    if (active && !prevActive.current && !reduceMotion) {
+      void controls.start({
+        ...NAV_ICON_ACTIVE_FRAMES[motionType],
+        transition: { ...NAV_ICON_MOTION, times: [0, 0.45, 1] },
+      });
+    }
+    prevActive.current = active;
+  }, [active, controls, motionType, reduceMotion]);
+
+  return (
+    <motion.span
+      className="inline-flex shrink-0 items-center justify-center"
+      initial={false}
+      animate={controls}
+    >
+      <NavIcon icon={icon} size={size} strokeWidth={strokeWidth} />
+    </motion.span>
+  );
+}
+
+function NavChevron({ open }: { open: boolean }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.span
+      className="inline-flex size-4.75 shrink-0 text-tertiary-foreground"
+      // ChevronRight: 0° = right, 90° = down when the submenu is open.
+      animate={{ rotate: open ? 90 : 0 }}
+      transition={reduceMotion ? { duration: 0 } : CHEVRON_MOTION}
+    >
+      <NavIcon icon={ChevronRightIcon} size={19} />
+    </motion.span>
   );
 }
 
@@ -385,25 +479,25 @@ export function Sidebar() {
                     aria-expanded={open}
                     aria-label={item.label}
                     className={cn(
-                      typo.sidebarItem,
+                      parentActive && !open
+                        ? typo.sidebarItemActive
+                        : typo.sidebarItem,
                       railCollapsed ? COLLAPSED_BTN : NAV_BTN,
                       parentActive && !open ? NAV_ACTIVE : NAV_IDLE,
                       FOCUS,
                     )}
                   >
-                    <NavIcon icon={item.icon} />
+                    <AnimatedNavIcon
+                      icon={item.icon}
+                      active={parentActive}
+                      motion={item.iconMotion}
+                    />
                     {!railCollapsed ? (
                       <>
                         <span className="min-w-0 flex-1 truncate text-left">
                           {item.label}
                         </span>
-                        <motion.span
-                          className="inline-flex size-4.75 shrink-0 text-muted-foreground"
-                          animate={{ rotate: open ? 90 : 0 }}
-                          transition={SUBMENU_MOTION}
-                        >
-                          <NavIcon icon={ChevronRightIcon} size={19} />
-                        </motion.span>
+                        <NavChevron open={open} />
                       </>
                     ) : null}
                   </button>
@@ -432,7 +526,9 @@ export function Sidebar() {
                                   href={child.href}
                                   aria-current={active ? "page" : undefined}
                                   className={cn(
-                                    typo.sidebarItem,
+                                    active
+                                      ? typo.sidebarItemActive
+                                      : typo.sidebarItem,
                                     "flex h-9 items-center rounded-[14px] py-2 pr-2 pl-4",
                                     active ? NAV_ACTIVE : NAV_IDLE,
                                     FOCUS,
@@ -465,13 +561,17 @@ export function Sidebar() {
                 aria-label={item.label}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  typo.sidebarItem,
+                  active ? typo.sidebarItemActive : typo.sidebarItem,
                   railCollapsed ? COLLAPSED_BTN : NAV_BTN,
                   active ? NAV_ACTIVE : NAV_IDLE,
                   FOCUS,
                 )}
               >
-                <NavIcon icon={item.icon} />
+                <AnimatedNavIcon
+                  icon={item.icon}
+                  active={active}
+                  motion={item.iconMotion}
+                />
                 {!railCollapsed ? (
                   <span className="min-w-0 flex-1 truncate">{item.label}</span>
                 ) : null}
@@ -500,13 +600,19 @@ export function Sidebar() {
                   isActive("/settings") ? "page" : undefined
                 }
                 className={cn(
-                  typo.sidebarItem,
+                  isActive("/settings")
+                    ? typo.sidebarItemActive
+                    : typo.sidebarItem,
                   railCollapsed ? COLLAPSED_BTN : NAV_BTN,
                   isActive("/settings") ? NAV_ACTIVE : NAV_IDLE,
                   FOCUS,
                 )}
               >
-                <NavIcon icon={Settings01Icon} />
+                <AnimatedNavIcon
+                  icon={Settings01Icon}
+                  active={isActive("/settings")}
+                  motion="gear"
+                />
                 {!railCollapsed ? (
                   <span className="min-w-0 flex-1 truncate">Settings</span>
                 ) : null}
@@ -545,7 +651,15 @@ export function Sidebar() {
               >
                 {USER_NAME}
               </p>
-              <p className={cn("truncate", typo.caption)}>m@example.com</p>
+              <p
+                className={cn(
+                  "truncate",
+                  typo.caption,
+                  "text-muted-foreground",
+                )}
+              >
+                m@example.com
+              </p>
             </div>
             <button
               type="button"
@@ -594,7 +708,7 @@ export function Sidebar() {
     <>
       <TooltipProvider delayDuration={200}>
         <aside
-          className="relative z-10 flex h-full shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar font-sans transition-[width] duration-200 ease-out"
+          className="relative z-10 flex h-full shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar font-sans transition-[width] duration-300 ease-out"
           style={{ width, transitionDuration: `${SIDEBAR_TRANSITION_MS}ms` }}
         >
           {/* Expanded chrome is always full width; outer aside clips to the icon rail when collapsed.

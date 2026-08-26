@@ -20,12 +20,12 @@ const staffCardVariants = {
   rest: {
     y: 0,
     boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)",
-    borderColor: "#D0C2D1",
+    borderColor: "var(--border)",
   },
   hover: {
     y: -3,
     boxShadow: "0px 8px 20px rgba(17, 24, 39, 0.10)",
-    borderColor: "#D4CBD9",
+    borderColor: "var(--border)",
   },
   tap: {
     y: -1,
@@ -48,10 +48,10 @@ function ContactRow({
 }) {
   return (
     <div className="flex w-full items-center gap-2">
-      <span className="inline-flex size-4 shrink-0 text-[#4D4450]" aria-hidden>
+      <span className="inline-flex size-4 shrink-0 text-muted-foreground" aria-hidden>
         <HugeiconsIcon icon={icon} size={16} strokeWidth={1.75} color="currentColor" />
       </span>
-      <span className={cn(typo.bodyS, "text-[#4D4450]")}>{children}</span>
+      <span className={cn(typo.bodyS, "text-muted-foreground")}>{children}</span>
     </div>
   );
 }
@@ -65,13 +65,13 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       whileHover={reduceMotion ? undefined : "hover"}
       whileTap={reduceMotion ? undefined : "tap"}
       variants={staffCardVariants}
-      transition={{ duration: 0.22, ease: CARD_EASE }}
-      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-[14px] border border-solid border-[#D0C2D1] bg-white p-0.75"
+      transition={{ duration: 0.32, ease: CARD_EASE }}
+      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-[14px] border border-solid border-border bg-card p-0.75"
     >
       <div className="relative h-48 w-full overflow-hidden rounded-[14px]">
         <motion.div
           variants={staffImageVariants}
-          transition={{ duration: 0.22, ease: CARD_EASE }}
+          transition={{ duration: 0.32, ease: CARD_EASE }}
           className="absolute inset-0 origin-center"
         >
           <Image
@@ -86,9 +86,9 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
 
       <div className="flex flex-col gap-2 p-4">
         <div className="flex flex-wrap items-start gap-2">
-          <h3 className={cn(typo.headingL, "text-[#1A1A1A]")}>{member.name}</h3>
+          <h3 className={cn(typo.headingL, "text-foreground")}>{member.name}</h3>
           <span
-            className={cn(statusBadgeClass, "bg-[#EFE5EE] text-[#5F6368]")}
+            className={cn(statusBadgeClass, "bg-sidebar-accent text-muted-foreground")}
           >
             {member.role}
           </span>
@@ -113,7 +113,7 @@ export function MedicalStaffSection({
     <section className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
       <SectionTitle
         info="Doctors, nurses, and care coordinators assigned to you, with contact details and experience."
-        className="flex-none pr-0 text-[#1F1A20]"
+        className="flex-none pr-0 text-foreground"
       >
         Medical Staff
       </SectionTitle>
