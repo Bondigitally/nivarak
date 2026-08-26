@@ -63,7 +63,7 @@ export function ProfileSettingsCard({
       <SettingsSectionHeader icon={UserIcon} title="Profile" />
 
       <div className="flex items-center justify-between gap-4">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-[#F5EBF4]">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-sidebar-accent">
           <Image
             src={profile.avatarSrc}
             alt={`${profile.fullName} profile photo`}

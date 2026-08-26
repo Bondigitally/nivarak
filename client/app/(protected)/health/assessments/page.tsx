@@ -38,18 +38,18 @@ export default function AssessmentsPage() {
             <IasScoreCard assessment={assessment} variant="plain" />
 
             <div
-              className="flex flex-col items-stretch justify-start self-stretch rounded-[12px] bg-white"
+              className="flex flex-col items-stretch justify-start self-stretch rounded-[12px] bg-card"
               style={{
-                outline: "1px #E5E2E1 solid",
+                outline: "1px solid var(--border)",
                 outlineOffset: "-1px",
                 boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)",
               }}
             >
               <div className="flex items-center gap-2 self-stretch px-5 pt-5 pb-3">
-                <h2 className="font-sans text-[22px] font-semibold leading-7 text-[#1A1A1A]">
+                <h2 className="font-sans text-[22px] font-semibold leading-7 text-foreground">
                   Recent Assessments
                 </h2>
-                <span className={cn(statusBadgeClass, "bg-[#F2EBF6] text-[#6C318E]")}>
+                <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
                   {ASSESSMENT_ROWS.length}
                 </span>
                 <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
@@ -65,14 +65,14 @@ export default function AssessmentsPage() {
                       <col className="w-14" />
                     </colgroup>
                     <thead>
-                      <tr className="bg-[#F3F0F6]">
-                        <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                      <tr className="bg-table-header">
+                        <th scope="col" className="h-11 rounded-l-xl px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Assessment Name
                         </th>
-                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Date Completed
                         </th>
-                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-[#615A66] whitespace-nowrap">
+                        <th scope="col" className="h-11 px-4 text-left font-sans text-xs font-semibold tracking-[0.3px] text-muted-foreground whitespace-nowrap">
                           Result
                         </th>
                         <th scope="col" className="h-11 w-14 rounded-r-xl px-2">
@@ -82,35 +82,35 @@ export default function AssessmentsPage() {
                     </thead>
                     <tbody>
                       {ASSESSMENT_ROWS.map((row, index) => (
-                        <tr key={index} className="transition-colors duration-100 hover:bg-[#FAFAFA]">
-                          <td className="truncate border-b border-[#F0EDF3] px-4 py-3 font-sans text-sm font-medium leading-5 text-[#201A25]">
+                        <tr key={index} className="transition-colors duration-300 ease-out hover:bg-accent">
+                          <td className="truncate border-b border-divider px-4 py-3 font-sans text-sm font-medium leading-5 text-foreground">
                             {row.name}
                           </td>
-                          <td className="border-b border-[#F0EDF3] px-4 py-3 font-sans text-sm font-normal leading-5 text-[#5F6368] whitespace-nowrap">
+                          <td className="border-b border-divider px-4 py-3 font-sans text-sm font-normal leading-5 text-muted-foreground whitespace-nowrap">
                             {row.date}
                           </td>
-                          <td className="border-b border-[#F0EDF3] px-4 py-3">
+                          <td className="border-b border-divider px-4 py-3">
                             <span
                               className={cn(
                                 statusBadgeClass,
-                                row.statusType === "normal" && "bg-[#ECFDF5] text-[#10B981]",
-                                row.statusType === "mid" && "bg-[#FFFBEB] text-[#D97706]",
-                                row.statusType === "high" && "bg-[#FFF0F0] text-[#EF4444]"
+                                row.statusType === "normal" && "bg-success-muted text-success",
+                                row.statusType === "mid" && "bg-warning-muted text-warning",
+                                row.statusType === "high" && "bg-destructive-muted text-destructive"
                               )}
                             >
                               {row.result}
                             </span>
                           </td>
-                          <td className="w-14 border-b border-[#F0EDF3] px-2 py-3 text-right">
+                          <td className="w-14 border-b border-divider px-2 py-3 text-right">
                             <AssessmentActionsMenu />
                           </td>
                         </tr>
                       ))}
-                      <tr className="transition-colors duration-100 hover:bg-[#FAFAFA]">
+                      <tr className="transition-colors duration-300 ease-out hover:bg-accent">
                         <td colSpan={4} className="px-4 py-3 text-center">
                           <button
                             type="button"
-                            className="font-sans text-sm font-medium leading-5 text-[#5F6368] outline-none transition-colors hover:text-[#6C318E]"
+                            className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors duration-300 ease-out hover:text-primary"
                           >
                             Load More
                           </button>
@@ -123,13 +123,13 @@ export default function AssessmentsPage() {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-[#E9E4ED] bg-white p-6">
+          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
             <div className="flex max-w-[480px] flex-col items-center text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#F2EBF6] text-[#6C318E]">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
                 <HugeiconsIcon icon={AssignmentsIcon} size={32} strokeWidth={1.75} color="currentColor" />
               </div>
-              <h2 className="font-sans text-xl font-semibold leading-7 text-[#1A1A1A]">No assessments yet</h2>
-              <p className="mt-2 text-sm font-normal leading-5 text-[#5F6368]">
+              <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">No assessments yet</h2>
+              <p className="mt-2 text-sm font-normal leading-5 text-muted-foreground">
                 Take the Independent Ageing Score (IAS-P) to establish your baseline and unlock personalized care insights.
               </p>
               <Button type="button" variant="default" size="cta" className="mt-6 px-6 text-sm font-medium">

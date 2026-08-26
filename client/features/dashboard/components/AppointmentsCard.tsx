@@ -6,7 +6,6 @@ import {
   Calendar03Icon,
   Clock01Icon,
   UserMultiple02Icon,
-  ChevronRightIcon,
 } from "@hugeicons/core-free-icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
@@ -101,8 +100,8 @@ export function AppointmentsCard({
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
                     <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-background px-1.5 py-1.5 transition-colors duration-150 group-hover:bg-card sm:min-w-14 sm:w-auto sm:px-2.5">
-                      <span className={cn(typo.headingS, "text-[#8A8F98]")}>{appointment.month}</span>
-                      <span className={cn(typo.headingXl, "text-(--primary-active)")}>
+                      <span className={cn(typo.headingS, "text-tertiary-foreground")}>{appointment.month}</span>
+                      <span className={cn(typo.headingXl, "text-primary-active")}>
                         {appointment.day}
                       </span>
                     </div>
@@ -112,13 +111,13 @@ export function AppointmentsCard({
                       </p>
                       <div className="mt-1.5 flex flex-col gap-1">
                         <div className="flex min-w-0 items-center gap-1.5">
-                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#F4F9FF] text-muted-foreground">
+                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-info-muted text-muted-foreground">
                             <HugeiconsIcon icon={Clock01Icon} size={19} strokeWidth={1.75} color="currentColor" />
                           </span>
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>{appointment.time}</span>
                         </div>
                         <div className="flex min-w-0 items-center gap-1.5">
-                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#F5F0FE] text-muted-foreground">
+                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent text-muted-foreground">
                             <HugeiconsIcon
                               icon={UserMultiple02Icon}
                               size={19}
@@ -135,18 +134,11 @@ export function AppointmentsCard({
                   </div>
                   <Button
                     type="button"
-                    variant="secondary"
-                    aria-label="Details"
-                    className="h-11 shrink-0 rounded-full px-3 font-semibold text-primary hover:bg-accent hover:text-primary sm:px-5"
+                    variant="primary-outline"
+                    className="shrink-0"
                     onClick={() => openDetails(appointment)}
                   >
-                    <span className="hidden sm:inline">Details</span>
-                    <HugeiconsIcon
-                      icon={ChevronRightIcon}
-                      size={12}
-                      strokeWidth={1.75}
-                      color="currentColor"
-                    />
+                    Details
                   </Button>
                 </div>
               </li>

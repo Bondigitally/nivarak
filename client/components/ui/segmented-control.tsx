@@ -31,7 +31,7 @@ export function SegmentedControl<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       className={cn(
-        "flex w-fit max-w-full items-start overflow-x-auto overscroll-x-contain rounded-[14px] border border-[#E9E4ED] bg-[#F8F5FA] p-0.5 scrollbar-none [&::-webkit-scrollbar]:hidden",
+        "flex w-fit max-w-full items-start overflow-x-auto overscroll-x-contain rounded-[14px] border border-border bg-background p-0.5 scrollbar-none [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >
@@ -46,13 +46,13 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(tab.id)}
             className={cn(
               "relative flex shrink-0 items-center justify-center px-3 py-2.5 text-center text-sm leading-5 whitespace-nowrap select-none transition-colors duration-200 ease-out sm:px-5 sm:py-3",
-              isActive ? "text-(--primary-active)" : "text-muted-foreground hover:text-(--primary-active)",
+              isActive ? "text-primary-active" : "text-muted-foreground hover:text-primary-active",
             )}
           >
             {isActive ? (
               <motion.div
                 layoutId={reducedMotion ? undefined : layoutId}
-                className="absolute inset-0 rounded-[14px] border border-[#E9E4ED] bg-white shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
+                className="absolute inset-0 rounded-[14px] border border-border bg-card shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
                 transition={
                   reducedMotion
                     ? { duration: 0 }

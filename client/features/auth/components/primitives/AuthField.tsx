@@ -15,10 +15,10 @@ import {
 export const authInputClassName = cn(
   'h-11 w-full rounded-xl border border-border bg-card px-4',
   typo.input,
-  'placeholder:text-[#9CA3AF] placeholder:font-sans', // Text/Placeholder
+  'placeholder:text-placeholder placeholder:font-sans', // Text/Placeholder
   'transition-[border-color,box-shadow] duration-150 ease-in-out',
-  'hover:border-[#D4CDDA]',
-  'focus-visible:border-[#B98BD0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A66BCF]/40',
+  'hover:border-border',
+  'focus-visible:border-border-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
   'disabled:cursor-not-allowed disabled:opacity-50',
 );
 
@@ -106,7 +106,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
                     onClick={() => setShowPassword((current) => !current)}
                     whileTap={{ scale: 0.88 }}
                     transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition-colors duration-150 hover:bg-[#F8F5FA] hover:text-foreground"
+                    className="absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition-colors duration-150 hover:bg-background hover:text-foreground"
                     aria-label={visibilityLabel}
                   >
                     {showPassword ? (

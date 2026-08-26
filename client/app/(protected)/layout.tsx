@@ -12,7 +12,7 @@ export default function ProtectedLayout({
   return (
     <SidebarProvider>
       {/* In-flow sidebar + scrolling main */}
-      <div className="protected-shell flex overflow-hidden bg-[#F8F5FA] font-sans">
+      <div className="protected-shell flex overflow-hidden bg-background font-sans">
         <Sidebar />
         <main
           data-dashboard-scroll

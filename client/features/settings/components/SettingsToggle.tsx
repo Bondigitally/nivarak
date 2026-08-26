@@ -24,13 +24,13 @@ export function SettingsToggle({
       className={cn(
         "relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        checked ? "bg-primary" : "bg-[#D0C2D1]",
+        checked ? "bg-primary" : "bg-border",
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "absolute top-[3px] size-[18px] rounded-[9px] bg-white shadow-sm transition-[left] duration-150",
+          "absolute top-[3px] size-[18px] rounded-[9px] bg-card shadow-sm transition-[left] duration-150",
           checked ? "left-[23px]" : "left-[3px]",
         )}
       />

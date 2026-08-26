@@ -29,7 +29,7 @@ export function TaskRow({
         dashboardCardClass,
         "flex min-h-14 w-full min-w-0 items-center px-3.5 py-3 text-left sm:px-4 sm:py-3.5",
         "transition-colors duration-150",
-        "hover:bg-accent active:bg-[#F0EDF3]",
+        "hover:bg-accent active:bg-divider",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       )}
     >
@@ -38,7 +38,7 @@ export function TaskRow({
         <span className="flex min-w-0 flex-1 items-center gap-3">
           <span
             className={cn(
-              "flex size-5.5 shrink-0 items-center justify-center rounded-[4px]",
+              "flex size-5 shrink-0 items-center justify-center rounded-[4px]",
               "shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
               task.completed
                 ? "bg-primary"
@@ -62,7 +62,7 @@ export function TaskRow({
                 typo.headingM,
                 "block w-full truncate",
                 task.completed
-                  ? "text-[#8A8F98] line-through"
+                  ? "text-tertiary-foreground line-through"
                   : "text-foreground",
               )}
             >
@@ -78,7 +78,7 @@ export function TaskRow({
           <span
             className={cn(
               statusBadgeClass,
-              "ml-auto shrink-0 border border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
+              "ml-auto shrink-0 border border-warning-muted bg-warning-muted text-warning",
             )}
           >
             Overdue

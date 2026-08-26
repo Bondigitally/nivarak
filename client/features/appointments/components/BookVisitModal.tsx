@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   ArrowDown01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
   Cancel01Icon,
   DateTimeIcon,
   Home03Icon,
@@ -33,6 +35,14 @@ import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 type VisitTypeId = "home" | "teleconsult" | "clinic";
+
+type DateOption = {
+  id: string;
+  weekday: string;
+  day: string;
+  month: string;
+  disabled: boolean;
+};
 
 const VISIT_TYPES: {
   id: VisitTypeId;
@@ -68,15 +78,22 @@ const VISIT_REASONS = [
   "Care plan discussion",
 ] as const;
 
-const DATE_OPTIONS = [
-  { id: "mon-12", weekday: "MON", day: "12", month: "Nov", disabled: false },
-  { id: "tue-13", weekday: "TUE", day: "13", month: "Nov", disabled: false },
-  { id: "wed-14", weekday: "WED", day: "14", month: "Nov", disabled: false },
-  { id: "thu-15", weekday: "THU", day: "15", month: "Nov", disabled: false },
-  { id: "fri-16", weekday: "FRI", day: "16", month: "Nov", disabled: false },
-  { id: "sat-17", weekday: "SAT", day: "17", month: "Nov", disabled: true },
-  { id: "sun-18", weekday: "SUN", day: "18", month: "Nov", disabled: true },
+const WEEKDAY_LABELS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ] as const;
+const DAYS_PER_PAGE = 7;
 
 const TIME_OPTIONS = [
   { id: "11:00 AM", disabled: true },
@@ -89,19 +106,109 @@ const TIME_OPTIONS = [
   { id: "06:00 PM", disabled: false },
 ] as const;
 
+function startOfLocalDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function toDateId(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function buildDateOption(date: Date, today: Date): DateOption {
+  const dayOfWeek = date.getDay();
+  // Busy / unavailable dates — re-enable when API provides busy slots.
+  // const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  // const isPast = date.getTime() < today.getTime();
+  // const isBusy = busyDateIds.has(toDateId(date));
+  void today;
+  return {
+    id: toDateId(date),
+    weekday: WEEKDAY_LABELS[dayOfWeek],
+    day: String(date.getDate()),
+    month: MONTH_LABELS[date.getMonth()],
+    // disabled: isWeekend || isPast || isBusy,
+    disabled: false,
+  };
+}
+
+function getVisibleDates(weekOffset: number): DateOption[] {
+  const today = startOfLocalDay(new Date());
+  const rangeStart = addDays(today, weekOffset * DAYS_PER_PAGE);
+  return Array.from({ length: DAYS_PER_PAGE }, (_, index) =>
+    buildDateOption(addDays(rangeStart, index), today),
+  );
+}
+
+function firstAvailableDateId(dates: DateOption[]) {
+  // Prefer first non-busy date when disabled logic is re-enabled:
+  // return dates.find((date) => !date.disabled)?.id ?? dates[0]?.id ?? "";
+  return dates[0]?.id ?? "";
+}
+
+const DATE_NAV_BTN =
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-colors duration-300 ease-out hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-card disabled:hover:text-muted-foreground";
+
 export function BookVisitModal() {
   const { bookVisitOpen, setBookVisitOpen } = useSidebar();
   const [visitType, setVisitType] = useState<VisitTypeId>("home");
   const [reason, setReason] = useState<string | null>(null);
-  const [dateId, setDateId] = useState<string>("tue-13");
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [dateId, setDateId] = useState(() => firstAvailableDateId(getVisibleDates(0)));
   const [timeId, setTimeId] = useState<string>("01:00 PM");
 
-  const selectedVisit = VISIT_TYPES.find((item) => item.id === visitType) ?? VISIT_TYPES[0];
-  const selectedDate = DATE_OPTIONS.find((item) => item.id === dateId) ?? DATE_OPTIONS[1];
+  const visibleDates = useMemo(() => getVisibleDates(weekOffset), [weekOffset]);
+
+  const selectedVisit =
+    VISIT_TYPES.find((item) => item.id === visitType) ?? VISIT_TYPES[0];
+
+  const selectedDate = useMemo(() => {
+    const fromVisible = visibleDates.find((date) => date.id === dateId);
+    if (fromVisible) return fromVisible;
+    const [year, month, day] = dateId.split("-").map(Number);
+    if (!year || !month || !day) return visibleDates[0];
+    return buildDateOption(
+      new Date(year, month - 1, day),
+      startOfLocalDay(new Date()),
+    );
+  }, [visibleDates, dateId]);
 
   const scheduleLabel = useMemo(() => {
     return `${selectedDate.weekday} ${selectedDate.day} ${selectedDate.month} at ${timeId}`;
   }, [selectedDate, timeId]);
+
+  useEffect(() => {
+    if (!bookVisitOpen) return;
+    const id = window.setTimeout(() => {
+      setVisitType("home");
+      setReason(null);
+      setWeekOffset(0);
+      setDateId(firstAvailableDateId(getVisibleDates(0)));
+      setTimeId("01:00 PM");
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [bookVisitOpen]);
+
+  function goPrevWeek() {
+    if (weekOffset <= 0) return;
+    const next = weekOffset - 1;
+    setWeekOffset(next);
+    setDateId(firstAvailableDateId(getVisibleDates(next)));
+  }
+
+  function goNextWeek() {
+    const next = weekOffset + 1;
+    setWeekOffset(next);
+    setDateId(firstAvailableDateId(getVisibleDates(next)));
+  }
 
   function handleConfirm() {
     setBookVisitOpen(false);
@@ -113,7 +220,7 @@ export function BookVisitModal() {
         <DialogOverlay className="z-100" />
         <DialogPrimitive.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,880px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-[#E9E4ED] bg-white p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
+            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,880px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-border bg-card p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
             "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -124,10 +231,10 @@ export function BookVisitModal() {
           }}
         >
         <DialogHeader
-          className="flex shrink-0 flex-row items-center justify-between gap-4 space-y-0 rounded-none border-b border-[#E9E4ED] bg-transparent px-6 py-5 text-left sm:px-8 sm:py-6"
+          className="flex shrink-0 flex-row items-center justify-between gap-4 space-y-0 rounded-none border-b border-border bg-transparent px-6 py-5 text-left sm:px-8 sm:py-6"
         >
           <div className="min-w-0 pr-2">
-            <DialogTitle className={cn(typo.headingXxl, "text-[#1A1A1A]")}>
+            <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
               Book a visit
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -154,7 +261,7 @@ export function BookVisitModal() {
 
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-x-hidden overflow-y-auto overscroll-contain px-6 py-6 sm:gap-8 sm:px-8 sm:py-7">
           <section className="flex flex-col gap-3 sm:gap-4">
-            <h2 className={cn(typo.headingM, "text-[#1A1A1A]")}>Select Visit Type</h2>
+            <h2 className={cn(typo.headingM, "text-foreground")}>Select Visit Type</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
               {VISIT_TYPES.map((type) => {
                 const selected = type.id === visitType;
@@ -168,8 +275,8 @@ export function BookVisitModal() {
                       "flex flex-col items-start gap-1 rounded-[14px] border p-4 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)] transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       selected
-                        ? "border-primary bg-[#FFF7FC]"
-                        : "border-[#E9E4ED] bg-white hover:bg-[#F8F5FA]",
+                        ? "border-primary bg-sidebar-accent text-primary-active"
+                        : "border-border bg-card text-foreground hover:bg-background",
                     )}
                   >
                     <HugeiconsIcon
@@ -178,10 +285,20 @@ export function BookVisitModal() {
                       strokeWidth={1.75}
                       color="currentColor"
                     />
-                    <span className={cn(typo.headingS, "pt-2 text-sm leading-5 text-[#1A1A1A]")}>
+                    <span
+                      className={cn(
+                        typo.headingS,
+                        "pt-2 text-sm leading-5",
+                        selected
+                          ? "text-primary-active"
+                          : "text-foreground",
+                      )}
+                    >
                       {type.title}
                     </span>
-                    <span className={cn(typo.caption, "text-[#8A8F98]")}>{type.description}</span>
+                    <span className={cn(typo.caption, "text-tertiary-foreground")}>
+                      {type.description}
+                    </span>
                   </button>
                 );
               })}
@@ -189,14 +306,14 @@ export function BookVisitModal() {
           </section>
 
           <section className="flex flex-col gap-3 sm:gap-4">
-            <h2 className={cn(typo.headingM, "text-[#1A1A1A]")}>Reason for Visit</h2>
-            <DropdownMenu>
+            <h2 className={cn(typo.headingM, "text-foreground")}>Reason for Visit</h2>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
                   className={cn(
-                    "relative flex h-12 w-full items-center rounded-[14px] border border-[#E9E4ED] bg-white px-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] sm:h-14",
-                    "text-left outline-none transition-colors hover:bg-[#F8F5FA]",
+                    "relative flex h-12 w-full items-center rounded-[14px] border border-border bg-card px-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] sm:h-14",
+                    "text-left outline-none transition-colors hover:bg-background",
                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   )}
                 >
@@ -221,7 +338,7 @@ export function BookVisitModal() {
               <DropdownMenuContent
                 align="start"
                 sideOffset={8}
-                className="w-(--radix-dropdown-menu-trigger-width) rounded-[14px] border-border bg-card p-1.5 shadow-md"
+                className="z-110 w-(--radix-dropdown-menu-trigger-width) rounded-[14px] border-border bg-card p-1.5 shadow-md"
               >
                 {VISIT_REASONS.map((item) => (
                   <DropdownMenuItem
@@ -230,7 +347,7 @@ export function BookVisitModal() {
                     className={cn(
                       "cursor-pointer rounded-[10px] px-3 py-2.5",
                       typo.input,
-                      reason === item && "bg-[#F8F5FA]",
+                      reason === item && "bg-background",
                     )}
                   >
                     {item}
@@ -241,33 +358,67 @@ export function BookVisitModal() {
           </section>
 
           <section className="flex flex-col gap-3 sm:gap-4">
-            <h2 className={cn(typo.headingM, "text-[#1A1A1A]")}>Preferred Schedule</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className={cn(typo.headingM, "min-w-0 text-foreground")}>
+                Preferred Schedule
+              </h2>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Previous dates"
+                  disabled={weekOffset === 0}
+                  onClick={goPrevWeek}
+                  className={DATE_NAV_BTN}
+                >
+                  <HugeiconsIcon
+                    icon={ArrowLeft01Icon}
+                    size={16}
+                    strokeWidth={1.75}
+                    color="currentColor"
+                  />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next dates"
+                  onClick={goNextWeek}
+                  className={DATE_NAV_BTN}
+                >
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={1.75}
+                    color="currentColor"
+                  />
+                </button>
+              </div>
+            </div>
 
             <div className="flex flex-col gap-2">
-              <p className={cn(typo.bodyM, "text-[#8A8F98]")}>Date</p>
+              <p className={cn(typo.bodyM, "text-tertiary-foreground")}>Date</p>
               <div className="flex gap-2 sm:gap-3">
-                {DATE_OPTIONS.map((date) => {
+                {visibleDates.map((date) => {
                   const selected = date.id === dateId;
                   return (
                     <button
                       key={date.id}
                       type="button"
-                      disabled={date.disabled}
+                      // Re-enable when busy dates are wired up:
+                      // disabled={date.disabled}
                       onClick={() => setDateId(date.id)}
                       aria-pressed={selected}
                       className={cn(
-                        "flex min-w-0 flex-1 flex-col items-center rounded-xl px-1.5 py-2.5 transition-colors sm:px-2",
+                        "flex min-w-0 flex-1 flex-col items-center rounded-xl px-1.5 py-2.5 transition-colors duration-300 ease-out sm:px-2",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
-                          ? "bg-primary p-2 text-white"
-                          : "border border-[#D0C2D1] bg-white text-[#4D4450]",
-                        date.disabled && "cursor-not-allowed opacity-50",
+                          ? "bg-primary p-2 text-primary-foreground"
+                          : "border border-border bg-card text-muted-foreground",
+                        // date.disabled && "cursor-not-allowed opacity-50",
                       )}
                     >
                       <span
                         className={cn(
                           "text-xs uppercase leading-4 tracking-[0.6px]",
-                          selected ? "font-bold text-white" : "font-normal",
+                          selected ? "font-bold text-primary-foreground" : "font-normal",
                         )}
                       >
                         {date.weekday}
@@ -275,7 +426,7 @@ export function BookVisitModal() {
                       <span
                         className={cn(
                           "text-2xl font-semibold leading-8",
-                          selected ? "text-white" : "text-[#1F1A20]",
+                          selected ? "text-primary-foreground" : "text-foreground",
                         )}
                       >
                         {date.day}
@@ -283,7 +434,7 @@ export function BookVisitModal() {
                       <span
                         className={cn(
                           "text-xs leading-4",
-                          selected ? "text-white" : "text-[#4D4450]",
+                          selected ? "text-primary-foreground" : "text-muted-foreground",
                         )}
                       >
                         {date.month}
@@ -295,7 +446,7 @@ export function BookVisitModal() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className={cn(typo.bodyM, "text-[#8A8F98]")}>Time</p>
+              <p className={cn(typo.bodyM, "text-tertiary-foreground")}>Time</p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {TIME_OPTIONS.map((time) => {
                   const selected = time.id === timeId;
@@ -311,9 +462,9 @@ export function BookVisitModal() {
                         typo.button,
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
-                          ? "border-primary bg-primary text-white"
-                          : "border-[#E9E4ED] bg-white text-[#1A1A1A] hover:bg-[#F8F5FA]",
-                        time.disabled && "cursor-not-allowed opacity-50 hover:bg-white",
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card text-foreground hover:bg-background",
+                        time.disabled && "cursor-not-allowed opacity-50 hover:bg-card",
                       )}
                     >
                       {time.id}
@@ -324,22 +475,28 @@ export function BookVisitModal() {
             </div>
           </section>
 
-          <div className="flex items-start justify-between gap-4 rounded-[14px] bg-[#F8F5FA] p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]">
+          <div className="flex items-start justify-between gap-4 rounded-[14px] bg-background p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]">
             <div className="flex min-w-0 flex-col gap-0.5">
-              <p className={cn(typo.headingS, "text-sm leading-5 text-[#1A1A1A]")}>
+              <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
                 {selectedVisit.title}
               </p>
-              <p className={cn(typo.bodyM, "text-[#8A8F98]")}>{scheduleLabel}</p>
+              <p className={cn(typo.bodyM, "text-muted-foreground")}>
+                {scheduleLabel}
+              </p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
-              <p className={cn(typo.headingS, "text-sm leading-5 text-[#1A1A1A]")}>Pending</p>
-              <p className={cn(typo.caption, "text-[#8A8F98]")}>Subject to confirmation</p>
+              <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
+                Pending
+              </p>
+              <p className={cn(typo.caption, "text-muted-foreground")}>
+                Subject to confirmation
+              </p>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex shrink-0 flex-col gap-3 rounded-none border-t border-[#E9E4ED] bg-white px-6 py-5 sm:flex-col sm:justify-stretch sm:gap-4 sm:px-8 sm:py-6">
-          <p className={cn(typo.bodyM, "text-center text-[#8A8F98]")}>
+        <DialogFooter className="flex shrink-0 flex-col gap-3 rounded-none border-t border-border bg-card px-6 py-5 sm:flex-col sm:justify-stretch sm:gap-4 sm:px-8 sm:py-6">
+          <p className={cn(typo.bodyM, "text-center text-tertiary-foreground")}>
             Your care coordinator will confirm the assigned clinician.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">

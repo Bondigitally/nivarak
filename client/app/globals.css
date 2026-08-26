@@ -27,15 +27,30 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-focus: var(--border-focus);
+  --color-divider: var(--divider);
   --color-destructive: var(--destructive);
+  --color-destructive-muted: var(--destructive-muted);
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-info: var(--info);
+  --color-info-muted: var(--info-muted);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-placeholder: var(--placeholder);
   --color-muted: var(--muted);
+  --color-table-header: var(--table-header);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-disabled: var(--primary-disabled);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -99,12 +114,23 @@
   --secondary-foreground: #1A1A1A;
   --muted: #FCFBFD; /* Surface/Secondary */
   --muted-foreground: #5F6368; /* Text/Secondary */
+  --table-header: #F3F0F6; /* Surface/TableHeader */
+  --tertiary-foreground: #8A8F98; /* Text/Tertiary */
+  --placeholder: #9CA3AF; /* Text/Placeholder */
   --accent: #F7F5F9; /* Surface/Hover */
   --accent-foreground: #1A1A1A;
 
   /* Border & text states */
   --destructive: #DC2626; /* Error/Text */
+  --destructive-muted: #FCECEC; /* Error/Tint */
+  --success: #10B981; /* Success/Text */
+  --success-muted: #ECFDF5; /* Success/Tint */
+  --warning: #CA8A04; /* Warning/Text */
+  --warning-muted: #FEFCE8; /* Warning/Tint */
+  --info: #2563EB; /* Info/Text */
+  --info-muted: #E7EFF8; /* Info/Tint */
   --border: #E9E4ED; /* Border/Primary */
+  --divider: #F0EDF3; /* Border/Divider */
   --border-disabled: #EFEAF2; /* Border/Disabled */
   --text-disabled: #B3B7BF; /* Text/Disabled */
   --input: #E9E4ED; /* Border/Primary */
@@ -184,14 +210,10 @@ html:has(.protected-shell) {
   scrollbar-gutter: auto;
 }
 
-[data-dashboard-scroll] {
-  scrollbar-gutter: auto;
-}
-
 /*
  * react-remove-scroll pads <body> by the measured scrollbar gap. With
- * scrollbar-gutter already reserving that space (on html and/or main),
- * the extra pad double-shifts the layout when a dialog opens.
+ * scrollbar-gutter already reserving that space on html, the extra pad
+ * double-shifts the layout when a dialog opens.
  */
 body[data-scroll-locked] {
   margin-right: 0 !important;

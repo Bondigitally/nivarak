@@ -14,8 +14,8 @@ import {
 export const SIDEBAR_WIDTH_EXPANDED = 256;
 /** Collapsed icon-rail width (px). */
 export const SIDEBAR_WIDTH_COLLAPSED = 56;
-/** Width transition duration (ms) — keep in sync with Tailwind `duration-200`. */
-export const SIDEBAR_TRANSITION_MS = 200;
+/** Width transition duration (ms) — keep in sync with aside `transitionDuration`. Motion/Slow. */
+export const SIDEBAR_TRANSITION_MS = 320;
 /**
  * Persistent sidebar from `lg` up — same split as AuthLayout.
  * Density below full size uses viewport `--ui-scale` (not inch checks).

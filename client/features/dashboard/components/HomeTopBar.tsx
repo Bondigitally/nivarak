@@ -107,7 +107,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
       <header
         ref={headerRef}
         className={cn(
-          "relative top-0 z-20 grid h-14 min-h-14 w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap bg-[#F8F5FA] px-dash-pad-x transition-shadow duration-200 ease-out",
+          "sticky top-0 z-20 grid h-14 min-h-14 w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap bg-background px-dash-pad-x transition-shadow duration-200 ease-out",
           scrolled && "shadow-[0_12px_24px_-10px_rgba(26,26,26,0.16)]",
         )}
       >
@@ -155,7 +155,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
             color="currentColor"
             className="shrink-0 text-muted-foreground"
           />
-          <span className={cn(typo.bodyM, "min-w-0 flex-1 truncate text-[#9CA3AF]")}>
+          <span className={cn(typo.bodyM, "min-w-0 flex-1 truncate text-placeholder")}>
             Search patients, vitals, reports…
           </span>
           <SearchShortcutHint />
@@ -180,7 +180,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
                   color="currentColor"
                 />
                 {notificationCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-primary-foreground">
                     {notificationCount}
                   </span>
                 ) : null}

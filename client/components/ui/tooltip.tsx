@@ -8,7 +8,7 @@ const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
-const TOOLTIP_SURFACE = "#1A1A1A";
+const TOOLTIP_SURFACE = "var(--foreground)";
 
 function TooltipProvider({
   delayDuration = 200,

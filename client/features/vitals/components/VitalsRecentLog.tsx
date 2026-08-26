@@ -43,7 +43,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.4°F",
     weight: "78.5 kg",
     heartRate: "72 bpm",
-    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-[rgba(108,49,142,0.10)] text-[#6C318E]" },
+    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-primary/10 text-primary" },
   },
   {
     id: "r2",
@@ -54,7 +54,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.6°F",
     weight: "78.7 kg",
     heartRate: "78 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-[#DBEAFE] text-[#1D4ED8]" },
+    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
   },
   {
     id: "r3",
@@ -65,7 +65,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.6°F",
     weight: "78.7 kg",
     heartRate: "82 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-[#DBEAFE] text-[#1D4ED8]" },
+    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
   },
   {
     id: "r4",
@@ -76,7 +76,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.6°F",
     weight: "78.7 kg",
     heartRate: "76 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-[#DBEAFE] text-[#1D4ED8]" },
+    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
   },
   {
     id: "r5",
@@ -87,7 +87,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.6°F",
     weight: "78.7 kg",
     heartRate: "72 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-[#DBEAFE] text-[#1D4ED8]" },
+    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
   },
   {
     id: "r6",
@@ -98,7 +98,7 @@ const LOG_DATA: VitalLogRow[] = [
     temp: "98.8°F",
     weight: "78.8 kg",
     heartRate: "78 bpm",
-    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-[rgba(108,49,142,0.10)] text-[#6C318E]" },
+    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-primary/10 text-primary" },
   },
 ];
 
@@ -113,10 +113,10 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     sortingFn: "alphanumeric",
     cell: ({ row }) => (
       <div className="flex flex-col justify-start items-start">
-        <div className="text-[#201A25] text-sm font-medium leading-5 font-sans">
+        <div className="text-foreground text-sm font-medium leading-5 font-sans">
           {row.original.date}
         </div>
-        <div className="text-[#615A66] text-xs font-normal leading-4 font-sans mt-0.5">
+        <div className="text-muted-foreground text-xs font-normal leading-4 font-sans mt-0.5">
           {row.original.time}
         </div>
       </div>
@@ -126,7 +126,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     header: "BP",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <span className="text-[#201A25] text-sm font-medium leading-5 font-sans">
+      <span className="text-foreground text-sm font-medium leading-5 font-sans">
         {getValue()}
       </span>
     ),
@@ -135,7 +135,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     header: "SPO₂",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <span className="text-[#201A25] text-sm font-normal leading-5 font-sans">
+      <span className="text-foreground text-sm font-normal leading-5 font-sans">
         {getValue()}
       </span>
     ),
@@ -144,7 +144,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     header: "TEMP",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <span className="text-[#201A25] text-sm font-normal leading-5 font-sans">
+      <span className="text-foreground text-sm font-normal leading-5 font-sans">
         {getValue()}
       </span>
     ),
@@ -153,7 +153,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     header: "WEIGHT",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <span className="text-[#201A25] text-sm font-normal leading-5 font-sans">
+      <span className="text-foreground text-sm font-normal leading-5 font-sans">
         {getValue()}
       </span>
     ),
@@ -162,7 +162,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
     header: "Heart rate",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <span className="text-[#201A25] text-sm font-normal leading-5 font-sans">
+      <span className="text-foreground text-sm font-normal leading-5 font-sans">
         {getValue()}
       </span>
     ),
@@ -181,7 +181,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
               {initials}
             </div>
           </div>
-          <div className="text-[#201A25] text-sm font-normal leading-5 font-sans">
+          <div className="text-foreground text-sm font-normal leading-5 font-sans">
             {name}
           </div>
         </div>
@@ -193,7 +193,7 @@ const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
 // ─── Sort icon ────────────────────────────────────────────────────────────────
 function SortIcon({ direction }: { direction: "asc" | "desc" | false }) {
   return (
-    <span className="ml-1.5 inline-flex flex-col gap-[2px] text-[#8A8F98] group-hover:text-[#5F6368] transition-colors">
+    <span className="ml-1.5 inline-flex flex-col gap-[2px] text-tertiary-foreground group-hover:text-muted-foreground transition-colors">
       <svg
         width="8"
         height="5"
@@ -245,21 +245,21 @@ export function VitalsRecentLog() {
 
   return (
     <div
-      className="self-stretch pt-5 bg-white flex flex-col justify-start items-start rounded-[12px]"
-      style={{ outline: "1px #E5E2E1 solid", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
+      className="self-stretch pt-5 bg-card flex flex-col justify-start items-start rounded-[12px]"
+      style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
     >
       {/* Title */}
       <div className="self-stretch px-5 pb-5 flex flex-col justify-start items-start">
         <SectionTitle
           info="A chronological list of recorded vitals from you and your care team, including who logged each entry."
-          className="flex-none pr-0 text-[#1A1A1A]"
+          className="flex-none pr-0 text-foreground"
         >
           Recent Log
         </SectionTitle>
       </div>
 
       {/* Table wrapper */}
-      <div className="self-stretch bg-white overflow-hidden rounded-b-[12px]">
+      <div className="self-stretch bg-card overflow-hidden rounded-b-[12px]">
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[860px] border-collapse">
             <thead>
@@ -267,7 +267,7 @@ export function VitalsRecentLog() {
                 <tr key={headerGroup.id}>
                   <th colSpan={COLUMNS.length} className="px-0 pt-3 pb-0">
                     {/* Lavender pill header — same as assessments table */}
-                    <div className="mx-6 flex h-11 items-center bg-[#F3F0F6] rounded-[14px]">
+                    <div className="mx-6 flex h-11 items-center bg-table-header rounded-[14px]">
                       {headerGroup.headers.map((header) => {
                         const canSort = header.column.getCanSort();
                         const sorted = header.column.getIsSorted();
@@ -276,8 +276,8 @@ export function VitalsRecentLog() {
                           <div
                             key={header.id}
                             className={cn(
-                              "flex h-full min-w-0 items-center px-4 text-left text-xs font-semibold text-[#615A66] font-sans whitespace-nowrap select-none transition-colors",
-                              canSort && "cursor-pointer hover:text-[#201A25]",
+                              "flex h-full min-w-0 items-center px-4 text-left text-xs font-semibold text-muted-foreground font-sans whitespace-nowrap select-none transition-colors",
+                              canSort && "cursor-pointer hover:text-foreground",
                               widthClass
                             )}
                             style={{ letterSpacing: "0.3px" }}
@@ -302,10 +302,10 @@ export function VitalsRecentLog() {
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="hover:bg-[#FAFAFA] transition-colors duration-100"
+                  className="hover:bg-accent transition-colors duration-100"
                 >
                   <td colSpan={COLUMNS.length} className="px-6 py-0">
-                    <div className="flex w-full items-center border-b border-[#F0EDF3]">
+                    <div className="flex w-full items-center border-b border-divider">
                       {row.getVisibleCells().map((cell) => {
                         const widthClass = COL_WIDTHS[cell.column.id] || "";
                         return (
@@ -319,12 +319,12 @@ export function VitalsRecentLog() {
                 </tr>
               ))}
               {/* Load More row */}
-              <tr className="hover:bg-[#FAFAFA] transition-colors duration-100">
+              <tr className="hover:bg-accent transition-colors duration-100">
                 <td colSpan={COLUMNS.length} className="px-6 py-0">
                   <div className="flex items-center justify-center py-3">
                     <button
                       type="button"
-                      className="text-[#5F6368] text-sm font-medium leading-5 font-sans outline-none"
+                      className="text-muted-foreground text-sm font-medium leading-5 font-sans outline-none"
                     >
                       Load More
                     </button>

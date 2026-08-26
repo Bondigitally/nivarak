@@ -3,7 +3,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   CheckmarkCircle02Icon,
-  ChevronRightIcon,
   Location01Icon,
   Video01Icon,
 } from "@hugeicons/core-free-icons";
@@ -19,10 +18,10 @@ import type {
 
 const visitTypeStyles: Record<AppointmentVisitType, { className: string }> = {
   "Home Visit": {
-    className: "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]",
+    className: "border-info-muted bg-info-muted text-info",
   },
   Teleconsult: {
-    className: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
+    className: "border-warning-muted bg-warning-muted text-warning",
   },
 };
 
@@ -31,20 +30,20 @@ const statusStyles: Record<
   { className: string; dotClassName: string }
 > = {
   Confirmed: {
-    className: "border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D]",
-    dotClassName: "bg-[#22C55E]",
+    className: "border-success-muted bg-success-muted text-success",
+    dotClassName: "bg-success",
   },
   Scheduled: {
-    className: "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]",
-    dotClassName: "bg-[#3B82F6]",
+    className: "border-info-muted bg-info-muted text-info",
+    dotClassName: "bg-info",
   },
   Completed: {
-    className: "border-[#E5E7EB] bg-[#F9FAFB] text-[#4B5563]",
-    dotClassName: "bg-[#9CA3AF]",
+    className: "border-border bg-muted text-muted-foreground",
+    dotClassName: "bg-placeholder",
   },
   Cancelled: {
-    className: "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]",
-    dotClassName: "bg-[#EF4444]",
+    className: "border-destructive-muted bg-destructive-muted text-destructive",
+    dotClassName: "bg-destructive",
   },
 };
 
@@ -97,15 +96,15 @@ export function AppointmentRow({
     appointment.placeKind === "video" ? Video01Icon : Location01Icon;
 
   return (
-    <article className="w-full rounded-[14px] border border-[#E9E4ED] bg-white shadow-[0px_2px_8px_rgba(17,24,39,0.05)]">
+    <article className="w-full rounded-[14px] border border-border bg-card shadow-[0px_2px_8px_rgba(17,24,39,0.05)]">
       {/* Mobile */}
       <div className="flex flex-col items-stretch p-3 md:hidden">
         <div className="flex items-center justify-between gap-4 self-stretch">
           <div className="flex shrink-0 flex-col items-start gap-0.5">
-            <p className="text-xl font-semibold leading-7 text-[#1A1A1A]">
+            <p className="text-xl font-semibold leading-7 text-foreground">
               {appointment.dateLabel}
             </p>
-            <p className={cn(typo.bodyL, "text-sm leading-5 text-[#5F6368]")}>
+            <p className={cn(typo.bodyL, "text-sm leading-5 text-muted-foreground")}>
               {appointment.timeLabel}
             </p>
           </div>
@@ -114,7 +113,7 @@ export function AppointmentRow({
             <p
               className={cn(
                 typo.headingS,
-                "min-w-0 text-right text-sm leading-5 text-[#1A1A1A]",
+                "min-w-0 text-right text-sm leading-5 text-foreground",
               )}
             >
               {appointment.clinician}
@@ -131,12 +130,12 @@ export function AppointmentRow({
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3 self-stretch border-t border-[#E9E4ED] pt-3">
+        <div className="mt-3 flex items-center justify-between gap-3 self-stretch border-t border-border pt-3">
           <StatusBadge status={appointment.status} />
           <Button
             type="button"
-            variant="secondary"
-            className="h-auto min-w-0 border-0 bg-transparent px-0 py-0 font-semibold text-primary shadow-none hover:bg-transparent hover:text-primary active:bg-transparent"
+            variant="primary-outline"
+            className="h-9 shrink-0 px-4"
             onClick={() => onDetailsClick(appointment)}
           >
             Details
@@ -148,22 +147,22 @@ export function AppointmentRow({
       <div className="hidden items-center justify-between gap-6 p-6 md:flex">
         <div className="flex min-w-0 items-center gap-6">
           <div className="flex min-w-30 shrink-0 flex-col items-start">
-            <p className="text-2xl font-semibold leading-8 text-[#1A1A1A]">
+            <p className="text-2xl font-semibold leading-8 text-foreground">
               {appointment.dateLabel}
             </p>
-            <p className={cn(typo.bodyL, "text-base leading-6 text-[#5F6368]")}>
+            <p className={cn(typo.bodyL, "text-base leading-6 text-muted-foreground")}>
               {appointment.timeLabel}
             </p>
           </div>
 
-          <div className="h-12 w-px shrink-0 bg-[#D0C2D1]" aria-hidden />
+          <div className="h-12 w-px shrink-0 bg-border" aria-hidden />
 
           <div className="flex min-w-0 flex-col items-start gap-2">
             <div className="flex flex-wrap items-center gap-3">
               <p
                 className={cn(
                   typo.headingS,
-                  "text-sm leading-5 text-[#1A1A1A]",
+                  "text-sm leading-5 text-foreground",
                 )}
               >
                 {appointment.clinician}
@@ -178,7 +177,7 @@ export function AppointmentRow({
                 {appointment.visitType}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[#5F6368]">
+            <div className="flex items-center gap-1 text-muted-foreground">
               <HugeiconsIcon
                 icon={placeIcon}
                 size={12}
@@ -186,7 +185,7 @@ export function AppointmentRow({
                 color="currentColor"
                 className="shrink-0"
               />
-              <span className={cn(typo.caption, "text-[#5F6368]")}>
+              <span className={cn(typo.caption, "text-muted-foreground")}>
                 {appointment.placeLabel}
               </span>
             </div>
@@ -197,17 +196,10 @@ export function AppointmentRow({
           <StatusBadge status={appointment.status} />
           <Button
             type="button"
-            variant="secondary"
-            className="h-11 rounded-full px-5 font-semibold text-primary shadow-[0px_1px_2px_rgba(17,24,39,0.04)] hover:bg-accent hover:text-primary"
+            variant="primary-outline"
             onClick={() => onDetailsClick(appointment)}
           >
             Details
-            <HugeiconsIcon
-              icon={ChevronRightIcon}
-              size={12}
-              strokeWidth={1.75}
-              color="currentColor"
-            />
           </Button>
         </div>
       </div>

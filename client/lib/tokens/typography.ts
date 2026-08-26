@@ -3,12 +3,12 @@
  * Font: Hanken Grotesk (via root layout)
  *
  * Color roles (design.md Text tokens):
- *   Text/Primary     → text-foreground   (#1A1A1A)
- *   Text/Secondary   → text-muted-foreground (#5F6368)
- *   Text/Tertiary    → text-[#8A8F98]
- *   Text/Placeholder → text-[#9CA3AF]
- *   Text/Link        → text-primary (#6C318E)
- *   Error/Text       → text-destructive (#DC2626)
+ *   Text/Primary     → text-foreground
+ *   Text/Secondary   → text-muted-foreground
+ *   Text/Tertiary    → text-tertiary-foreground
+ *   Text/Placeholder → text-placeholder
+ *   Text/Link        → text-primary
+ *   Error/Text       → text-destructive
  */
 export const typo = {
   /** Display XL — 56px Bold / 72px · -0.02em */
@@ -33,7 +33,7 @@ export const typo = {
   /** Body S — 13px Regular / 20px — helper / errors */
   bodyS: 'text-[13px] font-normal leading-5 text-muted-foreground',
   /** Caption — 12px Regular / 16px — OR divider, footnotes (Text/Tertiary) */
-  caption: 'text-xs font-normal leading-4 text-[#8A8F98]',
+  caption: 'text-xs font-normal leading-4 text-tertiary-foreground',
   /** Label — 13px Medium / 20px — form labels (Text/Secondary) */
   label: 'text-[13px] font-medium leading-5 text-muted-foreground',
   /** Button — 14px Medium / 20px — all button labels */
@@ -45,8 +45,10 @@ export const typo = {
     'text-[11px] font-medium uppercase leading-4 tracking-wide text-muted-foreground',
   /** Logo wordmark — Rounded Elegance */
   logo: 'font-logo text-base font-normal leading-6 tracking-[0.08em] text-foreground',
-  /** Sidebar nav item — Body M */
-  sidebarItem: 'text-sm font-normal leading-5',
+  /** Sidebar nav item (idle) — Body M + Text/Secondary */
+  sidebarItem: 'text-sm font-normal leading-5 text-muted-foreground',
+  /** Sidebar nav item (active) — Body M Medium + Brand/Primary */
+  sidebarItemActive: 'text-sm font-medium leading-5 text-primary',
 
   /**
    * Compositions (size token + color role from design.md)

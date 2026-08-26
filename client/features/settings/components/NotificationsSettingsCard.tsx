@@ -33,14 +33,14 @@ export function NotificationsSettingsCard({
               key={item.id}
               className={cn(
                 "flex items-center justify-between gap-4 py-2",
-                !isLast && "border-b border-[rgba(208,194,209,0.3)]",
+                !isLast && "border-b border-border/30",
               )}
             >
               <div className="min-w-0 flex-1">
                 <p id={titleId} className={typo.headingS}>
                   {item.title}
                 </p>
-                <p className={cn(typo.caption, "text-[#4D4450]")}>{item.description}</p>
+                <p className={cn(typo.caption, "text-muted-foreground")}>{item.description}</p>
               </div>
               <SettingsToggle
                 id={switchId}

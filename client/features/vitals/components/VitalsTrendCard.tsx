@@ -19,18 +19,18 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 
 // ─── Colors and styling from VitalsCard.tsx ──────────────────────────────────
-const SYSTOLIC_COLOR = "#FF5372";
-const DIASTOLIC_COLOR = "#4A3AFF";
-const HEART_RATE_COLOR = "#7086FD";
-const SPO2_COLOR = "#0EA5B1";
-const GLUCOSE_COLOR = "#5B8DEF";
-const TEMP_COLOR = "#F97316";
+const SYSTOLIC_COLOR = "var(--chart-2)";
+const DIASTOLIC_COLOR = "var(--chart-3)";
+const HEART_RATE_COLOR = "var(--chart-4)";
+const SPO2_COLOR = "var(--chart-5)";
+const GLUCOSE_COLOR = "var(--chart-6)";
+const TEMP_COLOR = "var(--chart-7)";
 
-const STATUS_COLOR = "#22C55E";
-const GRID_STROKE = "#E8E4EC";
+const STATUS_COLOR = "var(--success)";
+const GRID_STROKE = "var(--divider)";
 
 const AXIS_TICK = {
-  fill: "#8A8F98",
+  fill: "var(--tertiary-foreground)",
   fontSize: 12,
   fontWeight: 400,
 } as const;
@@ -42,7 +42,7 @@ const GLUCOSE_TICKS = [110, 115, 120, 125, 130, 135, 140];
 const TEMP_TICKS = [36.0, 36.3, 36.6, 36.9, 37.2];
 
 const tooltipCursor = {
-  stroke: "#C4C0C9",
+  stroke: "var(--tertiary-foreground)",
   strokeWidth: 1,
   strokeDasharray: "4 4",
 };
@@ -51,7 +51,7 @@ function lineActiveDot(color: string) {
   return {
     r: 5,
     fill: color,
-    stroke: "#fff",
+    stroke: "var(--card)",
     strokeWidth: 2,
   };
 }
@@ -143,7 +143,7 @@ function BpTooltip({ active, payload }: { active?: boolean; payload?: Array<{ pa
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="Systolic" value={`${p.systolic} mmHg`} color={SYSTOLIC_COLOR} />
       <ChartTooltipRow label="Diastolic" value={`${p.diastolic} mmHg`} color={DIASTOLIC_COLOR} />
-      <ChartTooltipRow label="Status" value={p.status} color={STATUS_COLOR} valueClassName="text-[#22C55E]" />
+      <ChartTooltipRow label="Status" value={p.status} color={STATUS_COLOR} valueClassName="text-success" />
     </ChartTooltipPanel>
   );
 }
@@ -214,14 +214,14 @@ export function VitalsTrendCard() {
 
   return (
     <div
-      className="flex w-full flex-col items-stretch gap-5 rounded-[14px] bg-white p-5"
-      style={{ outline: "1px #E5E2E1 solid", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
+      className="flex w-full flex-col items-stretch gap-5 rounded-[14px] bg-card p-5"
+      style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
     >
       {/* Title */}
       <div className="flex w-full flex-col items-start">
         <SectionTitle
           info="Track how your key vitals change over time. Switch metrics and time ranges to spot patterns early."
-          className="flex-none pr-0 text-[#1C1B1B]"
+          className="flex-none pr-0 text-foreground"
         >
           Vitals Trend
         </SectionTitle>
@@ -244,14 +244,14 @@ export function VitalsTrendCard() {
             {activeTab === "bp" && (
               <>
                 <div className="flex items-center gap-1.5">
-                  <div className="size-2.5 shrink-0 rounded-xs bg-[#FF5372]" />
-                  <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                  <div className="size-2.5 shrink-0 rounded-xs bg-chart-2" />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                     Systolic
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="size-2.5 shrink-0 rounded-xs bg-[#4A3AFF]" />
-                  <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                  <div className="size-2.5 shrink-0 rounded-xs bg-chart-3" />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                     Diastolic
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export function VitalsTrendCard() {
                   className="size-2.5 shrink-0 rounded-xs"
                   style={{ backgroundColor: HEART_RATE_COLOR }}
                 />
-                <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                   Heart Rate
                 </div>
               </div>
@@ -274,7 +274,7 @@ export function VitalsTrendCard() {
                   className="size-2.5 shrink-0 rounded-xs"
                   style={{ backgroundColor: SPO2_COLOR }}
                 />
-                <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                   SpO₂
                 </div>
               </div>
@@ -285,7 +285,7 @@ export function VitalsTrendCard() {
                   className="size-2.5 shrink-0 rounded-xs"
                   style={{ backgroundColor: GLUCOSE_COLOR }}
                 />
-                <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                   Blood Glucose
                 </div>
               </div>
@@ -296,7 +296,7 @@ export function VitalsTrendCard() {
                   className="size-2.5 shrink-0 rounded-xs"
                   style={{ backgroundColor: TEMP_COLOR }}
                 />
-                <div className="text-xs font-normal leading-5 text-[#666666] font-sans">
+                <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                   Temperature
                 </div>
               </div>
@@ -308,17 +308,17 @@ export function VitalsTrendCard() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex h-10 shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-[14px] bg-white px-3 outline-none transition-colors hover:bg-slate-50 sm:px-4"
+                className="inline-flex h-10 shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-[14px] bg-card px-3 outline-none transition-colors hover:bg-accent sm:px-4"
                 style={{
-                  outline: "1px #E9E4ED solid",
+                  outline: "1px solid var(--border)",
                   outlineOffset: "-1px",
                   boxShadow: "0px 1px 2px rgba(17, 24, 39, 0.04)",
                 }}
               >
-                <span className="whitespace-nowrap text-sm font-medium leading-5 text-[#5F6368] font-sans">
+                <span className="whitespace-nowrap text-sm font-medium leading-5 text-muted-foreground font-sans">
                   {timeline}
                 </span>
-                <span className="flex size-3 shrink-0 items-center justify-center text-[#5F6368]">
+                <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground">
                   <svg
                     width="8"
                     height="5"
@@ -340,7 +340,7 @@ export function VitalsTrendCard() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="min-w-0 w-[var(--radix-dropdown-menu-trigger-width)] p-1"
+              className="min-w-0 w-(--radix-dropdown-menu-trigger-width) p-1"
             >
               <DropdownMenuItem
                 className="cursor-pointer px-2.5 py-2"

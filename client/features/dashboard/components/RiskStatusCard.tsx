@@ -24,20 +24,20 @@ const chartConfig = {
   score: {
     label: "Score",
     // Soft sky blue matching the reference radar fill/stroke
-    color: "#4A90E2",
+    color: "var(--info)",
   },
 } satisfies ChartConfig;
 
 const RISK_COLOR: Record<RiskAxis["risk"], string> = {
-  Low: "#10B981",
-  Moderate: "#F59E0B",
-  High: "#EF4444",
+  Low: "var(--success)",
+  Moderate: "var(--warning)",
+  High: "var(--destructive)",
 };
 
 const RISK_TEXT_CLASS: Record<RiskAxis["risk"], string> = {
-  Low: "text-[#10B981]",
-  Moderate: "text-[#F59E0B]",
-  High: "text-[#EF4444]",
+  Low: "text-success",
+  Moderate: "text-warning",
+  High: "text-destructive",
 };
 
 type RiskChartPoint = {
@@ -139,7 +139,7 @@ function RadarAxisTick({
       y={ty}
       textAnchor={textAnchor}
       dominantBaseline="central"
-      fill="#2E2E33"
+      fill="var(--foreground)"
       fontSize={12}
       fontWeight={500}
     >
@@ -200,10 +200,10 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <PolarGrid
             gridType="circle"
             radialLines
-            stroke="#D4DAF0"
+            stroke="var(--border)"
             strokeWidth={0.8}
             strokeOpacity={0.7}
-            className="fill-[#A8C4F5]/22"
+            className="fill-info/22"
           />
           <PolarAngleAxis
             dataKey="axis"
@@ -226,8 +226,8 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
             dot={false}
             activeDot={{
               r: 4,
-              fill: "#fff",
-              stroke: "#4A90E2",
+              fill: "var(--card)",
+              stroke: "var(--info)",
               strokeWidth: 2,
             }}
           />

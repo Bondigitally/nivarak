@@ -111,7 +111,7 @@ function ChartTooltipPanel({
   return (
     <div
       className={cn(
-        "inline-flex flex-col items-start justify-start gap-1.5 overflow-hidden rounded-lg bg-white px-3 py-2.5 shadow-[0px_4px_12px_rgba(17,24,39,0.12)] outline-1 -outline-offset-1 outline-[#E9E4ED]",
+        "inline-flex flex-col items-start justify-start gap-1.5 overflow-hidden rounded-lg bg-card px-3 py-2.5 shadow-[0px_4px_12px_rgba(17,24,39,0.12)] outline-1 -outline-offset-1 outline-border",
         className
       )}
     >
@@ -121,7 +121,7 @@ function ChartTooltipPanel({
         </div>
       ) : null}
       {title != null && children != null ? (
-        <div className="h-px w-full self-stretch bg-[#F0EDF3]" />
+        <div className="h-px w-full self-stretch bg-divider" />
       ) : null}
       {children}
     </div>

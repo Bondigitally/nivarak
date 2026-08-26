@@ -120,7 +120,7 @@ export function EditProfileSection({
       </span>
 
       <div className="flex items-center">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-[#F5EBF4]">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-sidebar-accent">
           <Image
             src={draft.avatarSrc}
             alt={`${draft.fullName} profile photo`}
@@ -208,7 +208,7 @@ export function EditProfileSection({
                     className={cn(
                       "cursor-pointer rounded-[10px] px-3 py-2.5",
                       typo.input,
-                      option === draft.preferredLanguage && "bg-[#F8F5FA]",
+                      option === draft.preferredLanguage && "bg-background",
                     )}
                   >
                     {option}

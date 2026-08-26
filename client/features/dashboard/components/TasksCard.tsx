@@ -47,7 +47,7 @@ export function TasksCard({ tasks }: { tasks: HomeTask[] | null }) {
             <span
               className={cn(
                 statusBadgeClass,
-                "shrink-0 bg-accent text-[#4D4450]",
+                "shrink-0 bg-accent text-muted-foreground",
               )}
             >
               {completed}/{total} Completed
@@ -74,12 +74,12 @@ export function TasksCard({ tasks }: { tasks: HomeTask[] | null }) {
                 <span
                   className={cn(
                     "flex size-5 shrink-0 items-center justify-center rounded-[4px] shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
-                    task.completed ? "bg-[#531575]" : "border border-border bg-card",
+                    task.completed ? "bg-primary-active" : "border border-border bg-card",
                   )}
                   aria-hidden
                 >
                   {task.completed ? (
-                    <HugeiconsIcon icon={Tick02Icon} size={19} strokeWidth={2} color="white" />
+                    <HugeiconsIcon icon={Tick02Icon} size={19} strokeWidth={2} color="var(--primary-foreground)" />
                   ) : null}
                 </span>
                 <span

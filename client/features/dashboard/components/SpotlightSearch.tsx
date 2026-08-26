@@ -199,7 +199,7 @@ export function SpotlightSearch({
                   placeholder="Search patients, vitals, reports…"
                   className={cn(
                     typo.input,
-                    "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#9CA3AF] [&::-webkit-search-cancel-button]:hidden",
+                    "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-placeholder [&::-webkit-search-cancel-button]:hidden",
                   )}
                 />
                 {hasQuery ? (
@@ -220,7 +220,7 @@ export function SpotlightSearch({
                 initial={reducedMotion ? false : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={FADE}
-                className="overflow-hidden rounded-[14px] border border-border bg-white shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
+                className="overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
               >
                 <p className={cn(typo.overline, "px-4 pt-3 pb-1")}>
                   {hasQuery ? "Results" : "Suggested"}
