@@ -16,7 +16,7 @@ export default function ProtectedLayout({
         <Sidebar />
         <main
           data-dashboard-scroll
-          className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain"
+          className="min-h-0 min-w-0 flex-1 overflow-y-scroll overscroll-y-contain scrollbar-gutter"
         >
           {children}
         </main>
