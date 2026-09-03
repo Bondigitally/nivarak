@@ -16,8 +16,10 @@ export default function TasksPage() {
     <DashboardPageFrame notificationCount={notificationCount}>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className={typo.headingXxl}>Today&apos;s Tasks</h1>
-          <p className={typo.bodyL}>You are doing great. Keep it up.</p>
+          <h1 className={typo.headingXxl}>Tasks</h1>
+          <p className={typo.bodyL}>
+            Overdue, today, and upcoming actions from your care team.
+          </p>
         </div>
 
         <TasksList />
