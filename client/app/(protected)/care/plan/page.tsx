@@ -49,7 +49,7 @@ export default function CarePlanPage() {
                   aria-label="Quick menu"
                   className="shrink-0 text-primary"
                 >
-                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.75} color="currentColor" />
+                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                 </DashboardIconButton>
               </TooltipTrigger>
               <TooltipContent side="bottom">Quick menu</TooltipContent>
@@ -70,15 +70,15 @@ export default function CarePlanPage() {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-95 flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
+          <div className="flex min-h-95 flex-col items-center justify-center rounded-lg border border-border bg-card p-6">
             <div className="flex max-w-105 flex-col items-center text-center">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
                 <HugeiconsIcon
                   icon={ClipboardListIcon}
                   size={32}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
-                />
+                absoluteStrokeWidth />
               </div>
               <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">
                 No care plan yet

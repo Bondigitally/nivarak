@@ -30,7 +30,7 @@ export function SettingsToggle({
       <span
         aria-hidden
         className={cn(
-          "absolute top-[3px] size-[18px] rounded-[9px] bg-card shadow-sm transition-[left] duration-150",
+          "absolute top-[3px] size-[18px] rounded-full bg-card shadow-sm transition-[left] duration-150",
           checked ? "left-[23px]" : "left-[3px]",
         )}
       />
