@@ -45,10 +45,10 @@ export const typo = {
     'text-[11px] font-medium uppercase leading-4 tracking-wide text-muted-foreground',
   /** Logo wordmark — Rounded Elegance */
   logo: 'font-logo text-base font-normal leading-6 tracking-[0.08em] text-foreground',
-  /** Sidebar nav item (idle) — Body M + Text/Secondary */
-  sidebarItem: 'text-sm font-normal leading-5 text-muted-foreground',
-  /** Sidebar nav item (active) — Body M Medium + Brand/Primary */
-  sidebarItemActive: 'text-sm font-medium leading-5 text-primary',
+  /** Sidebar nav item (idle) — Body M Medium + Text/Secondary */
+  sidebarItem: 'text-sm font-medium leading-5 text-muted-foreground',
+  /** Sidebar nav item (active) — Body M Semibold + Brand/Primary */
+  sidebarItemActive: 'text-sm font-semibold leading-5 text-primary',
 
   /**
    * Compositions (size token + color role from design.md)

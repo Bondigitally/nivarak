@@ -20,7 +20,7 @@ const buttonVariants = cva(
   cn(
     'inline-flex items-center justify-center gap-2 whitespace-nowrap',
     typo.button,
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:stroke-[1.5] [&_svg_*]:stroke-[1.5]',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-[19px] [&_svg]:shrink-0 [&_svg]:stroke-[1.5] [&_svg_*]:stroke-[1.5]',
   ),
   {
     variants: {
@@ -45,6 +45,8 @@ const buttonVariants = cva(
           'border border-destructive bg-card text-destructive hover:bg-destructive/5 disabled:opacity-50',
         'primary-outline':
           'border border-primary bg-card text-primary hover:bg-primary/5 disabled:opacity-50',
+        'info-outline':
+          'border border-info/40 bg-card text-info hover:border-info/60 hover:bg-info-muted disabled:opacity-50',
       },
       size: {
         default: 'h-11 rounded-full px-5 py-3',
@@ -118,7 +120,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <Loader2 className="size-5 shrink-0" strokeWidth={1.5} aria-hidden />
+            <Loader2 className="size-[19px] shrink-0" strokeWidth={1.5} aria-hidden />
             {children}
           </>
         ) : (

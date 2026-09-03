@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { AUTH_LOGO } from '@/lib/auth/assets';
+import { AUTH_LOGO } from '@/features/auth/lib/assets';
 import { typo } from '@/lib/tokens/typography';
 
 interface LegalDocumentProps {

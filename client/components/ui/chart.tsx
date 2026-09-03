@@ -10,6 +10,51 @@ const THEMES = { light: "", dark: ".dark" } as const
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
 
+const CHART_ACTIVE_DOT_SIZE = 16
+
+type ChartActiveDotProps = {
+  cx?: number
+  cy?: number
+  color: string
+}
+
+/** Perfect circle — equal width/height, centered on (cx, cy). */
+function ChartActiveDot({ cx, cy, color }: ChartActiveDotProps) {
+  if (cx == null || cy == null) return null
+
+  const size = CHART_ACTIVE_DOT_SIZE
+  const half = size / 2
+
+  return (
+    <foreignObject
+      x={cx - half}
+      y={cy - half}
+      width={size}
+      height={size}
+      className="overflow-visible"
+    >
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          backgroundColor: color,
+          boxSizing: "border-box",
+          border: "2.5px solid var(--card)",
+          boxShadow: "0 0 0 1px rgba(17, 24, 39, 0.08)",
+        }}
+      />
+    </foreignObject>
+  )
+}
+
+/** Recharts Line `activeDot` renderer — keeps markers circular at any chart size. */
+function createChartActiveDot(color: string) {
+  return function LineChartActiveDot(props: { cx?: number; cy?: number }) {
+    return <ChartActiveDot cx={props.cx} cy={props.cy} color={color} />
+  }
+}
+
 export type ChartConfig = Record<
   string,
   {
@@ -111,7 +156,7 @@ function ChartTooltipPanel({
   return (
     <div
       className={cn(
-        "inline-flex flex-col items-start justify-start gap-1.5 overflow-hidden rounded-lg bg-card px-3 py-2.5 shadow-[0px_4px_12px_rgba(17,24,39,0.12)] outline-1 -outline-offset-1 outline-border",
+        "inline-flex flex-col items-start justify-start gap-1.5 overflow-hidden rounded-md bg-card px-3 py-2.5 shadow-[0px_4px_12px_rgba(17,24,39,0.12)] outline-1 -outline-offset-1 outline-border",
         className
       )}
     >
@@ -177,4 +222,5 @@ export {
   ChartTooltip,
   ChartTooltipPanel,
   ChartTooltipRow,
+  createChartActiveDot,
 };

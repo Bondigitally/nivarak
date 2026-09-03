@@ -1,5 +1,5 @@
 export const AUTH_LOGO = {
-  src: '/images/nivarak-logo-no-text.png',
+  src: '/images/nivarak-logo.png',
   alt: 'Nivarak',
   /** Intrinsic source dimensions — next/image serves smaller AVIF/WebP */
   width: 1380,
