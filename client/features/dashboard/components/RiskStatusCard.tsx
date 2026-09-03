@@ -20,11 +20,14 @@ import { dashboardCardClass, dashboardCardHeaderClass } from "../data/dashboard-
 import { EmptyState, SectionTitle } from "./EmptyState";
 import type { RiskAxis, RiskStatus } from "../data/home-data";
 
+/** Soft sky-blue radar palette — lighter than semantic --info (#2563EB). */
+const RADAR_SCORE_COLOR = "#4A90E2";
+const RADAR_RADIAL_STROKE = "#FFFFFF";
+
 const chartConfig = {
   score: {
     label: "Score",
-    // Soft sky blue matching the reference radar fill/stroke
-    color: "var(--info)",
+    color: RADAR_SCORE_COLOR,
   },
 } satisfies ChartConfig;
 
@@ -186,7 +189,11 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
     <div className="mx-auto w-full max-w-88 overflow-visible px-9">
       <ChartContainer
         config={chartConfig}
-        className="aspect-square w-full overflow-visible [&_.recharts-surface]:overflow-visible [&_svg]:overflow-visible"
+        className={cn(
+          "aspect-square w-full overflow-visible [&_.recharts-surface]:overflow-visible [&_svg]:overflow-visible",
+          "[&_.recharts-polar-grid-concentric-circle]:stroke-[#D4DAF0]! [&_.recharts-polar-grid-concentric-circle]:stroke-[0.8]! [&_.recharts-polar-grid-concentric-circle]:opacity-70",
+          "[&_.recharts-polar-grid-angle]:stroke-white! [&_.recharts-polar-grid-angle]:stroke-[1.2]!",
+        )}
         initialDimension={{ width: 320, height: 320 }}
       >
         <RadarChart
@@ -200,10 +207,9 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <PolarGrid
             gridType="circle"
             radialLines
-            stroke="var(--border)"
-            strokeWidth={0.8}
-            strokeOpacity={0.7}
-            className="fill-info/22"
+            stroke={RADAR_RADIAL_STROKE}
+            strokeWidth={1.2}
+            className="fill-[#A8C4F5]/22"
           />
           <PolarAngleAxis
             dataKey="axis"
@@ -227,7 +233,7 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
             activeDot={{
               r: 4,
               fill: "var(--card)",
-              stroke: "var(--info)",
+              stroke: RADAR_SCORE_COLOR,
               strokeWidth: 2,
             }}
           />

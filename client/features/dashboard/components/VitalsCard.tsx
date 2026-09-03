@@ -14,6 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipPanel,
   ChartTooltipRow,
+  createChartActiveDot,
   type ChartConfig,
 } from "@/components/ui/chart";
 import { typo } from "@/lib/tokens/typography";
@@ -103,15 +104,6 @@ const tooltipCursor = {
   strokeWidth: 1,
   strokeDasharray: "4 4",
 };
-
-function lineActiveDot(color: string) {
-  return {
-    r: 5,
-    fill: color,
-    stroke: "var(--card)",
-    strokeWidth: 2,
-  };
-}
 
 type BpChartPoint = {
   label: string;
@@ -216,9 +208,9 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             <HugeiconsIcon
               icon={BloodPressureIcon}
               size={19}
-              strokeWidth={1.75}
+              strokeWidth={1.5}
               color="var(--destructive)"
-            />
+            absoluteStrokeWidth />
             <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
           </div>
           <p className={cn(typo.bodyS, "shrink-0")}>{data.updatedAgo}</p>
@@ -308,7 +300,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             stroke="var(--color-systolic)"
             strokeWidth={2}
             dot={false}
-            activeDot={lineActiveDot(SYSTOLIC_COLOR)}
+            activeDot={createChartActiveDot(SYSTOLIC_COLOR)}
           />
           <Line
             dataKey="diastolic"
@@ -316,7 +308,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             stroke="var(--color-diastolic)"
             strokeWidth={2}
             dot={false}
-            activeDot={lineActiveDot(DIASTOLIC_COLOR)}
+            activeDot={createChartActiveDot(DIASTOLIC_COLOR)}
           />
         </LineChart>
       </ChartContainer>
@@ -354,9 +346,9 @@ function HeartRateChart({
             <HugeiconsIcon
               icon={Cardiogram02Icon}
               size={19}
-              strokeWidth={1.75}
+              strokeWidth={1.5}
               color={HEART_RATE_COLOR}
-            />
+            absoluteStrokeWidth />
             <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
           </div>
           <p className={cn(typo.bodyS, "shrink-0")}>{updatedAgo}</p>
@@ -426,7 +418,7 @@ function HeartRateChart({
             stroke="var(--color-heartRate)"
             strokeWidth={2}
             dot={false}
-            activeDot={lineActiveDot(HEART_RATE_COLOR)}
+            activeDot={createChartActiveDot(HEART_RATE_COLOR)}
           />
         </LineChart>
       </ChartContainer>

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/tooltip';
 
 export const authInputClassName = cn(
-  'h-11 w-full rounded-xl border border-border bg-card px-4',
+  'h-11 w-full rounded-md border border-border bg-card px-4',
   typo.input,
   'placeholder:text-placeholder placeholder:font-sans', // Text/Placeholder
   'transition-[border-color,box-shadow] duration-150 ease-in-out',
@@ -110,9 +110,9 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
                     aria-label={visibilityLabel}
                   >
                     {showPassword ? (
-                      <Eye className="size-5" strokeWidth={1.75} />
+                      <Eye className="size-5" strokeWidth={1.5} />
                     ) : (
-                      <EyeOff className="size-5" strokeWidth={1.75} />
+                      <EyeOff className="size-5" strokeWidth={1.5} />
                     )}
                   </motion.button>
                 </TooltipTrigger>

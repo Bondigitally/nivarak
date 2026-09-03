@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { TaskDaily01Icon } from "@hugeicons/core-free-icons";
 import {
-  TaskDaily01Icon,
-  Tick02Icon,
-} from "@hugeicons/core-free-icons";
+  AnimatedStrikeText,
+  useStrikeToggle,
+} from "@/components/shared/AnimatedStrikeText";
+import { TaskCheckbox } from "@/features/tasks/components/TaskCheckbox";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { dashboardCardClass, dashboardCardHeaderClass, dashboardListItemClass, statusBadgeClass } from "../data/dashboard-styles";
@@ -13,6 +14,52 @@ import { EmptyState, SectionInfoButton, ViewAllLink } from "./EmptyState";
 import type { HomeTask } from "../data/home-data";
 
 const VISIBLE_TASK_COUNT = 4;
+
+function DashboardTaskItem({
+  task,
+  isFirst,
+  onToggle,
+}: {
+  task: HomeTask;
+  isFirst: boolean;
+  onToggle: (id: string) => void;
+}) {
+  const { displayCompleted, isPending, toggle } = useStrikeToggle(task.completed, () => {
+    onToggle(task.id);
+  });
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={displayCompleted}
+        aria-busy={isPending}
+        disabled={isPending}
+        className={cn(
+          dashboardListItemClass,
+          "flex w-full items-center gap-3 py-2 pl-1.5 text-left",
+          isFirst && "pt-0",
+          isPending && "pointer-events-none",
+        )}
+      >
+        <TaskCheckbox completed={displayCompleted} />
+        <span className="min-w-0 flex-1 overflow-hidden">
+          <AnimatedStrikeText
+            active={displayCompleted}
+            className={cn(
+              typo.bodyL,
+              "max-w-full truncate transition-colors duration-200",
+              displayCompleted ? "text-muted-foreground" : "text-foreground",
+            )}
+          >
+            {task.label}
+          </AnimatedStrikeText>
+        </span>
+      </button>
+    </li>
+  );
+}
 
 export function TasksCard({ tasks }: { tasks: HomeTask[] | null }) {
   const [items, setItems] = useState<HomeTask[] | null>(
@@ -60,39 +107,12 @@ export function TasksCard({ tasks }: { tasks: HomeTask[] | null }) {
       {items && items.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {items.map((task, index) => (
-            <li key={task.id}>
-              <button
-                type="button"
-                onClick={() => toggleTask(task.id)}
-                aria-pressed={task.completed}
-                className={cn(
-                  dashboardListItemClass,
-                  "flex w-full items-center gap-3 py-2 pl-1.5 text-left",
-                  index === 0 && "pt-0",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-[4px] shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
-                    task.completed ? "bg-primary-active" : "border border-border bg-card",
-                  )}
-                  aria-hidden
-                >
-                  {task.completed ? (
-                    <HugeiconsIcon icon={Tick02Icon} size={19} strokeWidth={2} color="var(--primary-foreground)" />
-                  ) : null}
-                </span>
-                <span
-                  className={cn(
-                    typo.bodyL,
-                    task.completed && "text-muted-foreground line-through",
-                    !task.completed && "text-foreground",
-                  )}
-                >
-                  {task.label}
-                </span>
-              </button>
-            </li>
+            <DashboardTaskItem
+              key={task.id}
+              task={task}
+              isFirst={index === 0}
+              onToggle={toggleTask}
+            />
           ))}
         </ul>
       ) : (

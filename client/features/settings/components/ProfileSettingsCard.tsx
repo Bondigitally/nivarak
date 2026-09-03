@@ -63,7 +63,7 @@ export function ProfileSettingsCard({
       <SettingsSectionHeader icon={UserIcon} title="Profile" />
 
       <div className="flex items-center justify-between gap-4">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-sidebar-accent">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-sidebar-accent">
           <Image
             src={profile.avatarSrc}
             alt={`${profile.fullName} profile photo`}
@@ -107,10 +107,10 @@ export function ProfileSettingsCard({
               <HugeiconsIcon
                 icon={Calendar03Icon}
                 size={19}
-                strokeWidth={1.75}
+                strokeWidth={1.5}
                 color="currentColor"
                 className="size-[19px]"
-              />
+              absoluteStrokeWidth />
             </span>
           </div>
         </Field>
@@ -130,10 +130,10 @@ export function ProfileSettingsCard({
                 <HugeiconsIcon
                   icon={ArrowDown01Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
                   className="size-[19px] shrink-0 text-muted-foreground"
-                />
+                absoluteStrokeWidth />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-(--radix-dropdown-menu-trigger-width)">
