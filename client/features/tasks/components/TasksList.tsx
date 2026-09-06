@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
@@ -20,11 +21,10 @@ import {
   getCompletedTasks,
   getIncompleteTasks,
   getIncompleteTasksForSection,
-  getTaskGroups,
   getTaskSection,
   getTodayTaskProgress,
-  type CareTaskGroup,
 } from "../data/tasks-data";
+import { useTaskStore } from "../store/task-store";
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -98,34 +98,25 @@ function TasksSectionCollapsible({
   );
 }
 
-export function TasksList({
-  initialGroups = getTaskGroups(),
-}: {
-  initialGroups?: CareTaskGroup[];
-}) {
-  const [groups, setGroups] = useState(initialGroups);
+export function TasksList() {
+  const groups = useTaskStore((s) => s.groups);
+  const setCompleted = useTaskStore((s) => s.setCompleted);
   const [overdueExpanded, setOverdueExpanded] = useState(false);
   const [completedExpanded, setCompletedExpanded] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
 
   function setTaskCompleted(id: string, completed: boolean) {
-    setGroups((current) =>
-      current.map((group) => ({
-        ...group,
-        tasks: group.tasks.map((task) =>
-          task.id === id ? { ...task, completed } : task,
-        ),
-      })),
-    );
+    const existing = groups
+      .flatMap((group) => group.tasks)
+      .find((task) => task.id === id);
+
+    setCompleted(id, completed);
 
     if (completed) {
       setCompletedExpanded(true);
       return;
     }
 
-    const existing = groups
-      .flatMap((group) => group.tasks)
-      .find((task) => task.id === id);
     if (existing && getTaskSection(existing.dueAt) === "overdue") {
       setOverdueExpanded(true);
     }
@@ -198,10 +189,15 @@ export function TasksList({
                     <Button
                       type="button"
                       variant="info-outline"
-                      className="h-9 shrink-0 px-4"
+                      size="sm"
+                      className="shrink-0"
                       onClick={() => setReminderOpen(true)}
                     >
-                      <AppIcon icon={BellRingIcon} />
+                      <AppIcon
+                        icon={BellRingIcon}
+                        size={BADGE_ICON_SIZE}
+                        aria-hidden
+                      />
                       Add gentle reminder
                     </Button>
                   </div>
