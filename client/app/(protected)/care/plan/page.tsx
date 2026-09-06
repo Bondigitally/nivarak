@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { DashboardPageFrame } from "@/features/dashboard/components/HomeTopBar";
+import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { DashboardIconButton } from "@/features/dashboard/components/DashboardIconButton";
 import {
@@ -14,7 +15,6 @@ import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import { ActionPlanCard } from "@/features/care-plan/components/ActionPlanCard";
 import { ReferralsCard } from "@/features/care-plan/components/ReferralsCard";
 import { CallCareTeamCard } from "@/features/care-plan/components/CallCareTeamCard";
-import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,22 +25,20 @@ import {
 } from "@/components/ui/tooltip";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ClipboardListIcon, EnergyIcon } from "@hugeicons/core-free-icons";
+import { EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export default function CarePlanPage() {
   const data = getHomeDashboardData();
-  const notificationCount = data?.notificationCount ?? 3;
   const carePlan = data?.carePlan ?? null;
 
   return (
-    <DashboardPageFrame notificationCount={notificationCount}>
+    <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-1">
-            <h1 className={typo.headingXxl}>Care Plan</h1>
-            <p className={typo.bodyL}>
-              Review your completed health assessments and monitor your progress over time.
-            </p>
-          </div>
+          <PageHeader
+            title="Care Plan"
+            subtitle="Review your completed health assessments and monitor your progress over time."
+          />
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -49,7 +47,7 @@ export default function CarePlanPage() {
                   aria-label="Quick menu"
                   className="shrink-0 text-primary"
                 >
-                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+                  <HugeiconsIcon icon={EnergyIcon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
                 </DashboardIconButton>
               </TooltipTrigger>
               <TooltipContent side="bottom">Quick menu</TooltipContent>
@@ -75,8 +73,8 @@ export default function CarePlanPage() {
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
                 <HugeiconsIcon
                   icon={ClipboardListIcon}
-                  size={32}
-                  strokeWidth={1.5}
+                  size={EMPTY_ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
                 absoluteStrokeWidth />
               </div>
@@ -100,6 +98,6 @@ export default function CarePlanPage() {
           </div>
         )}
       </DashboardReveal>
-    </DashboardPageFrame>
+    </AppPageFrame>
   );
 }

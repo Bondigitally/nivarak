@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { InformationCircleIcon } from "@hugeicons/core-free-icons";
-import { ICON_STROKE, INFO_ICON_SIZE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, EMPTY_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export function EmptyState({
       )}
     >
       <span className="flex size-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-        <HugeiconsIcon icon={icon} size={32} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+        <HugeiconsIcon icon={icon} size={EMPTY_ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
       </span>
       <div className="flex max-w-dash-search flex-col items-center gap-1.5 text-center">
         <h3 className={cn(typo.headingL, "text-foreground")}>{title}</h3>
@@ -67,7 +67,7 @@ export function SectionInfoButton({ info }: { info: string }) {
           >
             <HugeiconsIcon
               icon={InformationCircleIcon}
-              size={INFO_ICON_SIZE}
+              size={BADGE_ICON_SIZE}
               strokeWidth={ICON_STROKE}
               absoluteStrokeWidth
               color="currentColor"
@@ -125,7 +125,7 @@ export function ViewAllLink({ href }: { href?: string }) {
   const content = (
     <span className={cn(typo.button, "inline-flex items-center gap-1 leading-5")}>
       <span className="border-b border-primary pb-0.5">View All</span>
-      <AnimatedArrowIcon size={14} className="size-3.5" hovered={hovered} />
+      <AnimatedArrowIcon size={BADGE_ICON_SIZE} className="size-4" hovered={hovered} />
     </span>
   );
 
