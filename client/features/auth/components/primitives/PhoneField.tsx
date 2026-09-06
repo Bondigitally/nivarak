@@ -5,6 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 import { typo } from '@/lib/tokens/typography';
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import {
   COUNTRY_DIAL_CODES,
   COUNTRY_DIAL_CODES_ORDERED,
@@ -133,8 +134,8 @@ export function PhoneField({
                 <span className="tabular-nums">{country.dialCode}</span>
                 <HugeiconsIcon
                   icon={ArrowDown01Icon}
-                  size={19}
-                  strokeWidth={1.5}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   className="text-muted-foreground"
                 absoluteStrokeWidth />
               </button>
