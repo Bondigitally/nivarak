@@ -1,0 +1,177 @@
+import type {
+  AlertSeverity,
+  AppointmentStatus,
+  LeadStatus,
+  RiskLevel,
+  StaffAvailability,
+  StaffRole,
+  TaskPriority,
+  VisitType,
+} from "@/lib/domain";
+
+export type VitalStatus = "Normal" | "Low" | "Elevated";
+
+export function priorityBadgeClasses(priority: TaskPriority): string {
+  switch (priority) {
+    case "urgent":
+      return "bg-destructive-muted text-destructive";
+    case "high":
+      return "bg-warning-muted text-warning";
+    case "normal":
+      return "bg-muted text-muted-foreground";
+  }
+}
+
+export function priorityLabel(priority: TaskPriority): string {
+  switch (priority) {
+    case "urgent":
+      return "Urgent";
+    case "high":
+      return "High";
+    case "normal":
+      return "Normal";
+  }
+}
+
+export function severityConfig(severity: AlertSeverity) {
+  switch (severity) {
+    case "critical":
+      return {
+        badge: "bg-destructive-muted text-destructive",
+        icon: "bg-destructive-muted text-destructive",
+        dot: "bg-destructive",
+        label: "Critical",
+      };
+    case "warning":
+      return {
+        badge: "bg-warning-muted text-warning",
+        icon: "bg-warning-muted text-warning",
+        dot: "bg-warning",
+        label: "Warning",
+      };
+    case "info":
+      return {
+        badge: "bg-info-muted text-info",
+        icon: "bg-info-muted text-info",
+        dot: "bg-info",
+        label: "Info",
+      };
+  }
+}
+
+export function riskConfig(level: RiskLevel) {
+  switch (level) {
+    case "critical":
+      return {
+        label: "Critical",
+        badge: "bg-destructive-muted text-destructive",
+        avatar: "bg-destructive/10 text-destructive",
+      };
+    case "high":
+      return {
+        label: "High Risk",
+        badge: "bg-warning-muted text-warning",
+        avatar: "bg-warning-muted text-warning",
+      };
+    case "medium":
+      return {
+        label: "Medium",
+        badge: "bg-info-muted text-info",
+        avatar: "bg-info-muted text-info",
+      };
+    case "low":
+      return {
+        label: "Low",
+        badge: "bg-success-muted text-success",
+        avatar: "bg-success-muted text-success",
+      };
+  }
+}
+
+export function visitTypeBadgeClasses(type: VisitType): string {
+  switch (type) {
+    case "Teleconsult":
+      return "bg-info-muted text-info";
+    case "Home Visit":
+      return "bg-sidebar-accent text-primary-active";
+    case "Clinic":
+      return "bg-muted text-muted-foreground";
+  }
+}
+
+export function appointmentStatusConfig(status: AppointmentStatus) {
+  switch (status) {
+    case "confirmed":
+      return { label: "Confirmed", class: "bg-success-muted text-success" };
+    case "pending":
+      return { label: "Pending", class: "bg-warning-muted text-warning" };
+    case "completed":
+      return { label: "Done", class: "bg-muted text-muted-foreground" };
+    case "cancelled":
+      return { label: "Cancelled", class: "bg-destructive-muted text-destructive" };
+  }
+}
+
+export function leadStatusConfig(status: LeadStatus) {
+  switch (status) {
+    case "new":
+      return { label: "New", class: "bg-info-muted text-info" };
+    case "contacted":
+      return { label: "Contacted", class: "bg-warning-muted text-warning" };
+    case "assessing":
+      return { label: "Assessing", class: "bg-sidebar-accent text-primary-active" };
+    case "enrolled":
+      return { label: "Enrolled", class: "bg-success-muted text-success" };
+    case "declined":
+      return { label: "Declined", class: "bg-muted text-muted-foreground" };
+  }
+}
+
+export function vitalStatusConfig(status: VitalStatus) {
+  switch (status) {
+    case "Normal":
+      return {
+        badgeBg: "bg-success-muted",
+        badgeText: "text-success",
+        dot: "bg-success",
+      };
+    case "Low":
+      return {
+        badgeBg: "bg-warning-muted",
+        badgeText: "text-warning",
+        dot: "bg-warning",
+      };
+    case "Elevated":
+      return {
+        badgeBg: "bg-destructive-muted",
+        badgeText: "text-destructive",
+        dot: "bg-destructive",
+      };
+  }
+}
+
+export function staffAvailabilityConfig(availability: StaffAvailability) {
+  switch (availability) {
+    case "available":
+      return { label: "Available", cls: "bg-success-muted text-success", dot: "bg-success" };
+    case "busy":
+      return { label: "Busy", cls: "bg-warning-muted text-warning", dot: "bg-warning" };
+    case "off-duty":
+      return { label: "Off Duty", cls: "bg-muted text-muted-foreground", dot: "bg-muted-foreground/40" };
+  }
+}
+
+export function staffRoleColor(role: StaffRole): string {
+  switch (role) {
+    case "Doctor":
+      return "bg-primary/10 text-primary-active";
+    case "Nurse":
+      return "bg-info-muted text-info";
+    case "Physiotherapist":
+      return "bg-success-muted text-success";
+    case "Care Coordinator":
+      return "bg-sidebar-accent text-primary-active";
+    case "Social Worker":
+      return "bg-warning-muted text-warning";
+  }
+}

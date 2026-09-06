@@ -2,6 +2,7 @@ import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function SettingsSectionHeader({
   icon,
@@ -16,8 +17,8 @@ export function SettingsSectionHeader({
     <div className={cn("flex items-center gap-3", className)}>
       <HugeiconsIcon
         icon={icon}
-        size={19}
-        strokeWidth={1.5}
+        size={ICON_SIZE}
+        strokeWidth={ICON_STROKE}
         color="currentColor"
         className="size-4.75 shrink-0 text-foreground"
       absoluteStrokeWidth />

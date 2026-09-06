@@ -5,7 +5,7 @@ import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
-import { SettingsToggle } from "./SettingsToggle";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import type { NotificationPreference } from "../data/settings-data";
 
 export function NotificationsSettingsCard({
@@ -42,7 +42,7 @@ export function NotificationsSettingsCard({
                 </p>
                 <p className={cn(typo.caption, "text-muted-foreground")}>{item.description}</p>
               </div>
-              <SettingsToggle
+              <ToggleSwitch
                 id={switchId}
                 labelledBy={titleId}
                 checked={item.enabled}
