@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import type { CarePlanReferral } from "@/features/dashboard/data/home-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const REFERRAL_ICONS: Record<CarePlanReferral["icon"], IconSvgElement> = {
   walking: WalkingIcon,
@@ -41,8 +42,8 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
                 <span className="inline-flex size-4.75 shrink-0 text-foreground" aria-hidden>
                   <HugeiconsIcon
                     icon={REFERRAL_ICONS[referral.icon]}
-                    size={19}
-                    strokeWidth={1.5}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
                     color="currentColor"
                   absoluteStrokeWidth />
                 </span>

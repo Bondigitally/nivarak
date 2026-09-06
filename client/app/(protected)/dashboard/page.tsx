@@ -1,5 +1,5 @@
-import { PatientHomeView } from "@/features/dashboard/components/PatientHomeView";
+import { DashboardPageContent } from "@/features/dashboard/components/DashboardPageContent";
 
 export default function DashboardPage() {
-  return <PatientHomeView />;
+  return <DashboardPageContent />;
 }
