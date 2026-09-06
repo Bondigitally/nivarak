@@ -3,11 +3,13 @@
 import type { ReactNode } from "react";
 import { useSyncExternalStore } from "react";
 import Image from "next/image";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Cancel01Icon,
+  CheckmarkCircle02Icon,
   Clock01Icon,
   DateTimeIcon,
+  FileEditIcon,
   Home03Icon,
   Image01Icon,
   Location01Icon,
@@ -16,6 +18,7 @@ import {
   Video01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { AppIcon } from "@/components/shared/AppIcon";
 import {
   Sheet,
   SheetClose,
@@ -27,6 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SIDEBAR_DESKTOP_MEDIA } from "@/components/layout/sidebar-context";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type { AppointmentItem, AppointmentStatus } from "../data/appointments-data";
@@ -48,48 +52,61 @@ function useIsCompactScreen() {
 
 const statusStyles: Record<
   AppointmentStatus,
-  { className: string; showCheck: boolean }
+  { className: string; icon?: IconSvgElement }
 > = {
   Confirmed: {
     className: "border-[rgba(16,185,129,0.2)] bg-success-muted text-success",
-    showCheck: true,
+    icon: Tick02Icon,
   },
   Scheduled: {
     className: "border-info-muted bg-info-muted text-info",
-    showCheck: false,
+    icon: Clock01Icon,
   },
   Completed: {
     className: "border-border bg-muted text-muted-foreground",
-    showCheck: false,
+    icon: CheckmarkCircle02Icon,
   },
   Cancelled: {
     className: "border-destructive-muted bg-destructive-muted text-destructive",
-    showCheck: false,
   },
 };
 
-function FieldLabel({
-  children,
-  icon,
-}: {
-  children: ReactNode;
-  icon?: ReactNode;
-}) {
+function FieldLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center gap-2">
-      {icon}
-      <p className={cn(typo.overline, "tracking-[0.6px] text-muted-foreground")}>
-        {children}
-      </p>
-    </div>
+    <p className={cn(typo.overline, "tracking-[0.6px] text-muted-foreground")}>
+      {children}
+    </p>
   );
 }
 
 function IconChip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-info-muted text-foreground">
+    <span className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-info-muted text-foreground">
       {children}
     </span>
+  );
+}
+
+/** Shared icon | label / value grid for appointment detail rows. */
+function DetailField({
+  label,
+  icon,
+  children,
+}: {
+  label: ReactNode;
+  icon?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] items-start gap-x-2 gap-y-2">
+      <div className="flex size-7 shrink-0 items-center justify-center" aria-hidden={!icon}>
+        {icon ?? null}
+      </div>
+      <div className="flex min-w-0 flex-col gap-2">
+        <FieldLabel>{label}</FieldLabel>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -123,8 +140,8 @@ export function AppointmentDetailsDrawer({
           "shadow-[0_12px_24px_rgba(17,24,39,0.12)]",
           "data-[state=closed]:duration-300 data-[state=open]:duration-500",
           isCompact
-            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-[20px] border-t border-border sm:max-w-none"
-            : "h-full w-full max-w-none border-l border-border rounded-bl-[20px] rounded-tl-[20px] sm:max-w-xl",
+            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-xl border-t border-border sm:max-w-none"
+            : "h-full w-full max-w-none border-l border-border rounded-bl-xl rounded-tl-xl sm:max-w-xl",
         )}
       >
         {appointment ? (
@@ -157,10 +174,10 @@ export function AppointmentDetailsDrawer({
                   >
                     <HugeiconsIcon
                       icon={Cancel01Icon}
-                      size={16}
-                      strokeWidth={1.75}
+                      size={19}
+                      strokeWidth={1.5}
                       color="currentColor"
-                    />
+                    absoluteStrokeWidth />
                   </Button>
                 </SheetClose>
               </div>
@@ -177,12 +194,11 @@ export function AppointmentDetailsDrawer({
                       statusStyle.className,
                     )}
                   >
-                    {statusStyle.showCheck ? (
-                      <HugeiconsIcon
-                        icon={Tick02Icon}
-                        size={14}
-                        strokeWidth={1.75}
-                        color="currentColor"
+                    {statusStyle.icon ? (
+                      <AppIcon
+                        icon={statusStyle.icon}
+                        size={BADGE_ICON_SIZE}
+                        aria-hidden
                       />
                     ) : null}
                     {appointment.status}
@@ -190,42 +206,40 @@ export function AppointmentDetailsDrawer({
                 </div>
 
                 <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel
-                      icon={
-                        <IconChip>
-                          <HugeiconsIcon
-                            icon={Clock01Icon}
-                            size={16}
-                            strokeWidth={1.75}
-                            color="currentColor"
-                          />
-                        </IconChip>
-                      }
-                    >
-                      Time window
-                    </FieldLabel>
-                    <p className={cn(typo.bodyL, "pl-9 text-foreground")}>
+                  <DetailField
+                    label="Time window"
+                    icon={
+                      <IconChip>
+                        <HugeiconsIcon
+                          icon={Clock01Icon}
+                          size={19}
+                          strokeWidth={1.5}
+                          color="currentColor"
+                          absoluteStrokeWidth
+                        />
+                      </IconChip>
+                    }
+                  >
+                    <p className={cn(typo.bodyL, "text-foreground")}>
                       {appointment.timeWindowLabel}
                     </p>
-                  </div>
+                  </DetailField>
 
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel
-                      icon={
-                        <IconChip>
-                          <HugeiconsIcon
-                            icon={Stethoscope02Icon}
-                            size={16}
-                            strokeWidth={1.75}
-                            color="currentColor"
-                          />
-                        </IconChip>
-                      }
-                    >
-                      Clinician
-                    </FieldLabel>
-                    <div className="flex items-center gap-3 pl-9">
+                  <DetailField
+                    label="Clinician"
+                    icon={
+                      <IconChip>
+                        <HugeiconsIcon
+                          icon={Stethoscope02Icon}
+                          size={19}
+                          strokeWidth={1.5}
+                          color="currentColor"
+                          absoluteStrokeWidth
+                        />
+                      </IconChip>
+                    }
+                  >
+                    <div className="flex items-center gap-3">
                       {appointment.clinicianAvatarUrl ? (
                         <span className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border bg-border">
                           <Image
@@ -250,25 +264,24 @@ export function AppointmentDetailsDrawer({
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </DetailField>
 
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel
-                      icon={
-                        <IconChip>
-                          <HugeiconsIcon
-                            icon={locationIcon}
-                            size={16}
-                            strokeWidth={1.75}
-                            color="currentColor"
-                          />
-                        </IconChip>
-                      }
-                    >
-                      {locationLabel}
-                    </FieldLabel>
+                  <DetailField
+                    label={locationLabel}
+                    icon={
+                      <IconChip>
+                        <HugeiconsIcon
+                          icon={locationIcon}
+                          size={19}
+                          strokeWidth={1.5}
+                          color="currentColor"
+                          absoluteStrokeWidth
+                        />
+                      </IconChip>
+                    }
+                  >
                     {appointment.addressLines && appointment.addressLines.length > 0 ? (
-                      <div className="rounded-lg border border-border bg-sidebar-accent p-4">
+                      <div className="rounded-md border border-border bg-sidebar-accent p-4">
                         <p className={cn(typo.bodyL, "text-foreground")}>
                           {appointment.addressLines.map((line) => (
                             <span key={line} className="block">
@@ -278,45 +291,58 @@ export function AppointmentDetailsDrawer({
                         </p>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-lg border border-border bg-sidebar-accent p-4">
+                      <div className="flex items-center gap-2 rounded-md border border-border bg-sidebar-accent p-4">
                         <HugeiconsIcon
                           icon={
                             appointment.placeKind === "video"
                               ? Video01Icon
                               : Location01Icon
                           }
-                          size={16}
-                          strokeWidth={1.75}
+                          size={19}
+                          strokeWidth={1.5}
                           color="currentColor"
                           className="shrink-0 text-muted-foreground"
+                          absoluteStrokeWidth
                         />
                         <p className={cn(typo.bodyL, "text-foreground")}>
                           {appointment.placeLabel}
                         </p>
                       </div>
                     )}
-                  </div>
+                  </DetailField>
 
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel>Reason for visit</FieldLabel>
+                  <DetailField
+                    label="Reason for visit"
+                    icon={
+                      <IconChip>
+                        <HugeiconsIcon
+                          icon={FileEditIcon}
+                          size={19}
+                          strokeWidth={1.5}
+                          color="currentColor"
+                          absoluteStrokeWidth
+                        />
+                      </IconChip>
+                    }
+                  >
                     <p className={cn(typo.bodyL, "text-foreground")}>
                       {appointment.reason}
                     </p>
-                  </div>
+                  </DetailField>
                 </div>
 
                 {appointment.showMap ? (
-                  <div className="relative h-40 w-full overflow-hidden rounded-lg border border-border bg-sidebar-accent">
+                  <div className="relative h-40 w-full overflow-hidden rounded-md border border-border bg-sidebar-accent">
                     <div className="absolute inset-0 flex items-center justify-center text-tertiary-foreground">
                       <HugeiconsIcon
                         icon={Image01Icon}
                         size={48}
-                        strokeWidth={1.75}
+                        strokeWidth={1.5}
                         color="currentColor"
-                      />
+                      absoluteStrokeWidth />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-white/80 to-transparent p-2">
-                      <span className="inline-flex rounded bg-card/90 px-2 py-1 text-xs leading-4 text-foreground backdrop-blur-[2px]">
+                      <span className="inline-flex rounded-sm bg-card/90 px-2 py-1 text-xs leading-4 text-foreground backdrop-blur-[2px]">
                         View full map
                       </span>
                     </div>
@@ -328,17 +354,17 @@ export function AppointmentDetailsDrawer({
             <SheetFooter
               className={cn(
                 "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card p-6 sm:flex-col sm:space-x-0 sm:p-8",
-                !isCompact && "rounded-bl-[20px]",
+                !isCompact && "rounded-bl-xl",
               )}
             >
               {appointment.tab === "upcoming" ? (
                 <Button type="button" size="cta" className="w-full">
                   <HugeiconsIcon
                     icon={DateTimeIcon}
-                    size={16}
-                    strokeWidth={1.75}
+                    size={19}
+                    strokeWidth={1.5}
                     color="currentColor"
-                  />
+                  absoluteStrokeWidth />
                   Confirm request
                 </Button>
               ) : null}

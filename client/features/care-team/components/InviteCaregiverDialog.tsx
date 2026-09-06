@@ -15,6 +15,11 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
+  dialogBodyShellClass,
+  dialogCloseButtonClass,
+  dialogFooterShellClass,
+  dialogHeaderShellClass,
+  dialogPrimitiveContentClass,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -27,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
+import { ICON_STROKE, INFO_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import {
   CAREGIVER_PERMISSIONS,
@@ -59,7 +65,7 @@ function PermissionSwitch({
       <span
         aria-hidden
         className={cn(
-          "absolute top-0.5 size-5 rounded-[10px] bg-card shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform",
+          "absolute top-0.5 size-5 rounded-sm bg-card shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform",
           checked ? "left-6.5" : "left-0.5",
         )}
       />
@@ -79,7 +85,7 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }
 }
 
 const fieldClassName = cn(
-  "h-auto min-h-12 w-full rounded-[14px] border border-border bg-card px-4 py-3.5 text-base shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
+  "h-auto min-h-12 w-full rounded-md border border-border bg-card px-4 py-3.5 text-base shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
   "placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring",
 );
 
@@ -119,38 +125,41 @@ export function InviteCaregiverDialog() {
   return (
     <Dialog open={inviteCaregiverOpen} onOpenChange={setInviteCaregiverOpen}>
       <DialogPortal>
-        <DialogOverlay className="z-100" />
+        <DialogOverlay />
         <DialogPrimitive.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,900px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-border bg-card p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
-            "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            dialogPrimitiveContentClass("max-w-160 sm:max-w-160"),
+            "max-h-[min(92vh,900px)]",
           )}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             (event.currentTarget as HTMLElement).focus();
           }}
         >
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-8 pb-4.25 pt-6">
-          <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
-            Invite a family caregiver
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Enter caregiver details and choose which permissions to grant.
-          </DialogDescription>
+        <div className={dialogHeaderShellClass}>
+          <div className="min-w-0 pr-2">
+            <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
+              Invite a family caregiver
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Enter caregiver details and choose which permissions to grant.
+            </DialogDescription>
+          </div>
           <DialogClose asChild>
             <button
               type="button"
               aria-label="Close"
-              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={cn(
+                "inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                dialogCloseButtonClass,
+              )}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.75} color="currentColor" />
+              <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
             </button>
           </DialogClose>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-8 pt-8">
+        <div className={cn(dialogBodyShellClass, "gap-8 pt-0 sm:pt-0")}>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-1">
               <FieldLabel htmlFor="caregiver-full-name">Full name</FieldLabel>
@@ -186,24 +195,24 @@ export function InviteCaregiverDialog() {
                     </span>
                     <HugeiconsIcon
                       icon={ArrowDown01Icon}
-                      size={16}
-                      strokeWidth={1.75}
+                      size={19}
+                      strokeWidth={1.5}
                       color="currentColor"
                       className="shrink-0 text-muted-foreground"
-                    />
+                    absoluteStrokeWidth />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="start"
                   sideOffset={8}
-                  className="w-(--radix-dropdown-menu-trigger-width) rounded-[14px] border-border bg-card p-1.5 shadow-md"
+                  className="w-(--radix-dropdown-menu-trigger-width) rounded-md border-border bg-card p-1.5 shadow-md"
                 >
                   {CAREGIVER_RELATIONSHIPS.map((item) => (
                     <DropdownMenuItem
                       key={item}
                       onSelect={() => setRelationship(item)}
                       className={cn(
-                        "cursor-pointer rounded-[10px] px-3 py-2.5 text-base",
+                        "cursor-pointer rounded-sm px-3 py-2.5 text-base",
                         relationship === item && "bg-background",
                       )}
                     >
@@ -216,7 +225,7 @@ export function InviteCaregiverDialog() {
 
             <div className="flex flex-col gap-1">
               <FieldLabel htmlFor="caregiver-mobile">Mobile number</FieldLabel>
-              <div className="flex overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_2px_8px_rgba(17,24,39,0.05)]">
+              <div className="flex overflow-hidden rounded-md border border-border bg-card shadow-[0_2px_8px_rgba(17,24,39,0.05)]">
                 <span className="inline-flex shrink-0 items-center border-r border-border bg-background px-4 text-base leading-6 text-muted-foreground">
                   +91
                 </span>
@@ -253,7 +262,7 @@ export function InviteCaregiverDialog() {
             <h3 className={cn(typo.button, "font-semibold tracking-[0.14px] text-foreground")}>
               Permissions
             </h3>
-            <div className="flex flex-col gap-4 rounded-[14px] border border-border bg-background p-6">
+            <div className="flex flex-col gap-4 rounded-md border border-border bg-background p-6">
               {CAREGIVER_PERMISSIONS.map((permission) => {
                 const switchId = `permission-${permission.id}`;
                 return (
@@ -289,7 +298,7 @@ export function InviteCaregiverDialog() {
           </section>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-3 border-t border-border px-8 pb-5 pt-5.25">
+        <div className={dialogFooterShellClass}>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -311,8 +320,9 @@ export function InviteCaregiverDialog() {
             <span className="inline-flex size-4 shrink-0 text-info" aria-hidden>
               <HugeiconsIcon
                 icon={InformationCircleIcon}
-                size={16}
-                strokeWidth={1.75}
+                size={INFO_ICON_SIZE}
+                strokeWidth={ICON_STROKE}
+                absoluteStrokeWidth
                 color="currentColor"
               />
             </span>

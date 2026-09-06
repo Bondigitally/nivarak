@@ -35,9 +35,9 @@ export function HomeGreeting({
               <HugeiconsIcon
                 icon={EnergyIcon}
                 size={19}
-                strokeWidth={1.75}
+                strokeWidth={1.5}
                 color="currentColor"
-              />
+              absoluteStrokeWidth />
             </DashboardIconButton>
           </TooltipTrigger>
           <TooltipContent side="bottom">Quick menu</TooltipContent>
