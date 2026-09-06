@@ -7,8 +7,6 @@ import { AlertsList } from "@/features/alerts/components/AlertsList";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
 import { CoordinatorAlertsView } from "@/features/alerts/views/coordinator";
-import { resolveViewForRole } from "@/lib/auth/resolve-view";
-import type { UserRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 function PatientAlertsView() {
@@ -25,14 +23,12 @@ function PatientAlertsView() {
   );
 }
 
-const ALERTS_VIEWS: Partial<Record<UserRole, typeof CoordinatorAlertsView>> = {
-  coordinator: CoordinatorAlertsView,
-  admin: CoordinatorAlertsView,
-};
-
 export function AlertsPageContent() {
   const { role } = useUserRole();
-  const View = resolveViewForRole(role, ALERTS_VIEWS, PatientAlertsView);
 
-  return <View />;
+  if (role === "coordinator" || role === "admin") {
+    return <CoordinatorAlertsView />;
+  }
+
+  return <PatientAlertsView />;
 }
