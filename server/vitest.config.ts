@@ -4,7 +4,8 @@ export default defineConfig({
   test: {
     env: {
       DATABASE_URL: 'postgres://dummy:dummy@localhost:5432/dummy',
-      JWT_ACCESS_SECRET: 'dummy_access_secret',
+      COGNITO_USER_POOL_ID: 'ap-south-1_dummy',
+      COGNITO_CLIENT_ID: 'dummy_client_id',
     },
     globals: true,
     environment: 'node',
