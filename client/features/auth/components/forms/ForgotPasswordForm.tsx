@@ -15,6 +15,7 @@ import { typo } from '@/lib/tokens/typography';
 import { passwordSchema } from '@/features/auth/lib/password';
 import { cn } from '@/lib/utils';
 import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export type ForgotPasswordStep = 'email' | 'otp' | 'reset' | 'success';
 
@@ -52,8 +53,8 @@ function BackToLoginLink({ className }: { className?: string }) {
     >
       <HugeiconsIcon
         icon={ArrowLeft01Icon}
-        size={19}
-        strokeWidth={1.5}
+        size={ICON_SIZE}
+        strokeWidth={ICON_STROKE}
         className="shrink-0"
       absoluteStrokeWidth />
       <span className="leading-none">Back to login</span>

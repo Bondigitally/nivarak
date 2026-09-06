@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AUTH_FLOW_TRANSITION } from '@/features/auth/components/primitives/AuthFlowTransition';
 import { AUTH_SUCCESS_LOTTIE } from '@/features/auth/lib/assets';
 import { typo } from '@/lib/tokens/typography';
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const DotLottieReact = dynamic(
   () => import('@lottiefiles/dotlottie-react').then((mod) => mod.DotLottieReact),
@@ -97,7 +98,7 @@ export function AccountSuccessStep() {
                 <Button asChild size="cta" className="w-full">
                   <Link href="/login">
                     Go to Login
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} absoluteStrokeWidth />
                   </Link>
                 </Button>
               </motion.div>
