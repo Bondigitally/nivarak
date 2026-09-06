@@ -15,6 +15,7 @@ export const users = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     phone: varchar('phone', { length: 15 }).notNull(),
     email: varchar('email', { length: 255 }),
+    cognitoSub: varchar('cognito_sub', { length: 255 }),
     fullName: varchar('full_name', { length: 255 }).notNull(),
     preferredLanguage: varchar('preferred_language', { length: 10 }).default('en'),
     avatarUrl: text('avatar_url'),
@@ -26,6 +27,7 @@ export const users = pgTable(
   (table) => [
     uniqueIndex('users_phone_unique').on(table.phone),
     uniqueIndex('users_email_unique').on(table.email),
+    uniqueIndex('users_cognito_sub_unique').on(table.cognitoSub),
   ]
 );
 
