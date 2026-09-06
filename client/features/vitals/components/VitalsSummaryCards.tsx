@@ -18,32 +18,22 @@ import {
   type PointerEvent,
   type SetStateAction,
 } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import {
   vitalsCardMetricsRowClass,
   vitalsCardMetricsStatusClass,
   vitalsCardMetricsValueClass,
   vitalsCardSurfaceClass,
+  vitalsCardSurfaceHoverOverlayClass,
   vitalsCardValueTextClass,
   vitalsSparklineActiveDotClass,
   vitalsSummaryGridClass,
 } from "@/features/vitals/vitals-summary-styles";
-
-const CARD_LIFT_TRANSITION = {
-  duration: 0.12,
-  ease: [0.25, 0.1, 0.25, 1] as const,
-};
-
-const HOVER_LIFT_VARIANTS = {
-  rest: { y: 0 },
-  hover: { y: -2 },
-};
+import { vitalStatusConfig, type VitalStatus } from "@/lib/tokens/status-badges";
 
 const SPARKLINE_WIDTH = 100;
 const SPARKLINE_HEIGHT = 36;
-
-type VitalStatus = "Normal" | "Low" | "Elevated";
 
 type IconGradient = {
   from: string;
@@ -65,27 +55,6 @@ interface VitalCardData {
   chartEnd: string;
   iconGradient: IconGradient;
 }
-
-const statusConfig: Record<
-  VitalStatus,
-  { badgeBg: string; badgeText: string; dot: string }
-> = {
-  Normal: {
-    badgeBg: "bg-success-muted",
-    badgeText: "text-success",
-    dot: "bg-success",
-  },
-  Low: {
-    badgeBg: "bg-warning-muted",
-    badgeText: "text-warning",
-    dot: "bg-warning",
-  },
-  Elevated: {
-    badgeBg: "bg-destructive-muted",
-    badgeText: "text-destructive",
-    dot: "bg-destructive",
-  },
-};
 
 const VITALS: VitalCardData[] = [
   {
@@ -280,7 +249,7 @@ function VitalGradientIcon({
   id,
   icon,
   gradient,
-  size = 18,
+  size = ICON_SIZE,
 }: {
   id: string;
   icon: IconSvgElement;
@@ -363,12 +332,12 @@ function VitalIconGlow({
     <div className="relative flex size-12 shrink-0 items-center justify-center">
       <div
         aria-hidden
-        className="absolute -inset-0.5 rounded-full blur-[6px] opacity-[0.16] transition-opacity duration-150 group-hover:opacity-[0.22]"
+        className="absolute -inset-0.5 rounded-full blur-[6px] opacity-[0.16]"
         style={{
           background: `linear-gradient(135deg, ${gradient.glowFrom}, ${gradient.glowTo})`,
         }}
       />
-      <div className="relative flex size-11 items-center justify-center rounded-full border border-border/50 bg-card transition-shadow duration-150 ease-out group-hover:shadow-[0_2px_10px_rgba(17,24,39,0.06)]">
+      <div className="relative flex size-11 items-center justify-center rounded-full border border-border/50 bg-card">
         <VitalGradientIcon id={id} icon={icon} gradient={gradient} />
       </div>
     </div>
@@ -530,16 +499,11 @@ function VitalSparkline({
 }
 
 function VitalCard({ vital }: { vital: VitalCardData }) {
-  const reduceMotion = useReducedMotion();
-  const status = statusConfig[vital.status];
+  const status = vitalStatusConfig(vital.status);
   const [chartIndex, setChartIndex] = useState<number | null>(null);
 
   return (
-    <motion.article
-      initial="rest"
-      whileHover={reduceMotion ? undefined : "hover"}
-      variants={HOVER_LIFT_VARIANTS}
-      transition={CARD_LIFT_TRANSITION}
+    <article
       tabIndex={0}
       aria-label={`${vital.label}: ${vital.value} ${vital.unit}, ${vital.status}. Arrow keys explore trend.`}
       onKeyDown={(event) =>
@@ -548,6 +512,8 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
       onMouseLeave={() => setChartIndex(null)}
       className={vitalsCardSurfaceClass}
     >
+      <span aria-hidden className={vitalsCardSurfaceHoverOverlayClass} />
+      <div className="relative z-1 flex min-h-0 w-full flex-1 flex-col">
       <div className="flex min-h-12 items-start justify-between gap-3">
         <p className="min-w-0 flex-1 truncate pr-1 pt-1.5 text-sm font-medium leading-5 text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
           {vital.label}
@@ -610,7 +576,8 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
           <span>{vital.chartEnd}</span>
         </div>
       </div>
-    </motion.article>
+      </div>
+    </article>
   );
 }
 

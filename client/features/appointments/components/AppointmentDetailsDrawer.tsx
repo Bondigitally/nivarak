@@ -12,7 +12,6 @@ import {
   FileEditIcon,
   Home03Icon,
   Image01Icon,
-  Location01Icon,
   Stethoscope02Icon,
   Tick02Icon,
   Video01Icon,
@@ -30,7 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SIDEBAR_DESKTOP_MEDIA } from "@/components/layout/sidebar-context";
-import { BADGE_ICON_SIZE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type { AppointmentItem, AppointmentStatus } from "../data/appointments-data";
@@ -174,8 +173,8 @@ export function AppointmentDetailsDrawer({
                   >
                     <HugeiconsIcon
                       icon={Cancel01Icon}
-                      size={19}
-                      strokeWidth={1.5}
+                      size={ICON_SIZE}
+                      strokeWidth={ICON_STROKE}
                       color="currentColor"
                     absoluteStrokeWidth />
                   </Button>
@@ -212,8 +211,8 @@ export function AppointmentDetailsDrawer({
                       <IconChip>
                         <HugeiconsIcon
                           icon={Clock01Icon}
-                          size={19}
-                          strokeWidth={1.5}
+                          size={ICON_SIZE}
+                          strokeWidth={ICON_STROKE}
                           color="currentColor"
                           absoluteStrokeWidth
                         />
@@ -231,8 +230,8 @@ export function AppointmentDetailsDrawer({
                       <IconChip>
                         <HugeiconsIcon
                           icon={Stethoscope02Icon}
-                          size={19}
-                          strokeWidth={1.5}
+                          size={ICON_SIZE}
+                          strokeWidth={ICON_STROKE}
                           color="currentColor"
                           absoluteStrokeWidth
                         />
@@ -272,8 +271,8 @@ export function AppointmentDetailsDrawer({
                       <IconChip>
                         <HugeiconsIcon
                           icon={locationIcon}
-                          size={19}
-                          strokeWidth={1.5}
+                          size={ICON_SIZE}
+                          strokeWidth={ICON_STROKE}
                           color="currentColor"
                           absoluteStrokeWidth
                         />
@@ -296,10 +295,10 @@ export function AppointmentDetailsDrawer({
                           icon={
                             appointment.placeKind === "video"
                               ? Video01Icon
-                              : Location01Icon
+                              : Home03Icon
                           }
-                          size={19}
-                          strokeWidth={1.5}
+                          size={ICON_SIZE}
+                          strokeWidth={ICON_STROKE}
                           color="currentColor"
                           className="shrink-0 text-muted-foreground"
                           absoluteStrokeWidth
@@ -317,8 +316,8 @@ export function AppointmentDetailsDrawer({
                       <IconChip>
                         <HugeiconsIcon
                           icon={FileEditIcon}
-                          size={19}
-                          strokeWidth={1.5}
+                          size={ICON_SIZE}
+                          strokeWidth={ICON_STROKE}
                           color="currentColor"
                           absoluteStrokeWidth
                         />
@@ -336,10 +335,11 @@ export function AppointmentDetailsDrawer({
                     <div className="absolute inset-0 flex items-center justify-center text-tertiary-foreground">
                       <HugeiconsIcon
                         icon={Image01Icon}
-                        size={48}
-                        strokeWidth={1.5}
+                        size={EMPTY_ICON_SIZE}
+                        strokeWidth={ICON_STROKE}
                         color="currentColor"
-                      absoluteStrokeWidth />
+                        absoluteStrokeWidth
+                      />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-white/80 to-transparent p-2">
                       <span className="inline-flex rounded-sm bg-card/90 px-2 py-1 text-xs leading-4 text-foreground backdrop-blur-[2px]">
@@ -361,8 +361,8 @@ export function AppointmentDetailsDrawer({
                 <Button type="button" size="cta" className="w-full">
                   <HugeiconsIcon
                     icon={DateTimeIcon}
-                    size={19}
-                    strokeWidth={1.5}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
                     color="currentColor"
                   absoluteStrokeWidth />
                   Confirm request
