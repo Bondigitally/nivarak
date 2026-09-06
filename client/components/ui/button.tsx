@@ -20,7 +20,7 @@ const buttonVariants = cva(
   cn(
     'inline-flex items-center justify-center gap-2 whitespace-nowrap',
     typo.button,
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-[19px] [&_svg]:shrink-0 [&_svg]:stroke-[1.5] [&_svg_*]:stroke-[1.5]',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:stroke-[1.5] [&_svg_*]:stroke-[1.5]',
   ),
   {
     variants: {
@@ -49,10 +49,15 @@ const buttonVariants = cva(
           'border border-info/40 bg-card text-info hover:border-info/60 hover:bg-info-muted disabled:opacity-50',
       },
       size: {
+        /** Compact — 36px. Inline chips, notification actions, dense toolbars. */
+        sm: 'h-9 gap-1.5 rounded-full px-4 text-sm leading-5 [&_svg]:size-4',
+        /** Default — 44px. Standard controls and form actions. */
         default: 'h-11 rounded-full px-5 py-3',
+        /** CTA — 48px. Primary page / modal confirmations. */
         cta: 'h-12 rounded-full px-5 py-3',
         /** @deprecated Use `cta` — kept for existing call sites */
         lg: 'h-12 rounded-full px-5 py-3',
+        /** Icon-only — 44×44. */
         icon: 'size-11 rounded-full p-[14px]',
       },
     },
@@ -120,7 +125,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <Loader2 className="size-[19px] shrink-0" strokeWidth={1.5} aria-hidden />
+            <Loader2 className="size-5 shrink-0" strokeWidth={1.5} aria-hidden />
             {children}
           </>
         ) : (
