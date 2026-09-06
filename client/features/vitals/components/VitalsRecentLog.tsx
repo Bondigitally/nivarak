@@ -245,7 +245,7 @@ export function VitalsRecentLog() {
 
   return (
     <div
-      className="self-stretch pt-5 bg-card flex flex-col justify-start items-start rounded-[12px]"
+      className="self-stretch pt-5 bg-card flex flex-col justify-start items-start rounded-md"
       style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
     >
       {/* Title */}
@@ -259,7 +259,7 @@ export function VitalsRecentLog() {
       </div>
 
       {/* Table wrapper */}
-      <div className="self-stretch bg-card overflow-hidden rounded-b-[12px]">
+      <div className="self-stretch bg-card overflow-hidden rounded-b-md">
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[860px] border-collapse">
             <thead>
@@ -267,7 +267,7 @@ export function VitalsRecentLog() {
                 <tr key={headerGroup.id}>
                   <th colSpan={COLUMNS.length} className="px-0 pt-3 pb-0">
                     {/* Lavender pill header — same as assessments table */}
-                    <div className="mx-6 flex h-11 items-center bg-table-header rounded-[14px]">
+                    <div className="mx-6 flex h-11 items-center rounded-xl bg-table-header">
                       {headerGroup.headers.map((header) => {
                         const canSort = header.column.getCanSort();
                         const sorted = header.column.getIsSorted();
