@@ -8,6 +8,7 @@ import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function PrivacySettingsCard({
   title,
@@ -35,8 +36,8 @@ export function PrivacySettingsCard({
             Manage linked caregivers
             <HugeiconsIcon
               icon={ArrowRight01Icon}
-              size={19}
-              strokeWidth={1.5}
+              size={ICON_SIZE}
+              strokeWidth={ICON_STROKE}
               color="currentColor"
               className="size-4.75"
             absoluteStrokeWidth />

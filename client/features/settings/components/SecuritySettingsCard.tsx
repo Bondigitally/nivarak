@@ -12,6 +12,7 @@ import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
 import type { ActiveSession } from "../data/settings-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function SecuritySettingsCard({
   notice,
@@ -44,10 +45,10 @@ export function SecuritySettingsCard({
               <span className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-sidebar-accent text-primary">
                 <HugeiconsIcon
                   icon={LaptopIcon}
-                  size={19}
-                  strokeWidth={1.5}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
-                  className="size-[19px]"
+                  className="size-5"
                 absoluteStrokeWidth />
               </span>
               <div className="min-w-0">
@@ -72,10 +73,10 @@ export function SecuritySettingsCard({
       <Button type="button" variant="destructive-outline">
         <HugeiconsIcon
           icon={Logout01Icon}
-          size={19}
-          strokeWidth={1.5}
+          size={ICON_SIZE}
+          strokeWidth={ICON_STROKE}
           color="currentColor"
-          className="size-[19px]"
+          className="size-5"
         absoluteStrokeWidth />
         Log out all
       </Button>
