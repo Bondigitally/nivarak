@@ -4,8 +4,10 @@ import { type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   dashboardCardClass,
+  dashboardDividedItemClass,
   dashboardRowDividerClass,
 } from "@/features/dashboard/data/dashboard-styles";
+import { cn } from "@/lib/utils";
 import { TaskRow } from "./TaskRow";
 import type { CareTask } from "../data/tasks-data";
 
@@ -29,7 +31,7 @@ export function TasksGroupedCard({
   return (
     <div className={`${dashboardCardClass} overflow-hidden`}>
       {header ? (
-        <div className="border-b border-divider px-4 py-3.5 sm:px-4 sm:py-4">
+        <div className="px-4 py-3.5 sm:px-4 sm:py-4">
           {header}
         </div>
       ) : null}
@@ -48,10 +50,13 @@ export function TasksGroupedCard({
                   : { opacity: 0, y: -6, transition: { duration: 0.18 } }
               }
               transition={{ duration: 0.28, ease: ROW_EASE }}
-              className="relative"
+              className={dashboardDividedItemClass}
             >
               {index > 0 ? (
-                <div className={dashboardRowDividerClass} aria-hidden />
+                <div
+                  className={cn(dashboardRowDividerClass, "inset-x-4")}
+                  aria-hidden
+                />
               ) : null}
               <TaskRow
                 task={task}

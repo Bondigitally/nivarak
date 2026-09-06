@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { BellRingIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type { CareTask } from "../data/tasks-data";
+import { TaskCheckbox } from "./TaskCheckbox";
 
 const GOOGLE_CALENDAR_REMINDER_OPTIONS = [
   { id: "at-time", label: "At time of task" },
@@ -46,64 +47,38 @@ export function GentleReminderModal({
   onOpenChange: (open: boolean) => void;
   tasks: CareTask[];
 }) {
-  const remindableTasks = useMemo(
-    () => tasks.filter((task) => !task.completed),
-    [tasks],
-  );
-  const remindableIds = useMemo(
-    () => new Set(remindableTasks.map((task) => task.id)),
-    [remindableTasks],
-  );
   const [scope, setScope] = useState<ReminderScope>("all");
   const [timing, setTiming] = useState<ReminderTimingId>("10m");
   const [chosenIds, setChosenIds] = useState<string[]>([]);
 
-  const selectedRemindableIds = useMemo(
-    () => chosenIds.filter((id) => remindableIds.has(id)),
-    [chosenIds, remindableIds],
-  );
+  const taskIds = new Set(tasks.map((task) => task.id));
+  const selectedIds = chosenIds.filter((id) => taskIds.has(id));
+  const selectedCount = scope === "all" ? tasks.length : selectedIds.length;
 
   useEffect(() => {
     if (!open) return;
-    const id = window.setTimeout(() => {
-      setScope("all");
-      setChosenIds(remindableTasks.map((task) => task.id));
-      setTiming("10m");
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [open, remindableTasks]);
+    setScope("all");
+    setChosenIds(tasks.map((task) => task.id));
+    setTiming("10m");
+    // Reset form when the dialog opens — ignore task list identity churn while open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open only
+  }, [open]);
 
   function handleScopeChange(next: ReminderScope) {
     setScope(next);
     if (next === "choose") {
-      setChosenIds((current) =>
-        current.filter((taskId) => remindableIds.has(taskId)),
-      );
+      setChosenIds((current) => current.filter((id) => taskIds.has(id)));
     }
   }
 
   function toggleChosen(id: string) {
-    if (!remindableIds.has(id)) return;
-    setChosenIds((current) => {
-      const valid = current.filter((taskId) => remindableIds.has(taskId));
-      return valid.includes(id)
-        ? valid.filter((taskId) => taskId !== id)
-        : [...valid, id];
-    });
+    if (!taskIds.has(id)) return;
+    setChosenIds((current) =>
+      current.includes(id)
+        ? current.filter((taskId) => taskId !== id)
+        : [...current, id],
+    );
   }
-
-  function handleSubmit() {
-    const targetIds =
-      scope === "all"
-        ? remindableTasks.map((task) => task.id)
-        : selectedRemindableIds;
-    void targetIds;
-    void timing;
-    onOpenChange(false);
-  }
-
-  const selectedCount =
-    scope === "all" ? remindableTasks.length : selectedRemindableIds.length;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,7 +101,7 @@ export function GentleReminderModal({
                   Add gentle reminder
                 </DialogTitle>
                 <DialogDescription className={cn(typo.bodyM, "mt-1")}>
-                  {selectedRemindableIds.length > 0 && scope === "choose"
+                  {scope === "choose" && selectedIds.length > 0
                     ? "Set a Google Calendar reminder for your selected tasks."
                     : "Google Calendar reminder options for your incomplete care tasks."}
                 </DialogDescription>
@@ -145,7 +120,7 @@ export function GentleReminderModal({
             </DialogClose>
           </DialogHeader>
 
-          <div className={cn(dialogBodyShellClass, "gap-5 sm:gap-5")}>
+          <div className={cn(dialogBodyShellClass, "gap-5")}>
             <div className="flex flex-col gap-2">
               <p className={cn(typo.label, "text-foreground")}>Tasks</p>
               <SegmentedControl
@@ -162,9 +137,9 @@ export function GentleReminderModal({
 
             {scope === "choose" ? (
               <div className="flex max-h-48 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-card p-2">
-                {remindableTasks.length > 0 ? (
-                  remindableTasks.map((task) => {
-                    const checked = selectedRemindableIds.includes(task.id);
+                {tasks.length > 0 ? (
+                  tasks.map((task) => {
+                    const checked = selectedIds.includes(task.id);
                     return (
                       <label
                         key={task.id}
@@ -173,12 +148,15 @@ export function GentleReminderModal({
                           checked ? "bg-background" : "hover:bg-background/80",
                         )}
                       >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleChosen(task.id)}
-                          className="mt-0.5 size-4 shrink-0 accent-info"
-                        />
+                        <span className="mt-0.5 shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleChosen(task.id)}
+                            className="sr-only"
+                          />
+                          <TaskCheckbox completed={checked} hoverPreview={false} />
+                        </span>
                         <span className="min-w-0">
                           <span
                             className={cn(
@@ -203,8 +181,8 @@ export function GentleReminderModal({
               </div>
             ) : (
               <p className={cn(typo.bodyM, "rounded-md bg-background px-3 py-2.5")}>
-                Reminder will be set for all {remindableTasks.length} incomplete
-                task{remindableTasks.length === 1 ? "" : "s"}.
+                Reminder will be set for all {tasks.length} incomplete
+                task{tasks.length === 1 ? "" : "s"}.
               </p>
             )}
 
@@ -242,10 +220,10 @@ export function GentleReminderModal({
           <DialogFooter
             className={cn(
               dialogFooterShellClass,
-              "flex-row items-center justify-between gap-2 py-4 sm:flex-row sm:justify-between sm:py-4",
+              "flex-row items-center justify-between gap-2 py-4",
             )}
           >
-            <p className={cn(typo.caption, "self-center sm:order-first")}>
+            <p className={cn(typo.caption, "self-center")}>
               {selectedCount} task{selectedCount === 1 ? "" : "s"} selected
             </p>
             <div className="flex flex-col-reverse gap-2 sm:flex-row">
@@ -259,8 +237,8 @@ export function GentleReminderModal({
               <Button
                 type="button"
                 variant="info-outline"
-                disabled={scope === "choose" && selectedRemindableIds.length === 0}
-                onClick={handleSubmit}
+                disabled={scope === "choose" && selectedIds.length === 0}
+                onClick={() => onOpenChange(false)}
               >
                 Add reminder
               </Button>
