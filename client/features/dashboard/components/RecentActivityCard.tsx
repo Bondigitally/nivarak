@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   dashboardCardClass,
   dashboardCardHeaderClass,
+  dashboardDividedItemClass,
   dashboardDividedRowClass,
   dashboardRowDividerClass,
 } from "../data/dashboard-styles";
@@ -22,7 +23,7 @@ export function RecentActivityCard({ items }: { items: ActivityItem[] | null }) 
       {items && items.length > 0 ? (
         <ul className="flex min-w-0 flex-col">
           {items.map((item, index) => (
-            <li key={item.id} className="relative">
+            <li key={item.id} className={dashboardDividedItemClass}>
               {index > 0 ? (
                 <div className={dashboardRowDividerClass} aria-hidden />
               ) : null}

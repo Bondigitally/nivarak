@@ -5,6 +5,7 @@ import { motion, useAnimation, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { ArrowUpRight03Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const ARROW_OFFSET = 5;
 
@@ -21,7 +22,7 @@ const ENTER_TRANSITION = {
 
 export function AnimatedArrowIcon({
   icon = ArrowUpRight03Icon,
-  size = 19,
+  size = ICON_SIZE,
   hovered,
   className,
 }: {
@@ -72,12 +73,12 @@ export function AnimatedArrowIcon({
   const layerClassName = "absolute inset-0 flex items-center justify-center";
 
   return (
-    <span className={cn("relative size-4.75 shrink-0 overflow-hidden", className)} aria-hidden>
+    <span className={cn("relative size-5 shrink-0 overflow-hidden", className)} aria-hidden>
       <motion.span className={layerClassName} animate={exitControls} initial={{ x: 0, y: 0, opacity: 1 }}>
-        <HugeiconsIcon icon={icon} size={size} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+        <HugeiconsIcon icon={icon} size={size} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
       </motion.span>
       <motion.span className={layerClassName} animate={enterControls} initial={{ x: 0, y: 0, opacity: 0 }}>
-        <HugeiconsIcon icon={icon} size={size} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+        <HugeiconsIcon icon={icon} size={size} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
       </motion.span>
     </span>
   );

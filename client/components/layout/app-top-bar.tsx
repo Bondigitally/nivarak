@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Search01Icon,
-  CalendarAdd01Icon,
-  Notification01Icon,
+  BellIcon,
   PanelRightCloseIcon,
   PanelRightOpenIcon,
   Menu01Icon,
@@ -18,66 +17,56 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/layout/sidebar-context";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { typo } from "@/lib/tokens/typography";
-import { DashboardIconButton } from "./DashboardIconButton";
-import { dashboardSearchBarClass, dashboardSearchBarIconClass } from "../data/dashboard-styles";
+import { findScrollParent } from "@/lib/dom";
+import { DashboardIconButton } from "@/features/dashboard/components/DashboardIconButton";
+import {
+  dashboardSearchBarClass,
+  dashboardSearchBarIconClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { cn } from "@/lib/utils";
-import { SpotlightSearch, SearchShortcutHint } from "./SpotlightSearch";
+import { NotificationPanel } from "@/features/alerts/components/NotificationPanel";
+import { useNotificationStore } from "@/features/alerts/store/notification-store";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
-/**
- * Page chrome: sticky header inside scrolling `main` + page body.
- */
-export function DashboardPageFrame({
-  notificationCount,
+export type AppTopBarProps = {
+  searchPlaceholder: string;
+  searchAriaLabel: string;
+  onSearchClick?: () => void;
+  searchAriaProps?: {
+    "aria-haspopup"?: "dialog" | "false" | true;
+    "aria-expanded"?: boolean;
+    "aria-keyshortcuts"?: string;
+  };
+  searchHint?: ReactNode;
+  primaryAction: {
+    label: string;
+    icon: IconSvgElement;
+    onClick?: () => void;
+  };
+  children?: ReactNode;
+};
+
+export function AppTopBar({
+  searchPlaceholder,
+  searchAriaLabel,
+  onSearchClick,
+  searchAriaProps,
+  searchHint,
+  primaryAction,
   children,
-}: {
-  notificationCount: number;
-  children: ReactNode;
-}) {
-  return (
-    <div className="font-sans">
-      <HomeTopBar notificationCount={notificationCount} />
-      {children}
-    </div>
-  );
-}
-
-function findScrollParent(node: HTMLElement | null): HTMLElement | null {
-  let current = node?.parentElement ?? null;
-  while (current) {
-    const { overflowY } = getComputedStyle(current);
-    if (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") {
-      return current;
-    }
-    current = current.parentElement;
-  }
-  return document.querySelector("[data-dashboard-scroll]");
-}
-
-export function HomeTopBar({ notificationCount }: { notificationCount: number }) {
-  const { collapsed, toggle, isDrawer, open: drawerOpen, openBookVisit } = useSidebar();
+}: AppTopBarProps) {
+  const { collapsed, toggle, isDrawer, open: drawerOpen } = useSidebar();
   const headerRef = useRef<HTMLElement>(null);
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
-      if (event.repeat) return;
-      event.preventDefault();
-      setOpen((current) => !current);
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
-    if (open) return;
-    const id = window.setTimeout(() => setQuery(""), 0);
-    return () => window.clearTimeout(id);
-  }, [open]);
+  const { role } = useUserRole();
+  const patientUnread = useNotificationStore((s) => s.unreadCount());
+  const coordinatorUnread = useNotificationStore((s) => s.coordinatorUnreadCount());
+  const unreadCount =
+    role === "coordinator" || role === "admin"
+      ? coordinatorUnread
+      : patientUnread;
 
   useEffect(() => {
     const root = findScrollParent(headerRef.current);
@@ -129,10 +118,11 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
                         ? PanelRightOpenIcon
                         : PanelRightCloseIcon
                   }
-                  size={19}
-                  strokeWidth={1.5}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
-                absoluteStrokeWidth />
+                  absoluteStrokeWidth
+                />
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom">{menuLabel}</TooltipContent>
@@ -141,56 +131,64 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
 
         <button
           type="button"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-keyshortcuts="Meta+K Control+K"
-          aria-label="Search patients, vitals, reports"
-          onClick={() => setOpen(true)}
+          aria-label={searchAriaLabel}
+          onClick={onSearchClick}
           className={cn(dashboardSearchBarClass, "w-full min-w-0 flex-none text-left")}
+          {...searchAriaProps}
         >
           <HugeiconsIcon
             icon={Search01Icon}
-            size={19}
-            strokeWidth={1.5}
+            size={ICON_SIZE}
+            strokeWidth={ICON_STROKE}
             color="currentColor"
             className={dashboardSearchBarIconClass}
-          absoluteStrokeWidth />
+            absoluteStrokeWidth
+          />
           <span className={cn(typo.bodyM, "min-w-0 flex-1 truncate text-placeholder")}>
-            Search patients, vitals, reports…
+            {searchPlaceholder}
           </span>
-          <SearchShortcutHint />
+          {searchHint}
         </button>
 
         <div className="flex shrink-0 items-center justify-self-end gap-dash-topbar-gap">
           <Button
             type="button"
             className={cn(typo.button, "max-sm:px-3")}
-            onClick={openBookVisit}
+            onClick={primaryAction.onClick}
           >
-            <HugeiconsIcon icon={CalendarAdd01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
-            <span className="max-sm:sr-only">Book Appointment</span>
+            <HugeiconsIcon
+              icon={primaryAction.icon}
+              size={ICON_SIZE}
+              strokeWidth={ICON_STROKE}
+              color="currentColor"
+              absoluteStrokeWidth
+            />
+            <span className="max-sm:sr-only">{primaryAction.label}</span>
           </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DashboardIconButton type="button" aria-label="Notifications" className="relative">
+          <NotificationPanel
+            trigger={
+              <DashboardIconButton
+                type="button"
+                aria-label="Notifications"
+                className="relative"
+              >
                 <HugeiconsIcon
-                  icon={Notification01Icon}
-                  size={19}
-                  strokeWidth={1.5}
+                  icon={BellIcon}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
-                absoluteStrokeWidth />
-                {notificationCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-primary-foreground">
-                    {notificationCount}
+                  absoluteStrokeWidth
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
-                ) : null}
+                )}
               </DashboardIconButton>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Notifications</TooltipContent>
-          </Tooltip>
+            }
+          />
         </div>
 
-        {/* Soft edge under header — visible only after content scrolls beneath */}
         <div
           aria-hidden
           className={cn(
@@ -204,7 +202,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
         />
       </header>
 
-      <SpotlightSearch open={open} onOpenChange={setOpen} query={query} onQueryChange={setQuery} />
+      {children}
     </TooltipProvider>
   );
 }
