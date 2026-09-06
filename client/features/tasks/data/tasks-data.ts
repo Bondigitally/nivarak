@@ -1,14 +1,11 @@
-export type TaskBucket = "overdue" | "today" | "upcoming";
+import type { Task, TaskBucket } from "@/lib/domain";
 
-export type CareTask = {
-  id: string;
-  label: string;
-  /** Display label for due time (preserved across section moves). */
+export type { TaskBucket } from "@/lib/domain";
+
+/** Patient-facing task with required scheduling fields. */
+export type CareTask = Task & {
   time: string;
-  /** ISO due datetime — source of truth for section placement and progress. */
   dueAt: string;
-  detail?: string;
-  completed: boolean;
 };
 
 export type CareTaskGroup = {
@@ -58,15 +55,15 @@ function isDueDateToday(dueAt: string, now: Date = new Date()) {
 }
 
 /**
- * Section for a task — driven only by dueAt vs now.
+ * Section for an incomplete task — driven only by dueAt vs now.
  * - due datetime passed → overdue
  * - due later today → today
- * - due after today → upcoming
+ * - due after today → null (not shown in overdue/today lists)
  */
 export function getTaskSection(
   dueAt: string,
   now: Date = new Date(),
-): TaskBucket {
+): TaskBucket | null {
   const due = new Date(dueAt);
   if (Number.isNaN(due.getTime())) return "today";
 
@@ -75,7 +72,7 @@ export function getTaskSection(
   const tomorrowStart = addLocalDays(startOfLocalDay(now), 1);
   if (due.getTime() < tomorrowStart.getTime()) return "today";
 
-  return "upcoming";
+  return null;
 }
 
 export function getAllTasks(groups: CareTaskGroup[]): CareTask[] {
@@ -209,26 +206,6 @@ function buildMockTaskGroups(): CareTaskGroup[] {
         ];
       })(),
     },
-    {
-      id: "upcoming",
-      title: "Upcoming",
-      tasks: [
-        {
-          id: "t8",
-          label: "Weekly Weight Check",
-          time: "Tomorrow · 9:00 AM",
-          dueAt: dueAtFromToday(1, 9, 0),
-          completed: false,
-        },
-        {
-          id: "t9",
-          label: "Care Team Follow-up Call",
-          time: "Thu, Sep 4 · 11:00 AM",
-          dueAt: dueAtFromToday(4, 11, 0),
-          completed: false,
-        },
-      ],
-    },
   ];
 }
 
@@ -236,20 +213,29 @@ export function getTaskGroups(): CareTaskGroup[] {
   return buildMockTaskGroups().map((group) => ({
     ...group,
     tasks: group.tasks.map((task) => ({ ...task })),
-  }));
+  })) as CareTaskGroup[];
+}
+
+/**
+ * Today's tasks — only tasks whose due calendar date is today.
+ * Overdue (prior-day) tasks are excluded.
+ */
+export function getTodayTasks(
+  groups: CareTaskGroup[],
+  now: Date = new Date(),
+): CareTask[] {
+  return getAllTasks(groups).filter((task) => isDueDateToday(task.dueAt, now));
 }
 
 /**
  * Today's progress — only tasks whose due calendar date is today.
- * Overdue (prior-day) and upcoming tasks are excluded.
+ * Overdue (prior-day) tasks are excluded.
  */
 export function getTodayTaskProgress(
   groups: CareTaskGroup[],
   now: Date = new Date(),
 ) {
-  const todayDue = getAllTasks(groups).filter((task) =>
-    isDueDateToday(task.dueAt, now),
-  );
+  const todayDue = getTodayTasks(groups, now);
 
   const total = todayDue.length;
   const completed = todayDue.filter((task) => task.completed).length;
