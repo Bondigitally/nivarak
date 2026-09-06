@@ -9,8 +9,9 @@ Create a `.env` file in the project root:
 ```env
 DATABASE_URL=postgres://nivarak:nivarak_dev@localhost:5432/nivarak_db
 
-JWT_ACCESS_SECRET=your_access_secret_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
+COGNITO_USER_POOL_ID=ap-south-1_xxxxxxxxx
+COGNITO_CLIENT_ID=your_cognito_app_client_id
+AWS_REGION=ap-south-1
 
 PORT=3000
 NODE_ENV=development
