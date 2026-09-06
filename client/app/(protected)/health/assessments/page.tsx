@@ -1,6 +1,7 @@
 "use client";
 
-import { DashboardPageFrame } from "@/features/dashboard/components/HomeTopBar";
+import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
   dashboardPageShellClass,
@@ -15,23 +16,20 @@ import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AssignmentsIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { typo } from "@/lib/tokens/typography";
+import { EMPTY_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export default function AssessmentsPage() {
   const data = getHomeDashboardData();
   const hasAssessment = data?.assessment !== null;
   const assessment = data?.assessment;
-  const notificationCount = data?.notificationCount ?? 3;
 
   return (
-    <DashboardPageFrame notificationCount={notificationCount}>
+    <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex flex-col gap-1">
-          <h1 className={typo.headingXxl}>Assessments</h1>
-          <p className={typo.bodyL}>
-            Review your completed health assessments and monitor your progress over time.
-          </p>
-        </div>
+        <PageHeader
+          title="Assessments"
+          subtitle="Review your completed health assessments and monitor your progress over time."
+        />
 
         {hasAssessment && assessment ? (
           <div className="flex flex-col gap-3">
@@ -126,7 +124,7 @@ export default function AssessmentsPage() {
           <div className="flex min-h-95 flex-col items-center justify-center rounded-lg border border-border bg-card p-6">
             <div className="flex max-w-dash-search flex-col items-center text-center">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-                <HugeiconsIcon icon={AssignmentsIcon} size={32} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+                <HugeiconsIcon icon={AssignmentsIcon} size={EMPTY_ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
               </div>
               <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">No assessments yet</h2>
               <p className="mt-2 text-sm font-normal leading-5 text-muted-foreground">
@@ -139,6 +137,6 @@ export default function AssessmentsPage() {
           </div>
         )}
       </DashboardReveal>
-    </DashboardPageFrame>
+    </AppPageFrame>
   );
 }

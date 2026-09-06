@@ -15,6 +15,7 @@ import {
   ChartTooltipRow,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { cn } from "@/lib/utils";
 import { dashboardCardClass, dashboardCardHeaderClass } from "../data/dashboard-styles";
 import { EmptyState, SectionTitle } from "./EmptyState";
@@ -179,6 +180,9 @@ function RiskChartTooltip({
 }
 
 function RiskRadarChart({ risk }: { risk: RiskStatus }) {
+  const { isAnimationActive, onAnimationEnd } = useOnceAnimation(
+    "dashboard-risk-radar",
+  );
   const chartData: RiskChartPoint[] = risk.axes.map((axis) => ({
     axis: axis.label,
     score: axis.scorePct,
@@ -230,6 +234,8 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
             strokeWidth={1.5}
             shape={RoundedRadarShape}
             dot={false}
+            isAnimationActive={isAnimationActive}
+            onAnimationEnd={onAnimationEnd}
             activeDot={{
               r: 4,
               fill: "var(--card)",

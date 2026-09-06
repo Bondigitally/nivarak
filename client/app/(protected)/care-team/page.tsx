@@ -1,9 +1,9 @@
 "use client";
 
-import { DashboardPageFrame } from "@/features/dashboard/components/HomeTopBar";
+import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardGridStackClass, dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
-import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import { FamilyCaregiversSection } from "@/features/care-team/components/FamilyCaregiversSection";
 import { MedicalStaffSection } from "@/features/care-team/components/MedicalStaffSection";
 import {
@@ -11,23 +11,18 @@ import {
   MOCK_MEDICAL_STAFF,
 } from "@/features/care-team/data/care-team-data";
 import { useSidebar } from "@/components/layout/sidebar-context";
-import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 export default function CareTeamPage() {
-  const data = getHomeDashboardData();
-  const notificationCount = data?.notificationCount ?? 3;
   const { openInviteCaregiver } = useSidebar();
 
   return (
-    <DashboardPageFrame notificationCount={notificationCount}>
+    <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex flex-col gap-1">
-          <h1 className={typo.headingXxl}>Care Team</h1>
-          <p className={typo.bodyL}>
-            Review your completed health assessments and monitor your progress over time.
-          </p>
-        </div>
+        <PageHeader
+          title="Care Team"
+          subtitle="Review your completed health assessments and monitor your progress over time."
+        />
 
         <div className={cn(dashboardGridStackClass)}>
           <MedicalStaffSection members={MOCK_MEDICAL_STAFF} />
@@ -37,6 +32,6 @@ export default function CareTeamPage() {
           />
         </div>
       </DashboardReveal>
-    </DashboardPageFrame>
+    </AppPageFrame>
   );
 }

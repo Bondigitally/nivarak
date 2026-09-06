@@ -17,17 +17,23 @@ import {
   createChartActiveDot,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { dashboardCardClass } from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { HeartRateSeries, VitalsSnapshot } from "../data/home-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const SYSTOLIC_COLOR = "var(--chart-2)";
 const DIASTOLIC_COLOR = "var(--chart-3)";
 const HEART_RATE_COLOR = "var(--chart-4)";
 const STATUS_COLOR = "var(--success)";
 const GRID_STROKE = "var(--divider)";
+
+const systolicActiveDot = createChartActiveDot(SYSTOLIC_COLOR);
+const diastolicActiveDot = createChartActiveDot(DIASTOLIC_COLOR);
+const heartRateActiveDot = createChartActiveDot(HEART_RATE_COLOR);
 const AXIS_TICK = {
   fill: "var(--tertiary-foreground)",
   fontSize: 12,
@@ -186,6 +192,9 @@ function HeartRateTooltip({
 }
 
 function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] }) {
+  const { isAnimationActive, onAnimationEnd } = useOnceAnimation(
+    "dashboard-vitals-bp",
+  );
   const chartData: BpChartPoint[] = data.systolicSeries.map((point, index) => ({
     label: point.label,
     date: BP_DATES[point.label] ?? point.label,
@@ -207,8 +216,8 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
           <div className="flex items-center gap-2">
             <HugeiconsIcon
               icon={BloodPressureIcon}
-              size={19}
-              strokeWidth={1.5}
+              size={ICON_SIZE}
+              strokeWidth={ICON_STROKE}
               color="var(--destructive)"
             absoluteStrokeWidth />
             <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
@@ -300,7 +309,9 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             stroke="var(--color-systolic)"
             strokeWidth={2}
             dot={false}
-            activeDot={createChartActiveDot(SYSTOLIC_COLOR)}
+            activeDot={systolicActiveDot}
+            isAnimationActive={isAnimationActive}
+            onAnimationEnd={onAnimationEnd}
           />
           <Line
             dataKey="diastolic"
@@ -308,7 +319,9 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             stroke="var(--color-diastolic)"
             strokeWidth={2}
             dot={false}
-            activeDot={createChartActiveDot(DIASTOLIC_COLOR)}
+            activeDot={diastolicActiveDot}
+            isAnimationActive={isAnimationActive}
+            onAnimationEnd={onAnimationEnd}
           />
         </LineChart>
       </ChartContainer>
@@ -325,6 +338,9 @@ function HeartRateChart({
   updatedAgo: string;
   statusLabel: string;
 }) {
+  const { isAnimationActive, onAnimationEnd } = useOnceAnimation(
+    "dashboard-vitals-hr",
+  );
   const chartData: HrChartPoint[] = data.series.map((point) => ({
     label: point.label,
     date: HR_DATES[point.label] ?? point.label,
@@ -345,8 +361,8 @@ function HeartRateChart({
           <div className="flex items-center gap-2">
             <HugeiconsIcon
               icon={Cardiogram02Icon}
-              size={19}
-              strokeWidth={1.5}
+              size={ICON_SIZE}
+              strokeWidth={ICON_STROKE}
               color={HEART_RATE_COLOR}
             absoluteStrokeWidth />
             <span className={cn(typo.label, "text-muted-foreground")}>{data.label}</span>
@@ -418,7 +434,9 @@ function HeartRateChart({
             stroke="var(--color-heartRate)"
             strokeWidth={2}
             dot={false}
-            activeDot={createChartActiveDot(HEART_RATE_COLOR)}
+            activeDot={heartRateActiveDot}
+            isAnimationActive={isAnimationActive}
+            onAnimationEnd={onAnimationEnd}
           />
         </LineChart>
       </ChartContainer>

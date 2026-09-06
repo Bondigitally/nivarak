@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardPageFrame } from "@/features/dashboard/components/HomeTopBar";
+import { AppPageFrame } from "@/components/layout/app-page-frame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
-import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import { EditProfileSection } from "@/features/settings/components/EditProfileSection";
 import { NotificationsSettingsCard } from "@/features/settings/components/NotificationsSettingsCard";
 import { PrivacySettingsCard } from "@/features/settings/components/PrivacySettingsCard";
@@ -17,14 +16,13 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
-  const home = getHomeDashboardData();
   const initial = getSettingsData();
   const [profile, setProfile] = useState<SettingsProfile>(initial.profile);
   const [editingProfile, setEditingProfile] = useState(false);
   const [notifications, setNotifications] = useState(initial.notifications);
 
   return (
-    <DashboardPageFrame notificationCount={home.notificationCount}>
+    <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
         {editingProfile ? (
           <EditProfileSection
@@ -72,6 +70,6 @@ export default function SettingsPage() {
           sessions={initial.sessions}
         />
       </DashboardReveal>
-    </DashboardPageFrame>
+    </AppPageFrame>
   );
 }
