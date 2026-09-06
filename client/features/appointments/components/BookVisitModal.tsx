@@ -38,6 +38,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 type VisitTypeId = "home" | "teleconsult" | "clinic";
 
@@ -252,8 +253,8 @@ export function BookVisitModal() {
             >
               <HugeiconsIcon
                 icon={Cancel01Icon}
-                size={19}
-                strokeWidth={1.5}
+                size={ICON_SIZE}
+                strokeWidth={ICON_STROKE}
                 color="currentColor"
               absoluteStrokeWidth />
             </Button>
@@ -282,8 +283,8 @@ export function BookVisitModal() {
                   >
                     <HugeiconsIcon
                       icon={type.icon}
-                      size={19}
-                      strokeWidth={1.5}
+                      size={ICON_SIZE}
+                      strokeWidth={ICON_STROKE}
                       color="currentColor"
                     absoluteStrokeWidth />
                     <span
@@ -329,8 +330,8 @@ export function BookVisitModal() {
                   </span>
                   <HugeiconsIcon
                     icon={ArrowDown01Icon}
-                    size={19}
-                    strokeWidth={1.5}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
                     color="currentColor"
                     className="shrink-0 text-muted-foreground"
                   absoluteStrokeWidth />
@@ -373,8 +374,8 @@ export function BookVisitModal() {
                 >
                   <HugeiconsIcon
                     icon={ArrowLeft01Icon}
-                    size={19}
-                    strokeWidth={1.5}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
                     color="currentColor"
                   absoluteStrokeWidth />
                 </button>
@@ -386,8 +387,8 @@ export function BookVisitModal() {
                 >
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}
-                    size={19}
-                    strokeWidth={1.5}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
                     color="currentColor"
                   absoluteStrokeWidth />
                 </button>
@@ -518,8 +519,8 @@ export function BookVisitModal() {
             >
               <HugeiconsIcon
                 icon={DateTimeIcon}
-                size={19}
-                strokeWidth={1.5}
+                size={ICON_SIZE}
+                strokeWidth={ICON_STROKE}
                 color="currentColor"
               absoluteStrokeWidth />
               Confirm request

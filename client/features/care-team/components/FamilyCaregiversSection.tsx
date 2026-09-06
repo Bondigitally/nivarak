@@ -12,6 +12,7 @@ import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type { FamilyCaregiver } from "../data/care-team-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
   return (
@@ -71,8 +72,8 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
         <span className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-card text-muted-foreground">
           <HugeiconsIcon
             icon={Add01Icon}
-            size={19}
-            strokeWidth={1.5}
+            size={ICON_SIZE}
+            strokeWidth={ICON_STROKE}
             color="currentColor"
           absoluteStrokeWidth />
         </span>

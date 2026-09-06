@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   CartesianGrid,
   Line,
@@ -16,8 +16,16 @@ import {
   createChartActiveDot,
   type ChartConfig,
 } from "@/components/ui/chart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
+import { cn } from "@/lib/utils";
 
 // ─── Colors and styling from VitalsCard.tsx ──────────────────────────────────
 const SYSTOLIC_COLOR = "var(--chart-2)";
@@ -184,6 +192,47 @@ function TempTooltip({ active, payload }: { active?: boolean; payload?: Array<{ 
   );
 }
 
+const systolicActiveDot = createChartActiveDot(SYSTOLIC_COLOR);
+const diastolicActiveDot = createChartActiveDot(DIASTOLIC_COLOR);
+const heartRateActiveDot = createChartActiveDot(HEART_RATE_COLOR);
+const spo2ActiveDot = createChartActiveDot(SPO2_COLOR);
+const glucoseActiveDot = createChartActiveDot(GLUCOSE_COLOR);
+const tempActiveDot = createChartActiveDot(TEMP_COLOR);
+
+/**
+ * Keeps chart layout size when inactive (no display:none — that makes Recharts
+ * remeasure and replay line animation). Animation runs once via useOnceAnimation.
+ */
+function ChartPanel({
+  active,
+  animationId,
+  children,
+}: {
+  active: boolean;
+  animationId: string;
+  children: (opts: {
+    isAnimationActive: boolean;
+    onAnimationEnd: () => void;
+  }) => ReactNode;
+}) {
+  const { isAnimationActive, onAnimationEnd } = useOnceAnimation(animationId);
+
+  return (
+    <div
+      className={cn(
+        "absolute inset-0 h-full w-full",
+        !active && "invisible pointer-events-none",
+      )}
+      aria-hidden={!active}
+    >
+      {children({
+        isAnimationActive: active && isAnimationActive,
+        onAnimationEnd,
+      })}
+    </div>
+  );
+}
+
 type Tab = "bp" | "hr" | "spo2" | "glucose" | "temp";
 const TABS: { id: Tab; label: string }[] = [
   { id: "bp", label: "Blood Pressure" },
@@ -203,16 +252,23 @@ const TIMELINE_OPTIONS = [
 
 type TimelineOption = (typeof TIMELINE_OPTIONS)[number];
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 export function VitalsTrendCard() {
   const [activeTab, setActiveTab] = useState<Tab>("bp");
+  /** Mount each chart once on first visit; keep mounted so tab switches don't remount Recharts. */
+  const [mountedTabs, setMountedTabs] = useState<ReadonlySet<Tab>>(
+    () => new Set<Tab>(["bp"]),
+  );
   const [timeline, setTimeline] = useState<TimelineOption>("30 Days");
+
+  const onTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    setMountedTabs((prev) => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev);
+      next.add(tab);
+      return next;
+    });
+  };
 
   return (
     <div
@@ -233,7 +289,7 @@ export function VitalsTrendCard() {
       <div className="flex w-full flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-4">
         <SegmentedControl
           value={activeTab}
-          onChange={setActiveTab}
+          onChange={onTabChange}
           options={TABS}
           ariaLabel="Vital type"
           layoutId="vitalsTrendActiveTab"
@@ -369,67 +425,87 @@ export function VitalsTrendCard() {
         </div>
       </div>
 
-      {/* Chart container */}
+      {/* Chart container — stack keep-alive panels; animate only on first mount */}
       <div className="relative h-80 w-full self-stretch">
-        {activeTab === "bp" && (
-          <ChartContainer config={bpConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
-            <LineChart data={BP_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-              <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
-              <YAxis domain={[60, 180]} ticks={BP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
-              <ChartTooltip cursor={tooltipCursor} content={<BpTooltip />} />
-              <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(SYSTOLIC_COLOR)} />
-              <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(DIASTOLIC_COLOR)} />
-            </LineChart>
-          </ChartContainer>
+        {mountedTabs.has("bp") && (
+          <ChartPanel active={activeTab === "bp"} animationId="vitals-trend-bp">
+            {({ isAnimationActive, onAnimationEnd }) => (
+              <ChartContainer config={bpConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
+                <LineChart data={BP_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                  <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
+                  <YAxis domain={[60, 180]} ticks={BP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
+                  <ChartTooltip cursor={tooltipCursor} content={<BpTooltip />} />
+                  <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={2} dot={false} activeDot={systolicActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                  <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={2} dot={false} activeDot={diastolicActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                </LineChart>
+              </ChartContainer>
+            )}
+          </ChartPanel>
         )}
 
-        {activeTab === "hr" && (
-          <ChartContainer config={hrConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
-            <LineChart data={HR_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-              <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
-              <YAxis domain={[45, 75]} ticks={HR_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
-              <ChartTooltip cursor={tooltipCursor} content={<HrTooltip />} />
-              <Line dataKey="heartRate" type="monotone" stroke="var(--color-heartRate)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(HEART_RATE_COLOR)} />
-            </LineChart>
-          </ChartContainer>
+        {mountedTabs.has("hr") && (
+          <ChartPanel active={activeTab === "hr"} animationId="vitals-trend-hr">
+            {({ isAnimationActive, onAnimationEnd }) => (
+              <ChartContainer config={hrConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
+                <LineChart data={HR_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                  <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
+                  <YAxis domain={[45, 75]} ticks={HR_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
+                  <ChartTooltip cursor={tooltipCursor} content={<HrTooltip />} />
+                  <Line dataKey="heartRate" type="monotone" stroke="var(--color-heartRate)" strokeWidth={2} dot={false} activeDot={heartRateActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                </LineChart>
+              </ChartContainer>
+            )}
+          </ChartPanel>
         )}
 
-        {activeTab === "spo2" && (
-          <ChartContainer config={spo2Config} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
-            <LineChart data={SPO2_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-              <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
-              <YAxis domain={[95, 100]} ticks={SPO2_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
-              <ChartTooltip cursor={tooltipCursor} content={<Spo2Tooltip />} />
-              <Line dataKey="spo2" type="monotone" stroke="var(--color-spo2)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(SPO2_COLOR)} />
-            </LineChart>
-          </ChartContainer>
+        {mountedTabs.has("spo2") && (
+          <ChartPanel active={activeTab === "spo2"} animationId="vitals-trend-spo2">
+            {({ isAnimationActive, onAnimationEnd }) => (
+              <ChartContainer config={spo2Config} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
+                <LineChart data={SPO2_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                  <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
+                  <YAxis domain={[95, 100]} ticks={SPO2_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
+                  <ChartTooltip cursor={tooltipCursor} content={<Spo2Tooltip />} />
+                  <Line dataKey="spo2" type="monotone" stroke="var(--color-spo2)" strokeWidth={2} dot={false} activeDot={spo2ActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                </LineChart>
+              </ChartContainer>
+            )}
+          </ChartPanel>
         )}
 
-        {activeTab === "glucose" && (
-          <ChartContainer config={glucoseConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
-            <LineChart data={GLUCOSE_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-              <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
-              <YAxis domain={[110, 140]} ticks={GLUCOSE_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
-              <ChartTooltip cursor={tooltipCursor} content={<GlucoseTooltip />} />
-              <Line dataKey="glucose" type="monotone" stroke="var(--color-glucose)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(GLUCOSE_COLOR)} />
-            </LineChart>
-          </ChartContainer>
+        {mountedTabs.has("glucose") && (
+          <ChartPanel active={activeTab === "glucose"} animationId="vitals-trend-glucose">
+            {({ isAnimationActive, onAnimationEnd }) => (
+              <ChartContainer config={glucoseConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
+                <LineChart data={GLUCOSE_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                  <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
+                  <YAxis domain={[110, 140]} ticks={GLUCOSE_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
+                  <ChartTooltip cursor={tooltipCursor} content={<GlucoseTooltip />} />
+                  <Line dataKey="glucose" type="monotone" stroke="var(--color-glucose)" strokeWidth={2} dot={false} activeDot={glucoseActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                </LineChart>
+              </ChartContainer>
+            )}
+          </ChartPanel>
         )}
 
-        {activeTab === "temp" && (
-          <ChartContainer config={tempConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
-            <LineChart data={TEMP_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-              <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
-              <YAxis domain={[36.0, 37.2]} ticks={TEMP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
-              <ChartTooltip cursor={tooltipCursor} content={<TempTooltip />} />
-              <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(TEMP_COLOR)} />
-            </LineChart>
-          </ChartContainer>
+        {mountedTabs.has("temp") && (
+          <ChartPanel active={activeTab === "temp"} animationId="vitals-trend-temp">
+            {({ isAnimationActive, onAnimationEnd }) => (
+              <ChartContainer config={tempConfig} className="aspect-auto h-80 w-full" initialDimension={{ width: 1044, height: 280 }}>
+                <LineChart data={TEMP_DATA} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                  <CartesianGrid vertical={false} stroke={GRID_STROKE} strokeDasharray="3 4" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
+                  <YAxis domain={[36.0, 37.2]} ticks={TEMP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
+                  <ChartTooltip cursor={tooltipCursor} content={<TempTooltip />} />
+                  <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={2} dot={false} activeDot={tempActiveDot} isAnimationActive={isAnimationActive} onAnimationEnd={onAnimationEnd} />
+                </LineChart>
+              </ChartContainer>
+            )}
+          </ChartPanel>
         )}
       </div>
     </div>

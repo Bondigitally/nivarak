@@ -32,46 +32,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
-import { ICON_STROKE, INFO_ICON_SIZE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import {
   CAREGIVER_PERMISSIONS,
   CAREGIVER_RELATIONSHIPS,
   type CaregiverPermissionId,
 } from "../data/care-team-data";
-
-function PermissionSwitch({
-  checked,
-  onCheckedChange,
-  id,
-}: {
-  id: string;
-  checked: boolean;
-  onCheckedChange: (next: boolean) => void;
-}) {
-  return (
-    <button
-      id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onCheckedChange(!checked)}
-      className={cn(
-        "relative h-6 w-12 shrink-0 rounded-full transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        checked ? "bg-primary" : "bg-border",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "absolute top-0.5 size-5 rounded-sm bg-card shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform",
-          checked ? "left-6.5" : "left-0.5",
-        )}
-      />
-    </button>
-  );
-}
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
   return (
@@ -154,7 +122,7 @@ export function InviteCaregiverDialog() {
                 dialogCloseButtonClass,
               )}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+              <HugeiconsIcon icon={Cancel01Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
             </button>
           </DialogClose>
         </div>
@@ -195,8 +163,8 @@ export function InviteCaregiverDialog() {
                     </span>
                     <HugeiconsIcon
                       icon={ArrowDown01Icon}
-                      size={19}
-                      strokeWidth={1.5}
+                      size={ICON_SIZE}
+                      strokeWidth={ICON_STROKE}
                       color="currentColor"
                       className="shrink-0 text-muted-foreground"
                     absoluteStrokeWidth />
@@ -281,7 +249,7 @@ export function InviteCaregiverDialog() {
                         {permission.description}
                       </p>
                     </div>
-                    <PermissionSwitch
+                    <ToggleSwitch
                       id={switchId}
                       checked={permissions[permission.id]}
                       onCheckedChange={(next) =>
@@ -320,7 +288,7 @@ export function InviteCaregiverDialog() {
             <span className="inline-flex size-4 shrink-0 text-info" aria-hidden>
               <HugeiconsIcon
                 icon={InformationCircleIcon}
-                size={INFO_ICON_SIZE}
+                size={BADGE_ICON_SIZE}
                 strokeWidth={ICON_STROKE}
                 absoluteStrokeWidth
                 color="currentColor"
