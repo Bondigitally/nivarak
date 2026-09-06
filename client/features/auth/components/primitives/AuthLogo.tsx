@@ -42,7 +42,7 @@ export function AuthLogo() {
         className={cn(
           roundedElegance.className,
           typo.logo,
-          'text-2xl leading-8 tracking-[0.08em]',
+          'text-2xl leading-8 tracking-[0.08em] text-foreground',
         )}
         aria-hidden
       >
