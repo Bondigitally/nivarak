@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, type Transition } from "motion/react";
+import { motion, type TargetAndTransition, type Transition } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -59,7 +59,7 @@ function GlowEffectLayer({
 }: GlowEffectInnerProps) {
   const base: Transition = { repeat: Infinity, duration, ease: "linear" };
 
-  const animations: Record<GlowMode, object> = {
+  const animations: Record<GlowMode, TargetAndTransition> = {
     rotate: {
       background: [
         `conic-gradient(from 0deg at 50% 50%, ${colors.join(", ")})`,
@@ -120,6 +120,7 @@ function GlowEffectLayer({
 export interface GlowWrapperProps extends GlowEffectInnerProps {
   children: React.ReactNode;
   glowOpacity?: number;
+  glowScale?: number;
   wrapperClassName?: string;
   disabled?: boolean;
 }

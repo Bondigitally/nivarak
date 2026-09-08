@@ -24,13 +24,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  Dialog,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogPortal,
   DialogTitle,
-  dialogBodyShellClass,
   dialogFooterShellClass,
   dialogHeaderShellClass,
 } from "@/components/ui/dialog";
@@ -40,7 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authInputClassName } from "@/features/auth/components/primitives/AuthField";
+import { authInputClassName, AuthFieldError } from "@/features/auth/components/primitives/AuthField";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { radius } from "@/lib/tokens/radius";
@@ -50,7 +47,9 @@ import {
   IASP_LOCATION_OPTIONS,
   IASP_RELATIONSHIP_OPTIONS,
   IASP_VISIT_FREQUENCY_OPTIONS,
+  getIaspAgeError,
   isIaspAboutYouComplete,
+  sanitizeIaspAgeInput,
   type IaspAboutYouValues,
 } from "../data/iasp-about-you-data";
 import {
@@ -87,14 +86,17 @@ import {
   iaspDropdownContentClass,
   iaspDropdownItemClass,
   iaspKeyHintClass,
+  iaspModalScrollBodyClass,
   iaspMotionEase,
   iaspOptionCardClass,
   iaspQuestionStepGapClass,
   iaspQuestionStepPaddingClass,
   iaspStatCardClass,
+  iaspStepHeaderClass,
   iaspValidatedProtocolBadgeClass,
 } from "../data/iasp-assessment-styles";
 import {
+  IaspAssessmentRoot,
   IaspModalCloseButton,
   IaspModalShell,
   IaspProgressBar,
@@ -318,14 +320,14 @@ function IntroStep({
             </p>
           </div>
         </div>
-        <div className="absolute top-6 right-6 sm:top-7 sm:right-8">
+        <div className="absolute top-4 right-4 sm:top-7 sm:right-8">
           <IaspModalCloseButton />
         </div>
       </DialogHeader>
 
       <div
         className={cn(
-          dialogBodyShellClass,
+          iaspModalScrollBodyClass,
           "gap-5 px-8 pt-3 pb-2 sm:gap-5 sm:px-10 sm:pt-4 sm:pb-2",
         )}
       >
@@ -497,13 +499,15 @@ function AboutYouStep({
   onBack: () => void;
   onContinue: () => void;
 }) {
+  const [ageBlurred, setAgeBlurred] = useState(false);
   const complete = isIaspAboutYouComplete(values);
+  const ageError = getIaspAgeError(values.age);
+  const showAgeError =
+    Boolean(ageError) && (ageBlurred || values.age.length >= 3);
 
   return (
     <IaspModalShell>
-      <DialogHeader
-        className={cn(dialogHeaderShellClass, "flex-col items-stretch gap-3")}
-      >
+      <DialogHeader className={iaspStepHeaderClass}>
         <div className="flex items-start justify-between gap-3">
           <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
             IAS-P Assessment
@@ -516,7 +520,7 @@ function AboutYouStep({
         <IaspProgressBar value={8} label="Assessment progress" />
       </DialogHeader>
 
-      <div className={cn(dialogBodyShellClass, "gap-5 sm:gap-6")}>
+      <div className={cn(iaspModalScrollBodyClass, "gap-5 py-6 sm:gap-6 sm:py-7")}>
         <div className="flex flex-col gap-1">
           <h3 className={cn(typo.headingL, "text-foreground")}>About You</h3>
           <p className={cn(typo.bodyS, "text-muted-foreground")}>
@@ -539,20 +543,28 @@ function AboutYouStep({
             </label>
             <input
               id="iasp-age"
-              type="number"
+              type="text"
               inputMode="numeric"
-              min={18}
-              max={120}
+              pattern="[0-9]*"
+              autoComplete="off"
               placeholder="e.g. 65"
               value={values.age}
+              aria-invalid={showAgeError}
+              onBlur={() => setAgeBlurred(true)}
               onChange={(event) =>
-                onChange({ ...values, age: event.target.value })
+                onChange({
+                  ...values,
+                  age: sanitizeIaspAgeInput(event.target.value),
+                })
               }
               className={cn(
                 authInputClassName,
                 "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
+                showAgeError &&
+                  "border-destructive focus-visible:ring-destructive/30",
               )}
             />
+            <AuthFieldError error={showAgeError ? ageError : null} />
           </div>
 
           <SelectField
@@ -966,7 +978,7 @@ function QuestionsStep({
           </div>
           <IaspProgressBar value={progressPct} label="Assessment progress" />
           <div aria-hidden className="border-t border-border" />
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3">
+          <div className="flex flex-col items-start gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-3 sm:gap-y-0">
             <p
               className={cn(
                 typo.bodyS,
@@ -1033,8 +1045,8 @@ function QuestionsStep({
       <div
         ref={bodyRef}
         className={cn(
-          dialogBodyShellClass,
-          "flex w-full min-w-0 flex-1 flex-col items-stretch gap-0 overflow-x-hidden overflow-y-hidden p-0 sm:gap-0",
+          iaspModalScrollBodyClass,
+          "w-full min-w-0 gap-0 p-0 sm:gap-0 sm:overflow-y-hidden",
         )}
       >
         <AnimatePresence mode="wait" custom={pageDirection} initial={false}>
@@ -1349,6 +1361,14 @@ export function IaspAssessmentModal({
     closeAssessment();
   }
 
+  const flow = open ? (
+    <IaspAssessmentFlow
+      state={flowState}
+      setState={setFlowState}
+      onReset={resetFlow}
+    />
+  ) : null;
+
   return (
     <>
       <IaspExitConfirmDialog
@@ -1360,17 +1380,9 @@ export function IaspAssessmentModal({
           closeAssessment();
         }}
       />
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogPortal>
-        {open ? (
-          <IaspAssessmentFlow
-            state={flowState}
-            setState={setFlowState}
-            onReset={resetFlow}
-          />
-        ) : null}
-      </DialogPortal>
-    </Dialog>
+      <IaspAssessmentRoot open={open} onOpenChange={handleOpenChange}>
+        {flow}
+      </IaspAssessmentRoot>
     </>
   );
 }
