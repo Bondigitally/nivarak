@@ -27,6 +27,7 @@ import { documentRoutes } from './modules/documents/document.routes.js';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes.js';
 import { notificationRoutes } from './modules/notifications/notification.routes.js';
 import { auditRoutes } from './modules/audit/audit.routes.js';
+import { paymentRoutes } from './modules/payments/payment.routes.js';
 
 registerDomainEvents();
 
@@ -113,6 +114,7 @@ api.route('/alerts', alertRoutes);
 api.route('/dashboard', dashboardRoutes);
 api.route('/notifications', notificationRoutes);
 api.route('/audit-logs', auditRoutes);
+api.route('/payments', paymentRoutes);
 
 app.route(`/api/${config.apiVersion}`, api);
 
