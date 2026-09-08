@@ -111,6 +111,58 @@ function LandingPhoto({
   );
 }
 
+function LandingPhotoStack({
+  imageBlur,
+  imageDuration,
+  imageBlurDuration,
+  reducedMotion,
+}: {
+  imageBlur: string;
+  imageDuration: number;
+  imageBlurDuration: number;
+  reducedMotion: boolean | null;
+}) {
+  return (
+    <div className="relative w-full">
+      {/* Left inset reserves room for the portrait overhang so it stays in padding */}
+      <div className="relative ml-[20%] w-[80%] lg:ml-auto lg:w-[86%]">
+        <LandingPhoto
+          className="relative aspect-video w-full"
+          delay={reducedMotion ? 0 : 0.1}
+          duration={imageDuration}
+          blurDuration={imageBlurDuration}
+          offset={reducedMotion ? 0 : 16}
+          blur={imageBlur}
+          image={{
+            src: LANDING_IMAGES.back.src,
+            alt: LANDING_IMAGES.back.alt,
+            sizes: "(min-width: 1024px) 45vw, 90vw",
+          }}
+        />
+
+        <LandingPhoto
+          className="absolute top-1/2 left-[-22%] z-10 aspect-3/4 w-[72%] lg:left-[-24%] lg:w-[74%]"
+          delay={reducedMotion ? 0 : 0.22}
+          duration={imageDuration}
+          blurDuration={imageBlurDuration}
+          offset={reducedMotion ? 0 : 22}
+          blur={imageBlur}
+          image={{
+            src: LANDING_IMAGES.front.src,
+            alt: LANDING_IMAGES.front.alt,
+            sizes: "(min-width: 1024px) 30vw, 62vw",
+          }}
+        />
+      </div>
+
+      <div
+        aria-hidden
+        className="pointer-events-none ml-[20%] w-[80%] pt-[calc(72%*4/3-50%*9/16)] lg:ml-auto lg:w-[86%] lg:pt-[calc(74%*4/3-50%*9/16)]"
+      />
+    </div>
+  );
+}
+
 /** Landing — brand-led split with stacked lifestyle photos. */
 export function IaspAssessmentLanding() {
   const router = useRouter();
@@ -128,30 +180,102 @@ export function IaspAssessmentLanding() {
   const imageDuration = reducedMotion ? 0 : 0.62;
   const imageBlurDuration = reducedMotion ? 0 : 0.45;
 
+  const photoProps = {
+    imageBlur,
+    imageDuration,
+    imageBlurDuration,
+    reducedMotion,
+  };
+
   return (
-    <main className="relative min-h-svh overflow-hidden bg-background">
+    <main className="relative h-svh max-h-svh overflow-hidden bg-background">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_85%_45%,color-mix(in_oklab,var(--primary)_8%,transparent),transparent_70%),radial-gradient(ellipse_55%_45%_at_10%_80%,color-mix(in_oklab,var(--primary)_5%,transparent),transparent_65%)]"
       />
 
-      <div className="relative grid min-h-svh w-full grid-cols-1 lg:grid-cols-2">
+      {/* ── Mobile: logo → images (~42svh) → copy/CTA, scales with svh ── */}
+      <motion.div
+        className="relative flex h-full min-h-0 w-full flex-col overflow-hidden px-dash-pad-x pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
+        initial="hidden"
+        animate="show"
+        variants={landingContainerVariants}
+      >
+        <motion.div variants={itemVariants} className="shrink-0 pt-1 pb-2">
+          <AuthLogo />
+        </motion.div>
+
+        <section
+          className="flex min-h-0 flex-1 items-center justify-center overflow-visible py-2"
+          aria-label="Lifestyle photos"
+        >
+          <div className="relative w-full max-w-[min(100%,calc((100svh-15rem)/1.09))]">
+            <LandingPhotoStack {...photoProps} />
+          </div>
+        </section>
+
+        <section className="flex shrink-0 flex-col gap-[clamp(0.5rem,1.4svh,0.875rem)] pt-1">
+          <motion.h1
+            variants={itemVariants}
+            className={cn(
+              typo.displayL,
+              "max-w-xl text-balance text-foreground",
+              "text-[clamp(1.75rem,7.2vw,2.375rem)] leading-[1.15]",
+            )}
+          >
+            Start your quick IAS-P Assessment
+          </motion.h1>
+
+          <motion.p
+            variants={itemVariants}
+            className={cn(
+              typo.bodyL,
+              "max-w-lg text-pretty",
+              "text-[clamp(0.875rem,3.6vw,1rem)] leading-[1.45]",
+            )}
+          >
+            Just a few warm, easy questions about your loved one. In about
+            3 minutes, you’ll see how they’re doing and where a little help
+            could go a long way.
+          </motion.p>
+
+          <motion.div variants={itemVariants} className="pt-1">
+            <GlowWrapper mode="rotate" blur="softest" duration={8} glowOpacity={0.55}>
+              <Button
+                type="button"
+                size="cta"
+                className={cn("min-w-50 shadow-lg")}
+                onClick={handleTakeAssessment}
+              >
+                Take Free Assessment
+                <AppIcon icon={ArrowRight02Icon} />
+              </Button>
+            </GlowWrapper>
+          </motion.div>
+        </section>
+      </motion.div>
+
+      {/* ── Desktop: original two-column layout ── */}
+      <motion.div
+        className="relative hidden h-full min-h-0 w-full overflow-hidden lg:grid lg:grid-cols-2"
+        initial="hidden"
+        animate="show"
+        variants={landingContainerVariants}
+      >
         <motion.section
-          className="relative flex flex-col px-6 py-8 sm:px-10 lg:min-h-svh lg:px-16 lg:py-10"
-          initial="hidden"
-          animate="show"
+          className="relative flex min-h-0 flex-col px-16 py-10"
           variants={landingContainerVariants}
         >
           <motion.div variants={itemVariants}>
             <AuthLogo />
           </motion.div>
 
-          <div className="flex flex-1 flex-col justify-center gap-5 py-12 sm:gap-6 sm:py-16 lg:py-0 lg:-translate-y-18">
+          <div className="flex min-h-0 flex-1 flex-col justify-center gap-6 py-0 -translate-y-18">
             <motion.h1
               variants={itemVariants}
               className={cn(
                 typo.displayL,
-                "max-w-xl text-balance text-foreground lg:text-[56px] lg:leading-17 lg:tracking-[-0.02em]",
+                "max-w-xl text-balance text-foreground text-[56px] leading-17 tracking-[-0.02em]",
               )}
             >
               Start your quick IAS-P Assessment
@@ -183,47 +307,14 @@ export function IaspAssessmentLanding() {
         </motion.section>
 
         <section
-          className="relative flex items-center justify-center px-5 pb-12 pt-2 sm:px-8 sm:pb-16 lg:min-h-svh lg:px-10 lg:py-12"
+          className="relative flex h-full min-h-0 items-center justify-center overflow-hidden px-10 py-12"
           aria-label="Lifestyle photos"
         >
-          <div className="relative w-full max-w-156 sm:max-w-180 lg:max-w-200">
-            <div className="relative ml-auto w-[88%] sm:w-[86%]">
-              <LandingPhoto
-                className="relative aspect-video w-full"
-                delay={reducedMotion ? 0 : 0.1}
-                duration={imageDuration}
-                blurDuration={imageBlurDuration}
-                offset={reducedMotion ? 0 : 16}
-                blur={imageBlur}
-                image={{
-                  src: LANDING_IMAGES.back.src,
-                  alt: LANDING_IMAGES.back.alt,
-                  sizes: "(min-width: 1024px) 45vw, 90vw",
-                }}
-              />
-
-              <LandingPhoto
-                className="absolute top-1/2 left-[-22%] z-10 aspect-3/4 w-[72%] sm:left-[-24%] sm:w-[74%]"
-                delay={reducedMotion ? 0 : 0.22}
-                duration={imageDuration}
-                blurDuration={imageBlurDuration}
-                offset={reducedMotion ? 0 : 22}
-                blur={imageBlur}
-                image={{
-                  src: LANDING_IMAGES.front.src,
-                  alt: LANDING_IMAGES.front.alt,
-                  sizes: "(min-width: 1024px) 30vw, 62vw",
-                }}
-              />
-            </div>
-
-            <div
-              aria-hidden
-              className="pointer-events-none ml-auto w-[88%] pt-[calc(72%*4/3-50%*9/16)] sm:w-[86%] sm:pt-[calc(74%*4/3-50%*9/16)]"
-            />
+          <div className="relative w-full max-w-[min(50rem,calc((100svh-8rem)/1.1))]">
+            <LandingPhotoStack {...photoProps} />
           </div>
         </section>
-      </div>
+      </motion.div>
     </main>
   );
 }

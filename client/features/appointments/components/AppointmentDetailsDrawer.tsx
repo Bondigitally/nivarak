@@ -153,7 +153,7 @@ export function AppointmentDetailsDrawer({
                 <span className="h-1 w-10 rounded-full bg-border" />
               </div>
             ) : null}
-            <SheetHeader className="shrink-0 space-y-0 border-b border-border px-6 py-5 text-left sm:px-8 sm:py-6">
+            <SheetHeader className="shrink-0 space-y-0 border-b border-border px-dash-pad-x py-5 text-left sm:px-8 sm:py-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 flex-col gap-1">
                   <SheetTitle className={cn(typo.headingXl, "text-foreground")}>
@@ -182,7 +182,7 @@ export function AppointmentDetailsDrawer({
               </div>
             </SheetHeader>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8 sm:py-7">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-dash-pad-x py-6 sm:px-8 sm:py-7">
               <div className="flex flex-col gap-7 sm:gap-8">
                 <div className="flex items-center justify-between gap-4">
                   <FieldLabel>Status</FieldLabel>
@@ -353,7 +353,7 @@ export function AppointmentDetailsDrawer({
 
             <SheetFooter
               className={cn(
-                "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card p-6 sm:flex-col sm:space-x-0 sm:p-8",
+                "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card px-dash-pad-x py-6 sm:flex-col sm:space-x-0 sm:p-8",
                 !isCompact && "rounded-bl-xl",
               )}
             >
