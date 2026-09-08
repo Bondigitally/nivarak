@@ -48,6 +48,29 @@ export const EMPTY_IASP_ABOUT_YOU: IaspAboutYouValues = {
   livingSituation: null,
 };
 
+export const IASP_MIN_AGE = 18;
+export const IASP_MAX_AGE = 120;
+
+export function sanitizeIaspAgeInput(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 3);
+}
+
+export function getIaspAgeError(age: string): string | null {
+  if (!age) return null;
+
+  const value = Number(age);
+  if (!Number.isFinite(value)) return null;
+
+  if (value < IASP_MIN_AGE) {
+    return `Age must be at least ${IASP_MIN_AGE}.`;
+  }
+  if (value > IASP_MAX_AGE) {
+    return `Age must be ${IASP_MAX_AGE} or below.`;
+  }
+
+  return null;
+}
+
 export function isIaspAboutYouComplete(values: IaspAboutYouValues): boolean {
   const age = Number(values.age);
   return (
@@ -56,7 +79,7 @@ export function isIaspAboutYouComplete(values: IaspAboutYouValues): boolean {
     Boolean(values.visitFrequency) &&
     Boolean(values.livingSituation) &&
     Number.isFinite(age) &&
-    age >= 18 &&
-    age <= 120
+    age >= IASP_MIN_AGE &&
+    age <= IASP_MAX_AGE
   );
 }

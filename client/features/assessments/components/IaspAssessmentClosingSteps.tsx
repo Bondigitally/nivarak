@@ -12,7 +12,6 @@ import {
 import {
   Alert02Icon,
   ArrowDown01Icon,
-  ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowUp01Icon,
   CheckmarkSquare02Icon,
@@ -30,9 +29,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  dialogBodyShellClass,
   dialogFooterShellClass,
-  dialogHeaderShellClass,
 } from "@/components/ui/dialog";
 import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
@@ -43,12 +40,15 @@ import {
   iaspAlertPanelClass,
   iaspAnswerBadgeClass,
   iaspBandBadgeClass,
+  iaspModalScrollBodyClass,
   iaspMotionEase,
   iaspPanelCardClass,
   iaspProgressFillClass,
   iaspProgressTrackClass,
   iaspQuestionStepPaddingClass,
   iaspRedFlagChipClass,
+  iaspResultsHeaderClass,
+  iaspStepHeaderClass,
 } from "../data/iasp-assessment-styles";
 import {
   IASP_RED_FLAGS_HELPER,
@@ -71,6 +71,7 @@ import {
   IaspModalCloseButton,
   IaspModalShell,
   IaspProgressBar,
+  IaspStepNavFooter,
 } from "./IaspAssessmentModalShell";
 
 const GAUGE_DURATION = 1.15;
@@ -150,9 +151,7 @@ export function RedFlagsStep({
 
   return (
     <IaspModalShell>
-      <DialogHeader
-        className={cn(dialogHeaderShellClass, "flex-col items-stretch gap-3")}
-      >
+      <DialogHeader className={iaspStepHeaderClass}>
         <div className="flex items-start justify-between gap-4">
           <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
             Red Flags
@@ -170,7 +169,7 @@ export function RedFlagsStep({
 
       <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto bg-card",
+          iaspModalScrollBodyClass,
           iaspQuestionStepPaddingClass,
         )}
       >
@@ -185,21 +184,12 @@ export function RedFlagsStep({
         ))}
       </div>
 
-      <DialogFooter
-        className={cn(
-          dialogFooterShellClass,
-          "flex-row items-center justify-between gap-3 bg-background py-4",
-        )}
-      >
-        <Button type="button" variant="secondary" onClick={onBack}>
-          <AppIcon icon={ArrowLeft01Icon} />
-          Back
-        </Button>
+      <IaspStepNavFooter onBack={onBack}>
         <Button type="button" onClick={onNext}>
           Next
           <AppIcon icon={ArrowRight01Icon} />
         </Button>
-      </DialogFooter>
+      </IaspStepNavFooter>
     </IaspModalShell>
   );
 }
@@ -227,9 +217,7 @@ export function ReviewStep({
 
   return (
     <IaspModalShell>
-      <DialogHeader
-        className={cn(dialogHeaderShellClass, "flex-col items-stretch gap-3")}
-      >
+      <DialogHeader className={iaspStepHeaderClass}>
         <div className="flex items-start justify-between gap-4">
           <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
             Review Your Answers
@@ -250,13 +238,13 @@ export function ReviewStep({
         </DialogDescription>
       </DialogHeader>
 
-      <div className={cn(dialogBodyShellClass, "gap-6 p-0 sm:gap-6")}>
+      <div className={cn(iaspModalScrollBodyClass, "gap-6 p-0 sm:gap-6")}>
         <div className="divide-y divide-border">
           {sections.map((section) => {
             const expanded = expandedId === section.id;
             return (
               <div key={section.id} className="bg-card">
-                <div className="flex items-center justify-between gap-3 px-6 py-4 sm:px-8">
+                <div className="flex items-center justify-between gap-3 px-dash-pad-x py-4 sm:px-8">
                   <button
                     type="button"
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
@@ -337,7 +325,7 @@ export function ReviewStep({
         </div>
 
         {selectedFlags.length > 0 ? (
-          <div className="px-6 pb-6 sm:px-8">
+          <div className="px-dash-pad-x pb-6 sm:px-8">
             <div className={iaspAlertPanelClass}>
               <div className="flex items-center gap-2 text-destructive">
                 <AppIcon icon={Alert02Icon} size={BADGE_ICON_SIZE} />
@@ -357,20 +345,11 @@ export function ReviewStep({
         ) : null}
       </div>
 
-      <DialogFooter
-        className={cn(
-          dialogFooterShellClass,
-          "flex-row items-center justify-between gap-3 bg-background py-4",
-        )}
-      >
-        <Button type="button" variant="secondary" onClick={onBack}>
-          <AppIcon icon={ArrowLeft01Icon} />
-          Back
-        </Button>
+      <IaspStepNavFooter onBack={onBack}>
         <Button type="button" onClick={onSubmit}>
           Submit Assessment
         </Button>
-      </DialogFooter>
+      </IaspStepNavFooter>
     </IaspModalShell>
   );
 }
@@ -499,12 +478,7 @@ export function ResultsStep({
 
   return (
     <IaspModalShell>
-      <DialogHeader
-        className={cn(
-          dialogHeaderShellClass,
-          "flex-col items-center gap-2 border-b-0 pb-0 text-center sm:pb-0",
-        )}
-      >
+      <DialogHeader className={iaspResultsHeaderClass}>
         <div className="absolute top-4 right-4 sm:top-5 sm:right-6">
           <IaspModalCloseButton />
         </div>
@@ -516,7 +490,12 @@ export function ResultsStep({
         </DialogDescription>
       </DialogHeader>
 
-      <div className={cn(dialogBodyShellClass, "items-center gap-8")}>
+      <div
+        className={cn(
+          iaspModalScrollBodyClass,
+          "items-center gap-8 px-dash-pad-x py-6 sm:px-8 sm:py-7",
+        )}
+      >
         <div className="flex w-full flex-col items-center gap-4">
           <p className={cn(typo.overline, "text-tertiary-foreground")}>
             IAS-P Independence Score
@@ -553,7 +532,7 @@ export function ResultsStep({
           </p>
         </motion.div>
 
-        <div className={cn(iaspPanelCardClass, "relative w-full overflow-hidden")}>
+        <div className={cn(iaspPanelCardClass, "relative w-full shrink-0 overflow-hidden")}>
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 space-y-4 p-6 opacity-40 blur-[2px]"
@@ -577,7 +556,7 @@ export function ResultsStep({
             </div>
           </div>
 
-          <div className="relative px-6 py-3 text-center bg-card/80 backdrop-blur-[1px] sm:py-4">
+          <div className="relative px-dash-pad-x py-3 text-center bg-card/80 backdrop-blur-[1px] sm:py-4">
             <div className="mx-auto flex flex-col items-center">
               <span
                 className={cn(
