@@ -1122,7 +1122,8 @@ stateDiagram-v2
     <tr><td>Full name</td><td>Independent Ageing Score — Proxy Version 2.0</td></tr>
     <tr><td>Assessor</td><td>Son / Daughter / Close family member (proxy) or patient self-serve</td></tr>
     <tr><td>Items</td><td>24</td></tr>
-    <tr><td>Scale per item</td><td>0 (Dependent), 1 (Some support), 2 (Independent)</td></tr>
+    <tr><td>Scale per item</td><td>0 (Dependent), 1 (Needs Assistance), 2 (Independent) — same 3 options on every item</td></tr>
+    <tr><td>Full spec</td><td><code>docs/IAS-P_v2.0_Instrument.md</code></td></tr>
     <tr><td>Max raw score</td><td>48</td></tr>
     <tr><td>Formula</td><td><code>IAS% = (raw_score / 48) × 100</code></td></tr>
     <tr><td>Sections</td><td>8</td></tr>
@@ -1143,6 +1144,49 @@ stateDiagram-v2
     <tr><td>H — Safety &amp; Support</td><td><code>safety_support</code></td><td>emergency_help</td><td>2</td></tr>
   </tbody>
 </table>
+
+<h3>8.2.1 Response Scale (all 24 items)</h3>
+<p>Helper text: <em>Select the option that best describes the patient's current daily ability.</em></p>
+<table>
+  <thead><tr><th>UI label</th><th>API value</th><th>Points</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Independent</td><td><code>2</code></td><td>2</td><td>Completes the activity without assistance or supervision.</td></tr>
+    <tr><td>Needs Assistance</td><td><code>1</code></td><td>1</td><td>Requires some assistance, supervision, or reminders.</td></tr>
+    <tr><td>Dependent</td><td><code>0</code></td><td>0</td><td>Requires complete assistance to perform the activity.</td></tr>
+  </tbody>
+</table>
+
+<h3>8.2.2 Complete Question Inventory (24 items)</h3>
+<table>
+  <thead><tr><th>#</th><th>Section</th><th>API parameter</th><th>Question prompt</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>A</td><td><code>bathing</code></td><td>Can the patient bathe independently?</td></tr>
+    <tr><td>2</td><td>A</td><td><code>dressing</code></td><td>Can the patient dress independently?</td></tr>
+    <tr><td>3</td><td>A</td><td><code>toileting</code></td><td>Can the patient use the toilet independently?</td></tr>
+    <tr><td>4</td><td>A</td><td><code>feeding</code></td><td>Can the patient eat and drink independently?</td></tr>
+    <tr><td>5</td><td>B</td><td><code>phone_communication</code></td><td>Can the patient use a phone independently?</td></tr>
+    <tr><td>6</td><td>B</td><td><code>daily_home_tasks</code></td><td>Can the patient manage basic home tasks independently?</td></tr>
+    <tr><td>7</td><td>B</td><td><code>simple_purchases</code></td><td>Can the patient make simple purchases independently?</td></tr>
+    <tr><td>8</td><td>B</td><td><code>organizing_essentials</code></td><td>Can the patient manage bills and paperwork independently?</td></tr>
+    <tr><td>9</td><td>C</td><td><code>moving_inside_house</code></td><td>Can the patient move around the home independently?</td></tr>
+    <tr><td>10</td><td>C</td><td><code>getting_up</code></td><td>Can the patient get up from a bed or chair independently?</td></tr>
+    <tr><td>11</td><td>C</td><td><code>walking_outside</code></td><td>Can the patient move outdoors independently?</td></tr>
+    <tr><td>12</td><td>C</td><td><code>falls_6_months</code></td><td>In the last 6 months, has the patient stayed free from repeated falls?</td></tr>
+    <tr><td>13</td><td>D</td><td><code>remembering_routine</code></td><td>Can the patient remember daily routines independently?</td></tr>
+    <tr><td>14</td><td>D</td><td><code>understanding_instructions</code></td><td>Can the patient follow instructions independently?</td></tr>
+    <tr><td>15</td><td>D</td><td><code>safe_decisions</code></td><td>Can the patient make safe decisions independently?</td></tr>
+    <tr><td>16</td><td>E</td><td><code>taking_medicines</code></td><td>Can the patient manage medications independently?</td></tr>
+    <tr><td>17</td><td>E</td><td><code>understanding_health</code></td><td>Can the patient understand their health independently?</td></tr>
+    <tr><td>18</td><td>E</td><td><code>following_appointments</code></td><td>Can the patient manage medical appointments independently?</td></tr>
+    <tr><td>19</td><td>F</td><td><code>eating_drinking</code></td><td>Can the patient maintain adequate nutrition and hydration independently?</td></tr>
+    <tr><td>20</td><td>F</td><td><code>weight_appetite</code></td><td>Can the patient maintain a stable weight and appetite independently?</td></tr>
+    <tr><td>21</td><td>F</td><td><code>bladder_bowel</code></td><td>Can the patient manage bladder and bowel control independently?</td></tr>
+    <tr><td>22</td><td>G</td><td><code>communicating_needs</code></td><td>Can the patient communicate their needs independently?</td></tr>
+    <tr><td>23</td><td>G</td><td><code>social_contact</code></td><td>Can the patient maintain social contact independently?</td></tr>
+    <tr><td>24</td><td>H</td><td><code>emergency_help</code></td><td>Can the patient summon help in an emergency independently?</td></tr>
+  </tbody>
+</table>
+<p><strong>Section C — <code>falls_6_months</code>:</strong> 2 = no falls; 1 = one fall or near-misses needing supervision; 0 = two or more falls. Uses the same 0–2 scale as all other items.</p>
 
 <h3>8.3 Risk Band Interpretation</h3>
 <div class="mermaid">
