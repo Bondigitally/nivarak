@@ -38,7 +38,9 @@ export function AppearanceSettingsCard() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Defer mount gate to avoid setState-during-render lint and hydration mismatch.
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   const selected: AppearanceValue = isAppearanceValue(theme) ? theme : "system";
