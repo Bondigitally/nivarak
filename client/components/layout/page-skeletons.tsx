@@ -9,16 +9,20 @@ import {
   dashboardPageShellClass,
   dashboardSearchBarClass,
   dashboardTwoColGridClass,
-} from "@/features/dashboard/data/dashboard-styles";
-import {
   vitalsCardMetricsRowClass,
   vitalsSummaryGridClass,
-} from "@/features/vitals/vitals-summary-styles";
+} from "@/lib/tokens/page-shell";
 import { cn } from "@/lib/utils";
+import { shellHeaderChromeClass } from "@/components/layout/shell-chrome";
 
 function TopBarSkeleton() {
   return (
-    <header className="sticky top-0 z-20 grid h-14 min-h-14 w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap bg-background px-dash-pad-x">
+    <header
+      className={cn(
+        shellHeaderChromeClass,
+        "sticky top-0 z-20 grid w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap px-dash-pad-x",
+      )}
+    >
       <div className="justify-self-start">
         <Skeleton className="size-8 rounded-md" />
       </div>
@@ -190,7 +194,7 @@ export function CareTeamPageSkeleton() {
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={index}
-                className="flex min-w-[220px] flex-1 flex-col gap-3 rounded-lg border border-border p-4"
+                className={cn(dashboardCardClass, "flex min-w-[220px] flex-1 flex-col gap-3 p-4")}
               >
                 <Skeleton className="aspect-square w-full rounded-md" />
                 <Skeleton className="h-5 w-36" />
@@ -315,7 +319,7 @@ export function TasksPageSkeleton() {
         <div
           className={cn(
             dashboardCardClass,
-            "flex min-h-16 items-center justify-between border-destructive px-4 py-4 sm:px-5",
+            "flex min-h-16 items-center justify-between border border-destructive px-4 py-4 shadow-none hover:shadow-none sm:px-5",
           )}
         >
           <Skeleton className="h-5 w-56" />
@@ -436,7 +440,10 @@ export function VitalsPageSkeleton() {
         {Array.from({ length: 5 }, (_, index) => (
           <div
             key={index}
-            className="@container flex min-h-55 flex-col rounded-lg border border-border/60 bg-card p-5"
+            className={cn(
+              "@container flex min-h-55 flex-col p-5",
+              dashboardCardClass,
+            )}
           >
             <div className="flex min-h-12 items-start justify-between gap-3">
               <Skeleton className="h-4 w-24" />

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Search01Icon,
-  BellIcon,
   PanelRightCloseIcon,
   PanelRightOpenIcon,
   Menu01Icon,
@@ -17,18 +16,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/layout/sidebar-context";
-import { useUserRole } from "@/components/layout/user-role-context";
 import { typo } from "@/lib/tokens/typography";
-import { findScrollParent } from "@/lib/dom";
-import { DashboardIconButton } from "@/features/dashboard/components/DashboardIconButton";
 import {
   dashboardSearchBarClass,
   dashboardSearchBarIconClass,
-} from "@/features/dashboard/data/dashboard-styles";
+} from "@/lib/tokens/page-shell";
 import { cn } from "@/lib/utils";
-import { NotificationPanel } from "@/features/alerts/components/NotificationPanel";
-import { useNotificationStore } from "@/features/alerts/store/notification-store";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import {
+  shellHeaderChromeClass,
+  shellHeaderScrolledClass,
+} from "@/components/layout/shell-chrome";
 
 export type AppTopBarProps = {
   searchPlaceholder: string;
@@ -45,6 +43,8 @@ export type AppTopBarProps = {
     icon: IconSvgElement;
     onClick?: () => void;
   };
+  /** Notifications / trailing chrome — owned by the feature that composes the page frame */
+  endSlot?: ReactNode;
   children?: ReactNode;
 };
 
@@ -55,31 +55,25 @@ export function AppTopBar({
   searchAriaProps,
   searchHint,
   primaryAction,
+  endSlot,
   children,
 }: AppTopBarProps) {
   const { collapsed, toggle, isDrawer, open: drawerOpen } = useSidebar();
-  const headerRef = useRef<HTMLElement>(null);
   const [scrolled, setScrolled] = useState(false);
-  const { role } = useUserRole();
-  const patientUnread = useNotificationStore((s) => s.unreadCount());
-  const coordinatorUnread = useNotificationStore((s) => s.coordinatorUnreadCount());
-  const unreadCount =
-    role === "coordinator" || role === "admin"
-      ? coordinatorUnread
-      : patientUnread;
 
   useEffect(() => {
-    const root = findScrollParent(headerRef.current);
-    if (!root) return;
+    const scrollRoot = document.querySelector<HTMLElement>(
+      "[data-dashboard-scroll]",
+    );
+    if (!scrollRoot) return;
 
-    const sync = () => {
-      const next = root.scrollTop > 4;
-      setScrolled((prev) => (prev === next ? prev : next));
+    const syncScrolled = () => {
+      setScrolled(scrollRoot.scrollTop > 0);
     };
 
-    sync();
-    root.addEventListener("scroll", sync, { passive: true });
-    return () => root.removeEventListener("scroll", sync);
+    syncScrolled();
+    scrollRoot.addEventListener("scroll", syncScrolled, { passive: true });
+    return () => scrollRoot.removeEventListener("scroll", syncScrolled);
   }, []);
 
   const menuExpanded = isDrawer ? drawerOpen : !collapsed;
@@ -94,10 +88,10 @@ export function AppTopBar({
   return (
     <TooltipProvider delayDuration={200}>
       <header
-        ref={headerRef}
         className={cn(
-          "sticky top-0 z-20 grid h-14 min-h-14 w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap bg-background px-dash-pad-x transition-shadow duration-200 ease-out",
-          scrolled && "shadow-[0_12px_24px_-10px_rgba(26,26,26,0.16)]",
+          shellHeaderChromeClass,
+          scrolled && shellHeaderScrolledClass,
+          "sticky top-0 z-20 grid w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap px-dash-pad-x",
         )}
       >
         <div className="justify-self-start">
@@ -165,41 +159,8 @@ export function AppTopBar({
             />
             <span className="max-sm:sr-only">{primaryAction.label}</span>
           </Button>
-          <NotificationPanel
-            trigger={
-              <DashboardIconButton
-                type="button"
-                aria-label="Notifications"
-                className="relative"
-              >
-                <HugeiconsIcon
-                  icon={BellIcon}
-                  size={ICON_SIZE}
-                  strokeWidth={ICON_STROKE}
-                  color="currentColor"
-                  absoluteStrokeWidth
-                />
-                {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-white">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </DashboardIconButton>
-            }
-          />
+          {endSlot}
         </div>
-
-        <div
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-x-0 top-full h-2 transition-opacity duration-200 ease-out",
-            scrolled ? "opacity-100" : "opacity-0",
-          )}
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(248, 245, 250, 0.30) 0%, rgba(248, 245, 250, 0.12) 55%, rgba(248, 245, 250, 0) 100%)",
-          }}
-        />
       </header>
 
       {children}
