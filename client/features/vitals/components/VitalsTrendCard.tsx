@@ -83,14 +83,14 @@ const tooltipCursor = {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const BP_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", systolic: 115, diastolic: 75, status: "Normal" },
-  { label: "Jul 7", date: "July 7, 2026", systolic: 120, diastolic: 78, status: "Normal" },
-  { label: "Jul 11", date: "July 11, 2026", systolic: 122, diastolic: 80, status: "Normal" },
-  { label: "Jul 15", date: "July 15, 2026", systolic: 128, diastolic: 88, status: "Normal" },
-  { label: "Jul 19", date: "July 19, 2026", systolic: 119, diastolic: 79, status: "Normal" },
-  { label: "Jul 23", date: "July 23, 2026", systolic: 121, diastolic: 81, status: "Normal" },
-  { label: "Jul 27", date: "July 27, 2026", systolic: 120, diastolic: 80, status: "Normal" },
-  { label: "Jul 31", date: "July 31, 2026", systolic: 122, diastolic: 82, status: "Normal" },
+  { label: "Jul 3", date: "July 3, 2026", systolic: 115, diastolic: 75, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", systolic: 120, diastolic: 78, status: "Normal" as const },
+  { label: "Jul 11", date: "July 11, 2026", systolic: 122, diastolic: 80, status: "Normal" as const },
+  { label: "Jul 15", date: "July 15, 2026", systolic: 128, diastolic: 88, status: "Normal" as const },
+  { label: "Jul 19", date: "July 19, 2026", systolic: 119, diastolic: 79, status: "Normal" as const },
+  { label: "Jul 23", date: "July 23, 2026", systolic: 121, diastolic: 81, status: "Normal" as const },
+  { label: "Jul 27", date: "July 27, 2026", systolic: 120, diastolic: 80, status: "Normal" as const },
+  { label: "Jul 31", date: "July 31, 2026", systolic: 122, diastolic: 82, status: "Normal" as const },
 ];
 
 const HR_DATA = [
