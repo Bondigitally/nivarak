@@ -14,45 +14,90 @@ const EXIT_TRANSITION = {
   ease: [0.4, 0, 0.2, 1] as const,
 };
 
+/** Dual-arrow swap — delay lets the exit layer clear before the enter lands. */
 const ENTER_TRANSITION = {
   duration: 0.42,
   ease: [0.22, 1, 0.36, 1] as const,
   delay: 0.26,
 };
 
+/** Reveal-from-hidden (e.g. notification links) — snappy hover, no swap delay. */
+const IDLE_HIDDEN_ENTER_TRANSITION = {
+  duration: 0.18,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
+
+const ARROW_MOTION = {
+  "up-right": {
+    enter: { x: -ARROW_OFFSET * 2, y: ARROW_OFFSET * 2 },
+    exit: { x: ARROW_OFFSET * 2, y: -ARROW_OFFSET * 2 },
+  },
+  right: {
+    enter: { x: -ARROW_OFFSET * 2, y: 0 },
+    exit: { x: ARROW_OFFSET * 2, y: 0 },
+  },
+} as const;
+
 export function AnimatedArrowIcon({
   icon = ArrowUpRight03Icon,
   size = ICON_SIZE,
   hovered,
+  direction = "up-right",
+  idleHidden = false,
   className,
 }: {
   icon?: IconSvgElement;
   size?: number;
   hovered: boolean;
+  direction?: keyof typeof ARROW_MOTION;
+  /** When true, the arrow is fully hidden (opacity 0) until hovered. Layout space is preserved. */
+  idleHidden?: boolean;
   className?: string;
 }) {
   const reduceMotion = useReducedMotion();
   const exitControls = useAnimation();
   const enterControls = useAnimation();
+  const arrowMotion = ARROW_MOTION[direction];
 
   useEffect(() => {
     if (reduceMotion) {
-      void exitControls.set({ x: 0, y: 0, opacity: 1 });
+      void exitControls.set({
+        x: 0,
+        y: 0,
+        opacity: hovered || !idleHidden ? 1 : 0,
+      });
       void enterControls.set({ x: 0, y: 0, opacity: 0 });
       return;
     }
 
     if (hovered) {
+      if (idleHidden) {
+        void exitControls.set({ x: 0, y: 0, opacity: 0 });
+        void enterControls.set({
+          x: arrowMotion.enter.x,
+          y: arrowMotion.enter.y,
+          opacity: 0,
+        });
+
+        void enterControls.start({
+          x: 0,
+          y: 0,
+          opacity: 1,
+          transition: IDLE_HIDDEN_ENTER_TRANSITION,
+        });
+        return;
+      }
+
       void exitControls.set({ x: 0, y: 0, opacity: 1 });
       void enterControls.set({
-        x: -ARROW_OFFSET * 2,
-        y: ARROW_OFFSET * 2,
+        x: arrowMotion.enter.x,
+        y: arrowMotion.enter.y,
         opacity: 0,
       });
 
       void exitControls.start({
-        x: ARROW_OFFSET * 2,
-        y: -ARROW_OFFSET * 2,
+        x: arrowMotion.exit.x,
+        y: arrowMotion.exit.y,
         opacity: 0,
         transition: EXIT_TRANSITION,
       });
@@ -66,9 +111,9 @@ export function AnimatedArrowIcon({
       return;
     }
 
-    void exitControls.set({ x: 0, y: 0, opacity: 1 });
+    void exitControls.set({ x: 0, y: 0, opacity: idleHidden ? 0 : 1 });
     void enterControls.set({ x: 0, y: 0, opacity: 0 });
-  }, [hovered, reduceMotion, exitControls, enterControls]);
+  }, [hovered, reduceMotion, exitControls, enterControls, arrowMotion, idleHidden]);
 
   const layerClassName = "absolute inset-0 flex items-center justify-center";
 

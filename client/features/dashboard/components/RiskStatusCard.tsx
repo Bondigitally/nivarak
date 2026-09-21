@@ -20,15 +20,16 @@ import { cn } from "@/lib/utils";
 import { dashboardCardClass, dashboardCardHeaderClass } from "../data/dashboard-styles";
 import { EmptyState, SectionTitle } from "./EmptyState";
 import type { RiskAxis, RiskStatus } from "../data/home-data";
+import { cssVar } from "@/lib/tokens/colors";
 
-/** Soft sky-blue radar palette — lighter than semantic --info (#2563EB). */
-const RADAR_SCORE_COLOR = "#4A90E2";
-const RADAR_RADIAL_STROKE = "#FFFFFF";
+/** Soft pastel teal — fill + outline for the risk radar polygon. */
+const RADAR_FILL = "#B8E3DE";
+const RADAR_STROKE = "#69BDB4";
 
 const chartConfig = {
   score: {
     label: "Score",
-    color: RADAR_SCORE_COLOR,
+    color: RADAR_STROKE,
   },
 } satisfies ChartConfig;
 
@@ -86,7 +87,12 @@ function roundedPolygonPath(points: RadarPoint[], cornerRadius: number) {
 
 function RoundedRadarShape({
   points,
-  ...rest
+  fill,
+  fillOpacity,
+  stroke,
+  strokeWidth,
+  strokeOpacity,
+  className,
 }: {
   points?: ReadonlyArray<RadarPoint>;
   fill?: string;
@@ -103,9 +109,14 @@ function RoundedRadarShape({
   return (
     <path
       d={roundedPolygonPath([...points], 6)}
+      fill={fill}
+      fillOpacity={fillOpacity}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+      strokeOpacity={strokeOpacity}
+      className={className}
       strokeLinejoin="round"
       strokeLinecap="round"
-      {...rest}
     />
   );
 }
@@ -146,6 +157,7 @@ function RadarAxisTick({
       fill="var(--foreground)"
       fontSize={12}
       fontWeight={500}
+      focusable={false}
     >
       {payload?.value}
     </text>
@@ -164,15 +176,17 @@ function RiskChartTooltip({
   const point = payload[0]?.payload;
   if (!point) return null;
 
-  const color = RISK_COLOR[point.risk];
-
   return (
     <ChartTooltipPanel title={point.axis}>
-      <ChartTooltipRow label="Score" value={`${point.score}%`} color={color} />
+      <ChartTooltipRow
+        label="Score"
+        value={`${point.score}%`}
+        color={cssVar.primary}
+      />
       <ChartTooltipRow
         label="Risk"
         value={point.risk}
-        color={color}
+        color={RISK_COLOR[point.risk]}
         valueClassName={RISK_TEXT_CLASS[point.risk]}
       />
     </ChartTooltipPanel>
@@ -190,29 +204,26 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-88 overflow-visible px-9">
+    <div className="mx-auto flex w-full max-w-64 shrink-0 items-center justify-center overflow-visible sm:max-w-72 lg:max-w-80">
       <ChartContainer
         config={chartConfig}
         className={cn(
           "aspect-square w-full overflow-visible [&_.recharts-surface]:overflow-visible [&_svg]:overflow-visible",
           "[&_.recharts-polar-grid-concentric-circle]:stroke-[#D4DAF0]! [&_.recharts-polar-grid-concentric-circle]:stroke-[0.8]! [&_.recharts-polar-grid-concentric-circle]:opacity-70",
-          "[&_.recharts-polar-grid-angle]:stroke-white! [&_.recharts-polar-grid-angle]:stroke-[1.2]!",
         )}
-        initialDimension={{ width: 320, height: 320 }}
+        initialDimension={{ width: 280, height: 280 }}
       >
         <RadarChart
           data={chartData}
           cx="50%"
           cy="50%"
           outerRadius="86%"
-          margin={{ top: 4, right: 4, bottom: 4, left: 4 }}
+          margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
         >
           <ChartTooltip cursor={false} content={<RiskChartTooltip />} />
           <PolarGrid
             gridType="circle"
-            radialLines
-            stroke={RADAR_RADIAL_STROKE}
-            strokeWidth={1.2}
+            radialLines={false}
             className="fill-[#A8C4F5]/22"
           />
           <PolarAngleAxis
@@ -228,20 +239,20 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           />
           <Radar
             dataKey="score"
-            fill="var(--color-score)"
-            fillOpacity={0.28}
-            stroke="var(--color-score)"
+            fill={RADAR_FILL}
+            fillOpacity={0.4}
+            stroke={RADAR_STROKE}
             strokeWidth={1.5}
             shape={RoundedRadarShape}
             dot={false}
-            isAnimationActive={isAnimationActive}
-            onAnimationEnd={onAnimationEnd}
             activeDot={{
               r: 4,
               fill: "var(--card)",
-              stroke: RADAR_SCORE_COLOR,
+              stroke: RADAR_STROKE,
               strokeWidth: 2,
             }}
+            isAnimationActive={isAnimationActive}
+            onAnimationEnd={onAnimationEnd}
           />
         </RadarChart>
       </ChartContainer>
@@ -251,14 +262,21 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
 
 export function RiskStatusCard({ risk }: { risk: RiskStatus | null }) {
   return (
-    <section className={cn(dashboardCardClass, "flex shrink-0 flex-col overflow-visible p-5")}>
+    <section
+      className={cn(
+        dashboardCardClass,
+        "flex min-h-0 flex-1 flex-col overflow-visible p-5",
+      )}
+    >
       <div className={dashboardCardHeaderClass}>
         <SectionTitle info="A summary of health risk across key areas based on your latest vitals and assessments.">
           Risk Status
         </SectionTitle>
       </div>
       {risk ? (
-        <RiskRadarChart risk={risk} />
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+          <RiskRadarChart risk={risk} />
+        </div>
       ) : (
         <EmptyState
           icon={Alert02Icon}

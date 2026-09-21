@@ -14,6 +14,7 @@ import {
   dashboardGridClass,
   dashboardGridHalfClass,
   dashboardGridStackClass,
+  dashboardGridThirdClass,
   dashboardPageShellClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
@@ -28,17 +29,23 @@ export function PatientHomeView() {
       <HomeGreeting name={data.greetingName} subtitle={data.greetingSubtitle} />
       <IasScoreCard assessment={data.assessment} />
       <div className={dashboardGridClass}>
-        <div className={cn(dashboardGridHalfClass, dashboardGridStackClass)}>
+        <div className={cn(dashboardGridHalfClass, "flex min-h-0")}>
           <VitalsCard vitals={data.vitals} />
-          <TasksCard />
         </div>
         <div className={cn(dashboardGridHalfClass, dashboardGridStackClass)}>
           <RiskStatusCard risk={data.risk} />
           <AppointmentsCard appointments={data.appointments} />
+        </div>
+        <div className={cn(dashboardGridThirdClass, "min-w-0")}>
+          <TasksCard />
+        </div>
+        <div className={cn(dashboardGridThirdClass, "min-w-0")}>
           <CareTeamCard members={data.careTeam} />
         </div>
+        <div className={cn(dashboardGridThirdClass, "min-w-0")}>
+          <RecentActivityCard items={data.activity} />
+        </div>
       </div>
-      <RecentActivityCard items={data.activity} />
     </DashboardReveal>
     </AppPageFrame>
   );
