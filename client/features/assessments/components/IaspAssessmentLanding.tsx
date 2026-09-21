@@ -194,7 +194,7 @@ export function IaspAssessmentLanding() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_85%_45%,color-mix(in_oklab,var(--primary)_8%,transparent),transparent_70%),radial-gradient(ellipse_55%_45%_at_10%_80%,color-mix(in_oklab,var(--primary)_5%,transparent),transparent_65%)]"
       />
 
-      {/* ── Mobile: logo → images (~42svh) → copy/CTA, scales with svh ── */}
+      {/* Mobile: stacked logo → media → CTA */}
       <motion.div
         className="relative flex h-full min-h-0 w-full flex-col overflow-hidden px-dash-pad-x pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
         initial="hidden"
@@ -255,7 +255,7 @@ export function IaspAssessmentLanding() {
         </section>
       </motion.div>
 
-      {/* ── Desktop: original two-column layout ── */}
+      {/* Desktop: two-column layout */}
       <motion.div
         className="relative hidden h-full min-h-0 w-full overflow-hidden lg:grid lg:grid-cols-2"
         initial="hidden"

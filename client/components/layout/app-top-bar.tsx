@@ -2,12 +2,7 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import {
-  Search01Icon,
-  PanelRightCloseIcon,
-  PanelRightOpenIcon,
-  Menu01Icon,
-} from "@hugeicons/core-free-icons";
+import { Search01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -59,10 +54,12 @@ export function AppTopBar({
   endSlot,
   children,
 }: AppTopBarProps) {
-  const { collapsed, toggle, isDrawer, open: drawerOpen } = useSidebar();
+  const { toggle, isDrawer, open: drawerOpen } = useSidebar();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // Listen on the app's fixed scroll container, not window, so the border
+    // indicator stays in sync regardless of OS scroll behaviour.
     const scrollRoot = document.querySelector<HTMLElement>(
       "[data-dashboard-scroll]",
     );
@@ -77,14 +74,7 @@ export function AppTopBar({
     return () => scrollRoot.removeEventListener("scroll", syncScrolled);
   }, []);
 
-  const menuExpanded = isDrawer ? drawerOpen : !collapsed;
-  const menuLabel = isDrawer
-    ? drawerOpen
-      ? "Close navigation"
-      : "Open navigation"
-    : collapsed
-      ? "Open sidebar"
-      : "Close sidebar";
+  const menuLabel = drawerOpen ? "Close navigation" : "Open navigation";
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -95,34 +85,32 @@ export function AppTopBar({
           "sticky top-0 z-20 grid w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap px-dash-pad-x",
         )}
       >
-        <div className="justify-self-start">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                aria-label={menuLabel}
-                aria-expanded={menuExpanded}
-                onClick={toggle}
-                className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <HugeiconsIcon
-                  icon={
-                    isDrawer
-                      ? Menu01Icon
-                      : collapsed
-                        ? PanelRightOpenIcon
-                        : PanelRightCloseIcon
-                  }
-                  size={ICON_SIZE}
-                  strokeWidth={ICON_STROKE}
-                  color="currentColor"
-                  absoluteStrokeWidth
-                />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{menuLabel}</TooltipContent>
-          </Tooltip>
-        </div>
+        {isDrawer ? (
+          <div className="justify-self-start">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={menuLabel}
+                  aria-expanded={drawerOpen}
+                  onClick={toggle}
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <HugeiconsIcon
+                    icon={Menu01Icon}
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE}
+                    color="currentColor"
+                    absoluteStrokeWidth
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{menuLabel}</TooltipContent>
+            </Tooltip>
+          </div>
+        ) : (
+          <div aria-hidden />
+        )}
 
         <button
           type="button"

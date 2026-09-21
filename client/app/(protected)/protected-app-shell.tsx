@@ -14,6 +14,11 @@ import { useSyncTaskGroups } from "@/features/tasks/hooks/use-sync-task-groups";
 import { useTaskStore } from "@/features/tasks/store/task-store";
 import type { UserRole } from "@/lib/auth/roles";
 
+/**
+ * Badge counts for nav items, derived from live stores.
+ * Coordinator and admin see the coordinator alert count and leads badge;
+ * all other roles see the patient notification count and task count.
+ */
 function useShellNavBadges(role: UserRole): Record<string, number> {
   const isCoordinatorChrome = role === "coordinator" || role === "admin";
   const patientUnread = useNotificationStore((s) => s.unreadCount());
@@ -45,7 +50,13 @@ function RoleAwareContent({ children }: { children: ReactNode }) {
   return children;
 }
 
-/** Protected chrome bridge — owns feature stores so layout stays feature-free. */
+/**
+ * Protected chrome bridge — connects feature stores to the app shell.
+ *
+ * Lives here rather than in layout.tsx so layout.tsx stays a React Server
+ * Component (no "use client"). Stores are client-only and must be initialized
+ * inside a Client Component boundary.
+ */
 export function ProtectedAppShell({
   dialogs,
   children,

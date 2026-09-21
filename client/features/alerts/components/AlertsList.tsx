@@ -134,7 +134,7 @@ export function AlertsList() {
               onClick={markAllRead}
               className={cn(
                 radius.md,
-                "inline-flex h-11 shrink-0 items-center gap-2 px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-primary",
+                "inline-flex h-11 shrink-0 items-center gap-2 px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-ring",
               )}
             >
               <HugeiconsIcon

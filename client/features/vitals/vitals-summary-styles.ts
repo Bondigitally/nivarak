@@ -38,4 +38,4 @@ export const vitalsCardSurfaceClass = cn(
 );
 
 export const vitalsSparklineActiveDotClass =
-  "pointer-events-none absolute z-[1] size-[10px] rounded-full border-2 border-card shadow-[0_0_0_1px_rgba(17,24,39,0.08)]";
+  "pointer-events-none absolute z-[1] size-[10px] rounded-full border-2 border-card shadow-[0_0_0_1px_rgba(17,24,39,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1)]";

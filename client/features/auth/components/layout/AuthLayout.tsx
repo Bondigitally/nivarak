@@ -6,6 +6,7 @@ import {
   AuthPreloadProvider,
   useAuthPreload,
 } from '@/features/auth/components/AuthPreload';
+import { ThemeProvider } from '@/components/theme-provider';
 import { HeroSlideshow } from '../primitives/HeroSlideshow';
 
 const LG_MEDIA = '(min-width: 1024px)';
@@ -25,7 +26,7 @@ function AuthShell({
   const ready = preload?.ready ?? true;
 
   return (
-    <div className="relative min-h-screen bg-background lg:bg-transparent">
+    <div className="auth-light-mode relative min-h-screen bg-background lg:bg-transparent">
       <div className="fixed inset-0 z-0 hidden h-svh w-screen lg:block">
         {showHero && <HeroSlideshow />}
       </div>
@@ -59,8 +60,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   }, []);
 
   return (
-    <AuthPreloadProvider waitForHero={showHero} bootstrapped={bootstrapped}>
-      <AuthShell showHero={showHero}>{children}</AuthShell>
-    </AuthPreloadProvider>
+    <ThemeProvider attribute="class" forcedTheme="light" enableSystem={false}>
+      <AuthPreloadProvider waitForHero={showHero} bootstrapped={bootstrapped}>
+        <AuthShell showHero={showHero}>{children}</AuthShell>
+      </AuthPreloadProvider>
+    </ThemeProvider>
   );
 }
