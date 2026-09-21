@@ -12,13 +12,6 @@ export const dashboardListItemClass = `-mx-1.5 cursor-pointer ${radius.sm} px-1.
 export const dashboardDividedItemClass = "peer/row group/row relative";
 
 /**
- * List item wrapper for divided rows.
- * Pair with `dashboardRowDividerClass` so a hovered row hides its own top
- * divider and the next row's top divider (via peer), leaving a clean hover surface.
- */
-export const dashboardDividedItemClass = "peer/row group/row relative";
-
-/**
  * Divided list rows (Appointments, Care Team, Tasks):
  * - Divider is owned by the list item (`dashboardDividedItemClass`).
  * - Hover surface is a rounded ::before; dividers hide on row hover.
