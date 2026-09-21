@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useAuthPreload } from '@/features/auth/components/AuthPreload';
 import { AuthLogo } from '@/features/auth/components/primitives/AuthLogo';
 import { AuthFlowTransition } from '@/features/auth/components/primitives/AuthFlowTransition';
+import { cardShadowClass } from '@/lib/tokens/elevation';
 
 interface AuthCardProps {
   children: React.ReactNode;
@@ -30,9 +31,10 @@ export function AuthCard({
   return (
     <div
       className={cn(
-        'flex w-full flex-col gap-auth-section rounded-xl border border-border bg-card',
+        'flex w-full flex-col gap-auth-section rounded-xl bg-card',
         'lg:max-w-auth-card',
-        'px-auth-pad-x py-auth-pad-y shadow-[0_2px_8px_rgba(17,24,39,0.05)]',
+        'px-auth-pad-x py-auth-pad-y',
+        cardShadowClass,
         className,
       )}
     >

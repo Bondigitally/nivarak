@@ -28,10 +28,10 @@ const buttonVariants = cva(
         default:
           'bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] disabled:bg-[var(--primary-disabled)] disabled:text-primary-foreground/70',
         secondary:
-          'border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent disabled:border-[var(--border-disabled)] disabled:text-[var(--text-disabled)]',
+          'bg-muted text-muted-foreground hover:text-foreground hover:bg-accent disabled:text-[var(--text-disabled)]',
         /** @deprecated Use `secondary` — kept for existing call sites */
         outline:
-          'border border-border bg-card text-muted-foreground hover:bg-accent disabled:border-[var(--border-disabled)] disabled:text-[var(--text-disabled)]',
+          'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground disabled:text-[var(--text-disabled)]',
         ghost:
           'bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground disabled:text-[var(--text-disabled)]',
         link: cn(

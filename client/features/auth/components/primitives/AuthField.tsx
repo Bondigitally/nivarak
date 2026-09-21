@@ -2,44 +2,25 @@
 
 import { forwardRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { typo } from '@/lib/tokens/typography';
+import { EyeClosedIcon, EyeIcon } from '@hugeicons/core-free-icons';
+import { AppIcon } from '@/components/shared/AppIcon';
+import { FieldErrorMessage } from '@/components/ui/field-error-message';
+import { fieldInputClassName } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ICON_SIZE } from '@/lib/icons';
+import { typo } from '@/lib/tokens/typography';
+import { cn } from '@/lib/utils';
 
-export const authInputClassName = cn(
-  'h-11 w-full rounded-md border border-border bg-card px-4',
-  typo.input,
-  'placeholder:text-placeholder placeholder:font-sans', // Text/Placeholder
-  'transition-[border-color,box-shadow] duration-150 ease-in-out',
-  'hover:border-border',
-  'focus-visible:border-border-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
-  'disabled:cursor-not-allowed disabled:opacity-50',
-);
+/** @deprecated Prefer `fieldInputClassName` from `@/components/ui/input` outside auth. */
+export const authInputClassName = fieldInputClassName;
 
-/** Reserved one-line slot so errors never shift the card or crowd the next label */
-export function AuthFieldError({
-  error,
-  className,
-}: {
-  error?: string | null;
-  className?: string;
-}) {
-  return (
-    <p
-      className={cn(typo.error, 'min-h-auth-error truncate', className)}
-      role={error ? 'alert' : undefined}
-      aria-hidden={!error}
-    >
-      {error?.split('\n')[0] ?? ''}
-    </p>
-  );
-}
+/** @deprecated Prefer `FieldErrorMessage` from `@/components/ui/field-error-message`. */
+export const AuthFieldError = FieldErrorMessage;
 
 interface AuthFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -109,11 +90,10 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
                     className="absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition-colors duration-150 hover:bg-background hover:text-foreground"
                     aria-label={visibilityLabel}
                   >
-                    {showPassword ? (
-                      <Eye className="size-5" strokeWidth={1.5} />
-                    ) : (
-                      <EyeOff className="size-5" strokeWidth={1.5} />
-                    )}
+                    <AppIcon
+                      icon={showPassword ? EyeIcon : EyeClosedIcon}
+                      size={ICON_SIZE}
+                    />
                   </motion.button>
                 </TooltipTrigger>
                 <TooltipContent side="top" align="center">
@@ -123,7 +103,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
             </TooltipProvider>
           )}
         </div>
-        <AuthFieldError error={error} />
+        <FieldErrorMessage error={error} />
       </div>
     );
   },
