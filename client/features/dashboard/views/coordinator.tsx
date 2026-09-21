@@ -12,7 +12,7 @@ import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal
 import { StatsRow } from "@/features/dashboard/components/StatsRow";
 import { PriorityPatientsCard } from "@/features/patients/components/PriorityPatientsCard";
 import { TodayScheduleCard } from "@/features/schedule/components/TodayScheduleCard";
-import { TasksCard } from "@/features/dashboard/components/TasksCard";
+import { TasksCard } from "@/features/tasks/components/TasksCard";
 import { RecentAlertsCard } from "@/features/alerts/components/RecentAlertsCard";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { getCoordinatorStats } from "@/features/dashboard/data/coordinator-stats-data";
