@@ -24,12 +24,13 @@ export type SegmentedControlOption<T extends string = string> = {
  *
  * Track fill is neutral — table header on canvas, secondary on white cards.
  */
-export const SEGMENTED_TRACK_CLASS = "bg-segmented-track";
-/** @deprecated Prefer `surface="card"` — uses `bg-segmented-track-on-card`. */
-export const SEGMENTED_TRACK_SURFACE_CLASS = "bg-segmented-track-on-card";
+/** Canvas track — Surface/TableHeader on cool-gray background. */
+export const SEGMENTED_TRACK_CLASS = "bg-table-header";
+/** Card track — same TableHeader hex; reads clearly on white `bg-card` surfaces. */
+export const SEGMENTED_TRACK_SURFACE_CLASS = "bg-table-header";
 const SEGMENTED_TRACK_BY_SURFACE = {
   canvas: SEGMENTED_TRACK_CLASS,
-  card: "bg-segmented-track-on-card",
+  card: SEGMENTED_TRACK_SURFACE_CLASS,
 } as const;
 
 export type SegmentedControlSurface = keyof typeof SEGMENTED_TRACK_BY_SURFACE;
@@ -45,10 +46,8 @@ const SEGMENTED_MOBILE_TRIGGER_CLASS = cn(
 /** Scrollport pads vertically so the proud active pill border/shadow isn't clipped. */
 const SEGMENTED_SCROLL_CLASS =
   "max-w-full overflow-x-auto overscroll-x-contain py-1 scrollbar-none [&::-webkit-scrollbar]:hidden";
-const SEGMENTED_LIST_CLASS = cn(
-  "relative flex h-dash-control min-h-dash-control w-fit items-stretch overflow-hidden",
-  radius.md,
-);
+const SEGMENTED_LIST_CLASS =
+  "relative flex h-dash-control min-h-dash-control w-fit items-stretch";
 /** 40px track centered behind 44px tabs — fill comes from `surface`, not baked in here. */
 const SEGMENTED_TRACK_BAR_LAYOUT_CLASS =
   "pointer-events-none absolute top-1/2 right-0 left-0 z-0 h-10 -translate-y-1/2";
