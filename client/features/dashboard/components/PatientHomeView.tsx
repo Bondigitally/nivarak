@@ -1,6 +1,6 @@
 "use client";
 
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { AppointmentsCard } from "@/features/dashboard/components/AppointmentsCard";
 import { CareTeamCard } from "@/features/dashboard/components/CareTeamCard";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";

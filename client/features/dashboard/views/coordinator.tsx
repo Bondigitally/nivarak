@@ -1,6 +1,6 @@
 "use client";
 
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { cn } from "@/lib/utils";
 import {
   dashboardGridClass,

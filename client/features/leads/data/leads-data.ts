@@ -54,3 +54,8 @@ export function getLeads(): Lead[] {
     },
   ];
 }
+
+/** New leads awaiting first contact — sidebar badge count. */
+export function getNewLeadsCount(leads: Lead[] = getLeads()): number {
+  return leads.filter((lead) => lead.status === "new").length;
+}
