@@ -62,8 +62,9 @@ const COORDINATOR_PATH_REDIRECTS: Record<string, string> = {
   "/coordinator/schedule": "/schedule",
   "/coordinator/tasks": "/care/tasks",
   "/coordinator/staff": "/staff",
-  "/coordinator/alerts": "/alerts",
+  "/coordinator/alerts": "/notifications",
   "/coordinator/settings": "/settings",
+  "/alerts": "/notifications",
 };
 
 export function middleware(request: NextRequest) {

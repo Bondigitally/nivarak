@@ -11,26 +11,27 @@ import {
   CommandIcon,
   File01Icon,
   HealthIcon,
-  PlusSignIcon,
+  Add01Icon,
   Search01Icon,
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { dashboardSearchBarClass, dashboardSearchBarIconClass } from "../data/dashboard-styles";
-import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { dashboardSearchBarClass, dashboardSearchBarIconClass, searchShortcutKeyClass } from "../data/dashboard-styles";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function SearchShortcutHint() {
   return (
     <span
       className={cn(
-        typo.caption,
-        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full bg-table-header px-2.5 text-muted-foreground transition-colors duration-200 ease-out group-hover:text-foreground/85 sm:flex",
+        typo.label,
+        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full px-2.5 text-muted-foreground transition-[color,background-color] duration-200 ease-out group-hover:bg-accent group-hover:text-foreground/85 sm:flex",
+        searchShortcutKeyClass,
       )}
       aria-hidden
     >
-      <HugeiconsIcon icon={CommandIcon} size={BADGE_ICON_SIZE} strokeWidth={1.75} color="currentColor" />
-      <HugeiconsIcon icon={PlusSignIcon} size={BADGE_ICON_SIZE} strokeWidth={1.75} color="currentColor" />
+      <HugeiconsIcon icon={CommandIcon} size={12} strokeWidth={1.75} color="currentColor" />
+      <HugeiconsIcon icon={Add01Icon} size={12} strokeWidth={1.75} color="currentColor" />
       K
     </span>
   );
@@ -165,7 +166,7 @@ export function SpotlightSearch({
           <motion.button
             type="button"
             aria-label="Close search"
-            className="absolute inset-0 bg-black/40 backdrop-blur-[6px]"
+            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
             initial={reducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -243,7 +244,9 @@ export function SpotlightSearch({
                             }}
                             className={cn(
                               "flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left transition-colors",
-                              active ? "bg-accent" : "hover:bg-accent/70",
+                              active
+                                ? "bg-sidebar-selected"
+                                : "hover:bg-accent",
                             )}
                           >
                             <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground">
