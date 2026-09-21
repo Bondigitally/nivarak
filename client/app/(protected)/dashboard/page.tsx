@@ -28,7 +28,7 @@ export default function DashboardPage() {
         <div className={dashboardGridClass}>
           <div className={cn(dashboardGridHalfClass, dashboardGridStackClass)}>
             <VitalsCard vitals={data.vitals} />
-            <TasksCard tasks={data.tasks} />
+            <TasksCard />
           </div>
           <div className={cn(dashboardGridHalfClass, dashboardGridStackClass)}>
             <RiskStatusCard risk={data.risk} />
