@@ -10,13 +10,17 @@ import {
   dashboardSearchBarClass,
   dashboardTwoColGridClass,
 } from "@/features/dashboard/data/dashboard-styles";
+import {
+  vitalsCardMetricsRowClass,
+  vitalsSummaryGridClass,
+} from "@/features/vitals/vitals-summary-styles";
 import { cn } from "@/lib/utils";
 
 function TopBarSkeleton() {
   return (
     <header className="sticky top-0 z-20 grid h-14 min-h-14 w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap bg-background px-dash-pad-x">
       <div className="justify-self-start">
-        <Skeleton className="size-8 rounded-lg" />
+        <Skeleton className="size-8 rounded-md" />
       </div>
       <div
         className={cn(
@@ -137,7 +141,7 @@ export function SettingsPageSkeleton() {
       <div className={cn(dashboardCardClass, "flex flex-col gap-6 p-6")}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Skeleton className="size-16 shrink-0 rounded-2xl" />
+            <Skeleton className="size-16 shrink-0 rounded-md" />
             <div className="flex flex-col gap-2">
               <Skeleton className="h-5 w-40" />
               <Skeleton className="h-4 w-28" />
@@ -149,7 +153,7 @@ export function SettingsPageSkeleton() {
           {Array.from({ length: 4 }, (_, index) => (
             <div key={index} className="flex flex-col gap-2">
               <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-11 w-full rounded-[14px]" />
+              <Skeleton className="h-11 w-full rounded-md" />
             </div>
           ))}
         </div>
@@ -186,9 +190,9 @@ export function CareTeamPageSkeleton() {
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={index}
-                className="flex min-w-[220px] flex-1 flex-col gap-3 rounded-[14px] border border-border p-4"
+                className="flex min-w-[220px] flex-1 flex-col gap-3 rounded-lg border border-border p-4"
               >
-                <Skeleton className="aspect-square w-full rounded-2xl" />
+                <Skeleton className="aspect-square w-full rounded-md" />
                 <Skeleton className="h-5 w-36" />
                 <Skeleton className="h-4 w-20 rounded-full" />
                 <Skeleton className="h-3.5 w-full" />
@@ -299,22 +303,57 @@ export function TasksPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton />
-      <div className="flex flex-col gap-6">
-        {Array.from({ length: 2 }, (_, group) => (
-          <div key={group} className="flex flex-col gap-3">
-            <Skeleton className="h-3.5 w-28" />
-            {Array.from({ length: 3 }, (_, index) => (
-              <div
-                key={index}
-                className={cn(dashboardCardClass, "flex items-center gap-3 p-4")}
-              >
-                <Skeleton className="size-5 shrink-0 rounded-md" />
-                <Skeleton className="h-4 flex-1 max-w-sm" />
-                <Skeleton className="h-6 w-16 shrink-0 rounded-full" />
-              </div>
-            ))}
+      <div className="flex flex-col gap-5">
+        <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-5")}>
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton className="h-5 w-36" />
+            <Skeleton className="h-6 w-24 rounded-full" />
           </div>
-        ))}
+          <Skeleton className="h-2 w-full rounded-full" />
+        </div>
+
+        <div
+          className={cn(
+            dashboardCardClass,
+            "flex min-h-16 items-center justify-between border-destructive px-4 py-4 sm:px-5",
+          )}
+        >
+          <Skeleton className="h-5 w-56" />
+          <Skeleton className="size-5 shrink-0" />
+        </div>
+
+        <div className={cn(dashboardCardClass, "flex flex-col overflow-hidden")}>
+          <div className="flex items-center justify-between gap-3 border-b border-divider px-4 py-3.5">
+            <Skeleton className="h-5 w-14" />
+            <Skeleton className="h-9 w-40 shrink-0 rounded-full" />
+          </div>
+          {Array.from({ length: 4 }, (_, index) => (
+            <div
+              key={index}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3.5",
+                index > 0 && "border-t border-divider",
+              )}
+            >
+              <Skeleton className="size-5 shrink-0 rounded-md" />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <Skeleton className="h-4 w-full max-w-xs" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-9 w-16 shrink-0 rounded-full" />
+            </div>
+          ))}
+        </div>
+
+        <div
+          className={cn(
+            dashboardCardClass,
+            "flex min-h-16 items-center justify-between px-4 py-4 sm:px-5",
+          )}
+        >
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="size-5 shrink-0" />
+        </div>
       </div>
     </PageSkeletonShell>
   );
@@ -332,9 +371,9 @@ export function AssessmentsPageSkeleton() {
           <Skeleton className="h-6 w-8 rounded-full" />
         </div>
         <div className="flex flex-col gap-2">
-          <Skeleton className="h-11 w-full rounded-xl" />
+          <Skeleton className="h-11 w-full rounded-md" />
           {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-lg" />
+            <Skeleton key={index} className="h-12 w-full rounded-md" />
           ))}
         </div>
       </div>
@@ -347,7 +386,7 @@ export function RecordsPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton wide />
-      <div className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-primary-disabled bg-card px-5 py-6">
+      <div className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-primary-disabled bg-card px-5 py-6">
         <Skeleton className="size-12 rounded-full" />
         <Skeleton className="h-5 w-56 max-w-full" />
         <Skeleton className="h-4 w-72 max-w-full" />
@@ -361,7 +400,7 @@ export function RecordsPageSkeleton() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
             <div key={index} className={cn(dashboardCardClass, "flex flex-col gap-3 p-5")}>
-              <Skeleton className="size-12 rounded-[14px]" />
+              <Skeleton className="size-12 rounded-md" />
               <Skeleton className="h-5 w-28" />
               <Skeleton className="h-4 w-20" />
             </div>
@@ -380,7 +419,7 @@ export function RecordsPageSkeleton() {
         <Skeleton className="h-11 w-full max-w-md rounded-full" />
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-lg" />
+            <Skeleton key={index} className="h-12 w-full rounded-md" />
           ))}
         </div>
       </div>
@@ -393,34 +432,42 @@ export function VitalsPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton wide />
-      <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
+      <div className={vitalsSummaryGridClass}>
         {Array.from({ length: 5 }, (_, index) => (
           <div
             key={index}
-            className="flex min-h-38 flex-col justify-between gap-4 rounded-[14px] border border-border bg-card px-5 py-3"
+            className="@container flex min-h-55 flex-col rounded-lg border border-border/60 bg-card p-5"
           >
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Skeleton className="size-10 rounded-[14px]" />
-                <Skeleton className="h-4 w-16" />
-              </div>
-              <Skeleton className="h-7 w-20" />
+            <div className="flex min-h-12 items-start justify-between gap-3">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="size-12 shrink-0 rounded-full" />
             </div>
-            <Skeleton className="h-6 w-20 rounded-full" />
+            <div className={vitalsCardMetricsRowClass}>
+              <Skeleton className="h-8 w-20 @max-[15.5rem]:h-[30px]" />
+              <Skeleton className="h-6 w-16 shrink-0 rounded-full @max-[15.5rem]:mt-1" />
+            </div>
+            <Skeleton className="mt-1.5 h-3 w-20" />
+            <div className="mt-auto flex flex-col gap-1 pt-5">
+              <Skeleton className="h-9 w-full rounded-sm" />
+              <div className="flex justify-between">
+                <Skeleton className="h-2.5 w-8" />
+                <Skeleton className="h-2.5 w-8" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
       <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-10 w-full max-w-lg rounded-full" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-lg" />
       </div>
       <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
         <Skeleton className="h-6 w-36" />
         <div className="flex flex-col gap-2">
-          <Skeleton className="h-11 w-full rounded-xl" />
+          <Skeleton className="h-11 w-full rounded-md" />
           {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-lg" />
+            <Skeleton key={index} className="h-12 w-full rounded-md" />
           ))}
         </div>
       </div>
