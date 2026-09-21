@@ -13,7 +13,6 @@ colors:
   surface-secondary: "#F9F9FA"
   surface-hover: "#F2F2F3"
   surface-table-header: "#F1F1F2"
-  surface-selected: "#F2EBF9"
   border-cool-gray: "#E4E4E7"
   border-divider: "#ECECEE"
   ink: "#1A1A1A"
@@ -167,7 +166,7 @@ components:
     rounded: "{rounded.xl}"
     padding: "32px"
   badge:
-    backgroundColor: "{colors.surface-selected}"
+    backgroundColor: "{colors.surface-secondary}"
     textColor: "{colors.brand-purple}"
     rounded: "{rounded.full}"
     padding: "2px 8px"
@@ -385,7 +384,6 @@ Use for charts, legacy components, or when a true gray ramp is needed outside th
 | Surface/Elevated     | surface-white         | #FFFFFF   | Dialogs, dropdowns, popovers                       |
 | Surface/Hover        | surface-hover         | #F2F2F3   | Hovered cards, rows, outline button hover            |
 | Surface/TableHeader  | surface-table-header  | #F1F1F2   | Table header rows, segmented-control track, search shortcut chip |
-| Surface/Selected     | surface-selected      | #F2EBF9   | Intentional brand emphasis only — not decorative avatars, wells, or row chrome |
 
 ### Border
 
@@ -607,7 +605,7 @@ Recipe: **neutral hairline ring** (`0 0 0 1px rgba(17,24,39,α)`) + stacked ambi
 | `cardLiftTransitionClass` | Tailwind class | GPU transform + `0.22s` cubic-bezier on transform / box-shadow | Interactive tiles before lift |
 | `cardLiftHoverClass` | Tailwind class | `hover:-translate-y-1.5` + `cardElevatedHoverShadowClass` | CategoryCard, vitals KPIs — snappy lift |
 | `cardLiftActiveClass` | Tailwind class | `active:-translate-y-0.5` + resting `cardShadow` stack | Press feedback on lift tiles |
-| `cardLiftHoverWashClass` | Tailwind class | Absolute brand wash (`from-primary/6 via-sidebar-accent/40`) fades in on `group-hover` | Pair with `group relative isolate overflow-hidden` on the tile |
+| `cardLiftHoverWashClass` | Tailwind class | Absolute brand wash (`from-primary/6 via-muted`) fades in on `group-hover` | Pair with `group relative isolate overflow-hidden` on the tile |
 
 **Micro-shadow (controls only, not in `elevation.ts`):** segmented-control selected segment uses `0 1px 2px rgba(17,24,39,0.06)` — keep that local; do not promote it into the card kit.
 
@@ -942,7 +940,7 @@ Rounded banner for inline guidance — not a toast.
 | Height       | 20px                                               |
 | Text         | 12px Semibold                                      |
 | Padding      | 2px vertical · 8px horizontal                      |
-| Brand        | Surface/Selected bg + brand-purple text            |
+| Brand        | Surface/Secondary (`bg-muted`) + brand-purple text |
 | Semantic     | Matching tint bg + darker same-hue text             |
 
 ### Navigation
@@ -1065,7 +1063,6 @@ When wiring `client/app/globals.css`, `@theme inline`, and shadcn theme — **ke
 | Text/Placeholder | `--placeholder` | `text-placeholder` | #8A8A8A |
 | Surface/Hover | `--accent` | `bg-accent` | #F2F2F3 |
 | Surface/TableHeader | `--table-header`, `--search-shortcut-key` | `bg-table-header`, `bg-search-shortcut-key` | #F1F1F2 |
-| Surface/Selected | `--sidebar-accent` | `bg-sidebar-accent` | #F2EBF9 |
 | Border/Primary | `--border`, `--input` | `border-border` | #E4E4E7 |
 | Border/Divider | `--divider` | `border-divider`, `bg-divider` | #ECECEE |
 | Border/Focus | `--border-focus` | `border-border-focus` | #B98BD0 |
@@ -1094,7 +1091,7 @@ When wiring `client/app/globals.css`, `@theme inline`, and shadcn theme — **ke
 | Segmented track (card) | `--segmented-track-on-card` | `bg-segmented-track-on-card` | #F7F7F8 |
 | Sidebar surface | `--sidebar` | `bg-sidebar` | #FFFFFF |
 | Sidebar hover | `--sidebar-hover` | `hover:bg-sidebar-hover` | #F2F2F3 |
-| Sidebar active row | `--sidebar-selected` | `bg-sidebar-selected` | #F9F9FA |
+| Sidebar active row | `--muted` | `bg-muted` | #F9F9FA |
 
 ```css
 /* Target mapping — keep in sync with client/app/globals.css :root */
@@ -1142,9 +1139,7 @@ When wiring `client/app/globals.css`, `@theme inline`, and shadcn theme — **ke
   --chart-7: #F97316;
   --chart-8: #1E0E28;
   --sidebar: #FFFFFF;
-  --sidebar-accent: #F2EBF9;
   --sidebar-hover: #F2F2F3;
-  --sidebar-selected: #F9F9FA;
   --segmented-track: #F1F1F2;
   --segmented-track-on-card: #F7F7F8;
   --radius-none: 0;
@@ -1201,7 +1196,7 @@ const hanken = Hanken_Grotesk({
 - Stack content on mobile; prioritize readability over density.
 - Keep data tables fluid width.
 - Use semantic tokens in new components; migrate hardcoded hex when touching a file.
-- Keep canvas/borders cool gray; reserve plum for brand actions and `Surface/Selected` only.
+- Keep canvas/borders cool gray; reserve plum for brand actions and icons.
 - Use one card-title size (`cardTitleClass`) across all dashboard cards.
 
 ### Don't
@@ -1213,7 +1208,7 @@ const hanken = Hanken_Grotesk({
 - Nested shadowed cards, or `cardShadow*` plus a separate CSS border on the same surface.
 - Multiple assessment sections on one wizard step.
 - Default shadcn blue primary — brand purple is `#6C318E`.
-- Lavender (or other tinted) canvas / borders for app chrome — use cool gray; plum tint only on `Surface/Selected`.
+- Lavender (or other tinted) canvas / borders / wells for app chrome — use cool gray; plum for brand actions and icons only.
 - Mixed card-title sizes (16 / 20 / 22px) — always `cardTitleClass` (18 / 24).
 - Pill radius on inputs, select, or nav chrome — or corner radius on the Button component.
 - Ad-hoc `rounded-[Npx]` or legacy Tailwind steps (`rounded-2xl`, etc.) outside the semantic scale.

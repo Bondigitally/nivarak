@@ -24,7 +24,7 @@ function StaffCard({ member }: { member: StaffMember }) {
     <div className={cn(dashboardCardClass, "flex min-w-0 flex-col gap-4 p-5")}>
       <div className="flex min-w-0 items-start gap-3">
         <div className="relative shrink-0">
-          <span className="flex size-11 items-center justify-center rounded-full bg-sidebar-accent text-sm font-semibold text-primary-active">
+          <span className="flex size-11 items-center justify-center rounded-full bg-muted text-sm font-semibold text-primary-active">
             {member.initials}
           </span>
           <span className={cn("absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-card", avail.dot)} />
