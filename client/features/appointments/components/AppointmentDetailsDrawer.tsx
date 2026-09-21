@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
+  Alert02Icon,
   Cancel01Icon,
-  CheckmarkCircle02Icon,
   Clock01Icon,
   DateTimeIcon,
   FileEditIcon,
@@ -19,6 +20,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import {
+  Dialog,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  dialogFooterShellClass,
+  dialogHeaderShellClass,
+  dialogPrimitiveContentClass,
+} from "@/components/ui/dialog";
+import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -28,11 +39,18 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
-import { SIDEBAR_DESKTOP_MEDIA } from "@/components/layout/sidebar-context";
+import {
+  SIDEBAR_DESKTOP_MEDIA,
+  useSidebar,
+} from "@/components/layout/sidebar-context";
 import { BADGE_ICON_SIZE, EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import type { AppointmentItem, AppointmentStatus } from "../data/appointments-data";
+import {
+  appointmentStatusBadgeStyles,
+  type AppointmentItem,
+  type AppointmentStatus,
+} from "../data/appointments-data";
 
 /** Same compact breakpoint as the sidebar drawer — bottom sheet below `lg`. */
 function subscribeCompact(onChange: () => void) {
@@ -49,25 +67,13 @@ function useIsCompactScreen() {
   return useSyncExternalStore(subscribeCompact, getCompactSnapshot, () => true);
 }
 
-const statusStyles: Record<
-  AppointmentStatus,
-  { className: string; icon?: IconSvgElement }
+const STATUS_ICONS: Record<
+  (typeof appointmentStatusBadgeStyles)[AppointmentStatus]["icon"],
+  IconSvgElement
 > = {
-  Confirmed: {
-    className: "border-[rgba(16,185,129,0.2)] bg-success-muted text-success",
-    icon: Tick02Icon,
-  },
-  Scheduled: {
-    className: "border-info-muted bg-info-muted text-info",
-    icon: Clock01Icon,
-  },
-  Completed: {
-    className: "border-border bg-muted text-muted-foreground",
-    icon: CheckmarkCircle02Icon,
-  },
-  Cancelled: {
-    className: "border-destructive-muted bg-destructive-muted text-destructive",
-  },
+  tick: Tick02Icon,
+  clock: Clock01Icon,
+  close: Cancel01Icon,
 };
 
 function FieldLabel({ children }: { children: ReactNode }) {
@@ -119,17 +125,37 @@ export function AppointmentDetailsDrawer({
   onOpenChange: (open: boolean) => void;
 }) {
   const isCompact = useIsCompactScreen();
+  const { openBookVisit } = useSidebar();
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const sheetSide = isCompact ? "bottom" : "right";
   const statusStyle = appointment
-    ? statusStyles[appointment.status]
-    : statusStyles.Confirmed;
+    ? appointmentStatusBadgeStyles[appointment.status]
+    : appointmentStatusBadgeStyles.Scheduled;
   const locationIcon =
     appointment?.placeKind === "video" ? Video01Icon : Home03Icon;
   const locationLabel =
     appointment?.placeKind === "video" ? "Mode" : "Location";
+  const canManage =
+    appointment?.tab === "upcoming" && appointment.status === "Scheduled";
+
+  function handleDrawerOpenChange(nextOpen: boolean) {
+    if (!nextOpen) setConfirmCancelOpen(false);
+    onOpenChange(nextOpen);
+  }
+
+  function handleConfirmCancel() {
+    setConfirmCancelOpen(false);
+    onOpenChange(false);
+  }
+
+  function handleReschedule() {
+    onOpenChange(false);
+    openBookVisit();
+  }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <>
+    <Sheet open={open} onOpenChange={handleDrawerOpenChange}>
       <SheetContent
         key={sheetSide}
         side={sheetSide}
@@ -193,13 +219,11 @@ export function AppointmentDetailsDrawer({
                       statusStyle.className,
                     )}
                   >
-                    {statusStyle.icon ? (
-                      <AppIcon
-                        icon={statusStyle.icon}
-                        size={BADGE_ICON_SIZE}
-                        aria-hidden
-                      />
-                    ) : null}
+                    <AppIcon
+                      icon={STATUS_ICONS[statusStyle.icon]}
+                      size={BADGE_ICON_SIZE}
+                      aria-hidden
+                    />
                     {appointment.status}
                   </span>
                 </div>
@@ -250,7 +274,7 @@ export function AppointmentDetailsDrawer({
                           />
                         </span>
                       ) : (
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-sidebar-accent text-sm font-semibold text-primary-active">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-sm font-semibold text-foreground">
                           {appointment.clinicianInitials}
                         </span>
                       )}
@@ -280,33 +304,17 @@ export function AppointmentDetailsDrawer({
                     }
                   >
                     {appointment.addressLines && appointment.addressLines.length > 0 ? (
-                      <div className="rounded-md border border-border bg-sidebar-accent p-4">
-                        <p className={cn(typo.bodyL, "text-foreground")}>
-                          {appointment.addressLines.map((line) => (
-                            <span key={line} className="block">
-                              {line}
-                            </span>
-                          ))}
-                        </p>
-                      </div>
+                      <p className={cn(typo.bodyL, "text-foreground")}>
+                        {appointment.addressLines.map((line) => (
+                          <span key={line} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </p>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-md border border-border bg-sidebar-accent p-4">
-                        <HugeiconsIcon
-                          icon={
-                            appointment.placeKind === "video"
-                              ? Video01Icon
-                              : Home03Icon
-                          }
-                          size={ICON_SIZE}
-                          strokeWidth={ICON_STROKE}
-                          color="currentColor"
-                          className="shrink-0 text-muted-foreground"
-                          absoluteStrokeWidth
-                        />
-                        <p className={cn(typo.bodyL, "text-foreground")}>
-                          {appointment.placeLabel}
-                        </p>
-                      </div>
+                      <p className={cn(typo.bodyL, "text-foreground")}>
+                        {appointment.placeLabel}
+                      </p>
                     )}
                   </DetailField>
 
@@ -331,7 +339,7 @@ export function AppointmentDetailsDrawer({
                 </div>
 
                 {appointment.showMap ? (
-                  <div className="relative h-40 w-full overflow-hidden rounded-md border border-border bg-sidebar-accent">
+                  <div className="relative h-40 w-full overflow-hidden rounded-md border border-border bg-muted">
                     <div className="absolute inset-0 flex items-center justify-center text-tertiary-foreground">
                       <HugeiconsIcon
                         icon={Image01Icon}
@@ -351,37 +359,95 @@ export function AppointmentDetailsDrawer({
               </div>
             </div>
 
-            <SheetFooter
-              className={cn(
-                "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card px-dash-pad-x py-6 sm:flex-col sm:space-x-0 sm:p-8",
-                !isCompact && "rounded-bl-xl",
-              )}
-            >
-              {appointment.tab === "upcoming" ? (
-                <Button type="button" size="cta" className="w-full">
+            {canManage ? (
+              <SheetFooter
+                className={cn(
+                  "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card px-dash-pad-x py-6 sm:flex-col sm:space-x-0 sm:p-8",
+                  !isCompact && "rounded-bl-xl",
+                )}
+              >
+                <Button
+                  type="button"
+                  size="cta"
+                  className="w-full"
+                  onClick={handleReschedule}
+                >
                   <HugeiconsIcon
                     icon={DateTimeIcon}
                     size={ICON_SIZE}
                     strokeWidth={ICON_STROKE}
                     color="currentColor"
-                  absoluteStrokeWidth />
-                  Confirm request
+                    absoluteStrokeWidth
+                  />
+                  Reschedule
                 </Button>
-              ) : null}
-              <SheetClose asChild>
+
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="destructive-outline"
                   size="cta"
                   className="w-full"
+                  onClick={() => setConfirmCancelOpen(true)}
                 >
-                  Close
+                  Cancel appointment
                 </Button>
-              </SheetClose>
-            </SheetFooter>
+              </SheetFooter>
+            ) : null}
           </>
         ) : null}
       </SheetContent>
     </Sheet>
+
+    <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+      <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content
+          className={dialogPrimitiveContentClass("max-w-md")}
+        >
+          <div className={cn(dialogHeaderShellClass, "border-b-0")}>
+            <div className="min-w-0">
+              <DialogTitle
+                className={cn(
+                  typo.headingXl,
+                  "flex items-center gap-2 text-foreground",
+                )}
+              >
+                <AppIcon icon={Alert02Icon} className="size-6 text-destructive" />
+                Cancel appointment?
+              </DialogTitle>
+              <DialogDescription className={cn(typo.bodyM, "mt-1 text-muted-foreground")}>
+                {appointment
+                  ? `Are you sure you want to cancel your ${appointment.visitType.toLowerCase()} with ${appointment.clinician} on ${appointment.dateFullLabel}? This can’t be undone.`
+                  : "Are you sure you want to cancel this appointment? This can’t be undone."}
+              </DialogDescription>
+            </div>
+          </div>
+          <div
+            className={cn(
+              dialogFooterShellClass,
+              "flex-col-reverse items-stretch gap-3 border-t-0 py-4 sm:flex-row sm:items-center sm:justify-end sm:py-4",
+            )}
+          >
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={() => setConfirmCancelOpen(false)}
+            >
+              Keep appointment
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              onClick={handleConfirmCancel}
+            >
+              Yes, cancel
+            </Button>
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    </Dialog>
+    </>
   );
 }

@@ -1,9 +1,12 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { SpoonAndForkIcon, WalkingIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  dashboardCardClass,
+  statusBadgeClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
-import type { CarePlanReferral } from "@/features/dashboard/data/home-data";
+import type { CarePlanReferral } from "@/features/care-plan/data/care-plan-data";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const REFERRAL_ICONS: Record<CarePlanReferral["icon"], IconSvgElement> = {
@@ -21,10 +24,15 @@ const STATUS_STYLES: Record<
 
 export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) {
   return (
-    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-lg border border-border bg-card p-6">
+    <section
+      className={cn(
+        dashboardCardClass,
+        "flex h-full flex-1 flex-col gap-5 self-stretch p-6",
+      )}
+    >
       <SectionTitle
         info="Specialist and therapy referrals arranged by your care team, with scheduling status for each."
-        className="flex-none pr-0 text-[20px] text-foreground"
+        className="flex-none pr-0 text-foreground"
       >
         Referrals
       </SectionTitle>
@@ -36,7 +44,7 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
           return (
             <li
               key={referral.id}
-              className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted p-4"
+              className="flex items-center justify-between gap-3 rounded-md bg-muted p-4"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span className="inline-flex size-4.75 shrink-0 text-foreground" aria-hidden>

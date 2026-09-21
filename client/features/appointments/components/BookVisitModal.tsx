@@ -11,7 +11,7 @@ import {
   DateTimeIcon,
   Home03Icon,
   Hospital01Icon,
-  Video02Icon,
+  Video01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   Dialog,
@@ -37,6 +37,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
+import { cardShadowClass, cardShadowHoverClass } from "@/lib/tokens/elevation";
 import { cn } from "@/lib/utils";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
@@ -66,7 +67,7 @@ const VISIT_TYPES: {
     id: "teleconsult",
     title: "Teleconsult",
     description: "Consult a clinician online.",
-    icon: Video02Icon,
+    icon: Video01Icon,
   },
   {
     id: "clinic",
@@ -274,11 +275,12 @@ export function BookVisitModal() {
                     onClick={() => setVisitType(type.id)}
                     aria-pressed={selected}
                     className={cn(
-                      "flex flex-col items-start gap-1 rounded-md border p-4 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)] transition-colors",
+                      "flex flex-col items-start gap-1 rounded-md border border-transparent p-4 text-left transition-[border-color,box-shadow,background-color]",
+                      cardShadowClass,
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       selected
                         ? "border-primary bg-sidebar-accent text-primary-active"
-                        : "border-border bg-card text-foreground hover:bg-background",
+                        : cn("bg-card text-foreground hover:bg-background", cardShadowHoverClass),
                     )}
                   >
                     <HugeiconsIcon
@@ -488,10 +490,10 @@ export function BookVisitModal() {
             </div>
             <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
               <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
-                Pending
+                Scheduled
               </p>
               <p className={cn(typo.caption, "text-muted-foreground")}>
-                Subject to confirmation
+                Available slot selected
               </p>
             </div>
           </div>
@@ -499,7 +501,7 @@ export function BookVisitModal() {
 
         <DialogFooter className={cn(dialogFooterShellClass, "sm:flex-col sm:justify-stretch")}>
           <p className={cn(typo.bodyM, "text-center text-tertiary-foreground")}>
-            Your care coordinator will confirm the assigned clinician.
+            Your care coordinator will assign the clinician for this visit.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <Button
