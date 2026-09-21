@@ -15,7 +15,7 @@ import {
 import { SectionTitle, ViewAllLink, EmptyState } from "@/features/dashboard/components/EmptyState";
 import { severityConfig } from "@/lib/tokens/status-badges";
 import type { Notification } from "@/lib/domain";
-import { BADGE_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { ICON_SIZE, ICON_STROKE, iconTileClass } from "@/lib/icons";
 
 function AlertRow({
   alert,
@@ -39,13 +39,14 @@ function AlertRow({
         {alert.icon && (
           <span
             className={cn(
-              "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg",
+              "mt-0.5 flex shrink-0 items-center justify-center rounded-lg",
+              iconTileClass,
               sev.icon,
             )}
           >
             <HugeiconsIcon
               icon={alert.icon}
-              size={BADGE_ICON_SIZE}
+              size={ICON_SIZE}
               strokeWidth={ICON_STROKE}
               color="currentColor"
               absoluteStrokeWidth
@@ -58,13 +59,13 @@ function AlertRow({
               {alert.title}
             </span>
             {!alert.read && (
-              <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+              <span className="mt-1.5 size-2 shrink-0 rounded-full bg-foreground" />
             )}
           </div>
           <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
             {alert.patientName && (
               <>
-                <span className={cn(typo.caption, "font-medium text-primary-active")}>
+                <span className={cn(typo.caption, "font-medium text-foreground")}>
                   {alert.patientName}
                 </span>
                 <span className={typo.caption}>·</span>
@@ -99,7 +100,7 @@ export function RecentAlertsCard({ alerts }: { alerts: Notification[] }) {
             </span>
           )}
         </div>
-        <ViewAllLink href="/alerts" />
+        <ViewAllLink href="/notifications" />
       </div>
       {alerts.length > 0 ? (
         <ul className="flex min-w-0 flex-col">

@@ -15,12 +15,16 @@ import {
   ChartTooltipPanel,
   ChartTooltipRow,
   createChartActiveDot,
+  chartLegendSwatchClass,
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { dashboardCardClass } from "../data/dashboard-styles";
+import {
+  dashboardCardClass,
+  dashboardCardHeaderClass,
+} from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { HeartRateSeries, VitalsSnapshot } from "../data/home-data";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
@@ -249,7 +253,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
           <div className="ml-auto flex items-center gap-4">
             <span className="flex items-center gap-2">
               <span
-                className="size-2.5 shrink-0 rounded-xs"
+                className={chartLegendSwatchClass}
                 style={{ backgroundColor: SYSTOLIC_COLOR }}
               />
               <span className={cn(typo.bodyM, "font-medium text-foreground")}>
@@ -258,7 +262,7 @@ function BloodPressureChart({ data }: { data: VitalsSnapshot["bloodPressure"] })
             </span>
             <span className="flex items-center gap-2">
               <span
-                className="size-2.5 shrink-0 rounded-xs"
+                className={chartLegendSwatchClass}
                 style={{ backgroundColor: DIASTOLIC_COLOR }}
               />
               <span className={cn(typo.bodyM, "font-medium text-foreground")}>
@@ -383,7 +387,7 @@ function HeartRateChart({
           <div className="ml-auto flex items-center gap-4">
             <span className="flex items-center gap-2">
               <span
-                className="size-2.5 shrink-0 rounded-xs"
+                className={chartLegendSwatchClass}
                 style={{ backgroundColor: HEART_RATE_COLOR }}
               />
               <span className={cn(typo.bodyM, "font-medium text-foreground")}>
@@ -446,38 +450,31 @@ function HeartRateChart({
 
 export function VitalsCard({ vitals }: { vitals: VitalsSnapshot | null }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <section
-        className={cn(
-          dashboardCardClass,
-          "flex shrink-0 items-center justify-between gap-3 p-5",
-        )}
-      >
+    <section className={cn(dashboardCardClass, "flex h-full min-h-0 w-full flex-col p-5")}>
+      <div className={dashboardCardHeaderClass}>
         <SectionTitle info="Your most recent blood pressure, heart rate, and related readings. Trends update as new values are logged.">
           Latest Vitals
         </SectionTitle>
         <ViewAllLink href="/health/vitals" />
-      </section>
+      </div>
 
-      <section className={cn(dashboardCardClass, "flex min-h-0 flex-1 flex-col p-5")}>
-        {vitals ? (
-          <div className="flex min-h-0 flex-1 flex-col gap-4">
-            <BloodPressureChart data={vitals.bloodPressure} />
-            <HeartRateChart
-              data={vitals.heartRate}
-              updatedAgo={vitals.bloodPressure.updatedAgo}
-              statusLabel={vitals.bloodPressure.statusLabel}
-            />
-          </div>
-        ) : (
-          <EmptyState
-            icon={Medicine02Icon}
-            title="No vitals recorded yet"
-            body="Record your first vitals reading to start tracking BP, pulse, SpO2, temperature, and more over time."
-            className="min-h-80"
+      {vitals ? (
+        <div className="flex min-h-0 flex-1 flex-col gap-4">
+          <BloodPressureChart data={vitals.bloodPressure} />
+          <HeartRateChart
+            data={vitals.heartRate}
+            updatedAgo={vitals.bloodPressure.updatedAgo}
+            statusLabel={vitals.bloodPressure.statusLabel}
           />
-        )}
-      </section>
-    </div>
+        </div>
+      ) : (
+        <EmptyState
+          icon={Medicine02Icon}
+          title="No vitals recorded yet"
+          body="Record your first vitals reading to start tracking BP, pulse, SpO2, temperature, and more over time."
+          className="min-h-80"
+        />
+      )}
+    </section>
   );
 }

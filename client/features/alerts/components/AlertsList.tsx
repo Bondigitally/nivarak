@@ -10,6 +10,7 @@ import { radius } from "@/lib/tokens/radius";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
 import {
+  cardTitleClass,
   dashboardCardClass,
   dashboardSearchBarClass,
   dashboardSearchBarIconClass,
@@ -19,20 +20,15 @@ import {
   NOTIFICATION_TABS,
   filterNotifications,
   groupNotifications,
-  type NotificationItem,
   type NotificationTabKey,
   type NotificationTimeGroup,
 } from "../data/alerts-data";
 import { useNotificationStore } from "../store/notification-store";
 import {
-  NotificationActionLinks,
-  NotificationCategoryBadge,
-  NotificationIconBubble,
-  NotificationTimeColumn,
-  NOTIFICATION_ROW_INNER_CLASS,
-  NOTIFICATION_ROW_OUTER_CLASS,
-  READ_ROW_CLASS,
-  UNREAD_ROW_CLASS,
+  NotificationItemCard,
+  NOTIFICATION_LIST_CLASS,
+  NOTIFICATION_LIST_ITEM_CLASS,
+  NOTIFICATION_ROW_DIVIDER_CLASS,
 } from "./notification-primitives";
 
 function SearchBar({
@@ -73,108 +69,39 @@ function SearchBar({
   );
 }
 
-function NotificationRow({
-  item,
-  isRead,
-  showCategoryBadge,
-  onMarkRead,
-}: {
-  item: NotificationItem;
-  isRead: boolean;
-  showCategoryBadge: boolean;
-  onMarkRead: (id: string) => void;
-}) {
-  return (
-    <div className={NOTIFICATION_ROW_OUTER_CLASS}>
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => {
-          if (!isRead) onMarkRead(item.id);
-        }}
-        onKeyDown={(event) => {
-          if (event.key !== "Enter" && event.key !== " ") return;
-          event.preventDefault();
-          if (!isRead) onMarkRead(item.id);
-        }}
-        className={cn(
-          NOTIFICATION_ROW_INNER_CLASS,
-          "cursor-pointer transition-colors duration-150 hover:bg-accent/60",
-          isRead ? READ_ROW_CLASS : UNREAD_ROW_CLASS,
-        )}
-      >
-        <NotificationIconBubble item={item} />
-
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <div className="flex min-w-0 items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              <span
-                className={cn(
-                  "min-w-0 text-sm leading-5 text-foreground",
-                  isRead ? "font-normal" : "font-semibold",
-                )}
-              >
-                {item.title}
-              </span>
-              {showCategoryBadge ? (
-                <NotificationCategoryBadge category={item.category} />
-              ) : null}
-            </div>
-
-            <NotificationTimeColumn time={item.time} isRead={isRead} />
-          </div>
-
-          <p
-            className={cn(
-              "text-sm leading-5",
-              isRead ? "text-muted-foreground/75" : "text-muted-foreground",
-            )}
-          >
-            {item.body}
-          </p>
-
-          {(item.actions.length > 0 || !isRead) && (
-            <NotificationActionLinks
-              item={item}
-              onMarkRead={!isRead ? onMarkRead : undefined}
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function TimeGroup({
   label,
   items,
-  showCategoryBadge,
   onMarkRead,
 }: {
   label: string;
-  items: NotificationItem[];
-  showCategoryBadge: boolean;
+  items: ReturnType<typeof groupNotifications>[number][1];
   onMarkRead: (id: string) => void;
 }) {
   const { isRead } = useNotificationStore();
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className={cn(dashboardCardClass, "overflow-hidden bg-card p-0 pb-2")}>
-        <h2 className={cn(typo.bodyL, "px-5 pt-5 pb-3 font-semibold text-foreground")}>
-          {label}
-        </h2>
-        <div>
-          {items.map((item) => (
-            <NotificationRow
-              key={item.id}
-              item={item}
-              isRead={isRead(item.id, item.read)}
-              showCategoryBadge={showCategoryBadge}
-              onMarkRead={onMarkRead}
-            />
+    <section>
+      <div className={cn(dashboardCardClass, "overflow-hidden bg-card p-0")}>
+        <h2 className={cn(cardTitleClass, "px-5 pt-5 pb-3")}>{label}</h2>
+        <ul className={NOTIFICATION_LIST_CLASS}>
+          {items.map((item, index) => (
+            <li key={item.id} className={NOTIFICATION_LIST_ITEM_CLASS}>
+              {index > 0 ? (
+                <div
+                  className={NOTIFICATION_ROW_DIVIDER_CLASS}
+                  aria-hidden
+                />
+              ) : null}
+              <NotificationItemCard
+                item={item}
+                variant="page"
+                isRead={isRead(item.id, item.read)}
+                onMarkRead={onMarkRead}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
@@ -188,8 +115,6 @@ export function AlertsList() {
   const unread = unreadCount();
   const filtered = filterNotifications(MOCK_NOTIFICATIONS, activeTab, query);
   const groups = groupNotifications(filtered);
-  const showCategoryBadge = activeTab === "all";
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -252,7 +177,6 @@ export function AlertsList() {
                 }[group as NotificationTimeGroup]
               }
               items={items}
-              showCategoryBadge={showCategoryBadge}
               onMarkRead={markRead}
             />
           ))

@@ -1,6 +1,6 @@
-# IAS-P v2.0 — Instrument Specification
+# IAS v2.0 — Instrument Specification
 
-**Independent Ageing Score — Proxy Version 2.0**
+**Independent Ageing Score — Proxy Version 2.0 (product name: IAS)**
 
 Canonical reference for question count, prompts, answer options, scoring, and red flags.  
 Source of truth for API parameter keys: `server/src/modules/scoring/ias-calculator.ts`.  
@@ -12,89 +12,79 @@ Frontend wizard copy: `client/features/assessments/data/iasp-questionnaire-data.
 
 | Property | Value |
 | -------- | ----- |
-| Scored items | **24** (one question per item; wizard shows “Question *n* of **24**”) |
+| Wizard items | **25** (24 scored + 1 contextual medication-count) |
+| Scored items | **24** |
 | Sections | **8** (A–H) |
-| Answer options per item | **3** (same labels and descriptions for every question) |
-| Points per item | 0, 1, or 2 |
-| Max raw score | **48** (24 × 2) |
-| Percentage formula | `IAS% = (raw_score / 48) × 100` |
+| Default answer options | **3** (Independent / Some support / Dependent) |
+| Points per scored item | 0, 1, or 2 |
+| Max raw score (internal) | **48** (24 × 2) |
+| Displayed score | **IAS%** = `(raw_score / 48) × 100` |
 | Risk bands | 5 |
 | Red flags (separate checklist) | 8 |
 
 ---
 
-## Response scale (all 24 items)
+## Response scale (default scored items)
 
-Every scored item uses the same three options. Helper text shown in the wizard:
+Helper text shown in the wizard:
 
-> Select the option that best describes the patient's current daily ability.
+> Please answer based on how your parent has functioned in the past 4 weeks.
 
 | UI label | API value | Points | Description |
 | -------- | --------- | ------ | ----------- |
-| **Independent** | `2` | 2 | Completes the activity without assistance or supervision. |
-| **Needs Assistance** | `1` | 1 | Requires some assistance, supervision, or reminders. |
-| **Dependent** | `0` | 0 | Requires complete assistance to perform the activity. |
+| **Independent** | `2` | 2 | Does safely without help |
+| **Some support** | `1` | 1 | Needs reminders, supervision, or occasional help |
+| **Dependent** | `0` | 0 | Needs regular help or cannot do alone / unsafe |
 
-Keyboard shortcuts in the wizard: **1** = Independent, **2** = Needs Assistance, **3** = Dependent.
+Keyboard shortcuts: **1** / **2** / **3** map to the options shown for that question.
 
 ---
 
 ## Section breakdown
 
-| Section | Domain key | Items | Max section score |
-| ------- | ---------- | ----- | ----------------- |
-| A — Basic Self-Care | `basic_self_care` | 4 | 8 |
-| B — Daily Life Function | `daily_life_function` | 4 | 8 |
-| C — Mobility | `mobility` | 4 | 8 |
-| D — Thinking & Decision-Making | `thinking_decision` | 3 | 6 |
-| E — Health Management | `health_management` | 3 | 6 |
-| F — Nutrition & Continence | `nutrition_continence` | 3 | 6 |
-| G — Social Function | `social_function` | 2 | 4 |
-| H — Safety & Support | `safety_support` | 1 | 2 |
-| **Total** | | **24** | **48** |
+| Section | Domain key | Wizard items | Scored | Max section score |
+| ------- | ---------- | ------------ | ------ | ----------------- |
+| A — Basic Self-Care | `basic_self_care` | 4 | 4 | 8 |
+| B — Daily Life Function | `daily_life_function` | 4 | 4 | 8 |
+| C — Mobility | `mobility` | 4 | 4 | 8 |
+| D — Thinking & Decision-Making | `thinking_decision` | 3 | 3 | 6 |
+| E — Health Management | `health_management` | 4 | 3 | 6 |
+| F — Nutrition & Continence | `nutrition_continence` | 3 | 3 | 6 |
+| G — Social Function | `social_function` | 2 | 2 | 4 |
+| H — Safety & Support | `safety_support` | 1 | 1 | 2 |
+| **Total** | | **25** | **24** | **48** |
 
 ---
 
-## Complete question inventory (24 items)
+## Complete question inventory
 
-| # | Section | API parameter | Question prompt |
-| - | ------- | ------------- | --------------- |
-| 1 | A | `bathing` | Can the patient bathe independently? |
-| 2 | A | `dressing` | Can the patient dress independently? |
-| 3 | A | `toileting` | Can the patient use the toilet independently? |
-| 4 | A | `feeding` | Can the patient eat and drink independently? |
-| 5 | B | `phone_communication` | Can the patient use a phone independently? |
-| 6 | B | `daily_home_tasks` | Can the patient manage basic home tasks independently? |
-| 7 | B | `simple_purchases` | Can the patient make simple purchases independently? |
-| 8 | B | `organizing_essentials` | Can the patient manage bills and paperwork independently? |
-| 9 | C | `moving_inside_house` | Can the patient move around the home independently? |
-| 10 | C | `getting_up` | Can the patient get up from a bed or chair independently? |
-| 11 | C | `walking_outside` | Can the patient move outdoors independently? |
-| 12 | C | `falls_6_months` | In the last 6 months, has the patient stayed free from repeated falls? |
-| 13 | D | `remembering_routine` | Can the patient remember daily routines independently? |
-| 14 | D | `understanding_instructions` | Can the patient follow instructions independently? |
-| 15 | D | `safe_decisions` | Can the patient make safe decisions independently? |
-| 16 | E | `taking_medicines` | Can the patient manage medications independently? |
-| 17 | E | `understanding_health` | Can the patient understand their health independently? |
-| 18 | E | `following_appointments` | Can the patient manage medical appointments independently? |
-| 19 | F | `eating_drinking` | Can the patient maintain adequate nutrition and hydration independently? |
-| 20 | F | `weight_appetite` | Can the patient maintain a stable weight and appetite independently? |
-| 21 | F | `bladder_bowel` | Can the patient manage bladder and bowel control independently? |
-| 22 | G | `communicating_needs` | Can the patient communicate their needs independently? |
-| 23 | G | `social_contact` | Can the patient maintain social contact independently? |
-| 24 | H | `emergency_help` | Can the patient summon help in an emergency independently? |
-
-### Section C — `falls_6_months` scoring guidance
-
-This item uses the same 0–2 scale as all other items (not a yes/no field):
-
-| Score | Meaning |
-| ----- | ------- |
-| 2 (Independent) | No falls in the last 6 months |
-| 1 (Needs Assistance) | One fall, or near-misses requiring supervision |
-| 0 (Dependent) | Two or more falls in the last 6 months |
-
-Selecting **two or more falls** on this item often correlates with the `two_or_more_falls` red flag (see below); both are captured separately.
+| # | Section | API parameter | Question prompt | Options |
+| - | ------- | ------------- | --------------- | ------- |
+| 1 | A | `bathing` | Bathing | Default 0–2 |
+| 2 | A | `dressing` | Dressing | Default 0–2 |
+| 3 | A | `toileting` | Toileting | Default 0–2 |
+| 4 | A | `feeding` | Feeding / eating meals | Default 0–2 |
+| 5 | B | `phone_communication` | Using phone / communicating when needed | Default 0–2 |
+| 6 | B | `daily_home_tasks` | Managing small daily tasks in the home | Default 0–2 |
+| 7 | B | `simple_purchases` | Handling simple purchases or money matters | Default 0–2 |
+| 8 | B | `organizing_essentials` | Organizing daily essentials (food, medicines, etc.) | Default 0–2 |
+| 9 | C | `moving_inside_house` | Moving safely inside the house | Default 0–2 |
+| 10 | C | `getting_up` | Getting up from bed or chair | Default 0–2 |
+| 11 | C | `walking_outside` | Walking outside / in common areas | Default 0–2 |
+| 12 | C | `falls_6_months` | In the last 6 months, does the patient have any falls? | No fall (2) · One fall (1) · Two or more falls (0) |
+| 13 | D | `remembering_routine` | Remembering routine daily tasks | Default 0–2 |
+| 14 | D | `understanding_instructions` | Understanding instructions or advice | Default 0–2 |
+| 15 | D | `safe_decisions` | Making safe everyday decisions | Default 0–2 |
+| 16 | E | *(contextual, not scored)* | Does the patient take more than 5 medications? | Yes · No |
+| 17 | E | `taking_medicines` | Taking medicines correctly | Default 0–2 |
+| 18 | E | `understanding_health` | Understanding their main medical problems | Default 0–2 |
+| 19 | E | `following_appointments` | Following appointments or treatment advice | Default 0–2 |
+| 20 | F | `eating_drinking` | Eating and drinking adequately | Default 0–2 |
+| 21 | F | `weight_appetite` | Weight / appetite stability | Stable (2) · Mild concern (1) · Significant concern (0) |
+| 22 | F | `bladder_bowel` | Bladder / bowel control | Default 0–2 |
+| 23 | G | `communicating_needs` | Communicating needs clearly | Default 0–2 |
+| 24 | G | `social_contact` | Maintaining regular contact with family or others | Yes (2) · No (0) |
+| 25 | H | `emergency_help` | Ability to get help in an emergency | Clear reliable system (2) · Some support available (1) · No reliable system (0) |
 
 ### Frontend ↔ API parameter map
 
@@ -107,7 +97,7 @@ Selecting **two or more falls** on this item often correlates with the `two_or_m
 | `phone` | `phone_communication` |
 | `home-tasks` | `daily_home_tasks` |
 | `purchases` | `simple_purchases` |
-| `bills` | `organizing_essentials` |
+| `essentials` | `organizing_essentials` |
 | `move-home` | `moving_inside_house` |
 | `transfer` | `getting_up` |
 | `outdoors` | `walking_outside` |
@@ -115,6 +105,7 @@ Selecting **two or more falls** on this item often correlates with the `two_or_m
 | `routines` | `remembering_routine` |
 | `instructions` | `understanding_instructions` |
 | `decisions` | `safe_decisions` |
+| `medication-count` | *(UI only — not submitted as IAS parameter)* |
 | `medications` | `taking_medicines` |
 | `understand-health` | `understanding_health` |
 | `appointments` | `following_appointments` |
@@ -127,11 +118,18 @@ Selecting **two or more falls** on this item often correlates with the `two_or_m
 
 ---
 
+## About you (proxy metadata)
+
+| Field | Options |
+| ----- | ------- |
+| Relationship | Spouse / Partner · Son / Daughter · Sibling · Other family member · Friend · Professional caregiver |
+| Location | Same household · Same city · Same state · Different state · **Different country** |
+| Visit frequency | Daily · Several times a week · Weekly · Monthly · A few times a year · Rarely / remotely |
+| Living situation | Alone · With spouse · With family · With caregiver · **Other** (free text) |
+
+---
+
 ## Red flags (8 items — not scored)
-
-Collected after the 24 scored questions. Helper text:
-
-> Select any urgent concerns that may require immediate professional attention.
 
 | # | API key | Label |
 | - | ------- | ----- |
@@ -144,13 +142,13 @@ Collected after the 24 scored questions. Helper text:
 | 7 | `caregiver_struggling` | Primary caregiver is struggling or absent |
 | 8 | `no_emergency_response` | Cannot summon help in an emergency |
 
-### Urgency tiers (from red-flag count)
+### Urgency tiers
 
-| Flag count | Urgency | Action |
-| ---------- | ------- | ------ |
-| 0 | `routine_monitoring` | No alert |
-| 1–2 | `review_needed` | Coordinator review |
-| 3+ | `urgent_care_planning` | Immediate care team escalation |
+| Flag count | Urgency |
+| ---------- | ------- |
+| 0 | `routine_monitoring` |
+| 1–2 | `review_needed` |
+| 3+ | `urgent_care_planning` |
 
 ---
 
@@ -164,17 +162,7 @@ Collected after the 24 scored questions. Helper text:
 | 40–54 | Limited Independence | Clinic care |
 | 0–39 | High Dependence | High dependency |
 
----
-
-## Wizard flow (UI)
-
-1. **About you** — proxy metadata (relationship, proximity, visit frequency, age, living situation)
-2. **Questionnaire** — 24 pages, one question each (`Question 1 of 24` … `Question 24 of 24`)
-3. **Red flags** — optional multi-select checklist (8 items)
-4. **Review** — answers grouped by section A–H
-5. **Results** — IAS%, risk band, pathway, domain breakdown
-
-Progress percentage in the questionnaire is based on **answered scored items / 24**.
+Results UI shows **IAS%**, not raw `/48`.
 
 ---
 
@@ -187,4 +175,3 @@ Progress percentage in the questionnaire is based on **answered scored items / 2
 | Frontend questions | `client/features/assessments/data/iasp-questionnaire-data.ts` |
 | Frontend scoring | `client/features/assessments/data/iasp-scoring.ts` |
 | Frontend red flags | `client/features/assessments/data/iasp-red-flags-data.ts` |
-| HLD deep dive | `docs/nivarak_hld_lld.html` §8 |

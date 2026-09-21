@@ -14,6 +14,7 @@ import {
   ChartTooltipPanel,
   ChartTooltipRow,
   createChartActiveDot,
+  chartLegendSwatchClass,
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
@@ -25,6 +26,8 @@ import {
 import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
+import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import { vitalStatusConfig, type VitalStatus } from "@/lib/tokens/status-badges";
 import { cn } from "@/lib/utils";
 
 // ─── Colors and styling from VitalsCard.tsx ──────────────────────────────────
@@ -35,8 +38,30 @@ const SPO2_COLOR = "var(--chart-5)";
 const GLUCOSE_COLOR = "var(--chart-6)";
 const TEMP_COLOR = "var(--chart-7)";
 
-const STATUS_COLOR = "var(--success)";
 const GRID_STROKE = "var(--divider)";
+
+function statusTooltipColor(status: VitalStatus) {
+  switch (status) {
+    case "Normal":
+      return "var(--success)";
+    case "Low":
+      return "var(--warning)";
+    case "Elevated":
+      return "var(--destructive)";
+  }
+}
+
+function VitalStatusTooltipRow({ status }: { status: VitalStatus }) {
+  const config = vitalStatusConfig(status);
+  return (
+    <ChartTooltipRow
+      label="Status"
+      value={status}
+      color={statusTooltipColor(status)}
+      valueClassName={config.badgeText}
+    />
+  );
+}
 
 const AXIS_TICK = {
   fill: "var(--tertiary-foreground)",
@@ -58,58 +83,58 @@ const tooltipCursor = {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const BP_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", systolic: 115, diastolic: 75, status: "Normal" },
-  { label: "Jul 7", date: "July 7, 2026", systolic: 120, diastolic: 78, status: "Normal" },
-  { label: "Jul 11", date: "July 11, 2026", systolic: 122, diastolic: 80, status: "Normal" },
-  { label: "Jul 15", date: "July 15, 2026", systolic: 128, diastolic: 88, status: "Normal" },
-  { label: "Jul 19", date: "July 19, 2026", systolic: 119, diastolic: 79, status: "Normal" },
-  { label: "Jul 23", date: "July 23, 2026", systolic: 121, diastolic: 81, status: "Normal" },
-  { label: "Jul 27", date: "July 27, 2026", systolic: 120, diastolic: 80, status: "Normal" },
-  { label: "Jul 31", date: "July 31, 2026", systolic: 122, diastolic: 82, status: "Normal" },
+  { label: "Jul 3", date: "July 3, 2026", systolic: 115, diastolic: 75, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", systolic: 120, diastolic: 78, status: "Normal" as const },
+  { label: "Jul 11", date: "July 11, 2026", systolic: 122, diastolic: 80, status: "Normal" as const },
+  { label: "Jul 15", date: "July 15, 2026", systolic: 128, diastolic: 88, status: "Normal" as const },
+  { label: "Jul 19", date: "July 19, 2026", systolic: 119, diastolic: 79, status: "Normal" as const },
+  { label: "Jul 23", date: "July 23, 2026", systolic: 121, diastolic: 81, status: "Normal" as const },
+  { label: "Jul 27", date: "July 27, 2026", systolic: 120, diastolic: 80, status: "Normal" as const },
+  { label: "Jul 31", date: "July 31, 2026", systolic: 122, diastolic: 82, status: "Normal" as const },
 ];
 
 const HR_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", heartRate: 60 },
-  { label: "Jul 7", date: "July 7, 2026", heartRate: 58 },
-  { label: "Jul 11", date: "July 11, 2026", heartRate: 55 },
-  { label: "Jul 15", date: "July 15, 2026", heartRate: 57 },
-  { label: "Jul 19", date: "July 19, 2026", heartRate: 54 },
-  { label: "Jul 23", date: "July 23, 2026", heartRate: 59 },
-  { label: "Jul 27", date: "July 27, 2026", heartRate: 57 },
-  { label: "Jul 31", date: "July 31, 2026", heartRate: 58 },
+  { label: "Jul 3", date: "July 3, 2026", heartRate: 60, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", heartRate: 58, status: "Low" as const },
+  { label: "Jul 11", date: "July 11, 2026", heartRate: 55, status: "Low" as const },
+  { label: "Jul 15", date: "July 15, 2026", heartRate: 57, status: "Low" as const },
+  { label: "Jul 19", date: "July 19, 2026", heartRate: 54, status: "Low" as const },
+  { label: "Jul 23", date: "July 23, 2026", heartRate: 59, status: "Low" as const },
+  { label: "Jul 27", date: "July 27, 2026", heartRate: 57, status: "Low" as const },
+  { label: "Jul 31", date: "July 31, 2026", heartRate: 58, status: "Low" as const },
 ];
 
 const SPO2_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", spo2: 97 },
-  { label: "Jul 7", date: "July 7, 2026", spo2: 98 },
-  { label: "Jul 11", date: "July 11, 2026", spo2: 98 },
-  { label: "Jul 15", date: "July 15, 2026", spo2: 98 },
-  { label: "Jul 19", date: "July 19, 2026", spo2: 99 },
-  { label: "Jul 23", date: "July 23, 2026", spo2: 98 },
-  { label: "Jul 27", date: "July 27, 2026", spo2: 98 },
-  { label: "Jul 31", date: "July 31, 2026", spo2: 98 },
+  { label: "Jul 3", date: "July 3, 2026", spo2: 97, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", spo2: 98, status: "Normal" as const },
+  { label: "Jul 11", date: "July 11, 2026", spo2: 98, status: "Normal" as const },
+  { label: "Jul 15", date: "July 15, 2026", spo2: 98, status: "Normal" as const },
+  { label: "Jul 19", date: "July 19, 2026", spo2: 99, status: "Normal" as const },
+  { label: "Jul 23", date: "July 23, 2026", spo2: 98, status: "Normal" as const },
+  { label: "Jul 27", date: "July 27, 2026", spo2: 98, status: "Normal" as const },
+  { label: "Jul 31", date: "July 31, 2026", spo2: 98, status: "Normal" as const },
 ];
 
 const GLUCOSE_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", glucose: 118 },
-  { label: "Jul 7", date: "July 7, 2026", glucose: 124 },
-  { label: "Jul 11", date: "July 11, 2026", glucose: 130 },
-  { label: "Jul 15", date: "July 15, 2026", glucose: 126 },
-  { label: "Jul 19", date: "July 19, 2026", glucose: 128 },
-  { label: "Jul 23", date: "July 23, 2026", glucose: 131 },
-  { label: "Jul 27", date: "July 27, 2026", glucose: 126 },
-  { label: "Jul 31", date: "July 31, 2026", glucose: 125 },
+  { label: "Jul 3", date: "July 3, 2026", glucose: 118, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", glucose: 124, status: "Normal" as const },
+  { label: "Jul 11", date: "July 11, 2026", glucose: 130, status: "Elevated" as const },
+  { label: "Jul 15", date: "July 15, 2026", glucose: 126, status: "Elevated" as const },
+  { label: "Jul 19", date: "July 19, 2026", glucose: 128, status: "Elevated" as const },
+  { label: "Jul 23", date: "July 23, 2026", glucose: 131, status: "Elevated" as const },
+  { label: "Jul 27", date: "July 27, 2026", glucose: 126, status: "Elevated" as const },
+  { label: "Jul 31", date: "July 31, 2026", glucose: 125, status: "Elevated" as const },
 ];
 
 const TEMP_DATA = [
-  { label: "Jul 3", date: "July 3, 2026", temp: 36.5 },
-  { label: "Jul 7", date: "July 7, 2026", temp: 36.7 },
-  { label: "Jul 11", date: "July 11, 2026", temp: 36.6 },
-  { label: "Jul 15", date: "July 15, 2026", temp: 36.8 },
-  { label: "Jul 19", date: "July 19, 2026", temp: 36.9 },
-  { label: "Jul 23", date: "July 23, 2026", temp: 36.8 },
-  { label: "Jul 27", date: "July 27, 2026", temp: 36.7 },
-  { label: "Jul 31", date: "July 31, 2026", temp: 36.8 },
+  { label: "Jul 3", date: "July 3, 2026", temp: 36.5, status: "Normal" as const },
+  { label: "Jul 7", date: "July 7, 2026", temp: 36.7, status: "Normal" as const },
+  { label: "Jul 11", date: "July 11, 2026", temp: 36.6, status: "Normal" as const },
+  { label: "Jul 15", date: "July 15, 2026", temp: 36.8, status: "Normal" as const },
+  { label: "Jul 19", date: "July 19, 2026", temp: 36.9, status: "Normal" as const },
+  { label: "Jul 23", date: "July 23, 2026", temp: 36.8, status: "Normal" as const },
+  { label: "Jul 27", date: "July 27, 2026", temp: 36.7, status: "Normal" as const },
+  { label: "Jul 31", date: "July 31, 2026", temp: 36.8, status: "Normal" as const },
 ];
 
 // ─── Chart config ─────────────────────────────────────────────────────────────
@@ -143,7 +168,7 @@ function BpTooltip({ active, payload }: { active?: boolean; payload?: Array<{ pa
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="Systolic" value={`${p.systolic} mmHg`} color={SYSTOLIC_COLOR} />
       <ChartTooltipRow label="Diastolic" value={`${p.diastolic} mmHg`} color={DIASTOLIC_COLOR} />
-      <ChartTooltipRow label="Status" value={p.status} color={STATUS_COLOR} valueClassName="text-success" />
+      <VitalStatusTooltipRow status={p.status} />
     </ChartTooltipPanel>
   );
 }
@@ -155,6 +180,7 @@ function HrTooltip({ active, payload }: { active?: boolean; payload?: Array<{ pa
   return (
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="Heart Rate" value={`${p.heartRate} bpm`} color={HEART_RATE_COLOR} />
+      <VitalStatusTooltipRow status={p.status} />
     </ChartTooltipPanel>
   );
 }
@@ -166,6 +192,7 @@ function Spo2Tooltip({ active, payload }: { active?: boolean; payload?: Array<{ 
   return (
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="SpO₂" value={`${p.spo2}%`} color={SPO2_COLOR} />
+      <VitalStatusTooltipRow status={p.status} />
     </ChartTooltipPanel>
   );
 }
@@ -177,6 +204,7 @@ function GlucoseTooltip({ active, payload }: { active?: boolean; payload?: Array
   return (
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="Blood Glucose" value={`${p.glucose} mg/dL`} color={GLUCOSE_COLOR} />
+      <VitalStatusTooltipRow status={p.status} />
     </ChartTooltipPanel>
   );
 }
@@ -188,6 +216,7 @@ function TempTooltip({ active, payload }: { active?: boolean; payload?: Array<{ 
   return (
     <ChartTooltipPanel title={p.date}>
       <ChartTooltipRow label="Temperature" value={`${p.temp}°C`} color={TEMP_COLOR} />
+      <VitalStatusTooltipRow status={p.status} />
     </ChartTooltipPanel>
   );
 }
@@ -271,10 +300,7 @@ export function VitalsTrendCard() {
   };
 
   return (
-    <div
-      className="flex w-full flex-col items-stretch gap-5 rounded-lg bg-card p-5"
-      style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
-    >
+    <div className={cn(dashboardCardClass, "flex w-full flex-col items-stretch gap-5 p-5")}>
       {/* Title */}
       <div className="flex w-full flex-col items-start">
         <SectionTitle
@@ -293,6 +319,7 @@ export function VitalsTrendCard() {
           options={TABS}
           ariaLabel="Vital type"
           layoutId="vitalsTrendActiveTab"
+          surface="card"
           className="w-full min-w-0 md:w-auto md:max-w-full"
         />
 
@@ -302,13 +329,13 @@ export function VitalsTrendCard() {
             {activeTab === "bp" && (
               <>
                 <div className="flex items-center gap-1.5">
-                  <div className="size-2.5 shrink-0 rounded-xs bg-chart-2" />
+                  <div className={cn(chartLegendSwatchClass, "bg-chart-2")} />
                   <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                     Systolic
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="size-2.5 shrink-0 rounded-xs bg-chart-3" />
+                  <div className={cn(chartLegendSwatchClass, "bg-chart-3")} />
                   <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
                     Diastolic
                   </div>
@@ -318,7 +345,7 @@ export function VitalsTrendCard() {
             {activeTab === "hr" && (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="size-2.5 shrink-0 rounded-xs"
+                  className={chartLegendSwatchClass}
                   style={{ backgroundColor: HEART_RATE_COLOR }}
                 />
                 <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
@@ -329,7 +356,7 @@ export function VitalsTrendCard() {
             {activeTab === "spo2" && (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="size-2.5 shrink-0 rounded-xs"
+                  className={chartLegendSwatchClass}
                   style={{ backgroundColor: SPO2_COLOR }}
                 />
                 <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
@@ -340,7 +367,7 @@ export function VitalsTrendCard() {
             {activeTab === "glucose" && (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="size-2.5 shrink-0 rounded-xs"
+                  className={chartLegendSwatchClass}
                   style={{ backgroundColor: GLUCOSE_COLOR }}
                 />
                 <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
@@ -351,7 +378,7 @@ export function VitalsTrendCard() {
             {activeTab === "temp" && (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="size-2.5 shrink-0 rounded-xs"
+                  className={chartLegendSwatchClass}
                   style={{ backgroundColor: TEMP_COLOR }}
                 />
                 <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
@@ -366,12 +393,7 @@ export function VitalsTrendCard() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex h-dash-control min-h-dash-control shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-full bg-card px-3 outline-none transition-colors hover:bg-accent sm:px-4"
-                style={{
-                  outline: "1px solid var(--border)",
-                  outlineOffset: "-1px",
-                  boxShadow: "0px 1px 2px rgba(17, 24, 39, 0.04)",
-                }}
+                className="group inline-flex h-dash-control min-h-dash-control shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-full bg-muted px-3 outline-none transition-colors hover:bg-accent sm:px-4"
               >
                 <span className="inline-grid shrink-0 text-sm font-medium leading-5 font-sans [&>*]:col-start-1 [&>*]:row-start-1">
                   {TIMELINE_OPTIONS.map((option) => (
@@ -383,11 +405,11 @@ export function VitalsTrendCard() {
                       {option}
                     </span>
                   ))}
-                  <span className="whitespace-nowrap text-muted-foreground">
+                  <span className="whitespace-nowrap text-muted-foreground transition-colors group-hover:text-foreground">
                     {timeline}
                   </span>
                 </span>
-                <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground">
+                <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground transition-colors group-hover:text-primary">
                   <svg
                     width="8"
                     height="5"

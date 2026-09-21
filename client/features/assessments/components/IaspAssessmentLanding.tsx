@@ -9,7 +9,7 @@ import { AppIcon } from "@/components/shared/AppIcon";
 import { Button } from "@/components/ui/button";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { GlowWrapper } from "@/components/ui/glow";
-import { AuthLogo } from "@/features/auth/components/primitives/AuthLogo";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { iaspMotionEase } from "@/features/assessments/data/iasp-assessment-styles";
 import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
@@ -202,7 +202,7 @@ export function IaspAssessmentLanding() {
         variants={landingContainerVariants}
       >
         <motion.div variants={itemVariants} className="shrink-0 pt-1 pb-2">
-          <AuthLogo />
+          <BrandLogo />
         </motion.div>
 
         <section
@@ -223,7 +223,7 @@ export function IaspAssessmentLanding() {
               "text-[clamp(1.75rem,7.2vw,2.375rem)] leading-[1.15]",
             )}
           >
-            Start your quick IAS-P Assessment
+            Start your quick IAS Assessment
           </motion.h1>
 
           <motion.p
@@ -267,7 +267,7 @@ export function IaspAssessmentLanding() {
           variants={landingContainerVariants}
         >
           <motion.div variants={itemVariants}>
-            <AuthLogo />
+            <BrandLogo />
           </motion.div>
 
           <div className="flex min-h-0 flex-1 flex-col justify-center gap-6 py-0 -translate-y-18">
@@ -278,7 +278,7 @@ export function IaspAssessmentLanding() {
                 "max-w-xl text-balance text-foreground text-[56px] leading-17 tracking-[-0.02em]",
               )}
             >
-              Start your quick IAS-P Assessment
+              Start your quick IAS Assessment
             </motion.h1>
 
             <motion.p

@@ -4,25 +4,31 @@ import { cn } from "@/lib/utils";
 import {
   dashboardCardClass,
   dashboardCardHeaderClass,
+  dashboardCardListClass,
   dashboardDividedItemClass,
   dashboardDividedRowClass,
+  dashboardPreviewRowClass,
   dashboardRowDividerClass,
 } from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { ActivityItem } from "../data/home-data";
 
+const RECENT_ACTIVITY_PREVIEW_COUNT = 3;
+
 export function RecentActivityCard({ items }: { items: ActivityItem[] | null }) {
+  const previewItems = items?.slice(0, RECENT_ACTIVITY_PREVIEW_COUNT) ?? null;
+
   return (
-    <section className={cn(dashboardCardClass, "flex flex-col p-5")}>
+    <section className={cn(dashboardCardClass, "flex h-full min-h-0 flex-col p-5")}>
       <div className={dashboardCardHeaderClass}>
         <SectionTitle info="A timeline of medical logs, completed checks, and status updates from you and your care team.">
           Recent Activity
         </SectionTitle>
         <ViewAllLink />
       </div>
-      {items && items.length > 0 ? (
-        <ul className="flex min-w-0 flex-col">
-          {items.map((item, index) => (
+      {previewItems && previewItems.length > 0 ? (
+        <ul className={dashboardCardListClass}>
+          {previewItems.map((item, index) => (
             <li key={item.id} className={dashboardDividedItemClass}>
               {index > 0 ? (
                 <div className={dashboardRowDividerClass} aria-hidden />
@@ -30,7 +36,8 @@ export function RecentActivityCard({ items }: { items: ActivityItem[] | null }) 
               <div
                 className={cn(
                   dashboardDividedRowClass,
-                  "-mx-2 flex flex-col gap-1 px-2 py-3.5",
+                  dashboardPreviewRowClass,
+                  "-mx-2 flex-col items-start justify-center gap-1",
                 )}
               >
                 <p className={typo.headingS}>{item.title}</p>

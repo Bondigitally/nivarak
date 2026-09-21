@@ -85,6 +85,13 @@ export const PRIORITY_BUBBLE: Record<NotificationPriority, string> = {
   low:      "bg-muted text-tertiary-foreground",
 };
 
+/** Pastel squircle tile — muted tint + outline icon on notification rows. */
+export const NOTIFICATION_ICON_TILE: Record<NotificationCategory, string> = {
+  alert:    "bg-destructive-muted text-foreground",
+  reminder: "bg-warning/15 text-foreground",
+  update:   "bg-info-muted text-foreground",
+};
+
 // ─── Tab options ────────────────────────────────────────────────────────────────
 
 export const NOTIFICATION_TABS = [
@@ -119,7 +126,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "vitals",
     category: "alert",
     priority: "critical",
-    title:    "Blood pressure reading needs attention",
+    title:    "Blood pressure elevated",
     body:     "A reading of 185/110 mmHg was recorded and is above the safe threshold set for you.",
     time:     "15 min ago",
     timeGroup: "today",
@@ -131,7 +138,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "assessment",
     category: "alert",
     priority: "critical",
-    title:    "Red flags found in today’s assessment",
+    title:    "Assessment red flags",
     body:     "Three red flags were flagged in the independence assessment. Review them and update the care plan soon.",
     time:     "8:00 AM",
     timeGroup: "today",
@@ -144,7 +151,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "medication",
     category: "reminder",
     priority: "high",
-    title:    "Morning medications still pending",
+    title:    "Morning meds due",
     body:     "Amlodipine 5 mg and Metformin 500 mg are due. Take them with breakfast when ready.",
     time:     "9:00 AM",
     timeGroup: "today",
@@ -156,7 +163,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "task",
     category: "reminder",
     priority: "normal",
-    title:    "Daily walk check in is due",
+    title:    "Daily walk due",
     body:     "Your 20 minute walk has not been logged yet today. Mark it complete when you finish.",
     time:     "11:00 AM",
     timeGroup: "today",
@@ -169,7 +176,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "risk",
     category: "alert",
     priority: "high",
-    title:    "Risk level moved from Moderate to High",
+    title:    "Risk level increased",
     body:     "A drop in the independence score triggered this change. Review the care plan for next steps.",
     time:     "Yesterday",
     timeGroup: "yesterday",
@@ -181,7 +188,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "appointment",
     category: "alert",
     priority: "high",
-    title:    "Clinic rescheduled your appointment",
+    title:    "Appointment rescheduled",
     body:     "Your GP consultation on Aug 12 has been moved to Aug 19 at 10:30 AM.",
     time:     "Yesterday",
     timeGroup: "yesterday",
@@ -194,12 +201,12 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "appointment",
     category: "reminder",
     priority: "normal",
-    title:    "Nurse visit tomorrow at 10:00 AM",
+    title:    "Nurse visit tomorrow",
     body:     "Nurse Sneha is scheduled for a home visit tomorrow. Please stay available for the visit.",
     time:     "Yesterday",
     timeGroup: "yesterday",
     read:     true,
-    actions:  [{ label: "View Appointments", href: "/care/appointments" }],
+    actions:  [],
   },
   // ── Updates (yesterday) ───────────────────────────────────────────────────
   {
@@ -207,12 +214,12 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "encounter",
     category: "update",
     priority: "normal",
-    title:    "Home visit completed by Nurse Sneha",
+    title:    "Home visit completed",
     body:     "The five domain encounter record is ready to review. Status is Completed.",
     time:     "Yesterday",
     timeGroup: "yesterday",
     read:     true,
-    actions:  [{ label: "View Records", href: "/health/records" }],
+    actions:  [],
   },
   // ── Updates (earlier) ─────────────────────────────────────────────────────
   {
@@ -220,24 +227,24 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     source:   "assessment",
     category: "update",
     priority: "low",
-    title:    "New independence assessment submitted",
+    title:    "Assessment submitted",
     body:     "Your caregiver submitted an assessment with a score of 62% and a Moderate risk band.",
     time:     "2 days ago",
     timeGroup: "earlier",
     read:     true,
-    actions:  [{ label: "View Assessment", href: "/health/assessments" }],
+    actions:  [],
   },
   {
     id: "n10",
     source:   "care-plan",
     category: "update",
     priority: "low",
-    title:    "Care plan updated by Dr. Arun",
+    title:    "Care plan updated",
     body:     "Your care plan was revised and two new mobility goals were added.",
     time:     "3 days ago",
     timeGroup: "earlier",
     read:     true,
-    actions:  [{ label: "View Care Plan", href: "/care/plan" }],
+    actions:  [],
   },
 ];
 

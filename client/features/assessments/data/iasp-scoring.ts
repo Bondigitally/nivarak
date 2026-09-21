@@ -1,21 +1,19 @@
 import type { IaspAnswerId } from "./iasp-questionnaire-data";
 import {
   IASP_QUESTION_PAGES,
+  IASP_SCORED_QUESTION_COUNT,
   IASP_SECTIONS,
-  IASP_TOTAL_QUESTIONS,
+  findIaspQuestion,
+  getIaspQuestionOptions,
+  isIaspQuestionScored,
 } from "./iasp-questionnaire-data";
 import {
   IASP_RED_FLAG_OPTIONS,
   type IaspRedFlagId,
 } from "./iasp-red-flags-data";
 
-const ANSWER_POINTS: Record<IaspAnswerId, number> = {
-  independent: 2,
-  assistance: 1,
-  dependent: 0,
-};
-
-export const IASP_MAX_SCORE = IASP_TOTAL_QUESTIONS * 2;
+/** Internal max raw score (scored items × 2). Not shown in results UI. */
+export const IASP_MAX_SCORE = IASP_SCORED_QUESTION_COUNT * 2;
 
 type IaspRiskBand =
   | "strong_independent"
@@ -23,6 +21,8 @@ type IaspRiskBand =
   | "supported_independence"
   | "limited_independence"
   | "high_dependence";
+
+export type { IaspRiskBand };
 
 export type IaspBandResult = {
   band: IaspRiskBand;
@@ -61,7 +61,7 @@ const BAND_COPY: Record<IaspRiskBand, Omit<IaspBandResult, "band">> = {
     descriptionBefore: "Needs structured clinical support. A ",
     highlight: "clinic care",
     descriptionAfter: " pathway is recommended.",
-    badgeClass: "bg-warning text-primary-foreground",
+    badgeClass: "bg-attention text-primary-foreground",
   },
   high_dependence: {
     label: "High Dependence",
@@ -72,7 +72,42 @@ const BAND_COPY: Record<IaspRiskBand, Omit<IaspBandResult, "band">> = {
   },
 };
 
-export const IASP_ANSWER_BADGE: Record<
+/** Ping badge tint + dot per band — dashboard hero (`IaspBandPingBadge`). */
+export type IaspBandPingStyle = {
+  shell: string;
+  dot: string;
+  pulse: boolean;
+};
+
+export const IASP_BAND_PING_STYLES: Record<IaspRiskBand, IaspBandPingStyle> = {
+  strong_independent: {
+    shell: "bg-success-muted text-success",
+    dot: "bg-success",
+    pulse: true,
+  },
+  independent_vulnerable: {
+    shell: "bg-info-muted text-info",
+    dot: "bg-info",
+    pulse: true,
+  },
+  supported_independence: {
+    shell: "bg-warning-muted text-warning",
+    dot: "bg-warning",
+    pulse: true,
+  },
+  limited_independence: {
+    shell: "bg-attention-muted text-attention-foreground",
+    dot: "bg-attention",
+    pulse: true,
+  },
+  high_dependence: {
+    shell: "bg-destructive-muted text-destructive",
+    dot: "bg-destructive",
+    pulse: true,
+  },
+};
+
+const DEFAULT_ANSWER_BADGE: Record<
   IaspAnswerId,
   { label: string; className: string }
 > = {
@@ -81,27 +116,60 @@ export const IASP_ANSWER_BADGE: Record<
     className: "border-success/20 bg-success-muted text-success",
   },
   assistance: {
-    label: "Needs Help",
+    label: "Some support",
     className: "border-warning/20 bg-warning-muted text-warning",
   },
   dependent: {
     label: "Dependent",
     className: "border-destructive/20 bg-destructive-muted text-destructive",
   },
+  yes: {
+    label: "Yes",
+    className: "border-warning/20 bg-warning-muted text-warning",
+  },
+  no: {
+    label: "No",
+    className: "border-success/20 bg-success-muted text-success",
+  },
 };
 
-function getIaspAnswerPoints(answer: IaspAnswerId | undefined): number {
+export function getIaspAnswerBadgeForQuestion(
+  questionId: string,
+  answer: IaspAnswerId | undefined,
+): { label: string; className: string } | null {
+  if (!answer) return null;
+  const question = findIaspQuestion(questionId);
+  const option = question
+    ? getIaspQuestionOptions(question).find((item) => item.id === answer)
+    : undefined;
+  const fallback = DEFAULT_ANSWER_BADGE[answer];
+  return {
+    label: option?.label ?? fallback.label,
+    className: fallback.className,
+  };
+}
+
+function getIaspAnswerPoints(
+  questionId: string,
+  answer: IaspAnswerId | undefined,
+): number {
   if (!answer) return 0;
-  return ANSWER_POINTS[answer];
+  const question = findIaspQuestion(questionId);
+  if (!question || !isIaspQuestionScored(question)) return 0;
+  const option = getIaspQuestionOptions(question).find(
+    (item) => item.id === answer,
+  );
+  return option?.points ?? 0;
 }
 
 export function calculateIaspRawScore(
   answers: Record<string, IaspAnswerId | undefined>,
 ): number {
-  return Object.values(answers).reduce(
-    (sum, answer) => sum + getIaspAnswerPoints(answer),
-    0,
-  );
+  let sum = 0;
+  for (const [questionId, answer] of Object.entries(answers)) {
+    sum += getIaspAnswerPoints(questionId, answer);
+  }
+  return sum;
 }
 
 export function calculateIaspPercentage(rawScore: number): number {
@@ -118,6 +186,18 @@ export function getIaspBand(percentage: number): IaspBandResult {
   else band = "high_dependence";
 
   return { band, ...BAND_COPY[band] };
+}
+
+/** All IASP bands in severity order — docs, tests, design QA. */
+export function listIaspBands(): IaspBandResult[] {
+  const order: IaspRiskBand[] = [
+    "strong_independent",
+    "independent_vulnerable",
+    "supported_independence",
+    "limited_independence",
+    "high_dependence",
+  ];
+  return order.map((band) => ({ band, ...BAND_COPY[band] }));
 }
 
 export function formatIaspAssessmentDate(date = new Date()): string {

@@ -9,7 +9,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
-import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import { cardTitleClass, dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,7 @@ import { useTaskStore } from "../store/task-store";
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <h2 className={cn(typo.bodyL, "font-semibold text-foreground")}>
+    <h2 className={cardTitleClass}>
       {children}
     </h2>
   );
@@ -60,11 +60,11 @@ function TasksSectionCollapsible({
         className={cn(
           dashboardCardClass,
           "flex min-h-16 w-full min-w-0 items-center justify-between gap-3 px-4 py-4 text-left sm:min-h-[4.5rem] sm:px-5",
-          "transition-colors duration-150 hover:bg-accent",
+          "transition-colors duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           isDestructive
-            ? "border-destructive focus-visible:ring-destructive"
-            : "focus-visible:ring-ring",
+            ? "border border-destructive shadow-none hover:bg-destructive-muted hover:shadow-none focus-visible:ring-destructive"
+            : "hover:bg-accent focus-visible:ring-ring",
         )}
       >
         <span
@@ -74,7 +74,10 @@ function TasksSectionCollapsible({
           )}
         >
           {isDestructive ? (
-            <span className="overdue-status-dot" aria-hidden />
+            <span
+              className="size-2 shrink-0 rounded-full bg-destructive"
+              aria-hidden
+            />
           ) : null}
           <span
             className={cn(

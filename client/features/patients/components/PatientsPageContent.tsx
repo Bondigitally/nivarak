@@ -16,7 +16,7 @@ import {
 } from "@/features/dashboard/data/dashboard-styles";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPillGroup } from "@/components/shared/FilterPillGroup";
 import { PatientAvatar } from "@/components/shared/PatientAvatar";
