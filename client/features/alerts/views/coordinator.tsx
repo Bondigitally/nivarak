@@ -12,13 +12,13 @@ import {
 } from "@/features/dashboard/data/dashboard-styles";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPillGroup } from "@/components/shared/FilterPillGroup";
 import { severityConfig } from "@/lib/tokens/status-badges";
 import { useNotificationStore } from "@/features/alerts/store/notification-store";
 import type { AlertSeverity, Notification } from "@/lib/domain";
-import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE, iconTileClass } from "@/lib/icons";
 
 function AlertCard({
   alert,
@@ -40,7 +40,8 @@ function AlertCard({
       {alert.icon && (
         <span
           className={cn(
-            "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg",
+            "mt-0.5 flex shrink-0 items-center justify-center rounded-lg",
+            iconTileClass,
             sev.icon,
           )}
         >
