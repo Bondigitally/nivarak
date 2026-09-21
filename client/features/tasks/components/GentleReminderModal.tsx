@@ -57,9 +57,11 @@ export function GentleReminderModal({
 
   useEffect(() => {
     if (!open) return;
-    setScope("all");
-    setChosenIds(tasks.map((task) => task.id));
-    setTiming("10m");
+    queueMicrotask(() => {
+      setScope("all");
+      setChosenIds(tasks.map((task) => task.id));
+      setTiming("10m");
+    });
     // Reset form when the dialog opens — ignore task list identity churn while open.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- open only
   }, [open]);
