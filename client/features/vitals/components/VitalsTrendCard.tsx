@@ -13,6 +13,7 @@ import {
   ChartTooltip,
   ChartTooltipPanel,
   ChartTooltipRow,
+  createChartActiveDot,
   type ChartConfig,
 } from "@/components/ui/chart";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -46,15 +47,6 @@ const tooltipCursor = {
   strokeWidth: 1,
   strokeDasharray: "4 4",
 };
-
-function lineActiveDot(color: string) {
-  return {
-    r: 5,
-    fill: color,
-    stroke: "var(--card)",
-    strokeWidth: 2,
-  };
-}
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const BP_DATA = [
@@ -201,6 +193,16 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "temp", label: "Temp" },
 ];
 
+const TIMELINE_OPTIONS = [
+  "7 Days",
+  "30 Days",
+  "3 Months",
+  "6 Months",
+  "1 Year",
+] as const;
+
+type TimelineOption = (typeof TIMELINE_OPTIONS)[number];
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -210,11 +212,11 @@ import {
 
 export function VitalsTrendCard() {
   const [activeTab, setActiveTab] = useState<Tab>("bp");
-  const [timeline, setTimeline] = useState("Last 30 Days");
+  const [timeline, setTimeline] = useState<TimelineOption>("30 Days");
 
   return (
     <div
-      className="flex w-full flex-col items-stretch gap-5 rounded-[14px] bg-card p-5"
+      className="flex w-full flex-col items-stretch gap-5 rounded-lg bg-card p-5"
       style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
     >
       {/* Title */}
@@ -308,15 +310,26 @@ export function VitalsTrendCard() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex h-10 shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-[14px] bg-card px-3 outline-none transition-colors hover:bg-accent sm:px-4"
+                className="inline-flex h-dash-control min-h-dash-control shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-full bg-card px-3 outline-none transition-colors hover:bg-accent sm:px-4"
                 style={{
                   outline: "1px solid var(--border)",
                   outlineOffset: "-1px",
                   boxShadow: "0px 1px 2px rgba(17, 24, 39, 0.04)",
                 }}
               >
-                <span className="whitespace-nowrap text-sm font-medium leading-5 text-muted-foreground font-sans">
-                  {timeline}
+                <span className="inline-grid shrink-0 text-sm font-medium leading-5 font-sans [&>*]:col-start-1 [&>*]:row-start-1">
+                  {TIMELINE_OPTIONS.map((option) => (
+                    <span
+                      key={option}
+                      className="invisible whitespace-nowrap"
+                      aria-hidden
+                    >
+                      {option}
+                    </span>
+                  ))}
+                  <span className="whitespace-nowrap text-muted-foreground">
+                    {timeline}
+                  </span>
                 </span>
                 <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground">
                   <svg
@@ -342,36 +355,15 @@ export function VitalsTrendCard() {
               align="end"
               className="min-w-0 w-(--radix-dropdown-menu-trigger-width) p-1"
             >
-              <DropdownMenuItem
-                className="cursor-pointer px-2.5 py-2"
-                onClick={() => setTimeline("Last 7 Days")}
-              >
-                Last 7 Days
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer px-2.5 py-2"
-                onClick={() => setTimeline("Last 30 Days")}
-              >
-                Last 30 Days
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer px-2.5 py-2"
-                onClick={() => setTimeline("Last 3 Months")}
-              >
-                Last 3 Months
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer px-2.5 py-2"
-                onClick={() => setTimeline("Last 6 Months")}
-              >
-                Last 6 Months
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer px-2.5 py-2"
-                onClick={() => setTimeline("Last 1 Year")}
-              >
-                Last 1 Year
-              </DropdownMenuItem>
+              {TIMELINE_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option}
+                  className="cursor-pointer px-2.5 py-2"
+                  onClick={() => setTimeline(option)}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -386,8 +378,8 @@ export function VitalsTrendCard() {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
               <YAxis domain={[60, 180]} ticks={BP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
               <ChartTooltip cursor={tooltipCursor} content={<BpTooltip />} />
-              <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={2} dot={false} activeDot={lineActiveDot(SYSTOLIC_COLOR)} />
-              <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={2} dot={false} activeDot={lineActiveDot(DIASTOLIC_COLOR)} />
+              <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(SYSTOLIC_COLOR)} />
+              <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(DIASTOLIC_COLOR)} />
             </LineChart>
           </ChartContainer>
         )}
@@ -399,7 +391,7 @@ export function VitalsTrendCard() {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
               <YAxis domain={[45, 75]} ticks={HR_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
               <ChartTooltip cursor={tooltipCursor} content={<HrTooltip />} />
-              <Line dataKey="heartRate" type="monotone" stroke="var(--color-heartRate)" strokeWidth={2} dot={false} activeDot={lineActiveDot(HEART_RATE_COLOR)} />
+              <Line dataKey="heartRate" type="monotone" stroke="var(--color-heartRate)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(HEART_RATE_COLOR)} />
             </LineChart>
           </ChartContainer>
         )}
@@ -411,7 +403,7 @@ export function VitalsTrendCard() {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
               <YAxis domain={[95, 100]} ticks={SPO2_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
               <ChartTooltip cursor={tooltipCursor} content={<Spo2Tooltip />} />
-              <Line dataKey="spo2" type="monotone" stroke="var(--color-spo2)" strokeWidth={2} dot={false} activeDot={lineActiveDot(SPO2_COLOR)} />
+              <Line dataKey="spo2" type="monotone" stroke="var(--color-spo2)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(SPO2_COLOR)} />
             </LineChart>
           </ChartContainer>
         )}
@@ -423,7 +415,7 @@ export function VitalsTrendCard() {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
               <YAxis domain={[110, 140]} ticks={GLUCOSE_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
               <ChartTooltip cursor={tooltipCursor} content={<GlucoseTooltip />} />
-              <Line dataKey="glucose" type="monotone" stroke="var(--color-glucose)" strokeWidth={2} dot={false} activeDot={lineActiveDot(GLUCOSE_COLOR)} />
+              <Line dataKey="glucose" type="monotone" stroke="var(--color-glucose)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(GLUCOSE_COLOR)} />
             </LineChart>
           </ChartContainer>
         )}
@@ -435,7 +427,7 @@ export function VitalsTrendCard() {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} padding={{ left: 24, right: 24 }} tick={AXIS_TICK} />
               <YAxis domain={[36.0, 37.2]} ticks={TEMP_TICKS} tickLine={false} axisLine={false} width={44} tickMargin={8} textAnchor="end" tick={AXIS_TICK} />
               <ChartTooltip cursor={tooltipCursor} content={<TempTooltip />} />
-              <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={2} dot={false} activeDot={lineActiveDot(TEMP_COLOR)} />
+              <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={2} dot={false} activeDot={createChartActiveDot(TEMP_COLOR)} />
             </LineChart>
           </ChartContainer>
         )}
