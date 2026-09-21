@@ -169,7 +169,7 @@ export function RecentAssessmentsHeading({ count }: { count: number }) {
       <h2 className={cardTitleClass}>
         Recent Assessments
       </h2>
-      <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
+      <span className={cn(statusBadgeClass, "bg-muted text-primary")}>
         {count}
       </span>
       <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
@@ -198,7 +198,7 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
         cell: (row) => (
           <DataTableIdentity
             leading={
-              <DataTableAvatar className="bg-sidebar-accent text-primary">
+              <DataTableAvatar className="bg-muted text-primary">
                 {assessmentCode(row.name)}
               </DataTableAvatar>
             }

@@ -145,7 +145,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
           <span
             className={cn(
               statusBadgeClass,
-              "shrink-0 bg-sidebar-accent text-muted-foreground",
+              "shrink-0 bg-muted text-muted-foreground",
             )}
           >
             {member.role}
