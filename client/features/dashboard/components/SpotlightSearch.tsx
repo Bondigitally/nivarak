@@ -25,7 +25,7 @@ export function SearchShortcutHint() {
     <span
       className={cn(
         typo.label,
-        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full px-2.5 text-muted-foreground transition-[color,background-color] duration-200 ease-out group-hover:bg-accent group-hover:text-foreground/85 sm:flex",
+        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full px-2.5 sm:flex",
         searchShortcutKeyClass,
       )}
       aria-hidden
