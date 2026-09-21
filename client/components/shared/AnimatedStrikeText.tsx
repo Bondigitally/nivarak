@@ -4,8 +4,10 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+/** Duration for the strikethrough line animation in milliseconds. */
 const STRIKE_DURATION_MS = 350;
 
+/** Custom spring-like ease that overshoots slightly for a snappy feel. */
 const STRIKE_EASE = [0.22, 1, 0.36, 1] as const;
 
 export function AnimatedStrikeText({
@@ -43,6 +45,16 @@ function useStrikeTransitionDuration() {
   return reduceMotion ? 0 : STRIKE_DURATION_MS;
 }
 
+/**
+ * Controls optimistic strike animation for a toggle-able completed state.
+ *
+ * Why optimistic flip: the strikethrough line animates for `STRIKE_DURATION_MS`
+ * before the real store/state update fires, so the visual response is instant
+ * even if the upstream `onToggle` is async or batched.
+ *
+ * `pending` guard: ignores rapid clicks during the animation window to prevent
+ * a double-toggle race that would flip state back immediately.
+ */
 export function useStrikeToggle(completed: boolean, onToggle: () => void) {
   const strikeDuration = useStrikeTransitionDuration();
   const [pending, setPending] = useState(false);

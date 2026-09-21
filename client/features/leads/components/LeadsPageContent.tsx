@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Coordinator-only page — displays the lead pipeline (prospective patients).
+ * All leads are visible to coordinators; clinical staff do not see this route.
+ * Status filter chips act as quick-select toggles (click again to deselect).
+ */
+
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Target02Icon, Search01Icon } from "@hugeicons/core-free-icons";
@@ -62,7 +68,7 @@ function LeadCard({ lead }: { lead: Lead }) {
       <div className="flex gap-2 border-t border-divider pt-3">
         <button
           type="button"
-          className="flex-1 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-primary-active"
+          className="flex-1 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-ring"
         >
           View Details
         </button>

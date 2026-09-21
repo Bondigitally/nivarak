@@ -3,6 +3,13 @@ import { MOCK_NOTIFICATIONS } from "../data/alerts-data";
 import { getCoordinatorAlerts } from "../data/coordinator-alerts-data";
 import type { Notification } from "@/lib/domain";
 
+/**
+ * Two parallel read-tracking models exist because the data sources differ:
+ * - Patient notifications come from static mock data with a fixed `read` field.
+ *   `readIds` is an overlay that records which items the user has read in-session.
+ * - Coordinator alerts are mutable objects; `coordinatorReadIds` is a secondary
+ *   overlay on top of the mutated `read` flags for deduplication safety.
+ */
 type NotificationStore = {
   /** IDs of patient notifications explicitly marked as read. */
   readIds: string[];
@@ -39,6 +46,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       coordinatorReadIds: state.coordinatorReadIds.includes(id)
         ? state.coordinatorReadIds
         : [...state.coordinatorReadIds, id],
+      // Also mutate the object so the unread count stays consistent.
       coordinatorAlerts: state.coordinatorAlerts.map((alert) =>
         alert.id === id ? { ...alert, read: true } : alert,
       ),
@@ -53,6 +61,10 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       })),
     })),
 
+  /**
+   * An item is considered read if it was originally read in the data source
+   * OR if the user has explicitly marked it read this session.
+   */
   isRead: (id, originallyRead) =>
     originallyRead || get().readIds.includes(id),
 

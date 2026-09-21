@@ -32,6 +32,15 @@ declare global {
 
 const RAZORPAY_SCRIPT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
 
+/**
+ * Lazily injects the Razorpay SDK script and resolves when it is ready.
+ *
+ * Deduplication strategy:
+ * - If `window.Razorpay` already exists, resolve immediately (already loaded).
+ * - If a `<script>` tag for the same URL exists but hasn't fired yet, attach
+ *   listeners instead of injecting a second tag — avoids a double-load race.
+ * - Otherwise inject a new async script tag.
+ */
 function loadRazorpayScript(): Promise<void> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Payment is only available in the browser"));
@@ -65,6 +74,18 @@ function loadRazorpayScript(): Promise<void> {
   });
 }
 
+/**
+ * Opens the Razorpay checkout modal for the IASP detailed report.
+ *
+ * Flow:
+ *  1. Load the Razorpay SDK (cached after first call).
+ *  2. POST to the backend to create an order — amount, currency, and keyId
+ *     come from the server so they are never hardcoded client-side.
+ *  3. Open the checkout modal. Resolves on payment success; rejects on dismiss.
+ *
+ * Callers should swallow "Payment cancelled" rejections (expected user action)
+ * and surface all other errors as toast messages.
+ */
 export async function openIaspReportCheckout(): Promise<void> {
   await loadRazorpayScript();
 
