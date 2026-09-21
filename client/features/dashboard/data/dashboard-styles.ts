@@ -8,6 +8,9 @@ export const dashboardCardHeaderClass =
 
 export const dashboardListItemClass = `-mx-1.5 cursor-pointer ${radius.sm} px-1.5 transition-colors duration-150 hover:bg-accent`;
 
+/** List item wrapper for divided rows (TasksCard, TasksGroupedCard). */
+export const dashboardDividedItemClass = "peer/row group/row relative";
+
 /**
  * Divided list rows (Appointments, Care Team):
  * - Divider is a separate absolute layer between items (straight 1px rule).
@@ -21,7 +24,9 @@ export const dashboardDividedRowClass =
   "before:transition-opacity before:duration-150 hover:before:opacity-100";
 
 export const dashboardRowDividerClass =
-  "pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-divider";
+  "pointer-events-none absolute inset-x-0 top-0 z-0 h-px bg-divider " +
+  "transition-opacity duration-150 " +
+  "group-hover/row:opacity-0 peer-hover/row:opacity-0";
 
 /** Pill/status badge size — matches Confirmed/Scheduled on appointments */
 export const statusBadgeClass =
