@@ -27,6 +27,7 @@ export function TaskRow({
   onComplete,
   onIncomplete,
   showStatusAction = true,
+  revealStatusActionOnHover = false,
   className,
 }: {
   task: CareTask;
@@ -34,6 +35,8 @@ export function TaskRow({
   onIncomplete?: (id: string) => void;
   /** When false, hides the Done / Completed trailing control. */
   showStatusAction?: boolean;
+  /** Show Done / Undone outline only while the row is hovered (dashboard). */
+  revealStatusActionOnHover?: boolean;
   className?: string;
 }) {
   const { displayCompleted, isPending, toggle } = useStrikeToggle(task.completed, () => {
@@ -69,6 +72,7 @@ export function TaskRow({
         dashboardDividedRowClass,
         "group flex min-h-14 w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3 text-left sm:gap-3.5 sm:py-3.5",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        isOverdue && "before:bg-destructive-muted",
         isPending && "pointer-events-none",
         className,
       )}
@@ -90,7 +94,9 @@ export function TaskRow({
           className={cn(
             typo.headingS,
             "max-w-full truncate transition-colors duration-200",
-            displayCompleted ? "text-tertiary-foreground" : "text-foreground",
+            displayCompleted
+              ? "font-normal text-tertiary-foreground"
+              : "text-foreground",
           )}
         >
           {task.label}
@@ -110,25 +116,39 @@ export function TaskRow({
 
       {showStatusAction ? (
         displayCompleted ? (
-          <span
-            className={cn(
-              statusBadgeClass,
-              typo.badge,
-              "ml-auto shrink-0 gap-1.5 border border-border bg-muted text-muted-foreground",
-            )}
-          >
-            <AppIcon
-              icon={CheckmarkCircle02Icon}
-              size={BADGE_ICON_SIZE}
-              aria-hidden
-            />
-            Completed
-          </span>
+          revealStatusActionOnHover ? (
+            <span
+              className={cn(
+                typo.button,
+                "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+                "opacity-0 transition-opacity duration-150 group-hover:opacity-100",
+              )}
+            >
+              Undone
+            </span>
+          ) : (
+            <span
+              className={cn(
+                statusBadgeClass,
+                typo.badge,
+                "ml-auto shrink-0 gap-1.5 border border-border bg-muted text-muted-foreground",
+              )}
+            >
+              <AppIcon
+                icon={CheckmarkCircle02Icon}
+                size={BADGE_ICON_SIZE}
+                aria-hidden
+              />
+              Completed
+            </span>
+          )
         ) : (
           <span
             className={cn(
               typo.button,
               "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+              revealStatusActionOnHover &&
+                "opacity-0 transition-opacity duration-150 group-hover:opacity-100",
             )}
           >
             Done

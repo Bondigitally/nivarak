@@ -1,7 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  DataTable,
+  DataTableIdentity,
+  type DataTableColumn,
+} from "@/components/shared/data-table";
+import {
+  dashboardCardClass,
+  statusBadgeClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
-import type { CarePlanAction } from "@/features/dashboard/data/home-data";
+import type { CarePlanAction } from "@/features/care-plan/data/care-plan-data";
 
 const STATUS_STYLES: Record<
   CarePlanAction["status"],
@@ -14,7 +24,7 @@ const STATUS_STYLES: Record<
 
 function OwnerBadge({ owner }: { owner: string }) {
   return (
-    <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
+    <span className={cn(statusBadgeClass, "bg-muted text-muted-foreground")}>
       {owner}
     </span>
   );
@@ -29,13 +39,40 @@ function ActionStatusBadge({ status }: { status: CarePlanAction["status"] }) {
   );
 }
 
+const COLUMNS: DataTableColumn<CarePlanAction>[] = [
+  {
+    id: "action",
+    header: "Action",
+    cell: (row) => <DataTableIdentity title={row.action} />,
+  },
+  {
+    id: "owner",
+    header: "Owner",
+    className: "w-40",
+    cell: (row) => <OwnerBadge owner={row.owner} />,
+  },
+  {
+    id: "timeframe",
+    header: "Timeframe",
+    className: "w-40",
+    cellClassName: "whitespace-nowrap",
+    cell: (row) => row.timeframe,
+  },
+  {
+    id: "status",
+    header: "Status",
+    className: "w-36",
+    cell: (row) => <ActionStatusBadge status={row.status} />,
+  },
+];
+
 export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-border bg-card">
-      <div className="border-b border-border px-6 pt-5 pb-4">
+    <section className={cn(dashboardCardClass, "overflow-hidden")}>
+      <div className="px-5 pt-5 pb-4">
         <SectionTitle
           info="Recommended actions from your care plan, with owners and status so you can see what is on track."
-          className="flex-none pr-0 text-[20px] text-foreground"
+          className="flex-none pr-0 text-foreground"
         >
           Action plan
         </SectionTitle>
@@ -44,7 +81,7 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
       <ul className="flex flex-col gap-3 p-4 lg:hidden">
         {actions.map((row) => (
           <li key={row.id}>
-            <article className="rounded-lg border border-border bg-background p-4">
+            <article className="rounded-lg bg-muted p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="min-w-0 text-base font-normal leading-6 text-foreground">
                   {row.action}
@@ -74,62 +111,12 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
         ))}
       </ul>
 
-      <div className="hidden w-full overflow-x-auto lg:block">
-        <table className="w-full min-w-[620px] border-collapse">
-          <thead>
-            <tr className="border-b border-border bg-table-header">
-              <th
-                scope="col"
-                className="h-11 px-6 text-left text-sm font-medium leading-5 text-muted-foreground"
-              >
-                Action
-              </th>
-              <th
-                scope="col"
-                className="h-11 px-6 text-left text-sm font-medium leading-5 text-muted-foreground"
-              >
-                Owner
-              </th>
-              <th
-                scope="col"
-                className="h-11 px-6 text-left text-sm font-medium leading-5 text-muted-foreground"
-              >
-                Timeframe
-              </th>
-              <th
-                scope="col"
-                className="h-11 px-6 text-left text-sm font-medium leading-5 text-muted-foreground"
-              >
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {actions.map((row, index) => {
-              const isLast = index === actions.length - 1;
-
-              return (
-                <tr
-                  key={row.id}
-                  className={cn(!isLast && "border-b border-border")}
-                >
-                  <td className="px-6 py-3.5 text-base font-normal leading-6 text-foreground">
-                    {row.action}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <OwnerBadge owner={row.owner} />
-                  </td>
-                  <td className="px-6 py-3.5 text-[13px] font-normal leading-4 text-muted-foreground">
-                    {row.timeframe}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <ActionStatusBadge status={row.status} />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="hidden px-5 pb-2 lg:block">
+        <DataTable
+          columns={COLUMNS}
+          data={actions}
+          getRowId={(row) => row.id}
+        />
       </div>
     </section>
   );

@@ -8,8 +8,8 @@ import {
   Calendar03Icon,
   UserIcon,
 } from "@hugeicons/core-free-icons";
-import { authInputClassName } from "@/features/auth/components/primitives/AuthField";
 import { Button } from "@/components/ui/button";
+import { fieldInputClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -142,7 +142,7 @@ export function EditProfileSection({
               autoComplete="name"
               value={draft.fullName}
               onChange={(event) => updateDraft("fullName", event.target.value)}
-              className={authInputClassName}
+              className={fieldInputClassName}
             />
           </Field>
 
@@ -157,7 +157,7 @@ export function EditProfileSection({
                 onChange={(event) =>
                   updateDraft("dateOfBirth", event.target.value)
                 }
-                className={cn(authInputClassName, "pr-11")}
+                className={cn(fieldInputClassName, "pr-11")}
               />
               <span
                 className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
@@ -181,7 +181,7 @@ export function EditProfileSection({
                   id={`${baseId}-language`}
                   type="button"
                   className={cn(
-                    authInputClassName,
+                    fieldInputClassName,
                     "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
                   )}
                 >
@@ -229,7 +229,7 @@ export function EditProfileSection({
               onChange={(event) =>
                 updateDraft("contactNumber", event.target.value)
               }
-              className={authInputClassName}
+              className={fieldInputClassName}
             />
           </Field>
 
@@ -248,7 +248,7 @@ export function EditProfileSection({
                 updateDraft("residentialAddress", event.target.value)
               }
               className={cn(
-                authInputClassName,
+                fieldInputClassName,
                 "h-auto min-h-11 resize-none py-3 leading-6 shadow-[0_2px_8px_rgba(17,24,39,0.05)]",
               )}
             />

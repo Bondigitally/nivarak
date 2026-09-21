@@ -18,7 +18,8 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
   return (
     <article
       className={cn(
-        "flex w-full flex-col gap-4 rounded-lg border border-border bg-card px-4 py-5 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        dashboardCardClass,
+        "flex w-full flex-col gap-4 px-4 py-5",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:py-6",
       )}
     >
@@ -33,7 +34,7 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
           />
         </div>
         <div className="min-w-0">
-          <h3 className={cn(typo.headingL, "truncate text-foreground")}>
+          <h3 className={cn(typo.headingS, "truncate text-foreground")}>
             {caregiver.name}
           </h3>
           <p className={cn(typo.bodyS, "text-muted-foreground")}>
@@ -64,7 +65,8 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
   return (
     <div
       className={cn(
-        "flex w-full flex-col gap-4 rounded-lg border border-dashed border-border bg-card p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        dashboardCardClass,
+        "flex w-full flex-col gap-4 border border-dashed border-border p-4 shadow-none hover:shadow-none",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:p-6",
       )}
     >

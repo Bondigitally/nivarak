@@ -104,6 +104,17 @@ export function getIncompleteTasks(groups: CareTaskGroup[]): CareTask[] {
   return getAllTasks(groups).filter((task) => !task.completed);
 }
 
+/** Incomplete tasks due today or overdue — sidebar badge / attention count. */
+export function getActionableTaskCount(
+  groups: CareTaskGroup[],
+  now: Date = new Date(),
+): number {
+  return (
+    getIncompleteTasksForSection(groups, "overdue", now).length +
+    getIncompleteTasksForSection(groups, "today", now).length
+  );
+}
+
 function buildMockTaskGroups(): CareTaskGroup[] {
   return [
     {
