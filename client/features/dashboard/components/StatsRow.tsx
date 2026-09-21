@@ -9,7 +9,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
-import { radius } from "@/lib/tokens/radius";
+import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import type { CoordinatorStats } from "@/lib/domain";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
@@ -27,16 +27,11 @@ function StatCard({
   label,
   value,
   sub,
-  accentClass = "text-primary-active",
-  iconBgClass = "bg-sidebar-accent",
+  accentClass = "text-muted-foreground",
+  iconBgClass = "bg-muted",
 }: StatCardProps) {
   return (
-    <div
-      className={cn(
-        radius.lg,
-        "flex min-w-0 flex-col gap-3 border border-border bg-card p-5 shadow-[0_2px_8px_rgba(17,24,39,0.05)]",
-      )}
-    >
+    <div className={cn(dashboardCardClass, "flex min-w-0 flex-col gap-3 p-5")}>
       <div className="flex items-start justify-between gap-2">
         <span
           className={cn(
@@ -101,8 +96,6 @@ export function StatsRow({ stats }: { stats: CoordinatorStats }) {
             Next at {stats.nextAppointmentTime}
           </span>
         }
-        accentClass="text-info"
-        iconBgClass="bg-info-muted"
       />
       <StatCard
         icon={Notification01Icon}
