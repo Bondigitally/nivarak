@@ -104,13 +104,11 @@ export function visitTypeBadgeClasses(type: VisitType): string {
 
 export function appointmentStatusConfig(status: AppointmentStatus) {
   switch (status) {
-    case "confirmed":
-      return { label: "Confirmed", class: "bg-success-muted text-success" };
-    case "pending":
-      return { label: "Pending", class: "bg-warning-muted text-warning" };
-    case "completed":
-      return { label: "Done", class: "bg-muted text-muted-foreground" };
-    case "cancelled":
+    case "Scheduled":
+      return { label: "Scheduled", class: "bg-muted text-muted-foreground" };
+    case "Completed":
+      return { label: "Completed", class: "bg-success-muted text-success" };
+    case "Cancelled":
       return { label: "Cancelled", class: "bg-destructive-muted text-destructive" };
   }
 }
