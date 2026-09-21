@@ -132,7 +132,7 @@ These decisions replace the old HLD “one clinician portal + 24 pages” map.
 
 | Instrument | Who | Where in UI | Output |
 | ---------- | --- | ----------- | ------ |
-| **IAS-P v2.0** | Patient self, caregiver proxy, public lead | Health → Assessments; Caregiver action; `/assess`; Coordinator Leads | Score /48, 5 risk bands, 8 red flags, pathway |
+| **IAS-P v2.0** | Patient self, caregiver proxy, public lead | Health → Assessments; Caregiver action; `/iasp-assessment`; Coordinator Leads | **24 scored items** (3 options each) → raw score /48 · 8 sections · 5 risk bands · 8 red flags · pathway. Full instrument: [`docs/IAS-P_v2.0_Instrument.md`](IAS-P_v2.0_Instrument.md) |
 | **5-domain encounter** | Nurse (full); caregiver `carer_report` (quick-status) | Nurse Visits wizard; Caregiver Report an update | Locked longitudinal record + escalations |
 | **CGA/BGS** | Doctor | CGA Assessments workspace | Problem list, care plan, sign-off |
 

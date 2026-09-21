@@ -15,7 +15,12 @@ const PUBLIC_PATHS = new Set([
 ]);
 
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.has(pathname) || pathname.startsWith("/_next") || pathname.startsWith("/api");
+  return (
+    PUBLIC_PATHS.has(pathname) ||
+    pathname.startsWith("/iasp-assessment") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api")
+  );
 }
 
 function getAuthToken(request: NextRequest): string | null {
