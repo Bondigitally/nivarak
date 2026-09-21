@@ -2,6 +2,10 @@
  * Typography tokens — maps 1:1 to design system/design.md type scale.
  * Font: Hanken Grotesk (via root layout)
  *
+ * Product compositions (documented in design.md — do not add named tokens here):
+ *   Page title  → headingXl + leading-[30px]
+ *   Card title  → cardTitleClass (dashboard-styles) = headingS + 18px / leading-6
+ *
  * Color roles (design.md Text tokens):
  *   Text/Primary     → text-foreground
  *   Text/Secondary   → text-muted-foreground
@@ -47,8 +51,8 @@ export const typo = {
   logo: 'font-logo text-base font-normal leading-6 tracking-[0.08em] text-foreground',
   /** Sidebar nav item (idle) — Body M Medium + Text/Secondary */
   sidebarItem: 'text-sm font-medium leading-5 text-muted-foreground',
-  /** Sidebar nav item (active) — Body M Semibold + Brand/Primary */
-  sidebarItemActive: 'text-sm font-semibold leading-5 text-primary',
+  /** Sidebar nav item (active) — Body M Semibold + Text/Primary */
+  sidebarItemActive: 'text-sm font-semibold leading-5 text-foreground',
 
   /**
    * Compositions (size token + color role from design.md)

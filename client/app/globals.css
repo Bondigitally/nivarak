@@ -10,12 +10,17 @@
   --font-logo: var(--font-rounded-elegance);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-divider: var(--sidebar-divider);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-sidebar-selected: var(--sidebar-selected);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-segmented-track: var(--segmented-track);
+  --color-segmented-track-on-card: var(--segmented-track-on-card);
   --color-chart-8: var(--chart-8);
   --color-chart-7: var(--chart-7);
   --color-chart-6: var(--chart-6);
@@ -35,10 +40,14 @@
   --color-success-muted: var(--success-muted);
   --color-warning: var(--warning);
   --color-warning-muted: var(--warning-muted);
+  --color-attention: var(--attention);
+  --color-attention-muted: var(--attention-muted);
+  --color-attention-foreground: var(--attention-foreground);
   --color-info: var(--info);
   --color-info-muted: var(--info-muted);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
+  --color-search-shortcut-key: var(--search-shortcut-key);
   --color-muted-foreground: var(--muted-foreground);
   --color-tertiary-foreground: var(--tertiary-foreground);
   --color-placeholder: var(--placeholder);
@@ -55,6 +64,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-border-disabled: var(--border-disabled);
+  --color-text-disabled: var(--text-disabled);
   /*
    * Semantic radius scale — parent/child nesting steps down the scale.
    *
@@ -117,10 +128,20 @@
   /* Page inset: 16px < lg, 24px ≥ lg — top bar, page shells, and modal chrome share px-dash-pad-x */
   --dash-pad-x: 16px;
 
-  /* Background & surface */
-  --background: #F8F5FA; /* Background/Primary */
+  /*
+   * Color system — keep in sync with design system/design.md
+   *
+   * Protected shell canvas is cool neutral gray (`shellCanvasClass` / `--background`).
+   * Brand purple is for primary actions, links, focus, and active nav — not canvas/hover fills.
+   *
+   * Type compositions (not CSS vars — see design.md + dashboard-styles):
+   *   Page title  → 24px / 600 / 30px  (headingXl + leading-[30px])
+   *   Card title  → 18px / 600 / 24px  (cardTitleClass)
+   */
+  /* Background & surface — cool-gray canvas */
+  --background: #F7F7F8; /* Background/Primary */
   --foreground: #1A1A1A; /* Text/Primary */
-  --card: #FFFFFF; /* Surface/Primary */
+  --card: #FFFFFF; /* Surface/Primary — same white as canvas */
   --card-foreground: #1A1A1A;
   --popover: #FFFFFF; /* Surface/Elevated */
   --popover-foreground: #1A1A1A;
@@ -133,30 +154,34 @@
   --primary-foreground: #FFFFFF; /* Text/Inverse */
 
   /* Neutral surfaces */
-  --secondary: #FCFBFD; /* Surface/Secondary */
+  --secondary: #F9F9FA; /* Surface/Secondary */
   --secondary-foreground: #1A1A1A;
-  --muted: #FCFBFD; /* Surface/Secondary */
+  --muted: #F9F9FA; /* Surface/Secondary */
   --muted-foreground: #5F6368; /* Text/Secondary */
-  --table-header: #F3F0F6; /* Surface/TableHeader */
-  --tertiary-foreground: #8A8F98; /* Text/Tertiary */
-  --placeholder: #9CA3AF; /* Text/Placeholder */
-  --accent: #F7F5F9; /* Surface/Hover */
+  --table-header: #F1F1F2; /* Surface/TableHeader */
+  --tertiary-foreground: #6B6B6B; /* Text/Tertiary */
+  --placeholder: #8A8A8A; /* Text/Placeholder */
+  --accent: #F2F2F3; /* Surface/Hover — neutral row/card hover */
   --accent-foreground: #1A1A1A;
+  --search-shortcut-key: #F1F1F2; /* Surface/TableHeader — ⌘K chip (literal hex for Tailwind) */
 
   /* Border & text states */
   --destructive: #DC2626; /* Error/Text */
   --destructive-muted: #FCECEC; /* Error/Tint */
   --success: #10B981; /* Success/Text */
   --success-muted: #ECFDF5; /* Success/Tint */
-  --warning: #CA8A04; /* Warning/Text */
+  --warning: #CA8A04; /* Warning/Text — Supported Independence band */
   --warning-muted: #FEFCE8; /* Warning/Tint */
+  --attention: #F97316; /* Risk/High accent — Limited Independence band */
+  --attention-muted: #FFF7ED; /* Limited Independence tint */
+  --attention-foreground: #C2410C; /* Limited Independence text on tint */
   --info: #2563EB; /* Info/Text */
   --info-muted: #E7EFF8; /* Info/Tint */
-  --border: #E9E4ED; /* Border/Primary */
-  --divider: #F0EDF3; /* Border/Divider */
-  --border-disabled: #EFEAF2; /* Border/Disabled */
-  --text-disabled: #B3B7BF; /* Text/Disabled */
-  --input: #E9E4ED; /* Border/Primary */
+  --border: #E4E4E7; /* Border/Primary */
+  --divider: #ECECEE; /* Border/Divider */
+  --border-disabled: #EFEFEF; /* Border/Disabled */
+  --text-disabled: #A1A1AA; /* Text/Disabled */
+  --input: #E4E4E7; /* Border/Primary */
   --ring: #A66BCF; /* Brand/Primary/FocusRing */
   --border-focus: #B98BD0; /* Border/Focus */
 
@@ -164,21 +189,28 @@
   --chart-1: #6C318E; /* Chart/Brand Linear */
   --chart-2: #FA4B42; /* Chart/BP Systolic */
   --chart-3: #147AD6; /* Chart/BP Diastolic */
-  --chart-4: #6366F1; /* Chart/Heart Rate — indigo, matches vitals summary cards */
+  --chart-4: #7086FD; /* Chart/Heart Rate */
   --chart-5: #0EA5B1; /* Chart/SpO₂ */
   --chart-6: #5B8DEF; /* Chart/Blood Glucose */
   --chart-7: #F97316; /* Chart/Temperature */
   --chart-8: #1E0E28; /* Chart/Brand Linear (gradient end) */
 
-  /* Sidebar — maps to Surface / Brand / Border tokens */
+  /* Sidebar — white surface; neutral active fill; brand icon only on selected */
   --sidebar: #FFFFFF; /* Surface/Primary */
   --sidebar-foreground: #1A1A1A; /* Text/Primary */
   --sidebar-primary: #6C318E; /* Brand/Primary/Default */
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F2EBF9; /* Surface/Selected */
-  --sidebar-accent-foreground: #6C318E;
-  --sidebar-border: #E9E4ED; /* Border/Primary */
+  --sidebar-accent: #F2EBF9; /* Surface/Selected — sparing brand tint; not decorative wells */
+  --sidebar-accent-foreground: #6C318E; /* Brand/Primary */
+  --sidebar-hover: #F2F2F3; /* Surface/Hover — use Tailwind `bg-accent` / `hover:bg-accent`, not `bg-sidebar-hover` */
+  --sidebar-selected: #F9F9FA; /* Surface/Secondary — literal hex for Tailwind */
+  --sidebar-border: #E4E4E7; /* Border/Primary — main panel edge */
+  --sidebar-divider: #ECECEE; /* Border/Divider — neutral on shell canvas */
   --sidebar-ring: #A66BCF; /* Brand/Primary/FocusRing */
+
+  /* Segmented tabs — neutral track (literal hex — Tailwind cannot resolve nested var() chains) */
+  --segmented-track: #F1F1F2; /* Surface/TableHeader */
+  --segmented-track-on-card: #F7F7F8; /* Background/Primary on white card */
 }
 
 /* Matches Tailwind `lg` — desktop page inset */
@@ -213,16 +245,6 @@
   }
 }
 
-/* Overdue section status indicator */
-.overdue-status-dot {
-  display: inline-flex;
-  flex-shrink: 0;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: var(--radius-full);
-  background: var(--destructive);
-}
-
 /*
  * Protected app shell — viewport-sized flex frame.
  *
@@ -245,18 +267,52 @@ html:has(.protected-shell) {
   scrollbar-gutter: auto;
 }
 
+/* Sidebar nav — thin scrollbar, visible only while hovering the sidebar */
+.sidebar-nav-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.group\/sidebar:hover .sidebar-nav-scroll,
+.group\/sidebar:focus-within .sidebar-nav-scroll {
+  scrollbar-color: color-mix(in srgb, var(--border) 70%, transparent) transparent;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+
+.group\/sidebar:hover .sidebar-nav-scroll::-webkit-scrollbar-thumb,
+.group\/sidebar:focus-within .sidebar-nav-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--border) 70%, transparent);
+}
+
 /*
- * Reserve classic-scrollbar space on the dashboard scroller so expanding
- * sections (e.g. overdue / completed tasks) don’t shift layout when the
- * scrollbar appears.
+ * Reserve classic-scrollbar space on the dashboard scroller so page height
+ * changes (filters, expanding sections) don’t shift layout horizontally.
  *
- * Use overflow-y: scroll (not auto) — Chromium often skips gutter reservation
- * on flex children with overflow: auto until overflow actually happens.
- * Overlay-scrollbar OSes still ignore the classic gutter.
+ * Scrollport is absolute-inset inside a non-scrolling flex item (see AppShell)
+ * so the gutter gets a definite containing block — Chromium often skips
+ * scrollbar-gutter on flex children that are themselves the overflow box.
+ * Use overflow-y: scroll (not auto). Overlay-scrollbar OSes ignore the gutter.
  */
 [data-dashboard-scroll] {
   overflow-y: scroll;
   scrollbar-gutter: stable;
+  /*
+   * Opt the scrollport out of automatic scroll anchoring. Anchoring to rows that
+   * unmount on filter/sort reflows adjusts scrollTop and feels like a jump.
+   */
+  overflow-anchor: none;
 }
 
 /*
@@ -269,7 +325,7 @@ body[data-scroll-locked] {
   padding-right: 0 !important;
 }
 
-/* IAS-P modal — touch-friendly overflow scrolling */
+/* IAS modal — touch-friendly overflow scrolling */
 .iasp-modal-scroll {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
