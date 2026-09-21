@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-export function SettingsToggle({
+export function ToggleSwitch({
   checked,
   onCheckedChange,
   id,
@@ -11,7 +11,7 @@ export function SettingsToggle({
   checked: boolean;
   onCheckedChange: (next: boolean) => void;
   id: string;
-  labelledBy: string;
+  labelledBy?: string;
 }) {
   return (
     <button
