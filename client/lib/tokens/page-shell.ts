@@ -84,7 +84,10 @@ export const dashboardSearchBarClass = cn(
 );
 
 export const dashboardSearchBarIconClass =
-  "shrink-0 text-muted-foreground transition-[color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:text-foreground/90";
+  "shrink-0 text-muted-foreground transition-[color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:text-foreground";
+
+/** Placeholder / hint copy in the global search trigger — stays on placeholder token on bar hover */
+export const dashboardSearchBarPlaceholderClass = "text-placeholder";
 
 /** Vitals summary card grid — shared by VitalsSummaryCards and VitalsPageSkeleton */
 export const vitalsSummaryGridClass =
