@@ -20,6 +20,7 @@ import { typo } from "@/lib/tokens/typography";
 import {
   dashboardSearchBarClass,
   dashboardSearchBarIconClass,
+  dashboardSearchBarPlaceholderClass,
 } from "@/lib/tokens/page-shell";
 import { cn } from "@/lib/utils";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
@@ -138,7 +139,13 @@ export function AppTopBar({
             className={dashboardSearchBarIconClass}
             absoluteStrokeWidth
           />
-          <span className={cn(typo.bodyM, "min-w-0 flex-1 truncate text-placeholder")}>
+          <span
+            className={cn(
+              typo.bodyM,
+              dashboardSearchBarPlaceholderClass,
+              "min-w-0 flex-1 truncate",
+            )}
+          >
             {searchPlaceholder}
           </span>
           {searchHint}

@@ -77,8 +77,9 @@ export const dashboardRowDividerClass =
   "transition-opacity duration-150 " +
   "group-hover/row:opacity-0 peer-hover/row:opacity-0";
 
-/** ⌘K shortcut chip — default fill; hover uses bg-accent on the chip itself */
-export const searchShortcutKeyClass = "bg-search-shortcut-key";
+/** ⌘K shortcut chip — accent fill at rest; chip hover lifts secondary label to primary */
+export const searchShortcutKeyClass =
+  "bg-accent text-muted-foreground transition-colors duration-200 ease-out hover:text-foreground";
 
 /** IAS hero View Report — asymmetric padding for trailing arrow chip. */
 export const dashboardViewReportButtonClass = "pr-1 pl-4";
