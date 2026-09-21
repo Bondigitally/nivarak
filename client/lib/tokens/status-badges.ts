@@ -8,8 +8,13 @@ import type {
   TaskPriority,
   VisitType,
 } from "@/lib/domain";
+import { radius } from "@/lib/tokens/radius";
 
 export type VitalStatus = "Normal" | "Low" | "Elevated";
+
+/** Pill/status badge size — matches Scheduled / Completed on appointments */
+export const statusBadgeClass =
+  `inline-flex items-center ${radius.full} px-2.5 py-1 text-xs font-medium leading-4 [&_svg]:size-4`;
 
 export function priorityBadgeClasses(priority: TaskPriority): string {
   switch (priority) {
@@ -91,9 +96,7 @@ export function riskConfig(level: RiskLevel) {
 export function visitTypeBadgeClasses(type: VisitType): string {
   switch (type) {
     case "Teleconsult":
-      return "bg-info-muted text-info";
     case "Home Visit":
-      return "bg-sidebar-accent text-primary-active";
     case "Clinic":
       return "bg-muted text-muted-foreground";
   }
@@ -101,25 +104,23 @@ export function visitTypeBadgeClasses(type: VisitType): string {
 
 export function appointmentStatusConfig(status: AppointmentStatus) {
   switch (status) {
-    case "confirmed":
-      return { label: "Confirmed", class: "bg-success-muted text-success" };
-    case "pending":
-      return { label: "Pending", class: "bg-warning-muted text-warning" };
-    case "completed":
-      return { label: "Done", class: "bg-muted text-muted-foreground" };
-    case "cancelled":
-      return { label: "Cancelled", class: "bg-destructive-muted text-destructive" };
+    case "Scheduled":
+      return { label: "Scheduled", class: "bg-muted text-muted-foreground" };
+    case "Completed":
+      return { label: "Completed", class: "bg-success-muted text-success" };
+    case "Cancelled":
+      return { label: "Cancelled", class: "bg-muted text-muted-foreground" };
   }
 }
 
 export function leadStatusConfig(status: LeadStatus) {
   switch (status) {
     case "new":
-      return { label: "New", class: "bg-info-muted text-info" };
+      return { label: "New", class: "bg-muted text-muted-foreground" };
     case "contacted":
       return { label: "Contacted", class: "bg-warning-muted text-warning" };
     case "assessing":
-      return { label: "Assessing", class: "bg-sidebar-accent text-primary-active" };
+      return { label: "Assessing", class: "bg-muted text-muted-foreground" };
     case "enrolled":
       return { label: "Enrolled", class: "bg-success-muted text-success" };
     case "declined":
@@ -164,14 +165,10 @@ export function staffAvailabilityConfig(availability: StaffAvailability) {
 export function staffRoleColor(role: StaffRole): string {
   switch (role) {
     case "Doctor":
-      return "bg-primary/10 text-primary-active";
     case "Nurse":
-      return "bg-info-muted text-info";
     case "Physiotherapist":
-      return "bg-success-muted text-success";
     case "Care Coordinator":
-      return "bg-sidebar-accent text-primary-active";
     case "Social Worker":
-      return "bg-warning-muted text-warning";
+      return "bg-muted text-muted-foreground";
   }
 }
