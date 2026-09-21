@@ -1,11 +1,52 @@
 import { radius } from "@/lib/tokens/radius";
+import { heroPlumWashSurfaceClass } from "@/components/layout/shell-chrome";
 
-export const dashboardCardClass = `min-w-0 ${radius.lg} border border-border bg-card shadow-[0_2px_8px_rgba(17,24,39,0.05)] transition-shadow duration-200 ease-out hover:shadow-[0_4px_12px_rgba(17,24,39,0.08)]`;
+export {
+  cardTitleClass,
+  dashboardCardClass,
+  dashboardChromeControlClass,
+  dashboardChromeControlFocusVisibleClass,
+  dashboardChromeControlFocusWithinClass,
+  dashboardGridClass,
+  dashboardGridFullClass,
+  dashboardGridHalfClass,
+  dashboardGridStackClass,
+  dashboardGridThirdClass,
+  dashboardHeaderIconButtonClass,
+  dashboardPageShellClass,
+  dashboardSearchBarClass,
+  dashboardSearchBarIconClass,
+  dashboardTwoColGridClass,
+  dashboardTwoColSpanFullClass,
+} from "@/lib/tokens/page-shell";
 
-/** Title row → body: 24px. Pair with `first:pt-0` on the first list/body row. */
+export { statusBadgeClass } from "@/lib/tokens/status-badges";
+
+/** IAS dashboard hero — subtle neutral lift on white card */
+export const dashboardHeroCardSurfaceClass = heroPlumWashSurfaceClass;
+
+/** Title row → body: 24px. Pair with `dashboardCardListClass` on the list. */
 export const dashboardCardHeaderClass =
   "flex min-w-0 w-full shrink-0 items-start justify-between gap-2 pb-6 sm:gap-3";
 
+/**
+ * List under a card header: pull up by the row's top padding so title→content
+ * stays 24px while every row keeps the same vertical padding / height.
+ * Pair with rows using `py-3.5` / `dashboardPreviewRowClass`.
+ */
+export const dashboardCardListClass = "-mt-3.5 flex min-w-0 flex-col";
+
+/** Same as `dashboardCardListClass` when rows use `py-3.5 sm:py-4`. */
+export const dashboardCardListLooseClass = "-mt-3.5 flex min-w-0 flex-col sm:-mt-4";
+
+/**
+ * Equal-height preview rows for Today’s tasks, Care Team, and Recent Activity.
+ * min-h-16 · py-3.5 · px-2 — keep all three cards on this recipe.
+ */
+export const dashboardPreviewRowClass =
+  "flex min-h-16 min-w-0 items-center gap-3 px-2 py-3.5";
+
+/** Neutral Surface/Hover — inactive sidebar nav and list row hover */
 export const dashboardListItemClass = `-mx-1.5 cursor-pointer ${radius.sm} px-1.5 transition-colors duration-150 hover:bg-accent`;
 
 /**
@@ -19,6 +60,7 @@ export const dashboardDividedItemClass = "peer/row group/row relative";
  * Divided list rows (Appointments, Care Team, Tasks):
  * - Divider is owned by the list item (`dashboardDividedItemClass`).
  * - Hover surface is a rounded ::before; dividers hide on row hover.
+ * - Hover fill is neutral Surface/Hover (`bg-accent`).
  */
 export const dashboardDividedRowClass =
   "relative z-[1] cursor-pointer rounded-none bg-transparent " +
@@ -35,52 +77,12 @@ export const dashboardRowDividerClass =
   "transition-opacity duration-150 " +
   "group-hover/row:opacity-0 peer-hover/row:opacity-0";
 
-/** Pill/status badge size — matches Confirmed/Scheduled on appointments */
-export const statusBadgeClass =
-  `inline-flex items-center ${radius.full} px-2.5 py-1 text-xs font-medium leading-4 [&_svg]:size-4`;
+/** ⌘K shortcut chip — default fill; hover uses bg-accent on the chip itself */
+export const searchShortcutKeyClass = "bg-search-shortcut-key";
 
-/** Search field — width tracks --ui-scale / max-w-dash-search */
-export const dashboardSearchBarClass =
-  `group box-border flex h-dash-control min-h-dash-control w-full max-w-dash-search min-w-0 flex-1 items-center gap-2 overflow-hidden ${radius.full} border border-border bg-card py-1 pr-1 pl-4 shadow-[0px_1px_2px_rgba(17,24,39,0.04)] transition-[border-color,box-shadow] duration-200 ease-out hover:border-foreground/12 hover:shadow-[0_0_0_1px_rgba(17,24,39,0.08),0px_1px_2px_rgba(17,24,39,0.04)] focus-within:border-border-focus/80 focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)]`;
+/** IAS hero View Report — asymmetric padding for trailing arrow chip. */
+export const dashboardViewReportButtonClass = "pr-1 pl-4";
 
-export const dashboardSearchBarIconClass =
-  "shrink-0 text-muted-foreground transition-[color,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:text-foreground/90";
-
-/**
- * Standard page shell under AppPageFrame.
- * Pad-x 24px · section gap 16px.
- * From `lg` up, capped at `--max-width-dash-page` (1320px) and centered in
- * `main` — sidebar collapse returns space until that cap is reached.
- * Do not nest another horizontal page pad inside this shell.
- */
-export const dashboardPageShellClass =
-  "mx-auto flex w-full min-w-0 flex-col gap-dash-gap px-dash-pad-x pt-dash-pad-y pb-5 lg:max-w-dash-page";
-
-/**
- * Standard fluid 4 / 8 / 12 column grid.
- * Flat 16px gutters (`gap-dash-gutter`) at all breakpoints. No max-width.
- */
-export const dashboardGridClass =
-  "grid w-full min-w-0 grid-cols-4 items-stretch gap-dash-gutter md:grid-cols-8 xl:grid-cols-12";
-
-/** Half width: full on mobile, 4/8 tablet, 6/12 desktop. */
-export const dashboardGridHalfClass =
-  "col-span-4 min-w-0 md:col-span-4 xl:col-span-6";
-
-/** Full width across the shared grid. */
-export const dashboardGridFullClass =
-  "col-span-4 min-w-0 md:col-span-8 xl:col-span-12";
-
-/** Vertical stack inside a grid column — 16px, matches grid gutters. */
-export const dashboardGridStackClass =
-  "flex h-full min-h-0 min-w-0 flex-col gap-dash-gutter";
-
-/**
- * Standard two-up form / card grid (settings, caregivers).
- * Fluid, 16px gutters, no max-width.
- */
-export const dashboardTwoColGridClass =
-  "grid w-full min-w-0 grid-cols-1 gap-dash-gutter md:grid-cols-2";
-
-/** Span both columns in `dashboardTwoColGridClass`. */
-export const dashboardTwoColSpanFullClass = "md:col-span-2";
+/** White circular arrow well on plum CTA (pairs with AnimatedArrowIcon + BADGE_ICON_SIZE). */
+export const dashboardCtaArrowChipClass =
+  "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-card text-primary";
