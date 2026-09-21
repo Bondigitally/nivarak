@@ -120,7 +120,7 @@ export function EditProfileSection({
       </span>
 
       <div className="flex items-center">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-[14px] border-2 border-sidebar-accent">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-sidebar-accent">
           <Image
             src={draft.avatarSrc}
             alt={`${draft.fullName} profile photo`}
@@ -165,10 +165,10 @@ export function EditProfileSection({
                 <HugeiconsIcon
                   icon={Calendar03Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
                   className="size-[19px]"
-                />
+                absoluteStrokeWidth />
               </span>
             </div>
           </Field>
@@ -190,23 +190,23 @@ export function EditProfileSection({
                   <HugeiconsIcon
                     icon={ArrowDown01Icon}
                     size={19}
-                    strokeWidth={1.75}
+                    strokeWidth={1.5}
                     color="currentColor"
                     className="size-[19px] shrink-0 text-muted-foreground"
-                  />
+                  absoluteStrokeWidth />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
                 sideOffset={8}
-                className="min-w-(--radix-dropdown-menu-trigger-width) rounded-[14px] border-border bg-card p-1.5 shadow-md"
+                className="min-w-(--radix-dropdown-menu-trigger-width) rounded-md border-border bg-card p-1.5 shadow-md"
               >
                 {languageOptions.map((option) => (
                   <DropdownMenuItem
                     key={option}
                     onSelect={() => updateDraft("preferredLanguage", option)}
                     className={cn(
-                      "cursor-pointer rounded-[10px] px-3 py-2.5",
+                      "cursor-pointer rounded-sm px-3 py-2.5",
                       typo.input,
                       option === draft.preferredLanguage && "bg-background",
                     )}

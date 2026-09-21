@@ -7,23 +7,28 @@ import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
 
 export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
   return (
-    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-border bg-card p-6">
+    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-lg border border-border bg-card p-6">
       <div className="flex items-center gap-2.5">
-        <span className="inline-flex size-4 shrink-0 text-destructive" aria-hidden>
+        <span
+          className="inline-flex size-5 shrink-0 items-center justify-center text-destructive"
+          aria-hidden
+        >
           <HugeiconsIcon
             icon={Alert01Icon}
-            size={16}
-            strokeWidth={1.75}
+            size={19}
+            strokeWidth={1.5}
+            absoluteStrokeWidth
             color="currentColor"
+            className="block size-5"
           />
         </span>
-        <h2 className={cn(typo.headingL, "font-medium text-foreground")}>
+        <h2 className={cn(typo.headingL, "font-medium leading-7 text-foreground")}>
           When to call care team
         </h2>
         <SectionInfoButton info="Warning signs that mean you should contact your care team right away. Use Call Care Team for urgent help." />
       </div>
 
-      <div className="rounded-[14px] bg-destructive-muted px-4 py-3">
+      <div className="rounded-md bg-destructive-muted px-4 py-3">
         <ul className="flex flex-col gap-2">
           {triggers.map((trigger) => (
             <li key={trigger} className="flex items-center gap-2.5">
@@ -40,7 +45,7 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
       </div>
 
       <Button type="button" variant="destructive-outline" size="cta" className="w-full">
-        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.75} color="currentColor" />
+        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
         Call Care Team
       </Button>
     </section>

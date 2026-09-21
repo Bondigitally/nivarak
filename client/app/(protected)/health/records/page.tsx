@@ -7,6 +7,7 @@ import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import {
   dashboardPageShellClass,
   dashboardSearchBarClass,
+  dashboardSearchBarIconClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { SectionInfoButton, SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { CategoryCard } from "@/features/records/components/CategoryCard";
@@ -64,7 +65,7 @@ export default function HealthRecordsPage() {
         <div
           role="region"
           aria-label="Upload health records"
-          className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-xl bg-card px-5 py-6"
+          className="flex min-h-45 w-full flex-col items-center justify-center gap-3 rounded-lg bg-card px-5 py-6"
           style={{
             border: "1px dashed #C4A9D9",
             boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.04)",
@@ -81,7 +82,7 @@ export default function HealthRecordsPage() {
             tabIndex={-1}
           />
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-            <HugeiconsIcon icon={CloudUploadIcon} size={28} strokeWidth={1.75} color="currentColor" />
+            <HugeiconsIcon icon={CloudUploadIcon} size={28} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
             <p className="font-sans text-base font-semibold leading-6 text-foreground">
@@ -97,7 +98,7 @@ export default function HealthRecordsPage() {
               className={cn(typo.button, "[&_svg]:size-5")}
               onClick={() => fileInputRef.current?.click()}
             >
-              <HugeiconsIcon icon={Folder02Icon} size={19} strokeWidth={1.75} color="currentColor" />
+              <HugeiconsIcon icon={Folder02Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
               Browse Files
             </Button>
             <Button
@@ -105,7 +106,7 @@ export default function HealthRecordsPage() {
               variant="primary-outline"
               className={cn(typo.button, "[&_svg]:size-5")}
             >
-              <HugeiconsIcon icon={ScanImageIcon} size={19} strokeWidth={1.75} color="currentColor" />
+              <HugeiconsIcon icon={ScanImageIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
               Scan
             </Button>
           </div>
@@ -125,7 +126,7 @@ export default function HealthRecordsPage() {
 
         {/* All Documents */}
         <div
-          className="flex flex-col items-stretch justify-start self-stretch rounded-xl bg-card"
+          className="flex flex-col items-stretch justify-start self-stretch rounded-lg bg-card"
           style={{
             outline: "1px #E5E2E1 solid",
             outlineOffset: "-1px",
@@ -154,10 +155,10 @@ export default function HealthRecordsPage() {
                 <HugeiconsIcon
                   icon={Search01Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
-                  className="shrink-0 text-muted-foreground"
-                />
+                  className={dashboardSearchBarIconClass}
+                absoluteStrokeWidth />
                 <input
                   type="search"
                   value={query}
@@ -176,7 +177,7 @@ export default function HealthRecordsPage() {
                     onClick={() => setQuery("")}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.75} color="currentColor" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                   </button>
                 ) : null}
               </label>
@@ -186,7 +187,7 @@ export default function HealthRecordsPage() {
                 aria-label="Filter"
                 className="h-11 shrink-0 [&_svg]:size-4.75"
               >
-                <HugeiconsIcon icon={FilterHorizontalIcon} size={19} strokeWidth={1.75} color="currentColor" />
+                <HugeiconsIcon icon={FilterHorizontalIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                 <span className="hidden sm:inline">Filter</span>
               </Button>
             </div>
@@ -223,8 +224,8 @@ export default function HealthRecordsPage() {
                         key={doc.id}
                         className="flex items-start gap-3 border-b border-divider py-3 first:pt-1 last:border-b-0"
                       >
-                        <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-[10px]", bg)}>
-                          <HugeiconsIcon icon={icon} size={19} strokeWidth={1.75} color={color} />
+                        <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-sm", bg)}>
+                          <HugeiconsIcon icon={icon} size={19} strokeWidth={1.5} color={color} absoluteStrokeWidth />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="font-sans text-sm font-medium leading-5 text-foreground">{doc.name}</p>
@@ -281,8 +282,8 @@ export default function HealthRecordsPage() {
                           <tr key={doc.id} className="transition-colors duration-100 hover:bg-accent">
                             <td className="border-b border-divider px-4 py-3">
                               <div className="flex min-w-0 items-center gap-3">
-                                <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-[10px]", bg)}>
-                                  <HugeiconsIcon icon={icon} size={19} strokeWidth={1.75} color={color} />
+                                <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-sm", bg)}>
+                                  <HugeiconsIcon icon={icon} size={19} strokeWidth={1.5} color={color} absoluteStrokeWidth />
                                 </div>
                                 <span className="truncate font-sans text-sm font-medium leading-5 text-foreground">
                                   {doc.name}
