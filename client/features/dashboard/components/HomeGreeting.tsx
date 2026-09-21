@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DashboardIconButton } from "./DashboardIconButton";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function HomeGreeting({
   name,
@@ -34,8 +35,8 @@ export function HomeGreeting({
             >
               <HugeiconsIcon
                 icon={EnergyIcon}
-                size={19}
-                strokeWidth={1.5}
+                size={ICON_SIZE}
+                strokeWidth={ICON_STROKE}
                 color="currentColor"
               absoluteStrokeWidth />
             </DashboardIconButton>

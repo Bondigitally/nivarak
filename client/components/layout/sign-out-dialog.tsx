@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Alert02Icon } from "@hugeicons/core-free-icons";
 import { signOut } from "aws-amplify/auth";
+import { AppIcon } from "@/components/shared/AppIcon";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,18 +49,26 @@ export function SignOutDialog() {
         <DialogPrimitive.Content
           className={dialogPrimitiveContentClass("max-w-md")}
         >
-          <div className={cn(dialogHeaderShellClass, "flex-col items-start gap-2")}>
-            <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
-              Sign out?
-            </DialogTitle>
-            <DialogDescription className={cn(typo.bodyM, "text-muted-foreground")}>
-              You’ll need to sign in again to access your dashboard.
-            </DialogDescription>
+          <div className={cn(dialogHeaderShellClass, "border-b-0")}>
+            <div className="min-w-0">
+              <DialogTitle
+                className={cn(
+                  typo.headingXl,
+                  "flex items-center gap-2 text-foreground",
+                )}
+              >
+                <AppIcon icon={Alert02Icon} className="size-6 text-destructive" />
+                Sign out?
+              </DialogTitle>
+              <DialogDescription className={cn(typo.bodyM, "mt-1 text-muted-foreground")}>
+                You’ll need to sign in again to access your dashboard.
+              </DialogDescription>
+            </div>
           </div>
           <div
             className={cn(
               dialogFooterShellClass,
-              "flex-row items-center justify-end gap-3 py-4 sm:py-4",
+              "flex-row items-center justify-end gap-3 border-t-0 py-4 sm:py-4",
             )}
           >
             <Button

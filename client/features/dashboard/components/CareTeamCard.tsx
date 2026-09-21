@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   dashboardCardClass,
   dashboardCardHeaderClass,
+  dashboardDividedItemClass,
   dashboardDividedRowClass,
   dashboardRowDividerClass,
   statusBadgeClass,
@@ -23,7 +24,7 @@ export function CareTeamCard({ members }: { members: CareTeamMember[] | null }) 
       {members && members.length > 0 ? (
         <ul className="flex min-h-0 flex-col">
           {members.map((member, index) => (
-            <li key={member.id} className="relative">
+            <li key={member.id} className={dashboardDividedItemClass}>
               {index > 0 ? (
                 <div className={dashboardRowDividerClass} aria-hidden />
               ) : null}
