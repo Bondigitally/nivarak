@@ -12,6 +12,17 @@ type AppShellProps = {
   className?: string;
 };
 
+/**
+ * Fixed viewport frame for the protected app.
+ *
+ * Layout contract:
+ * - The outer `protected-shell` div is a full-viewport flex row (sidebar + main).
+ * - `main[data-dashboard-scroll]` is absolutely inset inside a non-scrolling flex item.
+ *   This prevents double scrollbars: only the main pane scrolls; html/body do not.
+ * - `shellCanvasClass` paints the cool-gray canvas on the non-scrolling frame so the
+ *   fill stays viewport-fixed regardless of scroll position.
+ * - The `border-x border-b` overlay adds the panel frame on lg without affecting layout.
+ */
 export function AppShell({ sidebar, dialogs, children, className }: AppShellProps) {
   return (
     <SidebarProvider>

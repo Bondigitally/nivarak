@@ -5,7 +5,6 @@ import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
 
-// Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
@@ -18,7 +17,7 @@ type ChartActiveDotProps = {
   color: string
 }
 
-/** Perfect circle — equal width/height, centered on (cx, cy). */
+/** Circular activeDot via foreignObject — stays round at any chart size */
 function ChartActiveDot({ cx, cy, color }: ChartActiveDotProps) {
   if (cx == null || cy == null) return null
 
@@ -41,14 +40,13 @@ function ChartActiveDot({ cx, cy, color }: ChartActiveDotProps) {
           backgroundColor: color,
           boxSizing: "border-box",
           border: "2.5px solid var(--card)",
-          boxShadow: "0 0 0 1px rgba(17, 24, 39, 0.08)",
+          boxShadow: "0 0 0 1px color-mix(in srgb, var(--foreground) 8%, transparent)",
         }}
       />
     </foreignObject>
   )
 }
 
-/** Recharts Line `activeDot` renderer — keeps markers circular at any chart size. */
 function createChartActiveDot(color: string) {
   return function LineChartActiveDot(props: { cx?: number; cy?: number }) {
     return <ChartActiveDot cx={props.cx} cy={props.cy} color={color} />
@@ -66,12 +64,37 @@ export type ChartConfig = Record<
   )
 >
 
+/**
+ * Recharts accessibilityLayer sets tabIndex=0 on the SVG.
+ * Mouse click: no outline. Keyboard: inset ring on the chart container.
+ */
+function ChartFocusStyle({ id }: { id: string }) {
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
+[data-chart=${id}] .recharts-surface:focus,
+[data-chart=${id}] .recharts-surface:focus-visible,
+[data-chart=${id}] .recharts-surface *:focus,
+[data-chart=${id}] .recharts-surface *:focus-visible {
+  outline: none;
+}
+[data-chart=${id}]:has(.recharts-surface:focus-visible) {
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+`,
+      }}
+    />
+  )
+}
+
 function ChartContainer({
   id,
   className,
   children,
   config,
   initialDimension = INITIAL_DIMENSION,
+  onMouseDownCapture,
   ...props
 }: React.ComponentProps<"div"> & {
   config: ChartConfig
@@ -91,15 +114,21 @@ function ChartContainer({
       data-slot="chart"
       data-chart={chartId}
       className={cn(
-        "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden [&_.recharts-wrapper]:outline-hidden [&_.recharts-wrapper:focus]:outline-hidden [&_text]:outline-hidden",
+        "flex aspect-video select-none justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden [&_text]:outline-hidden",
         className
       )}
+      onMouseDownCapture={(event) => {
+        if (event.button === 0) {
+          event.preventDefault()
+        }
+        onMouseDownCapture?.(event)
+      }}
       {...props}
     >
+      <ChartFocusStyle id={chartId} />
       <ChartStyle id={chartId} config={config} />
       <RechartsPrimitive.ResponsiveContainer
         initialDimension={initialDimension}
-        // Coalesce rapid parent resizes (e.g. sidebar toggle) into one redraw.
         debounce={150}
       >
         {children}
