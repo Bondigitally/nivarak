@@ -11,11 +11,16 @@ import {
   useTransform,
 } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import {
+  hasAnimatedOnce,
+  markAnimatedOnce,
+} from "@/components/ui/use-once-animation";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { AnimatedArrowIcon } from "./AnimatedArrowIcon";
 import { dashboardCardClass, statusBadgeClass } from "../data/dashboard-styles";
 import type { IasAssessment } from "../data/home-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 /** Overall donut size with a thick ring and large center opening. */
 const RING_SIZE = 192;
@@ -121,14 +126,17 @@ function ScoreRing({
   maxScore: number;
 }) {
   const maskId = `ias-arc-mask-${useId().replace(/:/g, "")}`;
+  const rootRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
   const isEmpty = score == null;
   const targetRatio = isEmpty ? 0 : Math.min(score / maxScore, 1);
   // Small gap only at the end of the arc (before sticks); start is always 12 o'clock.
   const finalArcRatio = Math.max(0, targetRatio - GAP_RATIO);
+  const animationId = `ias-score-ring:${score ?? "empty"}:${maxScore}`;
+  const skipEnter = reducedMotion || hasAnimatedOnce(animationId);
 
-  const progress = useMotionValue(reducedMotion || isEmpty ? finalArcRatio : 0);
+  const progress = useMotionValue(skipEnter || isEmpty ? finalArcRatio : 0);
   const strokeDasharray = useTransform(progress, (value) => {
     const completed = RING_CIRCUMFERENCE * value;
     return `${completed} ${RING_CIRCUMFERENCE - completed}`;
@@ -145,9 +153,20 @@ function ScoreRing({
       return;
     }
 
-    if (reducedMotion) {
+    const land = () => {
       progress.set(finalArcRatio);
       if (scoreRef.current) scoreRef.current.textContent = String(score);
+    };
+
+    if (reducedMotion || hasAnimatedOnce(animationId)) {
+      land();
+      return;
+    }
+
+    // Mobile + desktop both mount; only the visible twin should sweep.
+    const root = rootRef.current;
+    if (!root || root.offsetParent === null) {
+      land();
       return;
     }
 
@@ -175,16 +194,18 @@ function ScoreRing({
         // Final frame: ring + text land on the exact end values together.
         progress.set(finalArcRatio);
         if (scoreRef.current) scoreRef.current.textContent = String(scoreNum);
+        markAnimatedOnce(animationId);
       },
     });
 
     return () => controls.stop();
-  }, [finalArcRatio, isEmpty, progress, reducedMotion, score]);
+  }, [animationId, finalArcRatio, isEmpty, progress, reducedMotion, score]);
 
   return (
     <motion.div
+      ref={rootRef}
       className="relative flex size-50 items-center justify-center"
-      initial={reducedMotion ? false : { opacity: 0, scale: 0.94 }}
+      initial={skipEnter ? false : { opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{
         duration: RING_ENTER_DURATION,
@@ -261,7 +282,7 @@ function ScoreRing({
               ref={scoreRef}
               className="text-[42px] leading-13 font-bold tracking-[-0.02em] tabular-nums text-foreground"
             >
-              {reducedMotion ? score : 0}
+              {skipEnter ? score : 0}
             </span>
             <span className="text-base leading-4 font-semibold text-muted-foreground">
               / {maxScore}
@@ -288,7 +309,7 @@ function ViewReportButton() {
     >
       View Report
       <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-card text-primary">
-        <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={19} className="size-5" hovered={hovered} />
+        <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={ICON_SIZE} className="size-5" hovered={hovered} />
       </span>
     </Button>
   );
@@ -304,10 +325,8 @@ function StatusBadgeDot({
 }) {
   const reducedMotion = useReducedMotion();
   const shouldPulse = pulse && !reducedMotion;
-  /** Inner dot ~7px; ring expands to ~16px. */
-  const dotPx = 7;
-  const ringEndPx = 16;
-  const scaleEnd = ringEndPx / dotPx;
+  /** Inner dot ~7px; ring expands to ~20px. */
+  const scaleEnd = 20 / 7;
 
   return (
     <span
@@ -321,9 +340,9 @@ function StatusBadgeDot({
             className,
           )}
           style={{ transformOrigin: "center" }}
-          animate={{ scale: [1, scaleEnd], opacity: [0.32, 0] }}
+          animate={{ scale: [1, scaleEnd], opacity: [0.55, 0] }}
           transition={{
-            duration: 1.8,
+            duration: 1.25,
             ease: "easeOut",
             repeat: Infinity,
             repeatDelay: 0.2,
@@ -351,7 +370,7 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-full bg-muted text-success">
-              <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+              <HugeiconsIcon icon={Award01Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
             </span>
             <p
               className={cn(
