@@ -160,7 +160,7 @@ function DataTableChip({
     <span
       className={cn(
         radius.full,
-        "inline-flex max-w-full items-center gap-0.5 bg-sidebar-accent py-1 pr-1 pl-2.5 text-xs font-medium leading-4 text-primary",
+        "inline-flex max-w-full items-center gap-0.5 bg-muted py-1 pr-1 pl-2.5 text-xs font-medium leading-4 text-primary",
       )}
     >
       <span className="truncate">{label}</span>
@@ -1109,7 +1109,7 @@ export function DataTable<T>({
                     data-state={isSelected ? "selected" : undefined}
                     aria-selected={isSelected}
                     onClick={(event) => onRowClick(id, event)}
-                    className="cursor-pointer transition-colors duration-150 hover:bg-accent data-[state=selected]:bg-sidebar-selected data-[state=selected]:hover:bg-sidebar-selected"
+                    className="cursor-pointer transition-colors duration-150 hover:bg-accent data-[state=selected]:bg-muted data-[state=selected]:hover:bg-muted"
                   >
                     <td
                       className={cn(

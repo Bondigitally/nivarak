@@ -121,7 +121,7 @@ export function EditProfileSection({
       </span>
 
       <div className="flex items-center">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-sidebar-accent">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-primary/20">
           <Image
             src={draft.avatarSrc}
             alt={`${draft.fullName} profile photo`}

@@ -32,7 +32,7 @@ export function HomeGreeting({
             <DashboardIconButton
               type="button"
               aria-label="Quick menu"
-              className="text-muted-foreground"
+              className="text-primary"
             >
               <HugeiconsIcon
                 icon={EnergyIcon}
