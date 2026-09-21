@@ -210,7 +210,7 @@
 
   /* Segmented tabs — neutral track (literal hex — Tailwind cannot resolve nested var() chains) */
   --segmented-track: #F1F1F2; /* Surface/TableHeader */
-  --segmented-track-on-card: #F7F7F8; /* Background/Primary on white card */
+  --segmented-track-on-card: #F1F1F2; /* Surface/TableHeader — visible on white card */
 }
 
 /* Matches Tailwind `lg` — desktop page inset */

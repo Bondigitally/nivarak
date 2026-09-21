@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { radius } from "@/lib/tokens/radius";
 import { cn } from "@/lib/utils";
 
 export type SegmentedControlOption<T extends string = string> = {
@@ -17,11 +18,43 @@ export type SegmentedControlOption<T extends string = string> = {
   label: string;
 };
 
-/** Stronger neutral border for tabs on page/white backgrounds (not card surfaces). */
-const SEGMENTED_TRACK_CLASS =
-  "border-foreground/14 shadow-[0_1px_2px_rgba(17,24,39,0.05)]";
+/**
+ * Proud-tab segmented control (reference: taller selected pill over a shorter track).
+ * Radius stays Rule 3 `rounded-md` — not pill.
+ *
+ * Track fill is neutral — table header on canvas, secondary on white cards.
+ */
+/** Canvas track — Surface/TableHeader on cool-gray background. */
+export const SEGMENTED_TRACK_CLASS = "bg-table-header";
+/** Card track — same TableHeader hex; reads clearly on white `bg-card` surfaces. */
+export const SEGMENTED_TRACK_SURFACE_CLASS = "bg-table-header";
+const SEGMENTED_TRACK_BY_SURFACE = {
+  canvas: SEGMENTED_TRACK_CLASS,
+  card: SEGMENTED_TRACK_SURFACE_CLASS,
+} as const;
+
+export type SegmentedControlSurface = keyof typeof SEGMENTED_TRACK_BY_SURFACE;
+
 const SEGMENTED_ACTIVE_TAB_CLASS =
-  "border-foreground/18 bg-card shadow-[0_1px_2px_rgba(17,24,39,0.08)]";
+  "border border-border bg-card shadow-[0_1px_2px_rgba(17,24,39,0.06)]";
+
+/** Tab = Button Default height (44px). Track behind is slightly shorter so the tab sits proud. */
+const SEGMENTED_MOBILE_TRIGGER_CLASS = cn(
+  "flex h-dash-control min-h-dash-control w-full items-center justify-between gap-2 border border-border bg-card px-5 text-left text-sm leading-5 md:hidden",
+  radius.md,
+);
+/** Scrollport pads vertically so the proud active pill border/shadow isn't clipped. */
+const SEGMENTED_SCROLL_CLASS =
+  "max-w-full overflow-x-auto overscroll-x-contain py-1 scrollbar-none [&::-webkit-scrollbar]:hidden";
+const SEGMENTED_LIST_CLASS =
+  "relative flex h-dash-control min-h-dash-control w-fit items-stretch";
+/** 40px track centered behind 44px tabs — fill comes from `surface`, not baked in here. */
+const SEGMENTED_TRACK_BAR_LAYOUT_CLASS =
+  "pointer-events-none absolute top-1/2 right-0 left-0 z-0 h-10 -translate-y-1/2";
+const SEGMENTED_SEGMENT_CLASS = cn(
+  radius.md,
+  "relative z-10 flex h-full shrink-0 items-center justify-center px-5 text-center text-sm leading-5 whitespace-nowrap select-none transition-colors duration-200 ease-out",
+);
 
 export function SegmentedControl<T extends string>({
   value,
@@ -29,6 +62,7 @@ export function SegmentedControl<T extends string>({
   options,
   ariaLabel,
   layoutId: _layoutId = "segmentedControlActiveTab",
+  surface = "canvas",
   className,
 }: {
   value: T;
@@ -37,6 +71,8 @@ export function SegmentedControl<T extends string>({
   ariaLabel: string;
   /** Unique when multiple controls can mount on the same page. */
   layoutId?: string;
+  /** Kept for API compatibility — canvas vs card track shades. */
+  surface?: SegmentedControlSurface;
   className?: string;
 }) {
   const reducedMotion = useReducedMotion();
@@ -77,11 +113,10 @@ export function SegmentedControl<T extends string>({
               type="button"
               aria-label={ariaLabel}
               className={cn(
-                "flex w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-2.5 text-left text-sm leading-5 md:hidden",
-                "font-semibold text-primary-active",
-                "outline-none transition-colors hover:bg-accent/60",
+                SEGMENTED_MOBILE_TRIGGER_CLASS,
+                "font-semibold text-foreground",
+                "outline-none transition-colors hover:text-foreground",
                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                SEGMENTED_TRACK_CLASS,
               )}
             >
               <span className="min-w-0 truncate">{selected?.label}</span>
@@ -100,7 +135,7 @@ export function SegmentedControl<T extends string>({
                 key={tab.id}
                 className={cn(
                   "cursor-pointer px-2.5 py-2",
-                  tab.id === value && "bg-accent text-primary",
+                  tab.id === value && "font-semibold text-foreground",
                 )}
                 onSelect={() => onChange(tab.id)}
               >
@@ -112,71 +147,84 @@ export function SegmentedControl<T extends string>({
       ) : null}
 
       <div
-        ref={listRef}
-        role="tablist"
-        aria-label={ariaLabel}
         className={cn(
-          "relative w-fit max-w-full items-start overflow-x-auto overscroll-x-contain rounded-md border bg-background p-0.5 scrollbar-none [&::-webkit-scrollbar]:hidden",
-          collapseOnMobile ? "hidden md:flex" : "flex",
-          SEGMENTED_TRACK_CLASS,
+          SEGMENTED_SCROLL_CLASS,
+          collapseOnMobile ? "hidden md:block" : "block",
         )}
       >
-        {indicator.width > 0 ? (
-          <motion.div
+        <div
+          ref={listRef}
+          role="tablist"
+          aria-label={ariaLabel}
+          className={SEGMENTED_LIST_CLASS}
+        >
+          <div
             aria-hidden
             className={cn(
-              "pointer-events-none absolute rounded-md border",
-              SEGMENTED_ACTIVE_TAB_CLASS,
+              SEGMENTED_TRACK_BAR_LAYOUT_CLASS,
+              radius.md,
+              SEGMENTED_TRACK_BY_SURFACE[surface],
             )}
-            initial={false}
-            animate={{
-              left: indicator.left,
-              top: indicator.top,
-              width: indicator.width,
-              height: indicator.height,
-            }}
-            transition={
-              reducedMotion
-                ? { duration: 0 }
-                : { type: "tween", duration: 0.22, ease: [0.32, 0.72, 0, 1] }
-            }
           />
-        ) : null}
 
-        {options.map((tab) => {
-          const isActive = value === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              ref={(node) => {
-                if (node) buttonRefs.current.set(tab.id, node);
-                else buttonRefs.current.delete(tab.id);
-              }}
-              onClick={() => onChange(tab.id)}
+          {indicator.width > 0 ? (
+            <motion.div
+              aria-hidden
               className={cn(
-                "relative z-10 flex shrink-0 items-center justify-center px-3 py-2.5 text-center text-sm leading-5 whitespace-nowrap select-none transition-colors duration-200 ease-out sm:px-5 sm:py-3",
-                isActive ? "text-primary-active" : "text-muted-foreground hover:text-primary-active",
+                "pointer-events-none absolute z-[1]",
+                radius.md,
+                SEGMENTED_ACTIVE_TAB_CLASS,
               )}
-            >
-              <span className="inline-grid place-items-center">
-                <span className="invisible col-start-1 row-start-1 font-semibold" aria-hidden>
-                  {tab.label}
+              initial={false}
+              animate={{
+                left: indicator.left,
+                top: indicator.top,
+                width: indicator.width,
+                height: indicator.height,
+              }}
+              transition={
+                reducedMotion
+                  ? { duration: 0 }
+                  : { type: "tween", duration: 0.22, ease: [0.32, 0.72, 0, 1] }
+              }
+            />
+          ) : null}
+
+          {options.map((tab) => {
+            const isActive = value === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                ref={(node) => {
+                  if (node) buttonRefs.current.set(tab.id, node);
+                  else buttonRefs.current.delete(tab.id);
+                }}
+                onClick={() => onChange(tab.id)}
+                className={cn(
+                  SEGMENTED_SEGMENT_CLASS,
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <span className="inline-grid place-items-center">
+                  <span className="invisible col-start-1 row-start-1 font-semibold" aria-hidden>
+                    {tab.label}
+                  </span>
+                  <span
+                    className={cn(
+                      "col-start-1 row-start-1",
+                      isActive ? "font-semibold" : "font-medium",
+                    )}
+                  >
+                    {tab.label}
+                  </span>
                 </span>
-                <span
-                  className={cn(
-                    "col-start-1 row-start-1",
-                    isActive ? "font-semibold" : "font-medium",
-                  )}
-                >
-                  {tab.label}
-                </span>
-              </span>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

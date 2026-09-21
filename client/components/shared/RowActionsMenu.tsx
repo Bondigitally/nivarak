@@ -30,7 +30,7 @@ export function RowActionsMenu({
         <button
           type="button"
           aria-label={label}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30"
         >
           <AppIcon icon={MoreHorizontalIcon} />
         </button>
