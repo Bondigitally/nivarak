@@ -6,6 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { CheckIcon } from '@hugeicons/core-free-icons';
 import { typo } from '@/lib/tokens/typography';
 import { cn } from '@/lib/utils';
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const CHECK_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -64,9 +65,9 @@ export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
               >
                 <HugeiconsIcon
                   icon={CheckIcon}
-                  size={19}
+                  size={ICON_SIZE}
                   color="var(--primary-foreground)"
-                  strokeWidth={1.5}
+                  strokeWidth={ICON_STROKE}
                 absoluteStrokeWidth />
               </motion.span>
             )}
