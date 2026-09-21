@@ -1,5 +1,6 @@
-import { AlertsPageContent } from "@/features/alerts/components/AlertsPageContent";
+import { redirect } from "next/navigation";
 
+/** Legacy path — prefer `/notifications`. */
 export default function AlertsPage() {
-  return <AlertsPageContent />;
+  redirect("/notifications");
 }
