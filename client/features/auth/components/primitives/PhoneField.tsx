@@ -123,7 +123,7 @@ export function PhoneField({
               <button
                 type="button"
                 className={cn(
-                  'inline-flex h-full shrink-0 items-center gap-1 rounded-[10px] px-1.5',
+                  'inline-flex h-full shrink-0 items-center gap-1 rounded-sm px-1.5',
                   typo.input,
                   'outline-none transition-colors hover:bg-background',
                   'focus-visible:bg-background disabled:pointer-events-none',
@@ -134,9 +134,9 @@ export function PhoneField({
                 <HugeiconsIcon
                   icon={ArrowDown01Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   className="text-muted-foreground"
-                />
+                absoluteStrokeWidth />
               </button>
             </DropdownMenuTrigger>
 
@@ -148,7 +148,7 @@ export function PhoneField({
               avoidCollisions={false}
               style={menuWidth ? { width: menuWidth } : undefined}
               className={cn(
-                'max-w-[calc(100vw-2rem)] overflow-hidden rounded-[14px] border-border bg-card p-0 shadow-md',
+                'max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border-border bg-card p-0 shadow-md',
                 !menuWidth && 'w-[min(20rem,calc(100vw-2.5rem))]',
                 typo.input,
               )}
@@ -162,7 +162,7 @@ export function PhoneField({
                       key={item.iso}
                       onSelect={() => handleCountrySelect(item)}
                       className={cn(
-                        'cursor-pointer gap-3 rounded-[10px] px-3 py-2.5',
+                        'cursor-pointer gap-3 rounded-sm px-3 py-2.5',
                         typo.input,
                         selected && 'bg-background text-foreground',
                       )}

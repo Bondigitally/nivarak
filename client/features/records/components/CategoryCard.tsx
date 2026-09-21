@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { radius } from "@/lib/tokens/radius";
 
 const CARD_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -30,7 +31,7 @@ const categoryIconShellVariants = {
 
 const categoryIconVariants = {
   rest: { rotate: 0, scale: 1 },
-  hover: { rotate: -4, scale: 1.04 },
+  hover: { rotate: -2, scale: 1.02 },
 };
 
 export function CategoryCard({
@@ -55,7 +56,8 @@ export function CategoryCard({
       variants={categoryCardVariants}
       transition={{ duration: 0.22, ease: CARD_EASE }}
       className={cn(
-        "@container flex min-w-0 w-full flex-col items-start gap-3 rounded-xl border border-solid border-border bg-card p-5 text-left",
+        "@container flex min-w-0 w-full flex-col items-start gap-3 border border-solid border-border bg-card p-5 text-left",
+        radius.lg,
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         "@min-[304px]:flex-row @min-[304px]:items-center @min-[304px]:gap-2 @min-[304px]:p-6",
       )}
@@ -63,19 +65,24 @@ export function CategoryCard({
       <motion.div
         variants={categoryIconShellVariants}
         transition={{ duration: 0.22, ease: CARD_EASE }}
-        className="flex shrink-0 items-center rounded-[14px] bg-muted p-2"
+        className={cn(
+          "flex size-12 shrink-0 items-center justify-center bg-table-header p-2",
+          radius.md,
+        )}
       >
         <motion.div
           variants={categoryIconVariants}
           transition={{ duration: 0.28, ease: CARD_EASE }}
-          className="relative size-8 overflow-hidden rounded-lg"
+          className="relative size-8"
         >
           <img
             src={iconSrc}
             alt=""
-            width={32}
-            height={32}
-            className="size-full object-cover"
+            width={64}
+            height={64}
+            decoding="async"
+            draggable={false}
+            className="pointer-events-none size-8 max-w-none object-contain"
           />
         </motion.div>
       </motion.div>
