@@ -1,6 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown01Icon,
@@ -37,28 +46,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authInputClassName, AuthFieldError } from "@/features/auth/components/primitives/AuthField";
+import { FieldErrorMessage } from "@/components/ui/field-error-message";
+import { fieldInputClassName } from "@/components/ui/input";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { radius } from "@/lib/tokens/radius";
 import { cn } from "@/lib/utils";
 import {
   IASP_LIVING_SITUATION_OPTIONS,
+  IASP_LIVING_SITUATION_OTHER,
   IASP_LOCATION_OPTIONS,
   IASP_RELATIONSHIP_OPTIONS,
   IASP_VISIT_FREQUENCY_OPTIONS,
   getIaspAgeError,
+  getIaspLivingSituationDisplay,
   isIaspAboutYouComplete,
+  isIaspLivingSituationOther,
   sanitizeIaspAgeInput,
+  sanitizeIaspLivingSituationOther,
   type IaspAboutYouValues,
 } from "../data/iasp-about-you-data";
 import {
-  IASP_ANSWER_OPTIONS,
   IASP_HELPER,
   IASP_QUESTION_PAGES,
   IASP_TOTAL_QUESTIONS,
   getIaspProgressPct,
   getIaspQuestionLabel,
+  getIaspQuestionOptions,
   isLastPageInSection,
   type IaspAnswerId,
   type IaspAnswerOption,
@@ -170,6 +184,8 @@ const ANSWER_SELECTED_CLASS: Record<IaspAnswerId, string> = {
     "border-warning/40 bg-warning-muted [&_[data-option-label]]:text-warning [&_[data-radio]]:border-warning [&_[data-radio-dot]]:bg-warning",
   dependent:
     "border-destructive/40 bg-destructive-muted [&_[data-option-label]]:text-destructive [&_[data-radio]]:border-destructive [&_[data-radio-dot]]:bg-destructive",
+  yes: "border-warning/40 bg-warning-muted [&_[data-option-label]]:text-warning [&_[data-radio]]:border-warning [&_[data-radio-dot]]:bg-warning",
+  no: "border-success bg-success-muted [&_[data-option-label]]:text-success [&_[data-radio]]:border-success [&_[data-radio-dot]]:bg-success",
 };
 
 type SaveIndicatorStatus = "idle" | "saving" | "saved";
@@ -308,7 +324,7 @@ function IntroStep({
           </span>
           <div className="flex flex-col items-center gap-1">
             <DialogTitle className={cn(typo.displayL, "text-primary")}>
-              IAS-P Assessment
+              IAS Assessment
             </DialogTitle>
             <p
               className={cn(
@@ -316,7 +332,7 @@ function IntroStep({
                 "uppercase tracking-[0.06em] text-muted-foreground",
               )}
             >
-              Independent Ageing Score Proxy
+              Independent Ageing Score
             </p>
           </div>
         </div>
@@ -420,6 +436,32 @@ function IntroStep({
 
 /* ─── About You ─────────────────────────────────────────────────────────── */
 
+function scrollElementIntoContainer(
+  container: HTMLElement,
+  element: HTMLElement,
+  padding = 24,
+) {
+  const containerRect = container.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  const bottomOverflow = elementRect.bottom - containerRect.bottom + padding;
+
+  if (bottomOverflow > 0) {
+    container.scrollTo({
+      top: container.scrollTop + bottomOverflow,
+      behavior: "smooth",
+    });
+    return;
+  }
+
+  const topOverflow = containerRect.top - elementRect.top + padding;
+  if (topOverflow > 0) {
+    container.scrollTo({
+      top: container.scrollTop - topOverflow,
+      behavior: "smooth",
+    });
+  }
+}
+
 function SelectField({
   label,
   placeholder,
@@ -446,7 +488,7 @@ function SelectField({
             id={id}
             type="button"
             className={cn(
-              authInputClassName,
+              fieldInputClassName,
               "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
             )}
           >
@@ -488,6 +530,139 @@ function SelectField({
   );
 }
 
+function LivingSituationField({
+  values,
+  onChange,
+  scrollContainerRef,
+}: {
+  values: IaspAboutYouValues;
+  onChange: (next: IaspAboutYouValues) => void;
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
+}) {
+  const id = useId();
+  const otherInputId = useId();
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const otherInputRef = useRef<HTMLInputElement>(null);
+  const display = getIaspLivingSituationDisplay(values);
+  const isOther = isIaspLivingSituationOther(values.livingSituation);
+
+  useEffect(() => {
+    if (!isOther) return;
+
+    let frame2 = 0;
+    const frame1 = requestAnimationFrame(() => {
+      frame2 = requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        const field = fieldRef.current;
+        const input = otherInputRef.current;
+        if (!field || !input) return;
+
+        if (container) {
+          scrollElementIntoContainer(container, field);
+        } else {
+          field.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        input.focus({ preventScroll: true });
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(frame1);
+      if (frame2) cancelAnimationFrame(frame2);
+    };
+  }, [isOther, scrollContainerRef]);
+
+  return (
+    <div ref={fieldRef} className="flex w-full flex-col gap-2">
+      <label htmlFor={id} className={cn(typo.label, "text-foreground")}>
+        Living situation
+      </label>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <button
+            id={id}
+            type="button"
+            className={cn(
+              fieldInputClassName,
+              "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
+            )}
+          >
+            <span
+              className={cn(
+                typo.input,
+                "min-w-0 flex-1 truncate",
+                !display && "text-placeholder",
+              )}
+            >
+              {display ?? "Select situation"}
+            </span>
+            <AppIcon
+              icon={ArrowDown01Icon}
+              className="shrink-0 text-muted-foreground"
+            />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          sideOffset={8}
+          className={iaspDropdownContentClass}
+        >
+          {IASP_LIVING_SITUATION_OPTIONS.map((option) => (
+            <DropdownMenuItem
+              key={option}
+              onSelect={() => {
+                if (option === IASP_LIVING_SITUATION_OTHER) {
+                  onChange({
+                    ...values,
+                    livingSituation: IASP_LIVING_SITUATION_OTHER,
+                  });
+                  return;
+                }
+                onChange({
+                  ...values,
+                  livingSituation: option,
+                  livingSituationOther: "",
+                });
+              }}
+              className={cn(
+                iaspDropdownItemClass,
+                values.livingSituation === option && "bg-background",
+              )}
+            >
+              {option}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {isOther ? (
+        <input
+          ref={otherInputRef}
+          id={otherInputId}
+          type="text"
+          autoComplete="off"
+          placeholder="Please specify"
+          value={values.livingSituationOther}
+          onChange={(event) =>
+            onChange({
+              ...values,
+              livingSituation: IASP_LIVING_SITUATION_OTHER,
+              livingSituationOther: sanitizeIaspLivingSituationOther(
+                event.target.value,
+              ),
+            })
+          }
+          className={cn(
+            fieldInputClassName,
+            "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
+          )}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 function AboutYouStep({
   values,
   onChange,
@@ -499,6 +674,7 @@ function AboutYouStep({
   onBack: () => void;
   onContinue: () => void;
 }) {
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [ageBlurred, setAgeBlurred] = useState(false);
   const complete = isIaspAboutYouComplete(values);
   const ageError = getIaspAgeError(values.age);
@@ -510,7 +686,7 @@ function AboutYouStep({
       <DialogHeader className={iaspStepHeaderClass}>
         <div className="flex items-start justify-between gap-3">
           <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
-            IAS-P Assessment
+            IAS Assessment
           </DialogTitle>
           <IaspModalCloseButton />
         </div>
@@ -520,7 +696,10 @@ function AboutYouStep({
         <IaspProgressBar value={8} label="Assessment progress" />
       </DialogHeader>
 
-      <div className={cn(iaspModalScrollBodyClass, "gap-5 py-6 sm:gap-6 sm:py-7")}>
+      <div
+        ref={bodyRef}
+        className={cn(iaspModalScrollBodyClass, "gap-5 py-6 sm:gap-6 sm:py-7")}
+      >
         <div className="flex flex-col gap-1">
           <h3 className={cn(typo.headingL, "text-foreground")}>About You</h3>
           <p className={cn(typo.bodyS, "text-muted-foreground")}>
@@ -558,13 +737,13 @@ function AboutYouStep({
                 })
               }
               className={cn(
-                authInputClassName,
+                fieldInputClassName,
                 "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
                 showAgeError &&
                   "border-destructive focus-visible:ring-destructive/30",
               )}
             />
-            <AuthFieldError error={showAgeError ? ageError : null} />
+            <FieldErrorMessage error={showAgeError ? ageError : null} />
           </div>
 
           <SelectField
@@ -583,14 +762,10 @@ function AboutYouStep({
               onChange({ ...values, visitFrequency })
             }
           />
-          <SelectField
-            label="Living situation"
-            placeholder="Select situation"
-            value={values.livingSituation}
-            options={IASP_LIVING_SITUATION_OPTIONS}
-            onChange={(livingSituation) =>
-              onChange({ ...values, livingSituation })
-            }
+          <LivingSituationField
+            values={values}
+            onChange={onChange}
+            scrollContainerRef={bodyRef}
           />
         </div>
       </div>
@@ -657,7 +832,9 @@ function AnswerOptionCard({
     <label
       className={cn(
         iaspOptionCardClass,
-        compact ? "items-center gap-3 p-3" : "items-center gap-3 p-4",
+        compact
+          ? "min-h-16 items-center gap-3 p-3"
+          : "min-h-18 items-center gap-3 p-4",
         selected && ANSWER_SELECTED_CLASS[option.id],
       )}
     >
@@ -700,9 +877,10 @@ function AnswerOptionCard({
           className={cn(
             compact ? typo.caption : typo.bodyS,
             "text-muted-foreground",
+            !option.description && "invisible",
           )}
         >
-          {option.description}
+          {option.description || "\u00A0"}
         </span>
       </span>
       <span className={iaspKeyHintClass}>Press {shortcutKey}</span>
@@ -710,36 +888,47 @@ function AnswerOptionCard({
   );
 }
 
+const IASP_OPTION_SLOT_COUNT = 3;
+
 function QuestionOptions({
-  questionId,
+  question,
   value,
   onChange,
-  prompt,
   compact = false,
 }: {
-  questionId: string;
+  question: IaspQuestion;
   value: IaspAnswerId | undefined;
   onChange: (questionId: string, answer: IaspAnswerId) => void;
-  prompt: string;
   compact?: boolean;
 }) {
-  const optionGap = "gap-3";
+  const options = getIaspQuestionOptions(question);
+  const spacerCount = Math.max(0, IASP_OPTION_SLOT_COUNT - options.length);
 
   return (
     <div
       role="radiogroup"
-      aria-label={prompt}
-      className={cn("flex w-full min-w-0 flex-col items-stretch", optionGap)}
+      aria-label={question.prompt}
+      className="flex w-full min-w-0 flex-col items-stretch gap-3"
     >
-      {IASP_ANSWER_OPTIONS.map((option, index) => (
+      {options.map((option, index) => (
         <AnswerOptionCard
           key={option.id}
           option={option}
-          name={`iasp-${questionId}`}
+          name={`iasp-${question.id}`}
           selected={value === option.id}
-          onSelect={(id) => onChange(questionId, id)}
+          onSelect={(id) => onChange(question.id, id)}
           shortcutKey={index + 1}
           compact={compact}
+        />
+      ))}
+      {Array.from({ length: spacerCount }, (_, index) => (
+        <div
+          key={`option-spacer-${index}`}
+          aria-hidden
+          className={cn(
+            "pointer-events-none invisible",
+            compact ? "min-h-16" : "min-h-18",
+          )}
         />
       ))}
     </div>
@@ -763,10 +952,9 @@ function QuestionnaireQuestion({
         {question.prompt}
       </h3>
       <QuestionOptions
-        questionId={question.id}
+        question={question}
         value={value}
         onChange={onChange}
-        prompt={question.prompt}
         compact={compact}
       />
     </section>
@@ -887,7 +1075,9 @@ function QuestionsStep({
     function onKeyDown(event: KeyboardEvent) {
       if (isTypingTarget(event.target)) return;
 
-      const shortcutAnswer = IASP_ANSWER_OPTIONS[Number(event.key) - 1];
+      const shortcutAnswer = getIaspQuestionOptions(activeQuestion)[
+        Number(event.key) - 1
+      ];
       if (shortcutAnswer) {
         event.preventDefault();
         handleSelect(activeQuestion.id, shortcutAnswer.id);
@@ -964,7 +1154,7 @@ function QuestionsStep({
         </div>
 
         <DialogDescription className="sr-only">
-          IAS-P assessment questionnaire. Answer each question to continue.
+          IAS assessment questionnaire. Answer each question to continue.
         </DialogDescription>
 
         <div className={cn("flex flex-col", iaspQuestionStepGapClass)}>

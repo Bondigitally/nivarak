@@ -12,24 +12,25 @@ export const IASP_LOCATION_OPTIONS = [
   "Same city",
   "Same state",
   "Different state",
-  "Outside India",
+  "Different country",
 ] as const;
 
 export const IASP_VISIT_FREQUENCY_OPTIONS = [
   "Daily",
   "Several times a week",
   "Weekly",
-  "Monthly",
-  "A few times a year",
-  "Rarely / remotely",
+  "Less than weekly",
+  "Mostly by phone/video",
 ] as const;
 
+export const IASP_LIVING_SITUATION_OTHER = "Other";
+
 export const IASP_LIVING_SITUATION_OPTIONS = [
-  "Lives alone",
-  "Lives with spouse / partner",
-  "Lives with family",
-  "Lives with caregiver",
-  "Assisted living / facility",
+  "Alone",
+  "With spouse",
+  "With family",
+  "With caregiver",
+  IASP_LIVING_SITUATION_OTHER,
 ] as const;
 
 export type IaspAboutYouValues = {
@@ -38,6 +39,7 @@ export type IaspAboutYouValues = {
   location: string | null;
   visitFrequency: string | null;
   livingSituation: string | null;
+  livingSituationOther: string;
 };
 
 export const EMPTY_IASP_ABOUT_YOU: IaspAboutYouValues = {
@@ -46,13 +48,32 @@ export const EMPTY_IASP_ABOUT_YOU: IaspAboutYouValues = {
   location: null,
   visitFrequency: null,
   livingSituation: null,
+  livingSituationOther: "",
 };
 
 export const IASP_MIN_AGE = 18;
 export const IASP_MAX_AGE = 120;
+export const IASP_LIVING_SITUATION_OTHER_MAX = 100;
 
 export function sanitizeIaspAgeInput(value: string): string {
   return value.replace(/\D/g, "").slice(0, 3);
+}
+
+export function sanitizeIaspLivingSituationOther(value: string): string {
+  return value.slice(0, IASP_LIVING_SITUATION_OTHER_MAX);
+}
+
+export function isIaspLivingSituationOther(
+  livingSituation: string | null,
+): boolean {
+  return livingSituation === IASP_LIVING_SITUATION_OTHER;
+}
+
+export function getIaspLivingSituationDisplay(
+  values: Pick<IaspAboutYouValues, "livingSituation" | "livingSituationOther">,
+): string | null {
+  if (!values.livingSituation) return null;
+  return values.livingSituation;
 }
 
 export function getIaspAgeError(age: string): string | null {
@@ -73,11 +94,16 @@ export function getIaspAgeError(age: string): string | null {
 
 export function isIaspAboutYouComplete(values: IaspAboutYouValues): boolean {
   const age = Number(values.age);
+  const livingOk =
+    Boolean(values.livingSituation) &&
+    (!isIaspLivingSituationOther(values.livingSituation) ||
+      Boolean(values.livingSituationOther.trim()));
+
   return (
     Boolean(values.relationship) &&
     Boolean(values.location) &&
     Boolean(values.visitFrequency) &&
-    Boolean(values.livingSituation) &&
+    livingOk &&
     Number.isFinite(age) &&
     age >= IASP_MIN_AGE &&
     age <= IASP_MAX_AGE
