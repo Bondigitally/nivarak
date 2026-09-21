@@ -37,6 +37,7 @@ export function getPrimaryRole(roles: string[]): UserRole | null {
 }
 
 /** Same-origin home after login; dashboard content is gated by JWT RBAC/ABAC. */
-export function getHomeUrlForRoles(_roles: string[]): string {
+export function getHomeUrlForRoles(roles: string[]): string {
+  void roles;
   return HOME_PATH;
 }
