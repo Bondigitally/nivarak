@@ -1,5 +1,5 @@
 import {
-  Home12Icon,
+  Home07Icon,
   Audit01Icon,
   CheckListIcon,
   HeartPulseIcon,
@@ -8,7 +8,7 @@ import {
   Calendar03Icon,
   Archive02Icon,
   UserGroupIcon,
-  BellIcon,
+  Notification01Icon,
   Settings01Icon,
   Target02Icon,
   UserMultiple02Icon,
@@ -38,7 +38,7 @@ export const PATIENT_NAV: SidebarNavConfig = {
     {
       label: "OVERVIEW",
       items: [
-        { label: "Home", icon: Home12Icon, href: "/dashboard" },
+        { label: "Dashboard", icon: Home07Icon, href: "/dashboard" },
         { label: "Vitals", icon: HeartPulseIcon, href: "/health/vitals" },
         { label: "Assessments", icon: Audit01Icon, href: "/health/assessments" },
         { label: "Tasks", icon: CheckListIcon, href: "/care/tasks" },
@@ -57,7 +57,7 @@ export const PATIENT_NAV: SidebarNavConfig = {
       label: "MONITORING",
       items: [
         { label: "Care Team", icon: UserGroupIcon, href: "/care-team" },
-        { label: "Notifications", icon: BellIcon, href: "/alerts" },
+        { label: "Notifications", icon: Notification01Icon, href: "/notifications" },
       ],
     },
     {
@@ -73,7 +73,7 @@ export const COORDINATOR_NAV: SidebarNavConfig = {
     {
       label: "OVERVIEW",
       items: [
-        { label: "Home", icon: Home12Icon, href: "/dashboard" },
+        { label: "Dashboard", icon: Home07Icon, href: "/dashboard" },
         { label: "Leads", icon: Target02Icon, href: "/leads" },
         { label: "Patients", icon: UserGroupIcon, href: "/patients" },
       ],
@@ -88,7 +88,7 @@ export const COORDINATOR_NAV: SidebarNavConfig = {
     },
     {
       label: "MONITORING",
-      items: [{ label: "Alerts", icon: BellIcon, href: "/alerts" }],
+      items: [{ label: "Alerts", icon: Notification01Icon, href: "/notifications" }],
     },
     {
       label: "MORE",
