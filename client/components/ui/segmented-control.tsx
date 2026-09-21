@@ -45,13 +45,13 @@ const SEGMENTED_MOBILE_TRIGGER_CLASS = cn(
 /** Scrollport pads vertically so the proud active pill border/shadow isn't clipped. */
 const SEGMENTED_SCROLL_CLASS =
   "max-w-full overflow-x-auto overscroll-x-contain py-1 scrollbar-none [&::-webkit-scrollbar]:hidden";
-const SEGMENTED_LIST_CLASS =
-  "relative flex h-dash-control min-h-dash-control w-fit items-stretch";
-const SEGMENTED_TRACK_BAR_LAYOUT_CLASS = cn(
-  "pointer-events-none absolute top-1/2 right-0 left-0 h-10.5 -translate-y-1/2",
+const SEGMENTED_LIST_CLASS = cn(
+  "relative flex h-dash-control min-h-dash-control w-fit items-stretch overflow-hidden",
   radius.md,
-  SEGMENTED_TRACK_CLASS,
 );
+/** 40px track centered behind 44px tabs — fill comes from `surface`, not baked in here. */
+const SEGMENTED_TRACK_BAR_LAYOUT_CLASS =
+  "pointer-events-none absolute top-1/2 right-0 left-0 z-0 h-10 -translate-y-1/2";
 const SEGMENTED_SEGMENT_CLASS = cn(
   radius.md,
   "relative z-10 flex h-full shrink-0 items-center justify-center px-5 text-center text-sm leading-5 whitespace-nowrap select-none transition-colors duration-200 ease-out",
@@ -161,14 +161,18 @@ export function SegmentedControl<T extends string>({
         >
           <div
             aria-hidden
-            className={cn(SEGMENTED_TRACK_BAR_LAYOUT_CLASS, SEGMENTED_TRACK_BY_SURFACE[surface])}
+            className={cn(
+              SEGMENTED_TRACK_BAR_LAYOUT_CLASS,
+              radius.md,
+              SEGMENTED_TRACK_BY_SURFACE[surface],
+            )}
           />
 
           {indicator.width > 0 ? (
             <motion.div
               aria-hidden
               className={cn(
-                "pointer-events-none absolute z-1",
+                "pointer-events-none absolute z-[1]",
                 radius.md,
                 SEGMENTED_ACTIVE_TAB_CLASS,
               )}
