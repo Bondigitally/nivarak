@@ -1,10 +1,9 @@
 /**
- * Color tokens — use CSS var refs in styles; use `chartHex` only when JS needs literal hex
- * (e.g. SVG lerp, Recharts). Canonical values live in `client/app/globals.css` and
- * `design system/design.md` — keep all three in sync.
+ * Color tokens — prefer CSS vars from `globals.css`.
+ * Use `chartHex` only when JS needs literal hex (SVG lerp, etc.).
+ * `chartHex.brandStart/End` are fixed brand gradient stops and must not follow theme.
  */
 
-/** CSS custom property references for use in inline styles and chart config. */
 export const cssVar = {
   background: "var(--background)",
   foreground: "var(--foreground)",
@@ -33,7 +32,7 @@ export const cssVar = {
   chart8: "var(--chart-8)",
 } as const;
 
-/** Chart palette hex — mirrors globals.css `--chart-*` (design.md Charts & overlays). */
+/** Literal chart hex — mirrors `--chart-*` in globals.css */
 export const chartHex = {
   brandStart: "#6C318E",
   brandEnd: "#1E0E28",
@@ -45,10 +44,7 @@ export const chartHex = {
   temperature: "#F97316",
 } as const;
 
-/**
- * Vitals KPI icon stroke + glow gradients (JS/SVG only).
- * Stroke ends reuse `chartHex` where they match the chart series.
- */
+/** Vitals KPI icon gradients (JS/SVG only) */
 export const vitalIconGradient = {
   bp: {
     from: chartHex.bpSystolic,
