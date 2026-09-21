@@ -26,10 +26,15 @@ export function TaskRow({
   task,
   onComplete,
   onIncomplete,
+  showStatusAction = true,
+  className,
 }: {
   task: CareTask;
   onComplete: (id: string) => void;
   onIncomplete?: (id: string) => void;
+  /** When false, hides the Done / Completed trailing control. */
+  showStatusAction?: boolean;
+  className?: string;
 }) {
   const { displayCompleted, isPending, toggle } = useStrikeToggle(task.completed, () => {
     if (task.completed) {
@@ -40,7 +45,9 @@ export function TaskRow({
   });
 
   const isOverdue =
-    !displayCompleted && getTaskSection(task.dueAt) === "overdue";
+    !displayCompleted &&
+    task.dueAt != null &&
+    getTaskSection(task.dueAt) === "overdue";
 
   const tooltipLabel = displayCompleted
     ? "Mark as incomplete"
@@ -60,10 +67,10 @@ export function TaskRow({
       disabled={isPending}
       className={cn(
         dashboardDividedRowClass,
-        "flex min-h-14 w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3 text-left sm:gap-3.5 sm:py-3.5",
+        "group flex min-h-14 w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3 text-left sm:gap-3.5 sm:py-3.5",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        displayCompleted && "hover:before:opacity-0",
         isPending && "pointer-events-none",
+        className,
       )}
     >
       <TooltipProvider delayDuration={200}>
@@ -101,33 +108,33 @@ export function TaskRow({
         </span>
       </span>
 
-      <span className="min-w-3 flex-1" aria-hidden />
-
-      {displayCompleted ? (
-        <span
-          className={cn(
-            statusBadgeClass,
-            typo.badge,
-            "shrink-0 gap-1.5 border border-border bg-muted text-muted-foreground",
-          )}
-        >
-          <AppIcon
-            icon={CheckmarkCircle02Icon}
-            size={BADGE_ICON_SIZE}
-            aria-hidden
-          />
-          Completed
-        </span>
-      ) : (
-        <span
-          className={cn(
-            typo.button,
-            "inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
-          )}
-        >
-          Done
-        </span>
-      )}
+      {showStatusAction ? (
+        displayCompleted ? (
+          <span
+            className={cn(
+              statusBadgeClass,
+              typo.badge,
+              "ml-auto shrink-0 gap-1.5 border border-border bg-muted text-muted-foreground",
+            )}
+          >
+            <AppIcon
+              icon={CheckmarkCircle02Icon}
+              size={BADGE_ICON_SIZE}
+              aria-hidden
+            />
+            Completed
+          </span>
+        ) : (
+          <span
+            className={cn(
+              typo.button,
+              "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+            )}
+          >
+            Done
+          </span>
+        )
+      ) : null}
     </button>
   );
 }
