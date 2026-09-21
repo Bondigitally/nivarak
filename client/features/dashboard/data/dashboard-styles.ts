@@ -1,5 +1,4 @@
 import { radius } from "@/lib/tokens/radius";
-import { heroPlumWashSurfaceClass } from "@/components/layout/shell-chrome";
 
 export {
   cardTitleClass,
@@ -23,7 +22,8 @@ export {
 export { statusBadgeClass } from "@/lib/tokens/status-badges";
 
 /** IAS dashboard hero — subtle neutral lift on white card */
-export const dashboardHeroCardSurfaceClass = heroPlumWashSurfaceClass;
+export const dashboardHeroCardSurfaceClass =
+  "bg-[linear-gradient(225deg,var(--background)_0%,var(--card)_55%)]";
 
 /** Title row → body: 24px. Pair with `dashboardCardListClass` on the list. */
 export const dashboardCardHeaderClass =
