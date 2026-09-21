@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
+import { AppearanceSettingsCard } from "@/features/settings/components/AppearanceSettingsCard";
 import { EditProfileSection } from "@/features/settings/components/EditProfileSection";
 import { NotificationsSettingsCard } from "@/features/settings/components/NotificationsSettingsCard";
 import { PrivacySettingsCard } from "@/features/settings/components/PrivacySettingsCard";
@@ -48,6 +49,8 @@ export default function SettingsPage() {
             onEditProfile={() => setEditingProfile(true)}
           />
         )}
+
+        <AppearanceSettingsCard />
 
         <NotificationsSettingsCard
           preferences={notifications}

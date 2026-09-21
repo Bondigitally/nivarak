@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Class-based dark mode — pairs with next-themes `attribute="class"` */
+@custom-variant dark (&:where(.dark, .dark *):not(:where(.auth-light-mode, .auth-light-mode *)));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -16,6 +19,10 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
   --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-sidebar-active-border: var(--sidebar-active-border);
+  --color-sidebar-active-icon: var(--sidebar-active-icon);
+  --color-sidebar-active-text: var(--sidebar-active-text);
   --color-segmented-track: var(--segmented-track);
   --color-segmented-track-on-card: var(--segmented-track-on-card);
   --color-chart-8: var(--chart-8);
@@ -125,86 +132,192 @@
   /* Page inset: 16px < lg, 24px ≥ lg — top bar, page shells, and modal chrome share px-dash-pad-x */
   --dash-pad-x: 16px;
 
+  /* Advertise both schemes so System can resolve; .light/.dark refine via next-themes */
+  color-scheme: light dark;
+}
+
+/*
+ * Light palette — shared by default theme and auth routes (`.auth-light-mode`).
+ * Auth pages keep this palette even when `html` has `.dark`.
+ */
+:root,
+.auth-light-mode {
   /*
-   * Color system — keep in sync with design system/design.md
-   *
-   * Protected shell canvas is cool neutral gray (`shellCanvasClass` / `--background`).
-   * Brand purple is for primary actions, links, focus, and active nav — not canvas/hover fills.
-   *
-   * Type compositions (not CSS vars — see design.md + dashboard-styles):
-   *   Page title  → 24px / 600 / 30px  (headingXl + leading-[30px])
-   *   Card title  → 18px / 600 / 24px  (cardTitleClass)
+   * Keep in sync with design system/design.md.
+   * Canvas stays cool gray; brand purple is for actions/links/focus/active nav only.
    */
-  /* Background & surface — cool-gray canvas */
-  --background: #F7F7F8; /* Background/Primary */
-  --foreground: #1A1A1A; /* Text/Primary */
-  --card: #FFFFFF; /* Surface/Primary — same white as canvas */
+  --background: #F7F7F8;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
   --card-foreground: #1A1A1A;
-  --popover: #FFFFFF; /* Surface/Elevated */
+  --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
 
-  /* Brand */
-  --primary: #6C318E; /* Brand/Primary/Default */
-  --primary-hover: #5F2B7D; /* Brand/Primary/Hover */
-  --primary-active: #52256C; /* Brand/Primary/Active */
-  --primary-disabled: #CDB6D9; /* Brand/Primary/Disabled */
-  --primary-foreground: #FFFFFF; /* Text/Inverse */
+  --primary: #6C318E;
+  --primary-hover: #5F2B7D;
+  --primary-active: #52256C;
+  --primary-disabled: #CDB6D9;
+  --primary-foreground: #FFFFFF;
+  /* Remapped in dark for small text/icons */
+  --primary-ui: var(--primary);
 
-  /* Neutral surfaces */
-  --secondary: #F9F9FA; /* Surface/Secondary */
+  --secondary: #F9F9FA;
   --secondary-foreground: #1A1A1A;
-  --muted: #F9F9FA; /* Surface/Secondary */
-  --muted-foreground: #5F6368; /* Text/Secondary */
-  --table-header: #F1F1F2; /* Surface/TableHeader */
-  --tertiary-foreground: #6B6B6B; /* Text/Tertiary */
-  --placeholder: #8A8A8A; /* Text/Placeholder */
-  --accent: #F2F2F3; /* Surface/Hover — neutral row/card hover */
+  --muted: var(--secondary);
+  --muted-foreground: #5F6368;
+  --table-header: #F1F1F2;
+  --tertiary-foreground: #6B6B6B;
+  --placeholder: #8A8A8A;
+  --accent: #F2F2F3;
   --accent-foreground: #1A1A1A;
-  --search-shortcut-key: #F1F1F2; /* Surface/TableHeader — ⌘K chip (literal hex for Tailwind) */
+  /* Literal hex — Tailwind cannot resolve nested var() for this utility */
+  --search-shortcut-key: #F1F1F2;
 
-  /* Border & text states */
-  --destructive: #DC2626; /* Error/Text */
-  --destructive-muted: #FCECEC; /* Error/Tint */
-  --success: #10B981; /* Success/Text */
-  --success-muted: #ECFDF5; /* Success/Tint */
-  --warning: #CA8A04; /* Warning/Text — Supported Independence band */
-  --warning-muted: #FEFCE8; /* Warning/Tint */
-  --attention: #F97316; /* Risk/High accent — Limited Independence band */
-  --attention-muted: #FFF7ED; /* Limited Independence tint */
-  --attention-foreground: #C2410C; /* Limited Independence text on tint */
-  --info: #2563EB; /* Info/Text */
-  --info-muted: #E7EFF8; /* Info/Tint */
-  --border: #E4E4E7; /* Border/Primary */
-  --divider: #ECECEE; /* Border/Divider */
-  --border-disabled: #EFEFEF; /* Border/Disabled */
-  --text-disabled: #A1A1AA; /* Text/Disabled */
-  --input: #E4E4E7; /* Border/Primary */
-  --ring: #A66BCF; /* Brand/Primary/FocusRing */
-  --border-focus: #B98BD0; /* Border/Focus */
+  --destructive: #DC2626;
+  --destructive-muted: #FCECEC;
+  --success: #10B981;
+  --success-muted: #ECFDF5;
+  --warning: #CA8A04; /* Supported Independence band */
+  --warning-muted: #FEFCE8;
+  --attention: #F97316; /* Limited Independence band */
+  --attention-muted: #FFF7ED;
+  --attention-foreground: #C2410C;
+  --info: #2563EB;
+  --info-muted: #E7EFF8;
+  --border: #E4E4E7;
+  --divider: #ECECEE;
+  --border-disabled: #EFEFEF;
+  --text-disabled: #A1A1AA;
+  --input: var(--border);
+  --ring: #A66BCF;
+  --border-focus: #B98BD0;
 
-  /* Charts — design.md vitals palette */
-  --chart-1: #6C318E; /* Chart/Brand Linear */
-  --chart-2: #FA4B42; /* Chart/BP Systolic */
-  --chart-3: #147AD6; /* Chart/BP Diastolic */
-  --chart-4: #7086FD; /* Chart/Heart Rate */
-  --chart-5: #0EA5B1; /* Chart/SpO₂ */
-  --chart-6: #5B8DEF; /* Chart/Blood Glucose */
-  --chart-7: #F97316; /* Chart/Temperature */
-  --chart-8: #1E0E28; /* Chart/Brand Linear (gradient end) */
+  /* Vitals chart series — see design.md */
+  --chart-1: var(--primary);
+  --chart-2: #FA4B42;   /* BP Systolic */
+  --chart-3: #147AD6;   /* BP Diastolic */
+  --chart-4: #7086FD;   /* Heart Rate */
+  --chart-5: #0EA5B1;   /* SpO₂ */
+  --chart-6: #5B8DEF;   /* Blood Glucose */
+  --chart-7: var(--attention); /* Temperature */
+  --chart-8: #1E0E28;   /* Brand gradient end — IAS hero */
 
-  /* Sidebar — white surface; neutral active fill; brand icon only on selected */
-  --sidebar: #FFFFFF; /* Surface/Primary */
-  --sidebar-foreground: #1A1A1A; /* Text/Primary */
-  --sidebar-primary: #6C318E; /* Brand/Primary/Default */
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-hover: #F2F2F3; /* Surface/Hover — use Tailwind `bg-accent` / `hover:bg-accent`, not `bg-sidebar-hover` */
-  --sidebar-border: #E4E4E7; /* Border/Primary — main panel edge */
-  --sidebar-divider: #ECECEE; /* Border/Divider — neutral on shell canvas */
-  --sidebar-ring: #A66BCF; /* Brand/Primary/FocusRing */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  /* Prefer bg-accent / hover:bg-accent over bg-sidebar-hover in components */
+  --sidebar-hover: var(--accent);
+  --sidebar-border: var(--border);
+  --sidebar-divider: var(--divider);
+  --sidebar-ring: var(--ring);
+  --sidebar-active-bg: var(--secondary);
+  --sidebar-active-border: var(--border);
+  --sidebar-active-icon: var(--primary);
+  --sidebar-active-text: var(--foreground);
 
-  /* Segmented tabs — neutral track (literal hex — Tailwind cannot resolve nested var() chains) */
-  --segmented-track: #F1F1F2; /* Surface/TableHeader */
-  --segmented-track-on-card: #F1F1F2; /* Surface/TableHeader — visible on white card */
+  /* Literal hex — same nested-var limitation as --search-shortcut-key */
+  --segmented-track: #F1F1F2;
+  --segmented-track-on-card: var(--segmented-track);
+}
+
+.light,
+.auth-light-mode {
+  color-scheme: light;
+}
+
+/* Auth island — inherit light tokens even when html is .dark */
+.auth-light-mode {
+  color: var(--foreground);
+  background-color: var(--background);
+}
+
+/* Auth — original primary-outline hover (brand wash, not ring) */
+.auth-light-mode button.border.border-primary.bg-card:hover:not(:disabled) {
+  color: var(--primary);
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--primary) 5%, var(--card));
+}
+
+/*
+ * Dark palette — skipped on auth routes (`.auth-light-mode`) so login/register
+ * always match light mode, including before hydration.
+ */
+html.dark:not(:has(.auth-light-mode)) {
+  --background: #0F1013;
+  --foreground: #F4F4F5;
+  --card: #15171B;
+  --card-foreground: #F4F4F5;
+  --popover: #1A1C21;
+  --popover-foreground: #F4F4F5;
+
+  /* Canonical primary; hover/active only lift contrast on dark surfaces */
+  --primary: #6C318E;
+  --primary-hover: #7B3FA0;
+  --primary-active: #8B4DB1;
+  --primary-disabled: #5A4563;
+  --primary-foreground: #FFFFFF;
+  --primary-ui: #8F4DB2;
+
+  --secondary: #1A1C21;
+  --secondary-foreground: #F4F4F5;
+  --muted: var(--secondary);
+  --muted-foreground: #A1A1AA;
+  --table-header: #1D2025;
+  --tertiary-foreground: #8E8E97;
+  --placeholder: #71717A;
+  /* Neutral hover — never purple */
+  --accent: #22252B;
+  --accent-foreground: #F4F4F5;
+  --search-shortcut-key: #1D2025;
+
+  --destructive: #F05252;
+  --destructive-muted: #3A1D20;
+  --success: #34D399;
+  --success-muted: #123128;
+  --warning: #EAB308;
+  --warning-muted: #332B0D;
+  --attention: #FB923C;
+  --attention-muted: #352116;
+  --attention-foreground: #FDBA74;
+  --info: #60A5FA;
+  --info-muted: #172A40;
+
+  --border: #2A2D34;
+  --divider: #23262C;
+  --border-disabled: #24262B;
+  --text-disabled: #5F626A;
+  --input: var(--border);
+  --ring: #A66BCF;
+  --border-focus: #B98BD0;
+
+  /* Same chart roles as light; hues lifted for dark surfaces */
+  --chart-1: var(--primary);
+  --chart-2: #FA5A52;   /* BP Systolic */
+  --chart-3: #3B8FE3;   /* BP Diastolic */
+  --chart-4: #7F91FF;   /* Heart Rate */
+  --chart-5: #19B8C4;   /* SpO₂ */
+  --chart-6: #6C9AF5;   /* Blood Glucose */
+  --chart-7: #FB923C;   /* Temperature */
+  --chart-8: #1E0E28;   /* Brand gradient end — IAS hero */
+
+  --sidebar: #111318;
+  --sidebar-foreground: #E4E4E7;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-hover: var(--accent);
+  --sidebar-border: #292C33;
+  --sidebar-divider: var(--divider);
+  --sidebar-ring: var(--ring);
+  --sidebar-active-bg: #1C1A28;
+  --sidebar-active-border: #282534;
+  --sidebar-active-icon: var(--ring);
+  --sidebar-active-text: var(--foreground);
+
+  --segmented-track: #1D2025;
+  --segmented-track-on-card: var(--segmented-track);
+
+  color-scheme: dark;
 }
 
 /* Matches Tailwind `lg` — desktop page inset */

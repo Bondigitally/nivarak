@@ -59,13 +59,13 @@ export const dashboardTwoColSpanFullClass = "md:col-span-2";
 
 /** Soft border + shadow — shared by global search and header icon controls */
 export const dashboardChromeControlClass =
-  "border border-border bg-card shadow-[0px_1px_2px_rgba(17,24,39,0.04)] transition-[border-color,box-shadow] duration-200 ease-out hover:border-foreground/12 hover:shadow-[0_0_0_1px_rgba(17,24,39,0.08),0px_1px_2px_rgba(17,24,39,0.04)]";
+  "border border-border bg-card shadow-[0px_1px_2px_rgba(17,24,39,0.04)] transition-[border-color,box-shadow] duration-200 ease-out hover:border-foreground/12 hover:shadow-[0_0_0_1px_rgba(17,24,39,0.08),0px_1px_2px_rgba(17,24,39,0.04)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.35)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0px_1px_2px_rgba(0,0,0,0.35)]";
 
 export const dashboardChromeControlFocusWithinClass =
-  "focus-within:border-border-focus/80 focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)]";
+  "focus-within:border-border-focus/80 focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)] dark:focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.45),0px_1px_2px_rgba(0,0,0,0.35)]";
 
 export const dashboardChromeControlFocusVisibleClass =
-  "focus-visible:border-border-focus/80 focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)]";
+  "focus-visible:border-border-focus/80 focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)] dark:focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.45),0px_1px_2px_rgba(0,0,0,0.35)]";
 
 /** Header icon button — matches global search chrome on a circular control */
 export const dashboardHeaderIconButtonClass = cn(
