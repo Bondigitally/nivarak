@@ -1,6 +1,10 @@
 import 'dotenv/config';
 
-const requiredVars = ['DATABASE_URL', 'JWT_ACCESS_SECRET'] as const;
+const requiredVars = [
+  'DATABASE_URL',
+  'COGNITO_USER_POOL_ID',
+  'COGNITO_CLIENT_ID',
+] as const;
 
 for (const key of requiredVars) {
   if (!process.env[key]) {
@@ -18,8 +22,13 @@ export const config = {
     url: process.env.DATABASE_URL!,
   },
 
-  jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET!,
+  cognito: {
+    userPoolId: process.env.COGNITO_USER_POOL_ID!,
+    clientId: process.env.COGNITO_CLIENT_ID!,
+    region:
+      process.env.AWS_REGION ||
+      process.env.COGNITO_USER_POOL_ID!.split('_')[0] ||
+      'ap-south-1',
   },
 
   cors: {
