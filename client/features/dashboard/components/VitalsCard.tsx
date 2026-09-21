@@ -68,7 +68,8 @@ const hrChartConfig = {
   },
 } satisfies ChartConfig;
 
-/** Fit Y domain tightly around readings with evenly spaced ticks (no crowded labels). */
+/** Fit Y domain tightly around readings with evenly spaced ticks (no crowded labels).
+ *  The `niceSteps` cap of ~6 ticks prevents label overlap on the small inline chart. */
 function getVitalYAxis(values: number[], floorValues: number[] = []) {
   const rawMin = Math.min(...values, ...floorValues);
   const rawMax = Math.max(...values, ...floorValues);

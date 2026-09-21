@@ -242,7 +242,7 @@ export function RecordsPageContent() {
                 <li className="py-3 text-center">
                   <button
                     type="button"
-                    className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-primary"
+                    className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-ring"
                   >
                     Load More
                   </button>

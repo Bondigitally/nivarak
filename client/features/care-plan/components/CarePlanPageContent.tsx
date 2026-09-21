@@ -45,7 +45,7 @@ export function CarePlanPageContent() {
                 <DashboardIconButton
                   type="button"
                   aria-label="Quick menu"
-                  className="shrink-0 text-primary"
+                  className="shrink-0 text-primary hover:text-ring transition-colors"
                 >
                   <HugeiconsIcon
                     icon={EnergyIcon}

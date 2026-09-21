@@ -52,7 +52,7 @@ export function BrandLogo({
         className={cn(
           roundedElegance.className,
           typo.logo,
-          "text-2xl leading-8 tracking-[0.08em] text-foreground",
+          "text-2xl leading-8 tracking-[0.08em] text-primary",
         )}
         aria-hidden
       >

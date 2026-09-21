@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTheme } from "next-themes";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Briefcase01Icon,
@@ -12,28 +13,17 @@ import {
 import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
-import { cardShadowCss, cardShadowHoverCss } from "@/lib/tokens/elevation";
+import { 
+  cardShadowCss, 
+  cardShadowHoverCss, 
+  cardShadowDarkCss, 
+  cardShadowHoverDarkCss 
+} from "@/lib/tokens/elevation";
 import { cn } from "@/lib/utils";
 import type { MedicalStaffMember } from "../data/care-team-data";
 import { BADGE_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const CARD_EASE = [0.22, 1, 0.36, 1] as const;
-
-const staffCardVariants = {
-  rest: {
-    y: 0,
-    boxShadow: cardShadowCss,
-  },
-  hover: {
-    y: -3,
-    boxShadow: cardShadowHoverCss,
-  },
-  tap: {
-    y: -1,
-    scale: 0.985,
-    boxShadow: cardShadowCss,
-  },
-};
 
 const staffImageVariants = {
   rest: { scale: 1 },
@@ -65,10 +55,31 @@ function ContactRow({
 
 function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
   const reduceMotion = useReducedMotion();
+  const { resolvedTheme } = useTheme();
   const [hovered, setHovered] = useState(false);
   const nameRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [shift, setShift] = useState(0);
+
+  const isDark = resolvedTheme === "dark";
+  const restShadow = isDark ? cardShadowDarkCss : cardShadowCss;
+  const hoverShadow = isDark ? cardShadowHoverDarkCss : cardShadowHoverCss;
+
+  const staffCardVariants = {
+    rest: {
+      y: 0,
+      boxShadow: restShadow,
+    },
+    hover: {
+      y: -3,
+      boxShadow: hoverShadow,
+    },
+    tap: {
+      y: -1,
+      scale: 0.985,
+      boxShadow: restShadow,
+    },
+  };
 
   useLayoutEffect(() => {
     const container = nameRef.current;

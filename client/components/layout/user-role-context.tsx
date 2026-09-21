@@ -16,12 +16,22 @@ type UserRoleContextValue = {
   isLoading: boolean;
 };
 
+/**
+ * Default context while the role is still being resolved from Cognito.
+ * `isLoading: true` lets consumers show skeletons before the role is known.
+ * `role: "patient"` is the safest default — shows the least-privileged UI.
+ */
 const UserRoleContext = createContext<UserRoleContextValue>({
   role: "patient",
   roles: [],
   isLoading: true,
 });
 
+/**
+ * Reads NEXT_PUBLIC_DEV_USER_ROLE to override the Cognito role during local development.
+ * Takes precedence over the actual JWT so any role can be tested without a real account.
+ * Set to empty/unset in production builds.
+ */
 function resolveDevRole(): UserRole | null {
   const devRole = process.env.NEXT_PUBLIC_DEV_USER_ROLE;
   if (
@@ -37,6 +47,10 @@ function resolveDevRole(): UserRole | null {
   return null;
 }
 
+/**
+ * Returns the user's roles from either the dev override or the live Cognito session.
+ * Dev override is checked first so role switching in dev doesn't require sign-in.
+ */
 async function readAuthRoles(): Promise<string[]> {
   const devRole = resolveDevRole();
   if (devRole) return [devRole];
@@ -57,11 +71,13 @@ export function UserRoleProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
+    // Prevent stale setState if the component unmounts before the async resolves.
     return () => {
       active = false;
     };
   }, []);
 
+  // Unauthenticated or unrecognised users fall back to the patient UX.
   const role = getPrimaryRole(roles) ?? "patient";
 
   return (

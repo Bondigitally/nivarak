@@ -86,4 +86,4 @@ export const dashboardViewReportButtonClass = "pr-1 pl-4";
 
 /** White circular arrow well on plum CTA (pairs with AnimatedArrowIcon + BADGE_ICON_SIZE). */
 export const dashboardCtaArrowChipClass =
-  "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-card text-primary";
+  "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground text-primary";

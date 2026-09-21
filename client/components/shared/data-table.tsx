@@ -168,7 +168,7 @@ function DataTableChip({
         type="button"
         aria-label={`Remove ${label}`}
         onClick={onRemove}
-        className="flex size-5 shrink-0 items-center justify-center rounded-full text-primary hover:bg-primary/10"
+        className="flex size-5 shrink-0 items-center justify-center rounded-full text-primary hover:text-ring hover:bg-ring/10"
       >
         <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
       </button>
@@ -270,7 +270,7 @@ export function DataTableLoadMore({ onClick }: { onClick?: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-primary"
+      className="text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-ring"
     >
       Load more
     </button>
@@ -326,7 +326,7 @@ function ToolbarButton({
       variant="secondary"
       className={cn(
         "h-11 shrink-0",
-        active && "border-primary/30 text-primary hover:text-primary",
+        active && "border-primary/30 text-primary hover:text-ring",
       )}
     >
       <AppIcon icon={icon} />

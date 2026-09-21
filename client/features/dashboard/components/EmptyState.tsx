@@ -115,7 +115,7 @@ export function ViewAllLink({ href }: { href?: string }) {
   const [hovered, setHovered] = useState(false);
 
   const className =
-    "inline-flex h-7 shrink-0 items-center justify-end whitespace-nowrap text-primary";
+    "inline-flex h-7 shrink-0 items-center justify-end whitespace-nowrap text-primary hover:text-ring transition-colors";
   const hoverHandlers = {
     onMouseEnter: () => setHovered(true),
     onMouseLeave: () => setHovered(false),
@@ -125,7 +125,7 @@ export function ViewAllLink({ href }: { href?: string }) {
 
   const content = (
     <span className={cn(typo.button, "inline-flex items-center gap-1 leading-5")}>
-      <span className="border-b border-primary pb-0.5">View All</span>
+      <span className="border-b border-current pb-0.5">View All</span>
       <AnimatedArrowIcon size={BADGE_ICON_SIZE} className="size-4" hovered={hovered} />
     </span>
   );

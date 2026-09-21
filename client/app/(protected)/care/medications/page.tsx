@@ -38,7 +38,7 @@ export default function MedicationsPage() {
                 <DashboardIconButton
                   type="button"
                   aria-label="Quick menu"
-                  className="shrink-0 text-primary"
+                  className="shrink-0 text-primary hover:text-ring transition-colors"
                 >
                   <HugeiconsIcon icon={EnergyIcon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
                 </DashboardIconButton>

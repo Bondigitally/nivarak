@@ -120,7 +120,7 @@ export function TaskRow({
             <span
               className={cn(
                 typo.button,
-                "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+                "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-[var(--primary-ui)] bg-card px-4 text-[var(--primary-ui)] hover:text-ring hover:border-ring transition-colors",
                 "opacity-0 transition-opacity duration-150 group-hover:opacity-100",
               )}
             >
@@ -146,7 +146,7 @@ export function TaskRow({
           <span
             className={cn(
               typo.button,
-              "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+              "ml-auto inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-[var(--primary-ui)] bg-card px-4 text-[var(--primary-ui)] hover:text-ring hover:border-ring transition-colors",
               revealStatusActionOnHover &&
                 "opacity-0 transition-opacity duration-150 group-hover:opacity-100",
             )}

@@ -42,6 +42,8 @@ export function AppPageFrame({
       : patientUnread;
 
   useEffect(() => {
+    // Only attach ⌘K when spotlight is enabled for this role — coordinators
+    // use table search and don't get the spotlight modal.
     if (!frameConfig.enableSpotlight) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k")
@@ -57,6 +59,8 @@ export function AppPageFrame({
 
   useEffect(() => {
     if (open) return;
+    // Clear the query after the close animation finishes so the spotlight
+    // opens fresh next time rather than showing the previous search.
     const id = window.setTimeout(() => setQuery(""), 0);
     return () => window.clearTimeout(id);
   }, [open]);

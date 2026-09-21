@@ -5,7 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import { Cancel01Icon, Logout01Icon } from "@hugeicons/core-free-icons";
+import {
+  Cancel01Icon,
+  Logout01Icon,
+  PanelRightCloseIcon,
+  PanelRightOpenIcon,
+} from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { roundedElegance } from "@/lib/fonts";
 import { typo } from "@/lib/tokens/typography";
@@ -34,9 +39,10 @@ import { sidebarFooterClass, sidebarHeaderClass, sidebarNavActiveSurfaceClass } 
 
 const SIDEBAR_NAV_BADGE_CLASS = cn(
   "inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive px-1",
-  "text-[10px] font-semibold leading-none text-white",
+  "text-[10px] font-semibold leading-none text-primary-foreground",
 );
 
+/** Caps badge at "9+" — two characters fit in the narrow collapsed rail pill. */
 function formatBadgeCount(count: number) {
   return count > 9 ? "9+" : String(count);
 }
@@ -49,6 +55,11 @@ function SidebarNavBadge({ count }: { count: number }) {
   );
 }
 
+/**
+ * Route-specific aria labels for badge counts.
+ * Different phrasing per route because the count means different things:
+ * "unread" for notifications, "due" for tasks, "new" for leads.
+ */
 const NAV_BADGE_ARIA: Record<string, (count: string) => string> = {
   "/notifications": (count) => `${count} unread`,
   "/care/tasks": (count) => `${count} due`,
@@ -58,24 +69,43 @@ const NAV_BADGE_ARIA: Record<string, (count: string) => string> = {
 const FOCUS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
 
-/** Left pad so size-11 (44px) icons center in the 56 px collapsed rail: (56-44)/2 = 6 px */
+/** Left pad so size-11 (44px) icons center in the 56px collapsed rail: (56-44)/2 = 6px */
 const COLLAPSED_ICON_INSET = "pl-1.5";
 
-/** Collapsed icon-rail hit target — matches expanded nav row height (44px) */
+/** size-11 matches expanded nav row height (44px) for consistent hit targets */
 const COLLAPSED_BTN =
   "flex size-11 shrink-0 items-center justify-center rounded-md";
 
+/** size-10 (40px) logo image fits the 56px collapsed rail with even visual padding. */
 const SIDEBAR_LOGO_PX = 40;
 
-/** Inactive hover — neutral Surface/Hover + text lift */
-const SIDEBAR_NAV_HOVER = "hover:bg-accent hover:text-foreground";
+/** Past default tooltip offset so labels clear the rail edge */
+const SIDEBAR_TOOLTIP_SIDE_OFFSET = 14;
 
-/** Active — neutral gray fill, primary text, brand icon only */
+function SidebarTooltipContent({ children }: { children: React.ReactNode }) {
+  return (
+    <TooltipContent
+      side="right"
+      align="center"
+      sideOffset={SIDEBAR_TOOLTIP_SIDE_OFFSET}
+      collisionPadding={12}
+      className="px-3.5 py-2 text-sm leading-5"
+    >
+      {children}
+    </TooltipContent>
+  );
+}
+
+const SIDEBAR_NAV_HOVER =
+  "hover:text-foreground hover:bg-accent dark:hover:bg-border";
+
 const SIDEBAR_NAV_ACTIVE = cn(
   sidebarNavActiveSurfaceClass,
   typo.sidebarItemActive,
-  "hover:text-foreground",
+  "text-sidebar-active-text hover:text-sidebar-active-text",
 );
+
+const SIDEBAR_NAV_INACTIVE = typo.sidebarItem;
 
 function SidebarLogo() {
   return (
@@ -87,6 +117,52 @@ function SidebarLogo() {
       sizes={`${SIDEBAR_LOGO_PX}px`}
       className="size-10 max-h-10 max-w-10 shrink-0 object-contain object-center"
     />
+  );
+}
+
+/** Collapsed rail — logo by default; hover reveals expand control */
+function CollapsedSidebarBrand({
+  homeHref,
+  onExpand,
+  tipsEnabled,
+}: {
+  homeHref: string;
+  onExpand: () => void;
+  tipsEnabled: boolean;
+}) {
+  return (
+    <div className="group/logo relative size-11 shrink-0">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Open sidebar"
+            onClick={onExpand}
+            className={cn(
+              COLLAPSED_BTN,
+              "absolute inset-0 z-10 opacity-0 transition-opacity duration-150",
+              "pointer-events-none hover:bg-accent hover:text-foreground",
+              "group-hover/logo:pointer-events-auto group-hover/logo:opacity-100",
+            )}
+          >
+            <NavIcon icon={PanelRightOpenIcon} />
+          </button>
+        </TooltipTrigger>
+        <SidebarTooltipContent>Open sidebar</SidebarTooltipContent>
+      </Tooltip>
+      <CollapsedTip label="Nivarak" enabled={tipsEnabled}>
+        <Link
+          href={homeHref}
+          aria-label="Nivarak home"
+          className={cn(
+            COLLAPSED_BTN,
+            "relative transition-opacity duration-150 group-hover/logo:pointer-events-none group-hover/logo:opacity-0",
+          )}
+        >
+          <SidebarLogo />
+        </Link>
+      </CollapsedTip>
+    </div>
   );
 }
 
@@ -123,9 +199,7 @@ function CollapsedTip({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent side="right" align="center" className="px-3.5 py-2 text-sm leading-5">
-        {label}
-      </TooltipContent>
+      <SidebarTooltipContent>{label}</SidebarTooltipContent>
     </Tooltip>
   );
 }
@@ -196,29 +270,24 @@ export function AppSidebar({
       className="group/sidebar flex h-full min-h-full flex-col bg-sidebar"
       style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
-      {/* ── Header ── */}
       <div className={cn(sidebarHeaderClass, "flex items-center")}>
         <div
           className={cn(
-            "flex min-w-0 items-center",
-            railCollapsed ? COLLAPSED_ICON_INSET : "w-full gap-1 px-2",
+            "flex min-w-0 flex-1 items-center",
+            railCollapsed ? COLLAPSED_ICON_INSET : "gap-1 px-2",
           )}
         >
-          <div
-            className={cn(
-              "flex min-w-0 items-center",
-              railCollapsed ? "w-11" : "w-full gap-1",
-            )}
-          >
-            <CollapsedTip label="Nivarak" enabled={tipsEnabled}>
+          {railCollapsed ? (
+            <CollapsedSidebarBrand
+              homeHref={homeHref}
+              onExpand={() => setCollapsed(false)}
+              tipsEnabled={tipsEnabled}
+            />
+          ) : (
+            <>
               <Link
                 href={homeHref}
-                className={cn(
-                  FOCUS,
-                  railCollapsed
-                    ? COLLAPSED_BTN
-                    : "flex min-w-0 flex-1 items-center gap-2 rounded-md px-2",
-                )}
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2"
                 aria-label="Nivarak home"
                 onClick={() => {
                   if (isDrawer) setOpen(false);
@@ -227,44 +296,53 @@ export function AppSidebar({
                 <span className="flex size-10 shrink-0 items-center justify-center">
                   <SidebarLogo />
                 </span>
-                {!railCollapsed && (
-                  <span className="flex min-w-0 flex-1 flex-col gap-0">
-                    <span
-                      className={cn(
-                        "truncate",
-                        roundedElegance.className,
-                        typo.logo,
-                        "text-2xl leading-6 tracking-[0.08em] text-foreground",
-                      )}
-                    >
-                      nivarak
-                    </span>
-                    <span className={cn("truncate", typo.caption, "text-muted-foreground")}>
-                      Unifying Eldercare
-                    </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0">
+                  <span
+                    className={cn(
+                      "truncate",
+                      roundedElegance.className,
+                      typo.logo,
+                      "text-2xl leading-6 tracking-[0.08em] text-primary dark:text-[var(--primary-ui)]",
+                    )}
+                  >
+                    nivarak
                   </span>
-                )}
+                  <span className={cn("truncate", typo.caption, "text-muted-foreground")}>
+                    Unifying Eldercare
+                  </span>
+                </span>
               </Link>
-            </CollapsedTip>
 
-            {isDrawer && !railCollapsed && (
-              <button
-                type="button"
-                aria-label="Close navigation"
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground",
-                  FOCUS,
-                )}
-              >
-                <NavIcon icon={Cancel01Icon} />
-              </button>
-            )}
-          </div>
+              {isDrawer ? (
+                <button
+                  type="button"
+                  aria-label="Close navigation"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground"
+                >
+                  <NavIcon icon={Cancel01Icon} />
+                </button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Close sidebar"
+                      aria-expanded
+                      onClick={() => setCollapsed(true)}
+                      className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+                    >
+                      <NavIcon icon={PanelRightCloseIcon} />
+                    </button>
+                  </TooltipTrigger>
+                  <SidebarTooltipContent>Close sidebar</SidebarTooltipContent>
+                </Tooltip>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {/* ── Nav ── */}
       <nav
         className={cn(
           "sidebar-nav-scroll flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto py-2",
@@ -320,7 +398,7 @@ export function AppSidebar({
                       active
                         ? SIDEBAR_NAV_ACTIVE
                         : cn(
-                            typo.sidebarItem,
+                            SIDEBAR_NAV_INACTIVE,
                             SIDEBAR_NAV_HOVER,
                             "border-transparent",
                           ),
@@ -330,7 +408,9 @@ export function AppSidebar({
                     <span className="relative size-5 shrink-0">
                       <NavIcon
                         icon={item.icon}
-                        className={active ? "text-primary" : undefined}
+                        className={
+                          active ? "text-sidebar-active-icon" : undefined
+                        }
                       />
                       {showBadge && railCollapsed ? (
                         <span
@@ -360,7 +440,6 @@ export function AppSidebar({
         ))}
       </nav>
 
-      {/* ── User profile footer ── */}
       <div className={sidebarFooterClass}>
         <div
           className={cn(

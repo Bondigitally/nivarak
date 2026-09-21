@@ -30,8 +30,6 @@ export type {
 
 export type NotificationItem = PatientNotification;
 
-// ─── Source meta — icon + label used as the source chip ────────────────────────
-
 export const SOURCE_META: Record<
   NotificationSource,
   { label: string; icon: IconSvgElement }
@@ -48,8 +46,6 @@ export const SOURCE_META: Record<
   system:      { label: "System",      icon: Notification01Icon },
 };
 
-// ─── Category badge colours ─────────────────────────────────────────────────────
-
 export const CATEGORY_BADGE: Record<NotificationCategory, string> = {
   alert:    "border-destructive-muted bg-destructive-muted text-destructive",
   reminder: "border-warning-muted bg-warning-muted text-warning",
@@ -62,21 +58,19 @@ export const CATEGORY_LABEL: Record<NotificationCategory, string> = {
   update:   "Update",
 };
 
-/** Left accent-bar colour for unread items on the full alerts page. */
+/** Unread left-border accent on the full alerts page */
 export const CATEGORY_BORDER: Record<NotificationCategory, string> = {
   alert:    "border-l-destructive",
   reminder: "border-l-warning",
   update:   "border-l-info",
 };
 
-/** Solid background colour for the unread left accent bar. */
+/** Solid fill for the unread left accent bar */
 export const CATEGORY_BAR_BG: Record<NotificationCategory, string> = {
   alert:    "bg-destructive",
   reminder: "bg-warning",
   update:   "bg-info",
 };
-
-// ─── Priority → icon-bubble colour ─────────────────────────────────────────────
 
 export const PRIORITY_BUBBLE: Record<NotificationPriority, string> = {
   critical: "bg-destructive-muted text-destructive",
@@ -85,14 +79,15 @@ export const PRIORITY_BUBBLE: Record<NotificationPriority, string> = {
   low:      "bg-muted text-tertiary-foreground",
 };
 
-/** Pastel squircle tile — muted tint + outline icon on notification rows. */
+/** Soft pastel icon wells — not status-muted — in both themes */
 export const NOTIFICATION_ICON_TILE: Record<NotificationCategory, string> = {
-  alert:    "bg-destructive-muted text-foreground",
-  reminder: "bg-warning/15 text-foreground",
-  update:   "bg-info-muted text-foreground",
+  alert:
+    "bg-[#FCECEC] text-[#1A1A1A] dark:bg-[#E5C4C4] dark:text-[#1A1A1A]",
+  reminder:
+    "bg-[#FEFCE8] text-[#1A1A1A] dark:bg-[#E5DFB8] dark:text-[#1A1A1A]",
+  update:
+    "bg-[#E7EFF8] text-[#1A1A1A] dark:bg-[#C5D4E8] dark:text-[#1A1A1A]",
 };
-
-// ─── Tab options ────────────────────────────────────────────────────────────────
 
 export const NOTIFICATION_TABS = [
   { id: "all"      as const, label: "All" },
@@ -102,8 +97,6 @@ export const NOTIFICATION_TABS = [
 ] satisfies { id: NotificationTabKey; label: string }[];
 
 export type NotificationTabKey = "all" | NotificationCategory;
-
-// ─── Time group labels + order ─────────────────────────────────────────────────
 
 export const TIME_GROUP_LABELS: Record<NotificationTimeGroup, string> = {
   today:     "Today",
@@ -117,10 +110,7 @@ export const TIME_GROUP_ORDER: NotificationTimeGroup[] = [
   "earlier",
 ];
 
-// ─── Mock data ──────────────────────────────────────────────────────────────────
-
 export const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  // ── Alerts (today) ────────────────────────────────────────────────────────
   {
     id: "n1",
     source:   "vitals",
@@ -145,7 +135,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     read:     false,
     actions:  [{ label: "View Assessment", href: "/health/assessments" }],
   },
-  // ── Reminders (today) ──────────────────────────────────────────────────────
   {
     id: "n3",
     source:   "medication",
@@ -170,7 +159,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     read:     false,
     actions:  [{ label: "Open Task", href: "/care/tasks" }],
   },
-  // ── Alerts (yesterday) ────────────────────────────────────────────────────
   {
     id: "n5",
     source:   "risk",
@@ -195,7 +183,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     read:     true,
     actions:  [{ label: "View Appointments", href: "/care/appointments" }],
   },
-  // ── Reminders (yesterday) ─────────────────────────────────────────────────
   {
     id: "n7",
     source:   "appointment",
@@ -208,7 +195,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     read:     true,
     actions:  [],
   },
-  // ── Updates (yesterday) ───────────────────────────────────────────────────
   {
     id: "n8",
     source:   "encounter",
@@ -221,7 +207,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     read:     true,
     actions:  [],
   },
-  // ── Updates (earlier) ─────────────────────────────────────────────────────
   {
     id: "n9",
     source:   "assessment",
@@ -247,8 +232,6 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     actions:  [],
   },
 ];
-
-// ─── Helpers ────────────────────────────────────────────────────────────────────
 
 export function filterNotifications(
   items: NotificationItem[],

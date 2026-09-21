@@ -10,6 +10,7 @@ import {
   useReducedMotion,
   useTransform,
 } from "framer-motion";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   hasAnimatedOnce,
@@ -30,26 +31,22 @@ import type { IasAssessment } from "../data/home-data";
 import { chartHex } from "@/lib/tokens/colors";
 import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
-/** Overall donut size with a thick ring and large center opening. */
 const RING_SIZE = 192;
 const RING_STROKE = 32;
 const RING_CENTER = RING_SIZE / 2;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-/** Tick marks span the same radial band as the thick arc stroke. */
+/** Tick band matches the thick arc stroke width */
 const TICK_INNER = RING_RADIUS - RING_STROKE / 2 + 0.5;
 const TICK_OUTER = RING_RADIUS + RING_STROKE / 2 - 0.5;
 
-/** Small clear gap on each side of the progress arc (~4°). */
+/** ~4° gap before the unfilled tick band */
 const GAP_RATIO = 0.011;
 
-/**
- * Static full-ring sticks: identical length, width, color, and spacing.
- * ~180 around the circle ≈ 35–40 sticks in the remaining ~21% (matches reference density).
- */
+/** Dense tick ring (~180) so the remaining ~21% matches reference spacing */
 const TICK_COUNT = 180;
-const TICK_COLOR = "var(--primary)";
+
 const FULL_TICKS = Array.from({ length: TICK_COUNT }, (_, index) => {
   const angle = ((index + 0.5) / TICK_COUNT) * Math.PI * 2 - Math.PI / 2;
   const cos = Math.cos(angle);
@@ -65,18 +62,16 @@ const FULL_TICKS = Array.from({ length: TICK_COUNT }, (_, index) => {
 const RING_EASE = [0.22, 1, 0.36, 1] as const;
 const RING_DURATION = 2;
 /**
- * DashboardReveal shows the IAS card after the greeting (0.07s stagger + 0.28s fade).
- * Hold the fill until that reveal + this ring’s own enter finish, otherwise the sweep
- * is already mid-arc by the time the hero is visible.
+ * Delay fill until DashboardReveal + ring enter finish, otherwise the sweep
+ * is mid-arc before the hero is visible.
  */
 const RING_ENTER_DELAY = 0.12;
 const RING_ENTER_DURATION = 0.45;
 const RING_FILL_DELAY = RING_ENTER_DELAY + RING_ENTER_DURATION;
 
-/** Matches --chart-1 / --chart-8 — literal hex required for lerpHex. */
+/** Literal hex required for lerpHex (CSS vars won't interpolate) */
 const GRADIENT_START = chartHex.brandStart;
 const GRADIENT_END = chartHex.brandEnd;
-/** Dense segments so the color appears to travel along the circular path. */
 const ARC_SEGMENT_COUNT = 96;
 
 function lerpHex(from: string, to: string, t: number) {
@@ -103,7 +98,7 @@ function arcSegmentPath(startRatio: number, endRatio: number) {
   return `M ${x0} ${y0} A ${RING_RADIUS} ${RING_RADIUS} 0 ${largeArc} 1 ${x1} ${y1}`;
 }
 
-/** Path-following gradient: light at 12 o'clock → dark at the arc end. */
+/** Arc gradient: light at 12 o'clock → dark at the tip */
 function buildArcGradientSegments(arcRatio: number): Array<{
   key: string;
   d: string;
@@ -131,16 +126,19 @@ function ScoreRing({
 }: {
   score: number | null;
 }) {
+  const { resolvedTheme } = useTheme();
   const maskId = `ias-arc-mask-${useId().replace(/:/g, "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
   const isEmpty = score == null;
   const targetRatio = isEmpty ? 0 : Math.min(score / 100, 1);
-  // Small gap only at the end of the arc (before sticks); start is always 12 o'clock.
   const finalArcRatio = Math.max(0, targetRatio - GAP_RATIO);
   const animationId = `ias-score-ring:${score ?? "empty"}`;
   const skipEnter = reducedMotion || hasAnimatedOnce(animationId);
+
+  const tickColor =
+    resolvedTheme === "dark" ? "#514B57" : "var(--primary)";
 
   const progress = useMotionValue(skipEnter || isEmpty ? finalArcRatio : 0);
   const strokeDasharray = useTransform(progress, (value) => {
@@ -169,7 +167,7 @@ function ScoreRing({
       return;
     }
 
-    // Mobile + desktop both mount; only the visible twin should sweep.
+    // Only animate the visible twin (mobile + desktop both mount).
     const root = rootRef.current;
     if (!root || root.offsetParent === null) {
       land();
@@ -189,7 +187,6 @@ function ScoreRing({
       ease: RING_EASE,
       onUpdate: (value) => {
         const t = finalArcRatio > 0 ? value / finalArcRatio : 1;
-        // Counter tracks the same eased progress as the ring.
         const shown = Math.min(scoreNum, Math.max(0, Math.round(t * scoreNum)));
         if (shown !== lastShown && scoreRef.current) {
           scoreRef.current.textContent = String(shown);
@@ -197,7 +194,7 @@ function ScoreRing({
         }
       },
       onComplete: () => {
-        // Final frame: ring + text land on the exact end values together.
+        // Set exact values on completion to avoid floating-point drift.
         progress.set(finalArcRatio);
         if (scoreRef.current) scoreRef.current.textContent = String(scoreNum);
         markAnimatedOnce(animationId);
@@ -227,7 +224,7 @@ function ScoreRing({
         aria-hidden
       >
         <defs>
-          {/* Animated reveal mask — same sweep as before; paints path-following colors underneath */}
+          {/* Reveal mask — sweeps with the same dasharray as the arc, exposing gradient segments beneath */}
           <mask id={maskId} maskUnits="userSpaceOnUse">
             <rect width={RING_SIZE} height={RING_SIZE} fill="black" />
             <motion.circle
@@ -245,7 +242,7 @@ function ScoreRing({
           </mask>
         </defs>
 
-        {/* Static uniform sticks — progress arc draws over them */}
+        {/* Tick ring — progress arc renders on top, covering filled ticks */}
         {FULL_TICKS.map((tick, index) => (
           <line
             key={index}
@@ -253,13 +250,12 @@ function ScoreRing({
             y1={tick.y1}
             x2={tick.x2}
             y2={tick.y2}
-            stroke={TICK_COLOR}
+            stroke={tickColor}
             strokeWidth={1}
             strokeLinecap="butt"
           />
         ))}
 
-        {/* Progress arc: color travels along the circular path (light → dark) */}
         {!isEmpty ? (
           <g mask={`url(#${maskId})`}>
             {arcSegments.map((segment) => (

@@ -30,7 +30,6 @@ import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { vitalStatusConfig, type VitalStatus } from "@/lib/tokens/status-badges";
 import { cn } from "@/lib/utils";
 
-// ─── Colors and styling from VitalsCard.tsx ──────────────────────────────────
 const SYSTOLIC_COLOR = "var(--chart-2)";
 const DIASTOLIC_COLOR = "var(--chart-3)";
 const HEART_RATE_COLOR = "var(--chart-4)";
@@ -69,6 +68,11 @@ const AXIS_TICK = {
   fontWeight: 400,
 } as const;
 
+/**
+ * Y-axis tick arrays per vitals type.
+ * Values are clinically chosen for readability of the expected range —
+ * NOT auto-scaled from data so outlier readings don't collapse the healthy range.
+ */
 const BP_TICKS = [60, 90, 120, 150, 180];
 const HR_TICKS = [45, 55, 65, 75];
 const SPO2_TICKS = [95, 96, 97, 98, 99, 100];
@@ -81,7 +85,6 @@ const tooltipCursor = {
   strokeDasharray: "4 4",
 };
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
 const BP_DATA = [
   { label: "Jul 3", date: "July 3, 2026", systolic: 115, diastolic: 75, status: "Normal" as const },
   { label: "Jul 7", date: "July 7, 2026", systolic: 120, diastolic: 78, status: "Normal" as const },
@@ -137,7 +140,6 @@ const TEMP_DATA = [
   { label: "Jul 31", date: "July 31, 2026", temp: 36.8, status: "Normal" as const },
 ];
 
-// ─── Chart config ─────────────────────────────────────────────────────────────
 const bpConfig = {
   systolic: { label: "Systolic", color: SYSTOLIC_COLOR },
   diastolic: { label: "Diastolic", color: DIASTOLIC_COLOR },
@@ -159,7 +161,6 @@ const tempConfig = {
   temp: { label: "Temperature", color: TEMP_COLOR },
 } satisfies ChartConfig;
 
-// ─── Tooltip Panels ───────────────────────────────────────────────────────────
 function BpTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload?: typeof BP_DATA[0] }> }) {
   if (!active || !payload?.length) return null;
   const p = payload[0]?.payload;
@@ -271,6 +272,11 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "temp", label: "Temp" },
 ];
 
+/**
+ * Timeline selector options.
+ * Currently UI-only — data is static mock and does not filter by selected period.
+ * Wire to a data fetch when the vitals API provides time-bounded queries.
+ */
 const TIMELINE_OPTIONS = [
   "7 Days",
   "30 Days",

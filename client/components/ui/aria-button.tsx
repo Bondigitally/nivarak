@@ -33,7 +33,7 @@ const ariaButtonVariants = cva(
           "bg-muted text-secondary-foreground data-[hovered]:bg-table-header",
         ghost:
           "data-[hovered]:bg-muted data-[hovered]:text-accent-foreground",
-        link: "text-primary underline-offset-4 data-[hovered]:underline",
+        link: "text-primary underline-offset-4 data-[hovered]:underline data-[hovered]:text-ring",
       },
       size: {
         default: "h-10 px-4 py-2",
