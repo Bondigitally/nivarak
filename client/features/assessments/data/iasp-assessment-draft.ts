@@ -1,6 +1,7 @@
 import { EMPTY_IASP_ABOUT_YOU, type IaspAboutYouValues } from "./iasp-about-you-data";
 import {
   IASP_SECTIONS,
+  getIaspQuestionOptions,
   type IaspAnswerId,
 } from "./iasp-questionnaire-data";
 import type { IaspRedFlagId } from "./iasp-red-flags-data";
@@ -37,18 +38,13 @@ export const INITIAL_IASP_FLOW_STATE: IaspFlowState = {
 
 /** Pre-filled state for dev/testing the results step without answering every question. */
 export function createIaspResultsPreviewState(): IaspFlowState {
-  const sampleAnswers: IaspAnswerId[] = [
-    "independent",
-    "assistance",
-    "dependent",
-    "assistance",
-  ];
   const answers: IaspAnswersMap = {};
   let index = 0;
 
   for (const section of IASP_SECTIONS) {
     for (const question of section.questions) {
-      answers[question.id] = sampleAnswers[index % sampleAnswers.length];
+      const options = getIaspQuestionOptions(question);
+      answers[question.id] = options[index % options.length].id;
       index += 1;
     }
   }
@@ -60,7 +56,8 @@ export function createIaspResultsPreviewState(): IaspFlowState {
       age: "72",
       location: "Same city",
       visitFrequency: "Weekly",
-      livingSituation: "Lives with family",
+      livingSituation: "With family",
+      livingSituationOther: "",
     },
     pageIndex: 0,
     pageDirection: 1,
@@ -86,7 +83,8 @@ export function hasIaspProgress(state: IaspFlowState): boolean {
       aboutYou.age ||
       aboutYou.location ||
       aboutYou.visitFrequency ||
-      aboutYou.livingSituation,
+      aboutYou.livingSituation ||
+      aboutYou.livingSituationOther,
   );
 }
 

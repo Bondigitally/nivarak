@@ -1,14 +1,25 @@
-export type IaspAnswerId = "independent" | "assistance" | "dependent";
+export type IaspAnswerId =
+  | "independent"
+  | "assistance"
+  | "dependent"
+  | "yes"
+  | "no";
 
 export type IaspAnswerOption = {
   id: IaspAnswerId;
   label: string;
-  description: string;
+  description?: string;
+  /** Points toward IAS raw score. Ignored when the question is unscored. */
+  points: number;
 };
 
 export type IaspQuestion = {
   id: string;
   prompt: string;
+  /** When false, answer is collected but excluded from IAS raw score. Default true. */
+  scored?: boolean;
+  /** Override the default Independent / Some support / Dependent scale. */
+  options?: readonly IaspAnswerOption[];
 };
 
 export type IaspSection = {
@@ -26,24 +37,120 @@ export type IaspQuestionPage = {
 };
 
 export const IASP_HELPER =
-  "Select the option that best describes the patient's current daily ability.";
+  "Please answer based on how your parent has functioned in the past 4 weeks.";
 
-/** Shared across every question — same labels and copy. */
+/** Default 0–2 independence scale for scored items. */
 export const IASP_ANSWER_OPTIONS: readonly IaspAnswerOption[] = [
   {
     id: "independent",
     label: "Independent",
-    description: "Completes the activity without assistance or supervision.",
+    description: "Does safely without help",
+    points: 2,
   },
   {
     id: "assistance",
-    label: "Needs Assistance",
-    description: "Requires some assistance, supervision, or reminders.",
+    label: "Some support",
+    description: "Needs reminders, supervision, or occasional help",
+    points: 1,
   },
   {
     id: "dependent",
     label: "Dependent",
-    description: "Requires complete assistance to perform the activity.",
+    description: "Needs regular help or cannot do alone / unsafe",
+    points: 0,
+  },
+] as const;
+
+const FALLS_OPTIONS: readonly IaspAnswerOption[] = [
+  {
+    id: "independent",
+    label: "No fall",
+    description: "No falls in the last 6 months",
+    points: 2,
+  },
+  {
+    id: "assistance",
+    label: "One fall",
+    description: "One fall in the last 6 months",
+    points: 1,
+  },
+  {
+    id: "dependent",
+    label: "Two or more falls",
+    description: "Two or more falls in the last 6 months",
+    points: 0,
+  },
+] as const;
+
+const MEDICATION_COUNT_OPTIONS: readonly IaspAnswerOption[] = [
+  {
+    id: "yes",
+    label: "Yes",
+    description: "Takes more than 5 medications",
+    points: 0,
+  },
+  {
+    id: "no",
+    label: "No",
+    description: "Takes 5 or fewer medications",
+    points: 0,
+  },
+] as const;
+
+const WEIGHT_OPTIONS: readonly IaspAnswerOption[] = [
+  {
+    id: "independent",
+    label: "Stable",
+    description: "Weight and appetite are stable",
+    points: 2,
+  },
+  {
+    id: "assistance",
+    label: "Mild concern",
+    description: "Mild concern about weight or appetite",
+    points: 1,
+  },
+  {
+    id: "dependent",
+    label: "Significant concern",
+    description: "Significant concern about weight or appetite",
+    points: 0,
+  },
+] as const;
+
+const SOCIAL_CONTACT_OPTIONS: readonly IaspAnswerOption[] = [
+  {
+    id: "independent",
+    label: "Yes",
+    description: "Regular contact at least once a week / any social activity",
+    points: 2,
+  },
+  {
+    id: "dependent",
+    label: "No",
+    description: "No regular weekly contact or social activity",
+    points: 0,
+  },
+] as const;
+
+const EMERGENCY_OPTIONS: readonly IaspAnswerOption[] = [
+  {
+    id: "independent",
+    label: "Clear reliable system",
+    description: "Can get help in an emergency through a reliable system",
+    points: 2,
+  },
+  {
+    id: "assistance",
+    label: "Some support available",
+    description: "Some emergency support is available",
+    points: 1,
+  },
+  {
+    id: "dependent",
+    label: "No reliable system",
+    description: "No reliable emergency response system",
+    points: 0,
   },
 ] as const;
 
@@ -53,10 +160,10 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     letter: "A",
     title: "Basic Self-Care",
     questions: [
-      { id: "bathe", prompt: "Can the patient bathe independently?" },
-      { id: "dress", prompt: "Can the patient dress independently?" },
-      { id: "toilet", prompt: "Can the patient use the toilet independently?" },
-      { id: "eat-drink", prompt: "Can the patient eat and drink independently?" },
+      { id: "bathe", prompt: "Bathing" },
+      { id: "dress", prompt: "Dressing" },
+      { id: "toilet", prompt: "Toileting" },
+      { id: "eat-drink", prompt: "Feeding / eating meals" },
     ],
   },
   {
@@ -64,18 +171,23 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     letter: "B",
     title: "Daily Life Function",
     questions: [
-      { id: "phone", prompt: "Can the patient use a phone independently?" },
+      {
+        id: "phone",
+        prompt: "Using phone / communicating when needed",
+      },
       {
         id: "home-tasks",
-        prompt: "Can the patient manage basic home tasks independently?",
+        prompt:
+          "Managing small daily tasks in the home (e.g. making the bed or tidying)",
       },
       {
         id: "purchases",
-        prompt: "Can the patient make simple purchases independently?",
+        prompt:
+          "Handling simple purchases or money matters (e.g. banking, paying bills)",
       },
       {
-        id: "bills",
-        prompt: "Can the patient manage bills and paperwork independently?",
+        id: "essentials",
+        prompt: "Organizing daily essentials (food, medicines, etc.)",
       },
     ],
   },
@@ -84,22 +196,16 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     letter: "C",
     title: "Mobility",
     questions: [
-      {
-        id: "move-home",
-        prompt: "Can the patient move around the home independently?",
-      },
-      {
-        id: "transfer",
-        prompt: "Can the patient get up from a bed or chair independently?",
-      },
+      { id: "move-home", prompt: "Moving safely inside the house" },
+      { id: "transfer", prompt: "Getting up from bed or chair" },
       {
         id: "outdoors",
-        prompt: "Can the patient move outdoors independently?",
+        prompt: "Walking outside / in common areas",
       },
       {
         id: "falls",
-        prompt:
-          "In the last 6 months, has the patient stayed free from repeated falls?",
+        prompt: "In the last 6 months, does the patient have any falls?",
+        options: FALLS_OPTIONS,
       },
     ],
   },
@@ -110,15 +216,17 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     questions: [
       {
         id: "routines",
-        prompt: "Can the patient remember daily routines independently?",
+        prompt:
+          "Remembering routine daily tasks (e.g. brushing, bathing)",
       },
       {
         id: "instructions",
-        prompt: "Can the patient follow instructions independently?",
+        prompt: "Understanding instructions or advice",
       },
       {
         id: "decisions",
-        prompt: "Can the patient make safe decisions independently?",
+        prompt:
+          "Making safe everyday decisions (e.g. would it be safe to leave them for 24 hrs without help)",
       },
     ],
   },
@@ -128,16 +236,22 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     title: "Health Management",
     questions: [
       {
+        id: "medication-count",
+        prompt: "Does the patient take more than 5 medications?",
+        scored: false,
+        options: MEDICATION_COUNT_OPTIONS,
+      },
+      {
         id: "medications",
-        prompt: "Can the patient manage medications independently?",
+        prompt: "Taking medicines correctly",
       },
       {
         id: "understand-health",
-        prompt: "Can the patient understand their health independently?",
+        prompt: "Understanding their main medical problems",
       },
       {
         id: "appointments",
-        prompt: "Can the patient manage medical appointments independently?",
+        prompt: "Following appointments or treatment advice",
       },
     ],
   },
@@ -148,18 +262,16 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     questions: [
       {
         id: "nutrition-hydration",
-        prompt:
-          "Can the patient maintain adequate nutrition and hydration independently?",
+        prompt: "Eating and drinking adequately",
       },
       {
         id: "weight-appetite",
-        prompt:
-          "Can the patient maintain a stable weight and appetite independently?",
+        prompt: "Weight / appetite stability",
+        options: WEIGHT_OPTIONS,
       },
       {
         id: "continence",
-        prompt:
-          "Can the patient manage bladder and bowel control independently?",
+        prompt: "Bladder / bowel control",
       },
     ],
   },
@@ -170,11 +282,13 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     questions: [
       {
         id: "communicate",
-        prompt: "Can the patient communicate their needs independently?",
+        prompt: "Communicating needs clearly",
       },
       {
         id: "social-contact",
-        prompt: "Can the patient maintain social contact independently?",
+        prompt:
+          "Maintaining regular contact with family or others (once a week / any social activities)",
+        options: SOCIAL_CONTACT_OPTIONS,
       },
     ],
   },
@@ -185,11 +299,30 @@ export const IASP_SECTIONS: readonly IaspSection[] = [
     questions: [
       {
         id: "summon-help",
-        prompt: "Can the patient summon help in an emergency independently?",
+        prompt: "Ability to get help in an emergency",
+        options: EMERGENCY_OPTIONS,
       },
     ],
   },
 ] as const;
+
+export function getIaspQuestionOptions(
+  question: IaspQuestion,
+): readonly IaspAnswerOption[] {
+  return question.options ?? IASP_ANSWER_OPTIONS;
+}
+
+export function isIaspQuestionScored(question: IaspQuestion): boolean {
+  return question.scored !== false;
+}
+
+export function findIaspQuestion(questionId: string): IaspQuestion | undefined {
+  for (const section of IASP_SECTIONS) {
+    const match = section.questions.find((q) => q.id === questionId);
+    if (match) return match;
+  }
+  return undefined;
+}
 
 function buildPages(): IaspQuestionPage[] {
   const pages: IaspQuestionPage[] = [];
@@ -223,13 +356,20 @@ export const IASP_TOTAL_QUESTIONS = IASP_SECTIONS.reduce(
   0,
 );
 
+/** Scored items only (excludes contextual items such as medication count). */
+export const IASP_SCORED_QUESTION_COUNT = IASP_SECTIONS.reduce(
+  (sum, section) =>
+    sum + section.questions.filter((q) => isIaspQuestionScored(q)).length,
+  0,
+);
+
 function getIaspAnsweredCount(
   answers: Record<string, IaspAnswerId | undefined>,
 ): number {
   return Object.values(answers).filter(Boolean).length;
 }
 
-/** Current question position in the flow (e.g. "Question 4 of 24"). */
+/** Current question position in the flow (e.g. "Question 4 of 25"). */
 export function getIaspQuestionLabel(pageIndex: number): string {
   const current = Math.min(
     IASP_TOTAL_QUESTIONS,

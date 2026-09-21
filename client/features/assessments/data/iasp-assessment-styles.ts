@@ -1,4 +1,5 @@
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import { cardShadowClass, cardShadowHoverClass } from "@/lib/tokens/elevation";
 import {
   dialogBodyShellClass,
   dialogFooterShellClass,
@@ -8,7 +9,7 @@ import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
-/** Shared max-width for every IAS-P assessment modal step. */
+/** Shared max-width for every IAS assessment modal step. */
 export const iaspModalShellWidthClass = "max-w-2xl";
 
 /** Desktop modal shell — matches previous PR (max-height only, content-sized). */
@@ -51,7 +52,7 @@ export const iaspResultsHeaderClass = cn(
   "flex-col items-center gap-2 border-b-0 pb-0 text-center sm:pb-0",
 );
 
-/** Shared motion easing curve for IAS-P page and modal animations. */
+/** Shared motion easing curve for IAS page and modal animations. */
 export const iaspMotionEase = [0.22, 1, 0.36, 1] as const;
 
 /** Progress track inside modal headers. */
@@ -69,13 +70,17 @@ export const iaspProgressFillClass = cn(
 /** Selectable option row — answers and red flags (control tier inside dialog). */
 export const iaspOptionCardClass = cn(
   radius.md,
-  "flex w-full cursor-pointer border border-border bg-card outline-none transition-colors hover:bg-background",
+  "flex w-full cursor-pointer border border-transparent bg-card outline-none transition-[border-color,box-shadow] duration-150",
+  cardShadowClass,
+  "hover:border-foreground/15",
+  cardShadowHoverClass,
 );
 
 /** Intro stat tiles (card tier inside dialog). */
 export const iaspStatCardClass = cn(
   radius.lg,
-  "flex flex-col items-center gap-2 border border-border bg-card p-4 text-center",
+  "flex flex-col items-center gap-2 bg-card p-4 text-center",
+  cardShadowClass,
 );
 
 /** Intro header badge — clinically validated protocol. */
@@ -91,7 +96,11 @@ export const iaspCalloutClass = cn(
 );
 
 /** Results / review section surfaces (card tier inside dialog). */
-export const iaspPanelCardClass = cn(radius.lg, "border border-border bg-card");
+export const iaspPanelCardClass = cn(
+  radius.lg,
+  "bg-card",
+  cardShadowClass,
+);
 
 /** Red-flag summary container on review. */
 export const iaspAlertPanelClass = cn(
@@ -112,11 +121,21 @@ export const iaspRedFlagChipClass = cn(
   "border border-destructive/15 bg-destructive/15 px-3 py-1 text-destructive",
 );
 
-/** Risk band pill on results. */
+/** Assessment results — solid filled band pill (`IaspBandBadge`). */
 export const iaspBandBadgeClass = cn(
   typo.badge,
   radius.full,
   "inline-flex items-center gap-1.5 px-4 py-1.5",
+);
+
+/** Dashboard hero — muted ping badge shell (`IaspBandPingBadge`). */
+export const iaspBandPingBadgeClass =
+  "inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md px-2.5 text-[13px] font-semibold leading-none";
+
+/** Dashboard hero — score not yet available. */
+export const iaspBandPendingBadgeClass = cn(
+  statusBadgeClass,
+  "gap-1.5 bg-muted text-muted-foreground",
 );
 
 /** Dropdown menu surface inside the assessment modal. */
@@ -125,7 +144,7 @@ export const iaspDropdownContentClass = cn(
   "z-110 w-(--radix-dropdown-menu-trigger-width) border-border bg-card p-1.5 shadow-md",
 );
 
-/** Consistent spacing for the IAS-P questionnaire step. */
+/** Consistent spacing for the IAS questionnaire step. */
 export const iaspQuestionStepGapClass = "gap-3";
 
 /** Consistent horizontal + vertical padding for questionnaire regions. */

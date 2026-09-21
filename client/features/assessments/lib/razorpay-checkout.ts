@@ -84,7 +84,7 @@ export async function openIaspReportCheckout(): Promise<void> {
       currency: order.currency,
       order_id: order.orderId,
       name: "Nivarak",
-      description: "IAS-P Detailed Report",
+      description: "IAS Detailed Report",
       handler: () => resolve(),
       modal: {
         ondismiss: () => reject(new Error("Payment cancelled")),
