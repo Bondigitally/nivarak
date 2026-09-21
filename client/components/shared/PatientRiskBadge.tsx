@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
-import { riskConfig } from "@/lib/tokens/status-badges";
-import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import { riskConfig, statusBadgeClass } from "@/lib/tokens/status-badges";
 import type { RiskLevel } from "@/lib/domain";
 
 type PatientRiskBadgeProps = {
