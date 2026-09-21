@@ -82,6 +82,12 @@ const FALLS_OPTIONS: readonly IaspAnswerOption[] = [
   },
 ] as const;
 
+/**
+ * Yes/No options for "Does the patient take more than 5 medications?".
+ * All points are 0 because this question is `scored: false` — the answer
+ * is collected as a clinical red-flag signal but excluded from the IAS
+ * percentage calculation by design.
+ */
 const MEDICATION_COUNT_OPTIONS: readonly IaspAnswerOption[] = [
   {
     id: "yes",
@@ -118,6 +124,11 @@ const WEIGHT_OPTIONS: readonly IaspAnswerOption[] = [
   },
 ] as const;
 
+/**
+ * Binary Yes/No scale for social contact frequency.
+ * Only two choices (no "Some assistance" middle option) because the
+ * questionnaire spec treats weekly contact as binary for scoring purposes.
+ */
 const SOCIAL_CONTACT_OPTIONS: readonly IaspAnswerOption[] = [
   {
     id: "independent",
@@ -324,6 +335,13 @@ export function findIaspQuestion(questionId: string): IaspQuestion | undefined {
   return undefined;
 }
 
+/**
+ * Flattens all IASP sections into one page per question.
+ *
+ * One-question-per-page drives the auto-advance UX: selecting an answer
+ * immediately advances to the next page without a "Next" tap. It also
+ * enables per-question keyboard shortcuts (1/2/3 to pick an option).
+ */
 function buildPages(): IaspQuestionPage[] {
   const pages: IaspQuestionPage[] = [];
 

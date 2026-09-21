@@ -13,6 +13,18 @@ import type { CareTask } from "../data/tasks-data";
 
 const ROW_EASE = [0.22, 1, 0.36, 1] as const;
 
+/**
+ * Animated list card for a group of care tasks (e.g. "Today", "Overdue").
+ *
+ * `mode="popLayout"` on AnimatePresence lets remaining rows reflow smoothly
+ * when a completed row exits, instead of snapping into place.
+ *
+ * Each `motion.li` receives a stable `layoutId` (`task-row-${task.id}`) so
+ * Framer Motion can animate the element as a shared element if it moves
+ * between two separate TasksGroupedCard instances (overdue → today on
+ * completion undo).
+ */
+
 export function TasksGroupedCard({
   tasks,
   onComplete,
