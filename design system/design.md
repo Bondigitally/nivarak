@@ -8,17 +8,18 @@ colors:
   brand-purple-disabled: "#CDB6D9"
   focus-ring: "#A66BCF"
   focus-lilac: "#B98BD0"
-  lavender-canvas: "#F8F5FA"
+  cool-gray-canvas: "#F7F7F8"
   surface-white: "#FFFFFF"
-  surface-whisper: "#FCFBFD"
-  surface-hover: "#F7F5F9"
+  surface-secondary: "#F9F9FA"
+  surface-hover: "#F2F2F3"
+  surface-table-header: "#F1F1F2"
   surface-selected: "#F2EBF9"
-  border-lilac-gray: "#E9E4ED"
-  border-divider: "#F0EDF3"
+  border-cool-gray: "#E4E4E7"
+  border-divider: "#ECECEE"
   ink: "#1A1A1A"
   slate-text: "#5F6368"
-  mist-text: "#8A8F98"
-  placeholder-gray: "#9CA3AF"
+  mist-text: "#6B6B6B"
+  placeholder-gray: "#8A8A8A"
   success-green: "#10B981"
   success-tint: "#ECFDF5"
   warning-amber: "#CA8A04"
@@ -41,6 +42,18 @@ typography:
     fontSize: "32px"
     fontWeight: 700
     lineHeight: "40px"
+  page-title:
+    fontFamily: "Hanken Grotesk, sans-serif"
+    fontSize: "24px"
+    fontWeight: 600
+    lineHeight: "30px"
+    note: "Heading XL with 30px line-height — PageHeader / HomeGreeting"
+  card-title:
+    fontFamily: "Hanken Grotesk, sans-serif"
+    fontSize: "18px"
+    fontWeight: 600
+    lineHeight: "24px"
+    note: "cardTitleClass — all dashboard card / section titles"
   title:
     fontFamily: "Hanken Grotesk, sans-serif"
     fontSize: "20px"
@@ -88,7 +101,7 @@ components:
   button-secondary:
     backgroundColor: "{colors.surface-white}"
     textColor: "{colors.ink}"
-    borderColor: "{colors.border-lilac-gray}"
+    borderColor: "{colors.border-cool-gray}"
     rounded: "{rounded.full}"
     padding: "12px 20px"
     height: "44px"
@@ -160,16 +173,18 @@ components:
     padding: "2px 8px"
     height: "20px"
   segmented-control:
-    trackBackground: "{colors.lavender-canvas}"
-    trackPadding: "2px"
+    trackBackground: "{colors.table-header}"
+    trackBackgroundOnCard: "{colors.cool-gray-canvas}"
+    trackHeight: "40px"
     trackRounded: "{rounded.md}"
-    trackBorderSameSurface: "{colors.border-lilac-gray}"
+    height: "44px"
+    heightToken: "h-dash-control"
     segmentPadding: "12px 20px"
     segmentRounded: "{rounded.md}"
     selectedBackground: "{colors.surface-white}"
-    selectedBorder: "{colors.border-lilac-gray}"
+    selectedBorder: "{colors.border-cool-gray}"
     selectedText: "{colors.brand-purple-active}"
-    selectedShadow: "0 2px 4px rgba(17,24,39,0.05)"
+    selectedShadow: "0 1px 2px rgba(17,24,39,0.06)"
     inactiveText: "{colors.slate-text}"
     labelFontSize: "14px"
     labelLineHeight: "20px"
@@ -201,7 +216,7 @@ Canonical source for all UI work in this repo. When implementing screens, prefer
 8. If a spec conflicts with an existing component, update the component to match this doc.
 9. Radius: **Rule 1** Button = pill · **Rule 2** form controls = `rounded-md` (12px) · **Rule 3** nav chrome = `rounded-md` (12px). Cards = `rounded-lg` (16px). Dialogs/auth = `rounded-xl` (20px). Nested children step down one tier. Never pill inputs or nav; never give Button corner radius.
 
-**Token naming in code:** Use CSS variables or Tailwind theme keys that mirror the `Token` column (e.g. `--background` → `Background/Primary`, `--primary` → `Brand/Primary/Default`). The YAML frontmatter above is for design-tool import; the markdown body is the human/agent spec.
+**Token naming in code:** Use CSS variables or Tailwind theme keys that mirror the `Token` column (e.g. `--background` → `Background/Primary`, `--primary` → `Brand/Primary/Default`). Import `cssVar` / `chartHex` from `@/lib/tokens/colors` when TypeScript needs chart or brand colors. The YAML frontmatter above is for design-tool import; the markdown body is the human/agent spec.
 
 ### Documentation status (not final source of truth)
 
@@ -218,7 +233,7 @@ In particular: **do not** implement multi-auth via subdomains (`admin.nivarak.co
 
 ## Overview — "Nivarak - Unifying Eldercare"
 
-Nivarak helps families assess an elderly person's independence and clinicians manage resulting care. The UI is clinical but not cold, premium but not ornamental — a lavender-white canvas, one purple accent, generous whitespace on public flows, and higher density in clinical tables and dashboards.
+Nivarak helps families assess an elderly person's independence and clinicians manage resulting care. The UI is clinical but not cold, premium but not ornamental — a cool-gray canvas with plum reserved for brand, generous whitespace on public flows, and higher density in clinical tables and dashboards.
 
 **Foundations:** 8pt grid · **Rule 1** buttons pill · **Rule 2** form controls 12px (`md`) · **Rule 3** nav 12px (`md`) · cards 16px (`lg`) / dialogs 20px (`xl`) · brand `#6C318E` · Hanken Grotesk only
 
@@ -247,7 +262,7 @@ Use these as templates when building or reviewing pages.
 
 ### Public assessment landing
 
-- **Background:** `Background/Primary` (#F8F5FA), full viewport
+- **Background:** `Background/Primary` (#F7F7F8), full viewport
 - **Layout:** Split or stacked — headline + primary CTA left, hero photo right (`rounded-lg` card or full-bleed on mobile)
 - **Type:** Display XL or L for headline (e.g. "Let's start with your quick Health Assessment")
 - **CTA:** Primary CTA button, 48px tall, **full pill**, full-width up to ~553px
@@ -255,8 +270,8 @@ Use these as templates when building or reviewing pages.
 
 ### Assessment / CGA wizard
 
-- **Background:** lavender canvas
-- **Container:** Single centered **672px** wizard card (20px radius, borderless, Hero Lift shadow, 32px padding)
+- **Background:** cool-gray canvas
+- **Container:** Single centered **672px** wizard card (20px radius, borderless, `cardShadowClass`, 32px padding)
 - **Progress:** Wizard Progress signature component at top of card
 - **Content:** One step per screen — never multiple sections on one step
 - **Footer:** Neutral outline Secondary "Back" (left) + Primary "Continue" (right); loading state on submit — not Brand Outline
@@ -272,7 +287,7 @@ Use these as templates when building or reviewing pages.
 | ---------- | --------- | ------------------ |
 | **Split auth** | **All roles** (Patient, Caregiver, Nurse, Doctor, Care Coordinator, Admin, …) | Full-bleed photo left (~50%) + **720px Auth Card** right (inset / form column) |
 
-- **Do not** use a centered-only / lavender-only auth chrome for staff or clinical roles.
+- **Do not** use a centered-only / cool-gray-only auth chrome for staff or clinical roles.
 - **Do not** ship separate auth apps or hostnames per role for login/register.
 - Invite / error / success screens use the **same Split auth** chrome as login.
 
@@ -298,7 +313,7 @@ Use these as templates when building or reviewing pages.
 - **Method switch (after OR):** **Brand Outline** `Button` size **CTA** (48px) — same height as primary; e.g. Continue with Email / Continue with Phone Number; stays enabled while primary may be disabled. **Auth only** — do not use 48px Brand Outline outside auth.
 - **All auth buttons:** same composable `Button` (Primary / Brand Outline / Secondary / Ghost / Link) — **Rule 1** pill; do not create a separate AuthButton. Do **not** use Brand Outline outside auth method switch.
 - **No SSO / social login** — do not add Google, Microsoft, or other identity-provider buttons on auth screens
-- **Inputs:** 44–48px tall, **Rule 2** `rounded-md` (12px), lilac border, Focus Lilac ring
+- **Inputs:** 44–48px tall, **Rule 2** `rounded-md` (12px), cool-gray border, Focus Lilac ring
 - **OTP:** digit boxes fixed size (40–48px) · fixed gap **16px** · cluster **centered** in the Form (do not stretch boxes with space-between / FILL across full form width)
 - **Error alignment follows the control it belongs to:**
   - Field is left → error is left (under the input / left-aligned callout in the Form)
@@ -306,11 +321,13 @@ Use these as templates when building or reviewing pages.
 
 ### Authenticated dashboard
 
-- **Background:** lavender canvas
+- **Background:** cool-gray canvas (`Background/Primary` #F7F7F8) — flat, no lavender gradient
 - **Container:** max **1280px** centered
-- **Nav:** White left sidebar; active item = `Surface/Selected` + `Brand/Primary` text
+- **Nav:** White left sidebar; active item = neutral `Surface/Secondary` fill + **brand icon only** (label stays primary text)
 - **Content:** Multi-column card grid on desktop; tables use fluid width
 - **Density:** Comfortable (48px rows) for cards; Compact (40px) for data tables
+- **Page titles:** Heading XL at **24px / Semibold / 30px** (`PageHeader`, `HomeGreeting`)
+- **Card / section titles:** **18px / Semibold / 24px** via `cardTitleClass` — one size across all dashboard cards
 
 ### Result / risk display
 
@@ -346,37 +363,38 @@ Use these as templates when building or reviewing pages.
 
 ### Neutral scale
 
-Use for charts, legacy components, or when a true gray is needed outside the lavender palette.
+Use for charts, legacy components, or when a true gray ramp is needed outside the cool-gray semantic surfaces.
 
 | **Token**   | **Value** | **Token**   | **Value** |
 | ----------- | --------- | ----------- | --------- |
-| Neutral/50  | #FCFCFD   | Neutral/600 | #6B7280   |
-| Neutral/100 | #F8F8FA   | Neutral/700 | #4B5563   |
-| Neutral/200 | #F1F2F4   | Neutral/800 | #374151   |
-| Neutral/300 | #E4E6EB   | Neutral/900 | #1F2937   |
-| Neutral/400 | #CDD1D8   | Neutral/950 | #111827   |
-| Neutral/500 | #A5ABB5   |             |           |
+| Neutral/50  | #F9F9FA   | Neutral/600 | #6B6B6B   |
+| Neutral/100 | #F7F7F8   | Neutral/700 | #5F6368   |
+| Neutral/200 | #F1F1F2   | Neutral/800 | #3C3C3C   |
+| Neutral/300 | #E4E4E7   | Neutral/900 | #1A1A1A   |
+| Neutral/400 | #ECECEE   | Neutral/950 | #111111   |
+| Neutral/500 | #8A8A8A   |             |           |
 
 ### Background & surface
 
-| **Token**          | **Alias**        | **Value** | **Use Case**                                         |
-| ------------------ | ---------------- | --------- | ---------------------------------------------------- |
-| Background/Primary | lavender-canvas  | #F8F5FA   | Entire app background                                |
-| Background/Inverse | —                | #1A1A1A   | Dark tooltip, toast, dark layouts                    |
-| Surface/Primary    | surface-white    | #FFFFFF   | Cards, tables, forms, login panel                      |
-| Surface/Secondary  | surface-whisper  | #FCFBFD   | Grouped sections, filter bars, progress track        |
-| Surface/Elevated   | surface-white    | #FFFFFF   | Dialogs, dropdowns, popovers                       |
-| Surface/Hover      | surface-hover    | #F7F5F9   | Hovered cards, rows, outline button hover            |
-| Surface/Selected   | surface-selected | #F2EBF9   | Selected rows, active sidebar item, brand badges     |
+| **Token**            | **Alias**             | **Value** | **Use Case**                                         |
+| -------------------- | --------------------- | --------- | ---------------------------------------------------- |
+| Background/Primary   | cool-gray-canvas      | #F7F7F8   | Entire app background                                |
+| Background/Inverse   | —                     | #1A1A1A   | Dark tooltip, toast, dark layouts                    |
+| Surface/Primary      | surface-white         | #FFFFFF   | Cards, tables, forms, login panel                      |
+| Surface/Secondary    | surface-secondary     | #F9F9FA   | Grouped sections, filter bars, muted wells           |
+| Surface/Elevated     | surface-white         | #FFFFFF   | Dialogs, dropdowns, popovers                       |
+| Surface/Hover        | surface-hover         | #F2F2F3   | Hovered cards, rows, outline button hover            |
+| Surface/TableHeader  | surface-table-header  | #F1F1F2   | Table header rows, segmented-control track, search shortcut chip |
+| Surface/Selected     | surface-selected      | #F2EBF9   | Intentional brand emphasis only — not decorative avatars, wells, or row chrome |
 
 ### Border
 
 | **Token**       | **Alias**         | **Value** | **Use Case**                  |
 | --------------- | ----------------- | --------- | ----------------------------- |
-| Border/Primary  | border-lilac-gray | #E9E4ED   | Default 1px on inputs, cards, tables |
+| Border/Primary  | border-cool-gray  | #E4E4E7   | Default 1px on inputs, cards, tables |
 | Border/Focus    | focus-lilac       | #B98BD0   | Focused input/button (with 2px ring) |
-| Border/Divider  | border-divider    | #F0EDF3   | Section separators, subtle dividers |
-| Border/Disabled | —                 | #EFEAF2   | Disabled control borders      |
+| Border/Divider  | border-divider    | #ECECEE   | Section separators, subtle dividers |
+| Border/Disabled | —                 | #EFEFEF   | Disabled control borders      |
 
 ### Text
 
@@ -384,9 +402,9 @@ Use for charts, legacy components, or when a true gray is needed outside the lav
 | ---------------- | ---------------- | --------- | ------------------------------------------------- |
 | Text/Primary     | ink              | #1A1A1A   | Page titles, card titles, input values, headers |
 | Text/Secondary   | slate-text       | #5F6368   | Labels, body copy, inactive tabs, icons           |
-| Text/Tertiary    | mist-text        | #8A8F98   | Captions, timestamps, metadata                    |
-| Text/Disabled    | —                | #B3B7BF   | Disabled buttons, labels, fields                  |
-| Text/Placeholder | placeholder-gray | #9CA3AF   | Placeholder text only — never for real content  |
+| Text/Tertiary    | mist-text        | #6B6B6B   | Captions, timestamps, metadata                    |
+| Text/Disabled    | —                | #A1A1AA   | Disabled buttons, labels, fields                  |
+| Text/Placeholder | placeholder-gray | #8A8A8A   | Placeholder text only — never for real content  |
 | Text/Inverse     | surface-white    | #FFFFFF   | Text on purple buttons, dark surfaces           |
 | Text/Link        | brand-purple     | #6C318E   | "Forgot Password", "View Details", inline links |
 
@@ -473,13 +491,14 @@ Healthcare-specific chart palette — use semantic vitals tokens in clinical das
 | ----------- | -------: | -------------- | -------: | --------------------------------------------------------- |
 | Display XL  |     56px | Bold (700)     |    72px  | "Know how independently your parent is ageing" (-0.02em)  |
 | Display L   |     42px | Bold (700)     |    52px  | Public assessment landing title                           |
-| Heading XXL |     32px | Bold (700)     |    40px  | Auth screen titles ("Welcome Back", "Enter Verification Code"), dashboard page title, IAS result score |
-| Heading XL  |     24px | Semibold (600) |    32px  | Assessment section title                                  |
-| Heading L   |     20px | Semibold (600) |    28px  | Card title, wizard step title, modal title                |
-| Heading M   |     18px | Semibold (600) |    28px  | Widget title, compact card title                          |
-| Heading S   |     16px | Semibold (600) |    24px  | Form group title, sidebar section heading                 |
+| Heading XXL |     32px | Bold (700)     |    40px  | Auth screen titles ("Welcome Back", "Enter Verification Code"), IAS result score, dashboard KPIs |
+| Heading XL  |     24px | Semibold (600) |    32px  | Token default; page titles use **30px** line-height in product (`PageHeader`, `HomeGreeting`) |
+| Heading L   |     20px | Semibold (600) |    28px  | Wizard step title, modal title                |
+| Heading M   |     18px | Semibold (600) |    28px  | Token default (18 / 28)                       |
+| Heading S   |     16px | Semibold (600) |    24px  | Names, form group titles, dense list titles   |
+| **Card title** | **18px** | **Semibold (600)** | **24px** | **All dashboard card / section titles** — code: `cardTitleClass` (`headingS` + size override) |
 | Body L      |     16px | Regular (400)  |    24px  | Intro paragraphs, auth supporting copy, input values, assessment questions |
-| Body M      |     14px | Regular (400)  |    20px  | Default body, table rows, sidebar items, lists            |
+| Body M      |     14px | Regular (400)  |    20px  | Default body, page subtitles, table rows, sidebar items, lists            |
 | Body S      |     13px | Regular (400)  |    20px  | Helper text, supporting copy, empty states                |
 | Caption     |     12px | Regular (400)  |    16px  | Timestamps, chart labels, footnotes                       |
 | Label       |     13px | Medium (500)   |    20px  | Form labels, filter labels                                |
@@ -489,8 +508,10 @@ Healthcare-specific chart palette — use semantic vitals tokens in clinical das
 
 ### Typography rules
 
-- **Three weights only:** 400 Regular · 600 Semibold · 700 Bold. No fourth weight.
-- Heading L (20px) steps down to 18px (Heading M) or 16px (Heading S) for widgets and dense form groups.
+- **Four weights:** 400 Regular · 500 Medium · 600 Semibold · 700 Bold. Medium is for Label, Button, Overline, and selected chrome only.
+- **Page titles:** Heading XL size (24px) with **30px** line-height — do not invent a separate page-title token in `typography.ts`.
+- **Card / section titles:** always **18px / Semibold / 24px** via `cardTitleClass` — never mix 16 / 20 / 22px card headers.
+- Heading L (20px) steps down to Heading S (16px) for names and dense form groups; card chrome uses the Card title composition above.
 - Body never below 14px on any breakpoint.
 - Line-height: generous for paragraphs (24px on 16px body); compact for controls (20px on 14px).
 - Links use `Text/Link` color; underline optional — color alone is sufficient when styled as link.
@@ -536,7 +557,7 @@ All margins, padding, and gaps must land on this scale.
 
 ## Radius, shadows & elevation
 
-Flat by default. The lavender canvas plus 1px lilac-gray borders create separation; shadows are ambient cues only.
+Flat by default. The cool-gray canvas plus 1px cool-gray borders create separation; shadows are ambient cues only.
 
 ### Radius
 
@@ -570,23 +591,32 @@ Use only these tokens via `lib/tokens/radius.ts` or Tailwind utilities. Do not u
 
 ### Shadows & elevation
 
-All shadows: **x: 0**. Format: `0 {y}px {blur}px {spread}px rgba(17,24,39,{alpha})`.
+Flat by default. Cool-gray canvas + borders create most separation; shadows are soft ambient cues only.
 
-| **Level** | **Token**   | **Alias**    | **CSS**                               | **Use case**                         |
-| --------- | ----------- | ------------ | ------------------------------------- | ------------------------------------ |
-| 0         | None        | —            | —                                     | Canvas / flat surfaces               |
-| 1         | Shadow/XS   | Whisper      | 0 1px 2px rgba(17,24,39,0.04)         | Buttons and inputs at rest           |
-| 2         | Shadow/SM   | Resting Card | 0 2px 8px rgba(17,24,39,0.05)         | Standard cards; hovered cards        |
-| 3         | Shadow/MD   | Float        | 0 8px 16px -2px rgba(17,24,39,0.08)   | Popovers, open dropdowns             |
-| 4         | Shadow/LG   | Overlay      | 0 12px 24px -4px rgba(17,24,39,0.12)  | Dialogs, drawers + Overlay/Dark backdrop |
-| 5         | Shadow/XL   | Hero Lift    | 0 20px 40px -8px rgba(17,24,39,0.16)  | Borderless hero cards only           |
+**Canonical code:** `client/lib/tokens/elevation.ts`. Import named exports — do not invent ad-hoc `shadow-[…]` stacks for cards.
+
+Recipe: **neutral hairline ring** (`0 0 0 1px rgba(17,24,39,α)`) + stacked ambient lifts. The hairline replaces a CSS `border` on elevated cards (do not also add `border-border` on the same surface).
+
+| **Export** | **Kind** | **CSS / behavior** | **Use case** |
+| ---------- | -------- | ------------------ | ------------ |
+| `cardShadowClass` | Tailwind class | `0 0 0 1px rgba(17,24,39,0.06), 0 1px 2px rgba(17,24,39,0.04), 0 2px 6px rgba(17,24,39,0.04)` | Resting cards — `dashboardCardClass`, `Card`, auth card, tables, assessment shells |
+| `cardShadowHoverClass` | Tailwind class | Hover: hairline `0.08` + `0 1px 3px / 0.055` + `0 4px 10px / 0.055` | Default card hover (pair with `cardShadowClass`) |
+| `cardShadowCss` | Inline / Framer | Same stack as `cardShadowClass` | Motion / `style.boxShadow` (e.g. care-team cards) |
+| `cardShadowHoverCss` | Inline / Framer | Same stack as `cardShadowHoverClass` | Motion hover counterpart |
+| `cardElevatedHoverShadowClass` | Tailwind class | Hover: hairline `0.09` + `0 4px 8px / 0.06` + `0 12px 24px / 0.08` | List rows / appointment items — elevated hover **without** translate |
+| `cardLiftTransitionClass` | Tailwind class | GPU transform + `0.22s` cubic-bezier on transform / box-shadow | Interactive tiles before lift |
+| `cardLiftHoverClass` | Tailwind class | `hover:-translate-y-1.5` + `cardElevatedHoverShadowClass` | CategoryCard, vitals KPIs — snappy lift |
+| `cardLiftActiveClass` | Tailwind class | `active:-translate-y-0.5` + resting `cardShadow` stack | Press feedback on lift tiles |
+| `cardLiftHoverWashClass` | Tailwind class | Absolute brand wash (`from-primary/6 via-sidebar-accent/40`) fades in on `group-hover` | Pair with `group relative isolate overflow-hidden` on the tile |
+
+**Micro-shadow (controls only, not in `elevation.ts`):** segmented-control selected segment uses `0 1px 2px rgba(17,24,39,0.06)` — keep that local; do not promote it into the card kit.
 
 **Shadow rules:**
 
-- Prefer borders over shadows — if a border separates surfaces, delete the shadow.
-- Never nest elevated cards inside elevated cards.
-- Never combine a large shadow and a 1px border on the same surface.
-- Hero cards (wizard, auth) are borderless and use Hero Lift only.
+- Prefer borders over shadows on flat chrome; elevated cards use the hairline-in-shadow recipe above.
+- Never nest an elevated card inside another elevated card.
+- Never combine `cardShadow*` with a separate `1px` CSS border on the same surface.
+- Auth / wizard / dialog shells: `cardShadowClass` (borderless), not a heavier one-off stack.
 - If it looks like a 2014 app, the shadow is too dark.
 
 ---
@@ -657,10 +687,12 @@ All shadows: **x: 0**. Format: `0 {y}px {blur}px {spread}px rgba(17,24,39,{alpha
 
 | **Breakpoint** | **Min width** | **Columns** | **Page padding** | **Gutter** |
 | -------------- | ------------- | ----------- | ---------------- | ---------- |
-| Mobile         | 0px           | 4           | 24px             | 16px       |
-| Tablet         | 744px         | 8           | 24px             | 24px       |
-| Desktop        | 1440px        | 12          | 24px             | 24px       |
-| Wide           | 1920px+       | 12          | 32px             | 24px       |
+| Mobile         | 0px           | 4           | 16px each side   | 16px       |
+| Tablet         | 744px         | 8           | 16px each side   | 24px       |
+| Desktop        | 1440px        | 12          | 24px each side   | 24px       |
+| Wide           | 1920px+       | 12          | 32px each side   | 24px       |
+
+**Page inset (`--dash-pad-x`):** **16px per horizontal edge** below `lg` (1024px); **24px per edge** from `lg` (1024px) up. Applied via `px-dash-pad-x` on the page shell, top bar, and modal chrome. Values in the table above are per side, not total.
 
 ### Containers
 
@@ -679,12 +711,12 @@ Grid defines alignment; containers cap readable width. **Pick by content type �
 
 **Container rules:**
 
-- Wizards: single centered **672px** hero card on lavender canvas.
+- Wizards: single centered **672px** hero card on cool-gray canvas.
 - **Auth page chrome:** **Split auth for every role** (photo + **720px Auth Card**). No centered-only staff auth; no subdomain multi-auth.
 - **Auth Card** is always **720px** with nested Logo → Header → Form → Button → Alternate method (OR + email/phone switch) → Footer Auto Layout. No SSO / social login.
 - Dashboards: ≤ **1280px** unless the view is explicitly data-heavy (then fluid tables inside).
 - Tables and analytics: **Fluid** — use full available width.
-- Maintain **consistent horizontal page padding** at every breakpoint (see Grid table).
+- Maintain **consistent horizontal page padding** at every breakpoint — **16px each side** below `lg`, **24px each side** from `lg` up (see Grid table).
 
 ### Responsive behavior
 
@@ -830,8 +862,9 @@ If a new button differs only by text, icon, underline, width, loading, or disabl
 
 | **Type**   | **Radius** | **Border**        | **Shadow**   | **Padding** | **Notes**                                |
 | ---------- | ---------- | ----------------- | ------------ | ----------- | ---------------------------------------- |
-| Standard   | 16px (`lg`) | 1px Border/Primary| Shadow/SM or none | 24px  | White on lavender canvas                 |
-| Large      | 20px (`xl`) | none              | Hero Lift    | 32px        | Dialog, wizard card, auth card — borderless only |
+| Standard   | 16px (`lg`) | none (hairline in shadow) | `cardShadowClass` + `cardShadowHoverClass` | 24px  | White on cool-gray canvas · title **18px / 600 / 24px** (`cardTitleClass` / `dashboardCardClass`) |
+| Large      | 20px (`xl`) | none              | `cardShadowClass` | 32px        | Dialog, wizard card, auth card — borderless only |
+| Interactive tile | 16px (`lg`) | none | `cardShadowClass` + lift / wash exports | 24px | CategoryCard, vitals KPIs — `cardLift*` |
 
 Do not nest a shadowed card inside another shadowed card.
 
@@ -926,49 +959,51 @@ Rounded banner for inline guidance — not a toast.
 
 Figma source: [Nivarak UI — Segmented Control](https://www.figma.com/design/lqlKcyJm2scWXXuJSKYZCr/Nivarak-UI?node-id=936-2874). Canonical in-content filter / view switcher (e.g. All Files · Recent · Favorites · Shared). **Not** a `Button` — follows Rule 3.
 
+**Size:** One size only — tabs use **Button Default / `--spacing-dash-control`** (`h-dash-control`, **44px**, `px-5`). Do **not** add sm/cta variants.
+
+**Proud tab:** Like a floating selected chip over a shorter track — track **40px** (`h-10`), tab/thumb **44px** (~2px overhang top and bottom). Radius stays **`rounded-md` (12px)** — Rule 3; never pill.
+
 **Structure**
 
 | **Part** | **Spec** |
 | -------- | -------- |
-| Track | Horizontal flex row · `Background/Primary` (#F8F5FA) · **2px** padding all sides · **12px** radius (`rounded-md`) · hugs content width (or full-width when the layout requires equal segments) |
-| Segment (each) | `px-5 py-3` (**20×12**) · center-aligned label · optional leading icon · **12px** radius · transparent bg when inactive |
-| Selected thumb | `Surface/Primary` (#FFFFFF) · **1px** `Border/Primary` (#E9E4ED) · elevation `0 2px 4px rgba(17,24,39,0.05)` (between Shadow/XS and Shadow/SM) · **12px** radius · same padding as inactive segments |
+| Track | Absolute bar centered behind tabs · **40px** (`h-10`) · fill by surface (see below) · **12px** radius (`md`) · **no border** · **no shadow** · full list width |
+| Segment (each) | **44px** tall · `px-5` (**20**) · Body M 14/20 · center-aligned label · optional leading icon · transparent when inactive |
+| Selected thumb | Same **44px** as segment (proud of track) · `Surface/Primary` (#FFFFFF) · **1px** `Border/Primary` (#E4E4E7) · light shadow · **12px** radius (`md`) |
 
-**Track border (contrast rule)**
+**Track surface** — same *perceived* contrast, not the same hex. `#F1F1F2` on canvas looks lighter than the same swatch on a white card.
 
-| **Surface behind the control** | **Track treatment** |
-| ------------------------------ | ------------------- |
-| Same as track (`Background/Primary` / lavender canvas) | **1px `Border/Primary` (#E9E4ED)** on the track — required so the control edge is visible |
-| Contrasting (e.g. white card, elevated surface) | **No track border** — fill contrast is enough (default Figma) |
-
-Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same border token on track + thumb is intentional (one language), not a conflict. On same-surface / bordered-track layouts, prefer a lighter thumb elevation (or drop the shadow) so border + shadow do not stack for the same job.
+| **Control sits on** | **`surface` prop** | **Track fill** |
+| ------------------- | ------------------ | -------------- |
+| Page canvas | `canvas` (default) | `Surface/TableHeader` (#F1F1F2) — Notifications, Appointments |
+| White card / dialog | `card` | `Background/Primary` (#F7F7F8) — lighter so it matches Notifications visually (Vitals, Records, in-dialog tabs) |
 
 **Typography & color**
 
 | **State** | **Label** | **Color** | **Weight** |
 | --------- | --------- | --------- | ---------- |
-| Selected | Button / Body M · 14px / 20px | `Brand/Primary/Active` (#52256C) | Semibold (600) |
+| Selected | Button / Body M · 14px / 20px | `Text/Primary` (#1A1A1A) | Semibold (600) |
 | Inactive | Button / Body M · 14px / 20px | `Text/Secondary` (#5F6368) | Medium (500) |
 
 **Icons (optional)**
 
 - Size **16px** (Icon/SM) · outline style · **8px** gap before label
-- Inactive: inherit `Text/Secondary` · Selected: inherit `Brand/Primary/Active`
+- Inactive: inherit `Text/Secondary` · Selected: inherit `Text/Primary`
 - Use only when the label alone is ambiguous (e.g. Favorites, Shared); text-only segments are fine
 
 **Behavior**
 
 - Single selection only — one thumb active at a time
-- Selected state = white raised thumb + Active purple text (not `Surface/Selected` lilac fill — that pattern is for sidebar / list rows)
+- Selected state = white raised thumb + Active purple text (not a brand-tint fill — that pattern is for sidebar / list rows)
 - Motion/Normal (200–250ms) on thumb position / state change
 - Keyboard: arrow keys move focus between segments; Enter/Space activates; visible focus ring uses `Brand/Primary/FocusRing`
 - Do **not** use Rule 1 pill radius on segments or track
-- Do **not** use primary purple fill for the selected thumb — keep white surface + border + light shadow
+- Do **not** use primary purple fill for the selected thumb — keep white surface + thin border + light shadow
 
 **Authenticated app:**
 
 - White left sidebar · Body M (14px) nav items · Icon/MD (20px, 1.5px stroke) leading icon per item
-- Active: Surface/Selected background + Brand/Primary text + optional left accent · **12px** radius (`md`, Rule 3)
+- Active: neutral `Surface/Secondary` fill + thin border · **brand icon only** on selected item · primary text label · **12px** radius (`md`, Rule 3)
 - Desktop: expanded · Tablet: collapsible · Mobile: drawer or bottom navigation
 
 **Public app:**
@@ -977,7 +1012,7 @@ Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same bord
 
 **Dialogs:**
 
-- Desktop/tablet: centered modal, 20px `rounded-xl`, Shadow/LG, Overlay/Dark backdrop
+- Desktop/tablet: centered modal, 20px `rounded-xl`, `cardShadowClass` (or dialog chrome equivalent), Overlay/Dark backdrop
 - Mobile: full-width bottom sheet with 20px top-corner `rounded-xl`
 
 ### Component padding reference
@@ -987,7 +1022,7 @@ Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same bord
 | Cards, forms  | 24px         | 24px           |
 | Dialogs       | 32px         | 32px           |
 | Inputs        | 12px         | 16px           |
-| Segmented Control segments | 12px | 20px |
+| Segmented Control (44px tab / 40px track) | — | 20px (segments) |
 | Table cells   | 12px         | 16px           |
 | Page headers  | 32px         | 24px           |
 
@@ -1010,37 +1045,135 @@ Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same bord
 
 ## Implementation notes (codebase)
 
-When wiring `client/app/globals.css` and shadcn theme:
+When wiring `client/app/globals.css`, `@theme inline`, and shadcn theme — **keep in sync with this doc**. For TypeScript that needs literal hex (SVG lerp, gradients), import from `@/lib/tokens/colors` (`chartHex`, `cssVar`).
+
+### CSS variable mapping
+
+| **Design token** | **CSS variable** | **Tailwind** | **Value** |
+| ---------------- | ---------------- | ------------ | --------- |
+| Background/Primary | `--background` | `bg-background` | #F7F7F8 |
+| Text/Primary | `--foreground` | `text-foreground` | #1A1A1A |
+| Surface/Primary | `--card` | `bg-card` | #FFFFFF |
+| Brand/Primary/Default | `--primary` | `bg-primary`, `text-primary` | #6C318E |
+| Brand/Primary/Hover | `--primary-hover` | — | #5F2B7D |
+| Brand/Primary/Active | `--primary-active` | `text-primary-active` | #52256C |
+| Brand/Primary/Disabled | `--primary-disabled` | — | #CDB6D9 |
+| Text/Inverse | `--primary-foreground` | `text-primary-foreground` | #FFFFFF |
+| Surface/Secondary | `--muted`, `--secondary` | `bg-muted` | #F9F9FA |
+| Text/Secondary | `--muted-foreground` | `text-muted-foreground` | #5F6368 |
+| Text/Tertiary | `--tertiary-foreground` | `text-tertiary-foreground` | #6B6B6B |
+| Text/Placeholder | `--placeholder` | `text-placeholder` | #8A8A8A |
+| Surface/Hover | `--accent` | `bg-accent` | #F2F2F3 |
+| Surface/TableHeader | `--table-header`, `--search-shortcut-key` | `bg-table-header`, `bg-search-shortcut-key` | #F1F1F2 |
+| Surface/Selected | `--sidebar-accent` | `bg-sidebar-accent` | #F2EBF9 |
+| Border/Primary | `--border`, `--input` | `border-border` | #E4E4E7 |
+| Border/Divider | `--divider` | `border-divider`, `bg-divider` | #ECECEE |
+| Border/Focus | `--border-focus` | `border-border-focus` | #B98BD0 |
+| Brand/Primary/FocusRing | `--ring`, `--sidebar-ring` | `ring-ring` | #A66BCF |
+| Border/Disabled | `--border-disabled` | — | #EFEFEF |
+| Text/Disabled | `--text-disabled` | — | #A1A1AA |
+| Error/Text | `--destructive` | `text-destructive` | #DC2626 |
+| Error/Tint | `--destructive-muted` | `bg-destructive-muted` | #FCECEC |
+| Success/Text | `--success` | `text-success` | #10B981 |
+| Success/Tint | `--success-muted` | `bg-success-muted` | #ECFDF5 |
+| Warning/Text | `--warning` | `text-warning` | #CA8A04 |
+| Warning/Tint | `--warning-muted` | `bg-warning-muted` | #FEFCE8 |
+| Limited Independence accent | `--attention` | `text-attention` | #F97316 |
+| Limited Independence tint | `--attention-muted` | `bg-attention-muted` | #FFF7ED |
+| Info/Text | `--info` | `text-info` | #2563EB |
+| Info/Tint | `--info-muted` | `bg-info-muted` | #E7EFF8 |
+| Chart/Brand start | `--chart-1` | — | #6C318E |
+| Chart/BP Systolic | `--chart-2` | — | #FA4B42 |
+| Chart/BP Diastolic | `--chart-3` | — | #147AD6 |
+| Chart/Heart Rate | `--chart-4` | — | #7086FD |
+| Chart/SpO₂ | `--chart-5` | — | #0EA5B1 |
+| Chart/Blood Glucose | `--chart-6` | — | #5B8DEF |
+| Chart/Temperature | `--chart-7` | — | #F97316 |
+| Chart/Brand end | `--chart-8` | — | #1E0E28 |
+| Segmented track (canvas) | `--segmented-track` | `bg-segmented-track` | #F1F1F2 |
+| Segmented track (card) | `--segmented-track-on-card` | `bg-segmented-track-on-card` | #F7F7F8 |
+| Sidebar surface | `--sidebar` | `bg-sidebar` | #FFFFFF |
+| Sidebar hover | `--sidebar-hover` | `hover:bg-sidebar-hover` | #F2F2F3 |
+| Sidebar active row | `--sidebar-selected` | `bg-sidebar-selected` | #F9F9FA |
 
 ```css
-/* Target mapping — implement these CSS variables */
+/* Target mapping — keep in sync with client/app/globals.css :root */
 :root {
-  --background: #F8F5FA;        /* Background/Primary */
-  --foreground: #1A1A1A;        /* Text/Primary */
-  --card: #FFFFFF;               /* Surface/Primary */
-  --primary: #6C318E;            /* Brand/Primary/Default */
+  --background: #F7F7F8;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --primary: #6C318E;
+  --primary-hover: #5F2B7D;
+  --primary-active: #52256C;
+  --primary-disabled: #CDB6D9;
   --primary-foreground: #FFFFFF;
-  --border: #E9E4ED;             /* Border/Primary */
-  --border-focus: #B98BD0;       /* Border/Focus */
-  --ring: #A66BCF;               /* Brand/Primary/FocusRing */
-  --muted: #FCFBFD;              /* Surface/Secondary */
-  --muted-foreground: #5F6368;   /* Text/Secondary */
-  --destructive: #DC2626;        /* Error/Text */
+  --secondary: #F9F9FA;
+  --muted: #F9F9FA;
+  --muted-foreground: #5F6368;
+  --tertiary-foreground: #6B6B6B;
+  --placeholder: #8A8A8A;
+  --accent: #F2F2F3;
+  --table-header: #F1F1F2;
+  --search-shortcut-key: #F1F1F2;
+  --destructive: #DC2626;
+  --destructive-muted: #FCECEC;
+  --success: #10B981;
+  --success-muted: #ECFDF5;
+  --warning: #CA8A04;
+  --warning-muted: #FEFCE8;
+  --attention: #F97316;
+  --attention-muted: #FFF7ED;
+  --attention-foreground: #C2410C;
+  --info: #2563EB;
+  --info-muted: #E7EFF8;
+  --border: #E4E4E7;
+  --divider: #ECECEE;
+  --border-disabled: #EFEFEF;
+  --text-disabled: #A1A1AA;
+  --input: #E4E4E7;
+  --ring: #A66BCF;
+  --border-focus: #B98BD0;
+  --chart-1: #6C318E;
+  --chart-2: #FA4B42;
+  --chart-3: #147AD6;
+  --chart-4: #7086FD;
+  --chart-5: #0EA5B1;
+  --chart-6: #5B8DEF;
+  --chart-7: #F97316;
+  --chart-8: #1E0E28;
+  --sidebar: #FFFFFF;
+  --sidebar-accent: #F2EBF9;
+  --sidebar-hover: #F2F2F3;
+  --sidebar-selected: #F9F9FA;
+  --segmented-track: #F1F1F2;
+  --segmented-track-on-card: #F7F7F8;
   --radius-none: 0;
-  --radius-xs: 0.375rem;         /* 6px */
-  --radius-sm: 0.5rem;           /* 8px */
-  --radius-md: 0.75rem;          /* 12px */
-  --radius-lg: 1rem;             /* 16px */
-  --radius-xl: 1.25rem;          /* 20px */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --radius-full: 9999px;
 }
 ```
+
+**Typography compositions (product overrides — do not add named tokens to `typography.ts`):**
+
+| **Role** | **Size / weight / LH** | **Code** |
+| -------- | ---------------------- | -------- |
+| Page title | 24px / Semibold / **30px** | `typo.headingXl` + `leading-[30px]` |
+| Card / section title | **18px** / Semibold / **24px** | `cardTitleClass` in `dashboard-styles.ts` |
+| KPI / large numbers | Heading XXL or local size | vitals summary uses 30px; IAS ring uses 42px |
 
 **Font setup (Next.js layout):**
 
 ```tsx
 import { Hanken_Grotesk } from "next/font/google";
-const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
+const hanken = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-hanken",
+});
 // Apply hanken.variable to <html> and font-sans to body
 ```
 
@@ -1048,6 +1181,8 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 
 - Prefer theme tokens: `bg-background`, `text-foreground`, `border-border`, `bg-primary`
 - Radius: import from `@/lib/tokens/radius` or use Tailwind `rounded-xs` … `rounded-xl` · **Rule 1** `rounded-full` for buttons/badges · **Rule 2 / 3** `rounded-md` for controls and nav · `rounded-lg` for cards · `rounded-xl` for dialogs/auth · nested children step down (`lg` → `md` → `sm`)
+- Elevation: import from `@/lib/tokens/elevation` (`cardShadowClass`, lift / wash helpers) — do not invent card shadow stacks
+- Card titles: import `cardTitleClass` — do not hardcode mixed sizes
 - When theme is not yet wired, use token hex from this doc — not arbitrary Tailwind grays or `blue-600`
 
 ---
@@ -1066,6 +1201,8 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 - Stack content on mobile; prioritize readability over density.
 - Keep data tables fluid width.
 - Use semantic tokens in new components; migrate hardcoded hex when touching a file.
+- Keep canvas/borders cool gray; reserve plum for brand actions and `Surface/Selected` only.
+- Use one card-title size (`cardTitleClass`) across all dashboard cards.
 
 ### Don't
 
@@ -1073,9 +1210,11 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 - Decorative use of green, amber, red, or blue.
 - A second typeface or mixed icon libraries.
 - Body text below 14px or touch targets below 44×44px.
-- Nested shadowed cards or shadow + border on the same surface.
+- Nested shadowed cards, or `cardShadow*` plus a separate CSS border on the same surface.
 - Multiple assessment sections on one wizard step.
 - Default shadcn blue primary — brand purple is `#6C318E`.
+- Lavender (or other tinted) canvas / borders for app chrome — use cool gray; plum tint only on `Surface/Selected`.
+- Mixed card-title sizes (16 / 20 / 22px) — always `cardTitleClass` (18 / 24).
 - Pill radius on inputs, select, or nav chrome — or corner radius on the Button component.
 - Ad-hoc `rounded-[Npx]` or legacy Tailwind steps (`rounded-2xl`, etc.) outside the semantic scale.
 - Role-specific auth layouts (centered staff vs split patient) or subdomain multi-auth portals.
@@ -1084,7 +1223,7 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 
 ### Most used tokens (80% of UI)
 
-`Background/Primary` · `Surface/Primary` · `Text/Primary` · `Text/Secondary` · `Border/Primary` · `Brand/Primary/Default` · `Radius/MD` (12px) · `Radius/LG` (16px) · `Radius/XL` (20px) · `Radius/Full` · `Shadow/XS` · `Space/16` · `Space/24` · `Space/32`
+`Background/Primary` · `Surface/Primary` · `Text/Primary` · `Text/Secondary` · `Border/Primary` · `Brand/Primary/Default` · `Radius/MD` (12px) · `Radius/LG` (16px) · `Radius/XL` (20px) · `Radius/Full` · `cardShadowClass` · `Space/16` · `Space/24` · `Space/32`
 
 ### Final rule
 
