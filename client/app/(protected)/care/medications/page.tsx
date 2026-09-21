@@ -1,6 +1,6 @@
 "use client";
 
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { DashboardIconButton } from "@/features/dashboard/components/DashboardIconButton";

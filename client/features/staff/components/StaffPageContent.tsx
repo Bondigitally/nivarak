@@ -10,7 +10,7 @@ import {
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { getStaffMembers } from "@/features/staff/data/staff-data";
 import type { StaffMember } from "@/lib/domain";

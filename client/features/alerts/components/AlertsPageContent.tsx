@@ -1,6 +1,6 @@
 "use client";
 
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { useUserRole } from "@/components/layout/user-role-context";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { AlertsList } from "@/features/alerts/components/AlertsList";
