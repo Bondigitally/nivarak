@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
 import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
   return (
@@ -15,8 +16,8 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
         >
           <HugeiconsIcon
             icon={Alert01Icon}
-            size={19}
-            strokeWidth={1.5}
+            size={ICON_SIZE}
+            strokeWidth={ICON_STROKE}
             absoluteStrokeWidth
             color="currentColor"
             className="block size-5"
@@ -45,7 +46,7 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
       </div>
 
       <Button type="button" variant="destructive-outline" size="cta" className="w-full">
-        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+        <HugeiconsIcon icon={Call02Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
         Call Care Team
       </Button>
     </section>

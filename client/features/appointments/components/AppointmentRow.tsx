@@ -4,14 +4,14 @@ import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   CheckmarkCircle02Icon,
   Clock01Icon,
-  Location01Icon,
+  Home03Icon,
   Tick02Icon,
   Video01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
-import { BADGE_ICON_SIZE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type {
@@ -20,13 +20,9 @@ import type {
   AppointmentVisitType,
 } from "../data/appointments-data";
 
-const visitTypeStyles: Record<AppointmentVisitType, { className: string }> = {
-  "Home Visit": {
-    className: "border-info-muted bg-info-muted text-info",
-  },
-  Teleconsult: {
-    className: "border-warning-muted bg-warning-muted text-warning",
-  },
+const visitTypeTextClass: Record<AppointmentVisitType, string> = {
+  "Home Visit": "text-success",
+  Teleconsult: "text-info",
 };
 
 const statusStyles: Record<
@@ -82,6 +78,26 @@ function StatusBadge({
   );
 }
 
+function PlaceLabel({ appointment }: { appointment: AppointmentItem }) {
+  const placeIcon =
+    appointment.placeKind === "video" ? Video01Icon : Home03Icon;
+  const colorClass = visitTypeTextClass[appointment.visitType];
+
+  return (
+    <div className={cn("flex items-center gap-1", colorClass)}>
+      <HugeiconsIcon
+        icon={placeIcon}
+        size={ICON_SIZE}
+        strokeWidth={ICON_STROKE}
+        color="currentColor"
+        absoluteStrokeWidth
+        className="shrink-0"
+      />
+      <span className={typo.caption}>{appointment.placeLabel}</span>
+    </div>
+  );
+}
+
 export function AppointmentRow({
   appointment,
   onDetailsClick,
@@ -89,10 +105,6 @@ export function AppointmentRow({
   appointment: AppointmentItem;
   onDetailsClick: (appointment: AppointmentItem) => void;
 }) {
-  const visitStyle = visitTypeStyles[appointment.visitType];
-  const placeIcon =
-    appointment.placeKind === "video" ? Video01Icon : Location01Icon;
-
   return (
     <article className="w-full rounded-lg border border-border bg-card shadow-[0px_2px_8px_rgba(17,24,39,0.05)]">
       {/* Mobile */}
@@ -116,15 +128,7 @@ export function AppointmentRow({
             >
               {appointment.clinician}
             </p>
-            <span
-              className={cn(
-                statusBadgeClass,
-                "shrink-0 border",
-                visitStyle.className,
-              )}
-            >
-              {appointment.visitType}
-            </span>
+            <PlaceLabel appointment={appointment} />
           </div>
         </div>
 
@@ -156,38 +160,15 @@ export function AppointmentRow({
           <div className="h-12 w-px shrink-0 bg-border" aria-hidden />
 
           <div className="flex min-w-0 flex-col items-start gap-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <p
-                className={cn(
-                  typo.headingS,
-                  "text-sm leading-5 text-foreground",
-                )}
-              >
-                {appointment.clinician}
-              </p>
-              <span
-                className={cn(
-                  statusBadgeClass,
-                  "shrink-0 border",
-                  visitStyle.className,
-                )}
-              >
-                {appointment.visitType}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <HugeiconsIcon
-                icon={placeIcon}
-                size={19}
-                strokeWidth={1.5}
-                color="currentColor"
-                absoluteStrokeWidth
-                className="shrink-0"
-              />
-              <span className={cn(typo.caption, "text-muted-foreground")}>
-                {appointment.placeLabel}
-              </span>
-            </div>
+            <p
+              className={cn(
+                typo.headingS,
+                "text-sm leading-5 text-foreground",
+              )}
+            >
+              {appointment.clinician}
+            </p>
+            <PlaceLabel appointment={appointment} />
           </div>
         </div>
 
