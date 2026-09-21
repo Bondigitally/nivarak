@@ -96,8 +96,8 @@
    * `w-full` + `max-w-dash-page` + `mx-auto` fill `main` up to this limit.
    */
    --max-width-dash-page: 1440px;
-  /* Standard protected layout: 24px page pad · 16px gutters / section gaps */
-  --spacing-dash-pad-x: 24px;
+  /* Standard protected layout: page pad via --dash-pad-x · 16px gutters / section gaps */
+  --spacing-dash-pad-x: var(--dash-pad-x);
   --spacing-dash-pad-y: 0.75rem;
   --spacing-dash-gutter: 1rem;
   --spacing-dash-gap: 1rem;
@@ -113,6 +113,9 @@
    * special-casing inch sizes. Floor keeps tablet/mobile readable.
    */
   --ui-scale: clamp(0.8, calc(1 + (100vw - 1512px) * 0.001667), 1);
+
+  /* Page inset: 16px < lg, 24px ≥ lg — top bar, page shells, and modal chrome share px-dash-pad-x */
+  --dash-pad-x: 16px;
 
   /* Background & surface */
   --background: #F8F5FA; /* Background/Primary */
@@ -176,6 +179,13 @@
   --sidebar-accent-foreground: #6C318E;
   --sidebar-border: #E9E4ED; /* Border/Primary */
   --sidebar-ring: #A66BCF; /* Brand/Primary/FocusRing */
+}
+
+/* Matches Tailwind `lg` — desktop page inset */
+@media (min-width: 1024px) {
+  :root {
+    --dash-pad-x: 24px;
+  }
 }
 
 @layer base {
@@ -257,6 +267,13 @@ html:has(.protected-shell) {
 body[data-scroll-locked] {
   margin-right: 0 !important;
   padding-right: 0 !important;
+}
+
+/* IAS-P modal — touch-friendly overflow scrolling */
+.iasp-modal-scroll {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-gutter: stable;
 }
 
 /*

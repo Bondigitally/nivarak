@@ -28,13 +28,13 @@ export const dialogContentMotionClass =
   "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95";
 
 export const dialogHeaderShellClass =
-  "flex shrink-0 flex-row items-center justify-between gap-4 space-y-0 rounded-none border-b border-border bg-card px-6 py-5 text-left sm:px-8 sm:py-6";
+  "flex shrink-0 flex-row items-center justify-between gap-4 space-y-0 rounded-none border-b border-border bg-card px-dash-pad-x py-5 text-left sm:px-8 sm:py-6";
 
 export const dialogBodyShellClass =
-  "flex min-h-0 flex-1 flex-col gap-6 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-6 py-6 sm:gap-8 sm:px-8 sm:py-7";
+  "flex min-h-0 flex-1 flex-col gap-6 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-dash-pad-x py-6 sm:gap-8 sm:px-8 sm:py-7";
 
 export const dialogFooterShellClass =
-  "flex shrink-0 flex-col gap-3 rounded-none border-t border-border bg-card px-6 py-5 sm:px-8 sm:py-6";
+  "flex shrink-0 flex-col gap-3 rounded-none border-t border-border bg-card px-dash-pad-x py-5 sm:px-8 sm:py-6";
 
 export const dialogCloseButtonClass =
   "size-10 shrink-0 rounded-full text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] hover:text-foreground";
@@ -72,7 +72,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         dialogContentPositionClass,
-        "z-50 flex w-full max-w-lg flex-col gap-4 border border-border bg-card p-6 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)]",
+        "z-50 flex w-full max-w-lg flex-col gap-4 border border-border bg-card px-dash-pad-x py-6 sm:p-6 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)]",
         dialogContentMotionClass,
         className,
       )}
