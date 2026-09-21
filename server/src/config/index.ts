@@ -43,4 +43,13 @@ export const config = {
   log: {
     level: process.env.LOG_LEVEL || 'info',
   },
+
+  razorpay: {
+    keyId: process.env.RAZORPAY_KEY_ID ?? '',
+    keySecret: process.env.RAZORPAY_KEY_SECRET ?? '',
+    iaspReportAmountPaise: parseInt(
+      process.env.IASP_REPORT_AMOUNT_PAISE || '49900',
+      10,
+    ),
+  },
 } as const;
