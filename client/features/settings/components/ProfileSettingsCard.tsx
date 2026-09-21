@@ -21,6 +21,7 @@ import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
 import type { SettingsProfile } from "../data/settings-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const fieldLabelClass = "text-sm font-medium leading-5 text-muted-foreground";
 
@@ -106,10 +107,10 @@ export function ProfileSettingsCard({
             >
               <HugeiconsIcon
                 icon={Calendar03Icon}
-                size={19}
-                strokeWidth={1.5}
+                size={ICON_SIZE}
+                strokeWidth={ICON_STROKE}
                 color="currentColor"
-                className="size-[19px]"
+                className="size-5"
               absoluteStrokeWidth />
             </span>
           </div>
@@ -129,10 +130,10 @@ export function ProfileSettingsCard({
                 <span className={cn(typo.input, "truncate")}>{language}</span>
                 <HugeiconsIcon
                   icon={ArrowDown01Icon}
-                  size={19}
-                  strokeWidth={1.5}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
-                  className="size-[19px] shrink-0 text-muted-foreground"
+                  className="size-5 shrink-0 text-muted-foreground"
                 absoluteStrokeWidth />
               </button>
             </DropdownMenuTrigger>
