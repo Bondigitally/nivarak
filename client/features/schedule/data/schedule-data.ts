@@ -10,7 +10,7 @@ export function getTodaySchedule(): Appointment[] {
       patientInitials: "MC",
       visitType: "Teleconsult",
       assignedTo: "Dr. Priya Sharma",
-      status: "completed",
+      status: "Completed",
     },
     {
       id: "s2",
@@ -20,7 +20,7 @@ export function getTodaySchedule(): Appointment[] {
       patientInitials: "RN",
       visitType: "Home Visit",
       assignedTo: "Nurse Anita Roy",
-      status: "confirmed",
+      status: "Scheduled",
     },
     {
       id: "s3",
@@ -30,7 +30,7 @@ export function getTodaySchedule(): Appointment[] {
       patientInitials: "SV",
       visitType: "Teleconsult",
       assignedTo: "Dr. Priya Sharma",
-      status: "confirmed",
+      status: "Scheduled",
     },
     {
       id: "s4",
@@ -40,7 +40,7 @@ export function getTodaySchedule(): Appointment[] {
       patientInitials: "JO",
       visitType: "Clinic",
       assignedTo: "Physiotherapist Raj",
-      status: "pending",
+      status: "Scheduled",
     },
     {
       id: "s5",
@@ -50,7 +50,7 @@ export function getTodaySchedule(): Appointment[] {
       patientInitials: "PL",
       visitType: "Home Visit",
       assignedTo: "Nurse Anita Roy",
-      status: "confirmed",
+      status: "Scheduled",
     },
   ];
 }
