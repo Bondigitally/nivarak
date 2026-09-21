@@ -41,7 +41,7 @@ export function VitalsPageContent() {
             )}
           >
             <div className="flex max-w-dash-search flex-col items-center text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
                 <HugeiconsIcon
                   icon={Medicine02Icon}
                   size={EMPTY_ICON_SIZE}
