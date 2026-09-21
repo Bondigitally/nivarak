@@ -27,25 +27,27 @@ export function IaspAssessmentStartPage() {
 
   useEffect(() => {
     allowExitRef.current = true;
-    const previewResults =
-      isIaspResultsPreviewEnabled() &&
-      new URLSearchParams(window.location.search).get("preview") === "results";
-    const draft = previewResults ? null : loadIaspDraft();
+    queueMicrotask(() => {
+      const previewResults =
+        isIaspResultsPreviewEnabled() &&
+        new URLSearchParams(window.location.search).get("preview") === "results";
+      const draft = previewResults ? null : loadIaspDraft();
 
-    if (previewResults) {
-      setFlowState(createIaspResultsPreviewState());
-      setConfirmOpen(false);
-      setOpen(true);
-    } else if (draft) {
-      setFlowState(draft);
-      setConfirmOpen(true);
-      setOpen(false);
-    } else {
-      setFlowState(INITIAL_IASP_FLOW_STATE);
-      setConfirmOpen(false);
-      setOpen(true);
-    }
-    setBootstrapped(true);
+      if (previewResults) {
+        setFlowState(createIaspResultsPreviewState());
+        setConfirmOpen(false);
+        setOpen(true);
+      } else if (draft) {
+        setFlowState(draft);
+        setConfirmOpen(true);
+        setOpen(false);
+      } else {
+        setFlowState(INITIAL_IASP_FLOW_STATE);
+        setConfirmOpen(false);
+        setOpen(true);
+      }
+      setBootstrapped(true);
+    });
   }, []);
 
   function handleOpenChange(next: boolean) {
