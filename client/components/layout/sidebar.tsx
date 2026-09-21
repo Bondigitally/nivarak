@@ -30,6 +30,30 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getSidebarNavForRole } from "./sidebar-nav";
+import { sidebarFooterClass, sidebarHeaderClass, sidebarNavActiveSurfaceClass } from "./shell-chrome";
+
+const SIDEBAR_NAV_BADGE_CLASS = cn(
+  "inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive px-1",
+  "text-[10px] font-semibold leading-none text-white",
+);
+
+function formatBadgeCount(count: number) {
+  return count > 9 ? "9+" : String(count);
+}
+
+function SidebarNavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+
+  return (
+    <span className={SIDEBAR_NAV_BADGE_CLASS}>{formatBadgeCount(count)}</span>
+  );
+}
+
+const NAV_BADGE_ARIA: Record<string, (count: string) => string> = {
+  "/notifications": (count) => `${count} unread`,
+  "/care/tasks": (count) => `${count} due`,
+  "/leads": (count) => `${count} new`,
+};
 
 const FOCUS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
@@ -42,6 +66,16 @@ const COLLAPSED_BTN =
   "flex size-11 shrink-0 items-center justify-center rounded-md";
 
 const SIDEBAR_LOGO_PX = 40;
+
+/** Inactive hover — neutral Surface/Hover + text lift */
+const SIDEBAR_NAV_HOVER = "hover:bg-accent hover:text-foreground";
+
+/** Active — neutral gray fill, primary text, brand icon only */
+const SIDEBAR_NAV_ACTIVE = cn(
+  sidebarNavActiveSurfaceClass,
+  typo.sidebarItemActive,
+  "hover:text-foreground",
+);
 
 function SidebarLogo() {
   return (
@@ -56,7 +90,13 @@ function SidebarLogo() {
   );
 }
 
-function NavIcon({ icon }: { icon: IconSvgElement }) {
+function NavIcon({
+  icon,
+  className,
+}: {
+  icon: IconSvgElement;
+  className?: string;
+}) {
   return (
     <HugeiconsIcon
       icon={icon}
@@ -64,7 +104,7 @@ function NavIcon({ icon }: { icon: IconSvgElement }) {
       strokeWidth={ICON_STROKE}
       absoluteStrokeWidth
       color="currentColor"
-      className="block size-5 shrink-0"
+      className={cn("block size-5 shrink-0", className)}
       aria-hidden
     />
   );
@@ -92,13 +132,22 @@ function CollapsedTip({
 
 function Avatar() {
   return (
-    <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-sidebar-accent text-xs font-semibold text-sidebar-primary">
+    <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold text-foreground">
       A
     </span>
   );
 }
 
-export function AppSidebar({ role }: { role: UserRole }) {
+export function AppSidebar({
+  role,
+  navBadges = {},
+}: {
+  role: UserRole;
+  /** Href → count; owned by the protected shell (app/feature bridge) */
+  navBadges?: Record<string, number>;
+}) {
+  const badgeByHref = navBadges;
+
   const { homeHref, sections } = getSidebarNavForRole(role);
   const {
     collapsed,
@@ -144,11 +193,11 @@ export function AppSidebar({ role }: { role: UserRole }) {
 
   const chrome = (
     <div
-      className="flex h-full flex-col"
+      className="group/sidebar flex h-full min-h-full flex-col bg-sidebar"
       style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
       {/* ── Header ── */}
-      <div className="flex h-14 min-h-14 shrink-0 items-center border-b border-divider">
+      <div className={cn(sidebarHeaderClass, "flex items-center")}>
         <div
           className={cn(
             "flex min-w-0 items-center",
@@ -204,7 +253,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
                 aria-label="Close navigation"
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground",
+                  "inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground",
                   FOCUS,
                 )}
               >
@@ -218,7 +267,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
       {/* ── Nav ── */}
       <nav
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto py-2",
+          "sidebar-nav-scroll flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto py-2",
           railCollapsed ? cn("gap-1", COLLAPSED_ICON_INSET) : "gap-2",
         )}
         aria-label="Main navigation"
@@ -229,6 +278,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
             className={cn(
               "flex flex-col gap-0.5",
               railCollapsed ? undefined : "px-2",
+              idx > 0 && "mt-2",
             )}
           >
             {!railCollapsed && (
@@ -239,50 +289,85 @@ export function AppSidebar({ role }: { role: UserRole }) {
 
             {section.items.map((item) => {
               const active = isActive(item.href);
+              const badgeCount = badgeByHref[item.href] ?? 0;
+              const showBadge = badgeCount > 0;
+              const badgeLabel = formatBadgeCount(badgeCount);
+              const badgeAria = NAV_BADGE_ARIA[item.href]?.(badgeLabel);
+              const tipLabel =
+                showBadge && railCollapsed && badgeAria
+                  ? `${item.label} (${badgeAria})`
+                  : item.label;
+
               return (
                 <CollapsedTip
                   key={item.href}
-                  label={item.label}
+                  label={tipLabel}
                   enabled={tipsEnabled}
                 >
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
+                    aria-label={
+                      showBadge && badgeAria
+                        ? `${item.label}, ${badgeAria}`
+                        : undefined
+                    }
                     className={cn(
                       railCollapsed
                         ? COLLAPSED_BTN
                         : "flex h-11 w-full items-center gap-3 rounded-md px-3 py-2.5",
+                      "border transition-colors duration-150",
                       active
-                        ? cn("bg-sidebar-accent", typo.sidebarItemActive)
-                        : cn(typo.sidebarItem, "hover:bg-accent hover:text-foreground"),
-                      "transition-colors duration-150",
+                        ? SIDEBAR_NAV_ACTIVE
+                        : cn(
+                            typo.sidebarItem,
+                            SIDEBAR_NAV_HOVER,
+                            "border-transparent",
+                          ),
                       FOCUS,
                     )}
                   >
-                    <NavIcon icon={item.icon} />
+                    <span className="relative size-5 shrink-0">
+                      <NavIcon
+                        icon={item.icon}
+                        className={active ? "text-primary" : undefined}
+                      />
+                      {showBadge && railCollapsed ? (
+                        <span
+                          className={cn(
+                            SIDEBAR_NAV_BADGE_CLASS,
+                            "pointer-events-none absolute right-0 top-0 z-10 -translate-y-1/2 translate-x-1/2",
+                            "ring-2 ring-sidebar",
+                          )}
+                          aria-hidden
+                        >
+                          {badgeLabel}
+                        </span>
+                      ) : null}
+                    </span>
                     {!railCollapsed && (
-                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                      <>
+                        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                        {showBadge && <SidebarNavBadge count={badgeCount} />}
+                      </>
                     )}
                   </Link>
                 </CollapsedTip>
               );
             })}
 
-            {idx < sections.length - 1 && (
-              <div
-                className={cn(
-                  "mt-2 border-b border-divider",
-                  railCollapsed ? "w-11" : "mx-3",
-                )}
-              />
-            )}
           </div>
         ))}
       </nav>
 
       {/* ── User profile footer ── */}
-      <div className="shrink-0 border-t border-divider">
-        <div className={railCollapsed ? cn("py-2", COLLAPSED_ICON_INSET) : "p-2"}>
+      <div className={sidebarFooterClass}>
+        <div
+          className={cn(
+            "flex h-full min-h-0 items-center",
+            railCollapsed ? COLLAPSED_ICON_INSET : "px-2",
+          )}
+        >
           {railCollapsed ? (
             <CollapsedTip label="Alex" enabled={tipsEnabled}>
               <button
@@ -295,7 +380,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
               </button>
             </CollapsedTip>
           ) : (
-            <div className="flex items-center gap-2 rounded-md p-2">
+            <div className="flex w-full min-w-0 items-center gap-2">
               <Avatar />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold leading-none text-foreground">
@@ -352,7 +437,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
   return (
     <TooltipProvider delayDuration={200}>
       <aside
-        className="relative z-10 flex h-full shrink-0 flex-col overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out"
+        className="relative z-10 flex h-full min-h-full shrink-0 flex-col self-stretch overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out"
         style={{ width, transitionDuration: `${SIDEBAR_TRANSITION_MS}ms` }}
       >
         {chrome}
