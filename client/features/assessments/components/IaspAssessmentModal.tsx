@@ -117,7 +117,9 @@ import {
 } from "./IaspAssessmentModalShell";
 import { IaspExitConfirmDialog } from "./IaspExitConfirmDialog";
 
+/** Delay between answer selection and auto-advance to the next question (ms). */
 const AUTO_ADVANCE_DELAY_MS = 350;
+/** How long the "Saved" badge stays visible after an answer is selected (ms). */
 const AUTO_SAVE_INDICATOR_MS = 650;
 
 const autoSaveBadgeMotion = {
@@ -135,6 +137,11 @@ const autoSaveContentMotion = {
 const AUTO_ADVANCE_INFO =
   "When auto-advance is on, the assessment moves to the next question shortly after you select an answer. No need to tap Next.";
 
+/**
+ * Slide direction for question page transitions.
+ * ±28px horizontal offset fades in/out with direction driven by `pageDirection`
+ * (+1 = forward, -1 = back) from the flow state.
+ */
 const questionPageVariants = {
   enter: (direction: number) => ({
     opacity: 0,
@@ -190,6 +197,10 @@ const ANSWER_SELECTED_CLASS: Record<IaspAnswerId, string> = {
 
 type SaveIndicatorStatus = "idle" | "saving" | "saved";
 
+/**
+ * Suppresses 1/2/3/Esc/arrow keyboard shortcuts when the user is typing
+ * in an input or textarea so shortcut keys don't accidentally pick answers.
+ */
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
@@ -299,8 +310,6 @@ function IaspAutoSavedBadge({ status }: { status: SaveIndicatorStatus }) {
     </AnimatePresence>
   );
 }
-
-/* ─── Intro ─────────────────────────────────────────────────────────────── */
 
 function IntroStep({
   onStart,
@@ -434,8 +443,11 @@ function IntroStep({
   );
 }
 
-/* ─── About You ─────────────────────────────────────────────────────────── */
-
+/**
+ * Scrolls `element` into view within `container` while preserving padding.
+ * Used instead of `scrollIntoView` because the modal body has a fixed header;
+ * native `scrollIntoView` would scroll the page, not the modal content area.
+ */
 function scrollElementIntoContainer(
   container: HTMLElement,
   element: HTMLElement,
@@ -550,6 +562,8 @@ function LivingSituationField({
     if (!isOther) return;
 
     let frame2 = 0;
+    // Double rAF: wait for the conditional "Other" input to fully mount and
+    // lay out before scrolling it into view and focusing it.
     const frame1 = requestAnimationFrame(() => {
       frame2 = requestAnimationFrame(() => {
         const container = scrollContainerRef.current;
@@ -811,8 +825,6 @@ function AboutYouStep({
   );
 }
 
-/* ─── Questionnaire (shared UI) ─────────────────────────────────────────── */
-
 function AnswerOptionCard({
   option,
   name,
@@ -888,6 +900,9 @@ function AnswerOptionCard({
   );
 }
 
+/** Number of visible option slots per question.
+ *  Invisible spacer divs fill unused slots to keep card heights stable
+ *  when a question has fewer than 3 choices — prevents layout jump on auto-advance. */
 const IASP_OPTION_SLOT_COUNT = 3;
 
 function QuestionOptions({
@@ -1310,8 +1325,6 @@ function QuestionsStep({
   );
 }
 
-/* ─── Modal orchestrator ────────────────────────────────────────────────── */
-
 function IaspAssessmentFlow({
   state,
   setState,
@@ -1355,6 +1368,8 @@ function IaspAssessmentFlow({
   }
 
   function handleQuestionsNext() {
+    // Draft is saved at section boundaries only (not after every answer) to
+    // balance persistence with write churn on sessionStorage.
     if (pageIndex >= IASP_QUESTION_PAGES.length - 1) {
       setState((current) => {
         if (isLastPageInSection(current.pageIndex)) {
@@ -1493,6 +1508,8 @@ export function IaspAssessmentModal({
 }) {
   const [flowState, setFlowState] = useState<IaspFlowState>(initialState);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+  // Prevents the Radix close cascade from immediately re-opening the exit
+  // confirm dialog after the user dismisses it (~400 ms suppression window).
   const suppressExitConfirmUntilRef = useRef(0);
 
   function resetFlow() {
@@ -1523,6 +1540,15 @@ export function IaspAssessmentModal({
     setExitConfirmOpen(false);
   }
 
+  /**
+   * Close-request decision tree:
+   *  - Open request → clear any stale exit confirm and let through.
+   *  - Within suppress window → ignore (Radix cascade after dismiss).
+   *  - Already showing exit confirm → ignore duplicate close.
+   *  - On the results step → close immediately (no unsaved progress to warn about).
+   *  - Has progress → show exit confirm dialog.
+   *  - No progress → close immediately (nothing to lose).
+   */
   function handleOpenChange(next: boolean) {
     if (next) {
       setExitConfirmOpen(false);

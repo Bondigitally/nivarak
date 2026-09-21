@@ -63,6 +63,8 @@ export function InviteCaregiverDialog() {
   const [relationship, setRelationship] = useState<string | null>(null);
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
+  // Default permission state is driven by CAREGIVER_PERMISSIONS.defaultEnabled
+  // — product-defined baseline per permission type (not all enabled by default).
   const [permissions, setPermissions] = useState<Record<CaregiverPermissionId, boolean>>(
     () =>
       Object.fromEntries(
@@ -70,6 +72,9 @@ export function InviteCaregiverDialog() {
       ) as Record<CaregiverPermissionId, boolean>,
   );
 
+  // Reset form each time the dialog opens so stale data from a previous
+  // session is never shown. Deferred via setTimeout(0) to avoid calling
+  // setState during the render that triggered this effect.
   useEffect(() => {
     if (!inviteCaregiverOpen) return;
     const id = window.setTimeout(() => {
@@ -86,6 +91,10 @@ export function InviteCaregiverDialog() {
     return () => window.clearTimeout(id);
   }, [inviteCaregiverOpen]);
 
+  /**
+   * TODO: wire to invite API — POST caregiver details + selected permissions.
+   * For now, closes the dialog only.
+   */
   function handleSendInvitation() {
     setInviteCaregiverOpen(false);
   }

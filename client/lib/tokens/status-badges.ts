@@ -93,6 +93,11 @@ export function riskConfig(level: RiskLevel) {
   }
 }
 
+/**
+ * Visit type badge is intentionally neutral for all types.
+ * Visual differentiation (e.g. teal for teleconsult) is deferred until
+ * the visit-type filter UI is built.
+ */
 export function visitTypeBadgeClasses(type: VisitType): string {
   switch (type) {
     case "Teleconsult":
@@ -162,6 +167,10 @@ export function staffAvailabilityConfig(availability: StaffAvailability) {
   }
 }
 
+/**
+ * Staff role color is intentionally neutral for all roles.
+ * Per-role colors (e.g. blue for Doctor) are deferred until the design is finalized.
+ */
 export function staffRoleColor(role: StaffRole): string {
   switch (role) {
     case "Doctor":

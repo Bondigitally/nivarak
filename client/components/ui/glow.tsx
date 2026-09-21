@@ -5,6 +5,18 @@ import { motion, type TargetAndTransition, type Transition } from "motion/react"
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Available animation presets for the glow layer:
+ *  - `rotate`        — conic gradient continuously spins (0° → 360°). Auth / onboarding backgrounds.
+ *  - `pulse`         — radial gradient fades in/out with a slight scale bounce. Marketing cards.
+ *  - `breathe`       — radial gradient pulses gently without color change. Subtle ambient glow.
+ *  - `colorShift`    — conic gradient morphs between adjacent color stops. Vivid hero backgrounds.
+ *  - `flowHorizontal`— linear gradient sweeps left-to-right. CTA banner highlights.
+ *  - `static`        — no animation, just a fixed linear gradient. Used when reduced motion is preferred.
+ *
+ * Conic gradients are used over CSS `@property` animation because they have
+ * broader cross-browser support within the current stack.
+ */
 type GlowMode =
   | "rotate"
   | "pulse"

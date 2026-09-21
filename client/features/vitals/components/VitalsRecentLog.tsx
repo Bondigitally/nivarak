@@ -1,5 +1,17 @@
 "use client";
 
+/**
+ * VitalsRecentLog renders the same `LOG_DATA` in two responsive layouts:
+ *  - Mobile: a scrollable card list with an inline sort toggle.
+ *  - Desktop: a `DataTable` with column-header sort controls.
+ *
+ * TanStack Table (`useReactTable`) is used on the mobile path because mobile
+ * needs programmatic date-sort state that mirrors the desktop column sorts,
+ * while desktop delegates sorting entirely to the `DataTable` toolbar.
+ *
+ * "Load more" buttons are UI stubs — no pagination is wired yet (mock data only).
+ */
+
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -25,7 +37,6 @@ import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
-// ─── Data model ───────────────────────────────────────────────────────────────
 interface Recorder {
   initials: string;
   name: string;
@@ -44,7 +55,6 @@ interface VitalLogRow {
   recorder: Recorder;
 }
 
-// ─── Mock data from reference Figma ──────────────────────────────────────────
 const LOG_DATA: VitalLogRow[] = [
   {
     id: "r1",
@@ -156,7 +166,10 @@ function parseVitalNumber(value: string) {
   return match ? parseFloat(match[0]) : 0;
 }
 
-
+/**
+ * Searches across date, time, recorder name, and vital values for a given row.
+ * Used for the mobile inline search; desktop search is handled by DataTable.
+ */
 function matchesLogQuery(row: VitalLogRow, needle: string) {
   return [
     row.date,
@@ -169,7 +182,6 @@ function matchesLogQuery(row: VitalLogRow, needle: string) {
     row.recorder.name,
   ].some((value) => value.toLowerCase().includes(needle));
 }
-
 
 const TABLE_COLUMNS: DataTableColumn<VitalLogRow>[] = [
   {
@@ -303,7 +315,6 @@ function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export function VitalsRecentLog() {
   const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([

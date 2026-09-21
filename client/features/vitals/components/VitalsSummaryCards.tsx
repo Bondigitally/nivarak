@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Renders the vitals summary grid — one interactive sparkline card per vital.
+ *
+ * Status badge colours (Normal / Low / Elevated / Critical) are driven by
+ * `vitalStatusConfig` in `lib/tokens/status-badges.ts`, which maps each
+ * string status to its badge/dot/icon token classes.
+ *
+ * All data comes from `VITALS_SUMMARY` in `vitals-summary-data.ts`.
+ * When the API is connected, replace that mock with a real data hook.
+ */
+
 import type { IconSvgElement } from "@hugeicons/react";
 import {
   createElement,

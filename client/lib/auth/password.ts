@@ -36,6 +36,11 @@ export type PasswordRuleResult = {
   met: boolean;
 };
 
+/**
+ * Evaluates all password rules against the current input.
+ * `met` is always false for an empty string so the strength UI shows no green
+ * checks until the user starts typing.
+ */
 export function evaluatePasswordRules(value: string): PasswordRuleResult[] {
   return PASSWORD_RULES.map((rule) => ({
     id: rule.id,
@@ -45,10 +50,12 @@ export function evaluatePasswordRules(value: string): PasswordRuleResult[] {
   }));
 }
 
+/** Used by the strength meter to count how many rules are currently satisfied. */
 export function countMetPasswordRules(value: string): number {
   return evaluatePasswordRules(value).filter((rule) => rule.met).length;
 }
 
+/** Submit gate — all rules must pass and the field must be non-empty. */
 export function isPasswordStrong(value: string): boolean {
   return value.length > 0 && PASSWORD_RULES.every((rule) => rule.test(value));
 }

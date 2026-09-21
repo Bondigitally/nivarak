@@ -75,6 +75,13 @@ import {
 const GAUGE_DURATION = 1.15;
 const GAUGE_DELAY = 0.12;
 
+/**
+ * Icon map for answer badge chips in the review summary.
+ *
+ * `clock` for "assistance" / "yes" — signals "needs attention" or potential risk.
+ * `tick`  for "independent" / "no" — signals OK / no concern.
+ * `alert` for "dependent" — highest-concern state.
+ */
 const ANSWER_BADGE_ICONS: Record<IaspAnswerId, IconSvgElement> = {
   independent: Tick02Icon,
   assistance: Clock01Icon,
@@ -82,8 +89,6 @@ const ANSWER_BADGE_ICONS: Record<IaspAnswerId, IconSvgElement> = {
   yes: Clock01Icon,
   no: Tick02Icon,
 };
-
-/* ─── Red Flags ─────────────────────────────────────────────────────────── */
 
 function RedFlagOptionRow({
   id,
@@ -197,7 +202,6 @@ export function RedFlagsStep({
   );
 }
 
-/* ─── Review ────────────────────────────────────────────────────────────── */
 export function ReviewStep({
   answers,
   redFlags,
@@ -358,7 +362,13 @@ export function ReviewStep({
   );
 }
 
-/* ─── Results ───────────────────────────────────────────────────────────── */
+/**
+ * Semicircle gauge that animates from 0 to `percentage` on mount.
+ * Uses a simpler single-arc approach (vs. the multi-gradient ring on the
+ * dashboard) because the results context is a modal, not a full card.
+ * Counter and arc are driven by the same Framer `animate()` call so they
+ * always finish together regardless of easing.
+ */
 function ResultsGauge({ percentage }: { percentage: number }) {
   const reducedMotion = useReducedMotion();
   const scoreRef = useRef<HTMLSpanElement>(null);
@@ -467,6 +477,12 @@ export function ResultsStep({
   const band = getIaspBand(percentage);
   const assessmentDate = formatIaspAssessmentDate();
 
+  /**
+   * "Payment cancelled" is swallowed silently — the user deliberately
+   * dismissed the checkout modal, which is an expected action.
+   * All other errors (network failure, API error, etc.) are surfaced as
+   * a toast so the user knows something went wrong.
+   */
   async function handleUnlockReport() {
     setUnlockLoading(true);
     try {
@@ -537,6 +553,9 @@ export function ResultsStep({
         </motion.div>
 
         <div className={cn(iaspPanelCardClass, "relative w-full shrink-0 overflow-hidden")}>
+          {/* Blurred skeleton preview — paywall UX affordance to show the
+              shape of the detailed report without revealing real data.
+              Replace with actual section breakdown once unlocked. */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 space-y-4 p-6 opacity-40 blur-[2px]"
@@ -601,6 +620,8 @@ export function ResultsStep({
         <Button type="button" variant="secondary" onClick={onRetake}>
           Retake assessment
         </Button>
+        {/* TODO: replace /register with the dedicated booking/consultation
+            route once that flow exists. */}
         <Button
           type="button"
           variant="primary-outline"

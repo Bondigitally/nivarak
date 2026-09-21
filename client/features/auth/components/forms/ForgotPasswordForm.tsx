@@ -62,6 +62,17 @@ function BackToLoginLink({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Three-step password reset flow backed by Cognito's standard FORGOT_PASSWORD flow:
+ *
+ *  1. `email` step  — user enters email; calls `resetPassword({ username: email })`
+ *                     which triggers Cognito to send a 6-digit code via email.
+ *  2. `otp` step    — user enters the code; validation is deferred to step 3
+ *                     (Cognito rejects a bad code at confirmResetPassword time).
+ *  3. `reset` step  — user sets new password; calls `confirmResetPassword` with
+ *                     the email, the OTP from step 2, and the new password.
+ *  4. `success`     — shown after a successful confirmResetPassword call.
+ */
 export function ForgotPasswordForm({ onStepChange }: ForgotPasswordFormProps) {
   const [step, setStep] = useState<ForgotPasswordStep>('email');
   const [email, setEmail] = useState('');
@@ -105,7 +116,8 @@ export function ForgotPasswordForm({ onStepChange }: ForgotPasswordFormProps) {
       setError('Enter the 6-digit code.');
       return;
     }
-    // Code is validated server-side at the confirmResetPassword step
+  // Code is validated server-side at the confirmResetPassword step — no need
+  // to call Cognito here; just gate on the 6-digit length for UX.
     goTo('reset');
   }
 

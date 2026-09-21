@@ -11,6 +11,7 @@ import {
   AUTH_HERO_SLIDES,
 } from '@/features/auth/lib/assets';
 
+/** Auto-advance interval for the hero slideshow. */
 const INTERVAL_MS = 4200;
 const SLIDE_FADE = { duration: 1.15, ease: 'easeInOut' as const };
 const PILL_WIDTH_PX = 72;
@@ -99,6 +100,9 @@ export function HeroSlideshow() {
     });
   }, [active]);
 
+  // Auto-advance only starts after `preload.markHeroReady()` fires —
+  // the first slide image must be loaded before the interval begins so
+  // that the initial LCP is never delayed by animation.
   useEffect(() => {
     if (!ready) return;
 

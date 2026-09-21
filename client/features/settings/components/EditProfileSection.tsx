@@ -67,6 +67,10 @@ export function EditProfileSection({
   const [draft, setDraft] = useState(profile);
   const [saving, setSaving] = useState(false);
 
+  // Defer sync with parent `profile` prop via setTimeout(0) to avoid
+  // calling setState during the render that triggered the profile update
+  // (e.g. after a successful save round-trip).
+  // Avatar changes are excluded from `isDirty` — upload is handled separately.
   useEffect(() => {
     const id = window.setTimeout(() => setDraft(profile), 0);
     return () => window.clearTimeout(id);

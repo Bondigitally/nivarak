@@ -11,6 +11,12 @@ import {
   type SignInOutput,
 } from 'aws-amplify/auth';
 
+/**
+ * Session-scoped key for the temp password created during phone-first sign-up.
+ * The temp password is needed again in `completeRegisterProfile` to call
+ * `updatePassword`, which requires the old password. sessionStorage is cleared
+ * automatically when the tab closes.
+ */
 const TEMP_PASSWORD_KEY = 'nivarak_signup_temp';
 
 function isAuthError(err: unknown, name: string): boolean {
@@ -29,6 +35,12 @@ export function getSignInErrorMessage(err: unknown): string {
   return err.message || 'Sign in failed.';
 }
 
+/**
+ * Walks the Cognito multi-step password sign-in ladder.
+ * Pools configured with USER_AUTH may require factor selection before the
+ * password step; newly-created accounts may still be in NEW_PASSWORD_REQUIRED.
+ * PASSWORD_SRP is preferred over plain PASSWORD for security when available.
+ */
 async function finishPasswordSignIn(
   result: SignInOutput,
   password: string,
@@ -57,6 +69,11 @@ async function finishPasswordSignIn(
   return current;
 }
 
+/**
+ * Sends an OTP to the given E.164 phone number via a Cognito Custom Auth Flow.
+ * The pool must have the "Create Auth Challenge", "Define Auth Challenge", and
+ * "Verify Auth Challenge Response" Lambda triggers configured.
+ */
 export async function sendLoginPhoneOtp(phone: string) {
   try {
     await signOut();
@@ -111,6 +128,7 @@ export async function signInWithEmailPassword(email: string, password: string) {
     });
     return finishPasswordSignIn(result, password);
   } catch (err) {
+    // Fall back to legacy signIn for pools that don't support USER_AUTH.
     if (
       isAuthError(err, 'InvalidParameterException') ||
       isAuthError(err, 'InvalidUserPoolConfigurationException')
@@ -136,6 +154,11 @@ function clearTempPassword() {
   sessionStorage.removeItem(TEMP_PASSWORD_KEY);
 }
 
+/**
+ * Generates a random password that satisfies the Cognito pool policy.
+ * The `Aa1!` suffix guarantees uppercase, digit, and special character rules
+ * regardless of the random hex segment.
+ */
 function generateTempPassword(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(12));
   const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
@@ -204,7 +227,12 @@ export async function confirmRegisterPhoneOtp(phone: string, otp: string) {
   await signIn({ username: phone, password });
 }
 
-/** Attaches email/name and replaces the temporary password. No email OTP. */
+/**
+ * Attaches name and email to the Cognito account and swaps the temp password
+ * for the user's chosen password. Email is set without an OTP verification step
+ * because the address is confirmed via the onboarding profile form instead.
+ * Clears the temp password from sessionStorage on success.
+ */
 export async function completeRegisterProfile(values: {
   fullName: string;
   email: string;

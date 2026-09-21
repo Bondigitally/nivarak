@@ -1,5 +1,17 @@
 "use client";
 
+/**
+ * Reusable entrance animation that combines a blur-in with a directional slide.
+ *
+ * `inView` mode — animation fires once when the element enters the viewport
+ *   (stagger-reveal for dashboard sections and list rows).
+ * Eager mode (default) — fires on mount, used for route/modal transitions
+ *   like the `DashboardReveal` stagger wrapper.
+ *
+ * `blurDuration` defaults to 45% of `duration` so the blur clears slightly
+ * before the translate finishes, giving a layered feel.
+ */
+
 import { useRef } from "react";
 import {
   motion,
