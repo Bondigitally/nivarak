@@ -72,6 +72,41 @@ const BAND_COPY: Record<IaspRiskBand, Omit<IaspBandResult, "band">> = {
   },
 };
 
+/** Ping badge tint + dot per band — dashboard hero (`IaspBandPingBadge`). */
+export type IaspBandPingStyle = {
+  shell: string;
+  dot: string;
+  pulse: boolean;
+};
+
+export const IASP_BAND_PING_STYLES: Record<IaspRiskBand, IaspBandPingStyle> = {
+  strong_independent: {
+    shell: "bg-success-muted text-success",
+    dot: "bg-success",
+    pulse: true,
+  },
+  independent_vulnerable: {
+    shell: "bg-info-muted text-info",
+    dot: "bg-info",
+    pulse: true,
+  },
+  supported_independence: {
+    shell: "bg-warning-muted text-warning",
+    dot: "bg-warning",
+    pulse: true,
+  },
+  limited_independence: {
+    shell: "bg-attention-muted text-attention-foreground",
+    dot: "bg-attention",
+    pulse: true,
+  },
+  high_dependence: {
+    shell: "bg-destructive-muted text-destructive",
+    dot: "bg-destructive",
+    pulse: true,
+  },
+};
+
 export const IASP_ANSWER_BADGE: Record<
   IaspAnswerId,
   { label: string; className: string }

@@ -23,7 +23,7 @@ export default function HomePage() {
           <Link href="/register">Sign Up</Link>
         </Button>
         <Button asChild variant="primary-outline">
-          <Link href="/iasp-assessment">IASP Assessment</Link>
+          <Link href="/iasp-assessment">IAS Assessment</Link>
         </Button>
       </div>
     </main>
