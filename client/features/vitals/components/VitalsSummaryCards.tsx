@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  BloodPressureIcon,
-  Cardiogram02Icon,
-  LabsIcon,
-  LungsIcon,
-  TemperatureIcon,
-} from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
   createElement,
@@ -18,8 +11,11 @@ import {
   type PointerEvent,
   type SetStateAction,
 } from "react";
-import { ICON_SIZE } from "@/lib/icons";
-import { cn } from "@/lib/utils";
+import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  VITALS_SUMMARY,
+  type VitalCardData,
+} from "@/features/vitals/data/vitals-summary-data";
 import {
   vitalsCardMetricsRowClass,
   vitalsCardMetricsStatusClass,
@@ -30,124 +26,14 @@ import {
   vitalsSparklineActiveDotClass,
   vitalsSummaryGridClass,
 } from "@/features/vitals/vitals-summary-styles";
-import { vitalStatusConfig, type VitalStatus } from "@/lib/tokens/status-badges";
+import { ICON_SIZE } from "@/lib/icons";
+import type { VitalIconGradient } from "@/lib/tokens/colors";
+import { vitalStatusConfig } from "@/lib/tokens/status-badges";
+import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
 
 const SPARKLINE_WIDTH = 100;
 const SPARKLINE_HEIGHT = 36;
-
-type IconGradient = {
-  from: string;
-  to: string;
-  glowFrom: string;
-  glowTo: string;
-};
-
-interface VitalCardData {
-  id: string;
-  icon: IconSvgElement;
-  label: string;
-  value: string;
-  unit: string;
-  status: VitalStatus;
-  updatedAgo: string;
-  sparkline: number[];
-  chartStart: string;
-  chartEnd: string;
-  iconGradient: IconGradient;
-}
-
-const VITALS: VitalCardData[] = [
-  {
-    id: "bp",
-    icon: BloodPressureIcon,
-    label: "Blood Pressure",
-    value: "120/80",
-    unit: "mmHg",
-    status: "Normal",
-    updatedAgo: "3 hours ago",
-    chartStart: "00.00",
-    chartEnd: "24.00",
-    sparkline: [115, 117, 118, 119, 120, 121, 122],
-    iconGradient: {
-      from: "#DC2626",
-      to: "#F43F5E",
-      glowFrom: "#FCA5A5",
-      glowTo: "#FDA4AF",
-    },
-  },
-  {
-    id: "hr",
-    icon: Cardiogram02Icon,
-    label: "Heart Rate",
-    value: "57",
-    unit: "bpm",
-    status: "Low",
-    updatedAgo: "2 hours ago",
-    chartStart: "00.00",
-    chartEnd: "24.00",
-    sparkline: [62, 60, 58, 57, 55, 54, 57],
-    iconGradient: {
-      from: "#4338CA",
-      to: "#6366F1",
-      glowFrom: "#A5B4FC",
-      glowTo: "#C7D2FE",
-    },
-  },
-  {
-    id: "spo2",
-    icon: LungsIcon,
-    label: "SpO₂",
-    value: "98",
-    unit: "%",
-    status: "Normal",
-    updatedAgo: "1 hour ago",
-    chartStart: "00.00",
-    chartEnd: "24.00",
-    sparkline: [97, 98, 98, 98, 99, 98, 98],
-    iconGradient: {
-      from: "#059669",
-      to: "#14B8A6",
-      glowFrom: "#6EE7B7",
-      glowTo: "#5EEAD4",
-    },
-  },
-  {
-    id: "glucose",
-    icon: LabsIcon,
-    label: "Blood Glucose",
-    value: "102",
-    unit: "mg/dL",
-    status: "Elevated",
-    updatedAgo: "4 hours ago",
-    chartStart: "Mon",
-    chartEnd: "Sun",
-    sparkline: [96, 98, 112, 130, 102, 100, 98],
-    iconGradient: {
-      from: "#0284C7",
-      to: "#06B6D4",
-      glowFrom: "#7DD3FC",
-      glowTo: "#67E8F9",
-    },
-  },
-  {
-    id: "temp",
-    icon: TemperatureIcon,
-    label: "Temperature",
-    value: "36.8",
-    unit: "°C",
-    status: "Normal",
-    updatedAgo: "5 hours ago",
-    chartStart: "00.00",
-    chartEnd: "24.00",
-    sparkline: [36.6, 36.7, 36.8, 36.8, 36.7, 36.9, 36.8],
-    iconGradient: {
-      from: "#EA580C",
-      to: "#F59E0B",
-      glowFrom: "#FDBA74",
-      glowTo: "#FDE68A",
-    },
-  },
-];
 
 function buildSparklinePoints(data: number[], width: number, height: number) {
   const padY = height * 0.14;
@@ -186,14 +72,6 @@ function getSparklineTimeLabels(
     return Array.from({ length: count }, (_, index) => {
       const hour = Math.round((index / (count - 1)) * 24);
       return `${String(hour).padStart(2, "0")}.00`;
-    });
-  }
-
-  if (start === "Mon" && end === "Sun") {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    return Array.from({ length: count }, (_, index) => {
-      const dayIndex = Math.round((index / (count - 1)) * (days.length - 1));
-      return days[dayIndex] ?? start;
     });
   }
 
@@ -253,7 +131,7 @@ function VitalGradientIcon({
 }: {
   id: string;
   icon: IconSvgElement;
-  gradient: Pick<IconGradient, "from" | "to">;
+  gradient: Pick<VitalIconGradient, "from" | "to">;
   size?: number;
 }) {
   const gradientId = `vital-icon-stroke-${id}`;
@@ -326,10 +204,16 @@ function VitalIconGlow({
 }: {
   id: string;
   icon: IconSvgElement;
-  gradient: IconGradient;
+  gradient: VitalIconGradient;
 }) {
   return (
-    <div className="relative flex size-12 shrink-0 items-center justify-center">
+    <div
+      className={cn(
+        "relative flex size-12 shrink-0 items-center justify-center",
+        "motion-safe:transition-transform motion-safe:duration-220 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "motion-safe:group-hover:scale-[1.04]",
+      )}
+    >
       <div
         aria-hidden
         className="absolute -inset-0.5 rounded-full blur-[6px] opacity-[0.16]"
@@ -357,7 +241,7 @@ function VitalSparkline({
 }: {
   id: string;
   data: number[];
-  gradient: Pick<IconGradient, "from" | "to">;
+  gradient: Pick<VitalIconGradient, "from" | "to">;
   unit: string;
   chartStart: string;
   chartEnd: string;
@@ -403,97 +287,112 @@ function VitalSparkline({
   const activeValue = activeIndex !== null ? data[activeIndex] : null;
   const activeTime = activeIndex !== null ? timeLabels[activeIndex] : null;
   const showTooltip =
-    activeIndex !== null && activePoint !== null && activeValue !== null && activeTime !== null;
+    activeIndex !== null &&
+    activePoint !== null &&
+    activeValue !== null &&
+    activeTime !== null;
+  const tooltipAnchorPct =
+    activePoint !== null ? (activePoint.x / SPARKLINE_WIDTH) * 100 : 0;
 
   return (
-    <div className={cn("relative touch-none", className)}>
-      {showTooltip && (
-        <>
-          <div
-            role="tooltip"
-            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-border/80 bg-card px-2 py-1 text-[10px] font-medium leading-4 text-foreground shadow-[0_2px_8px_rgba(17,24,39,0.08)]"
-            style={{
-              left: `${(activePoint.x / SPARKLINE_WIDTH) * 100}%`,
-              top: -6,
-            }}
-          >
-            <span className="text-tertiary-foreground">{activeTime}</span>
-            <span className="mx-1 text-border">·</span>
-            <span className="tabular-nums">
-              {formatSparklineValue(activeValue)} {unit}
-            </span>
-          </div>
-          <p className="sr-only" aria-live="polite">
-            {activeTime}, {formatSparklineValue(activeValue)} {unit}
-          </p>
-        </>
-      )}
+    <div className={cn("touch-none", className)}>
+      {/* Reserved lane keeps the tooltip fully inside the KPI card. */}
+      <div className="relative mb-1 h-5 w-full">
+        {showTooltip && (
+          <>
+            <div
+              role="tooltip"
+              className={cn(
+                "pointer-events-none absolute top-0 z-10 max-w-full truncate whitespace-nowrap rounded-md border border-border/80 bg-card px-2 py-0.5 shadow-[0_2px_8px_rgba(17,24,39,0.08)]",
+                typo.caption,
+                "font-medium text-foreground",
+              )}
+              style={{
+                left: `${tooltipAnchorPct}%`,
+                // Edge-aware: 0% → flush left, 50% → centered, 100% → flush right.
+                transform: `translateX(-${tooltipAnchorPct}%)`,
+              }}
+            >
+              <span className="text-tertiary-foreground">{activeTime}</span>
+              <span className="mx-1 text-border">·</span>
+              <span className="tabular-nums">
+                {formatSparklineValue(activeValue)} {unit}
+              </span>
+            </div>
+            <p className="sr-only" aria-live="polite">
+              {activeTime}, {formatSparklineValue(activeValue)} {unit}
+            </p>
+          </>
+        )}
+      </div>
 
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-        className="h-9 w-full shrink-0"
-        preserveAspectRatio="none"
-        aria-hidden
-        onPointerMove={handlePointerMove}
-        onPointerDown={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-      >
-        <defs>
-          <linearGradient id={fillGradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={gradient.from} stopOpacity={0.26} />
-            <stop offset="65%" stopColor={gradient.to} stopOpacity={0.1} />
-            <stop offset="100%" stopColor={gradient.to} stopOpacity={0.02} />
-          </linearGradient>
-          <linearGradient id={strokeGradientId} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={gradient.from} />
-            <stop offset="100%" stopColor={gradient.to} />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill={`url(#${fillGradientId})`} />
-        <path
-          d={linePath}
-          fill="none"
-          stroke={`url(#${strokeGradientId})`}
-          strokeWidth={1.75}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        {activePoint !== null && (
-          <line
-            x1={activePoint.x}
-            y1={0}
-            x2={activePoint.x}
-            y2={SPARKLINE_HEIGHT}
-            stroke="var(--border)"
-            strokeWidth={0.75}
-            strokeDasharray="2 2"
+      <div className="relative">
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
+          className="h-9 w-full shrink-0"
+          preserveAspectRatio="none"
+          aria-hidden
+          onPointerMove={handlePointerMove}
+          onPointerDown={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+        >
+          <defs>
+            <linearGradient id={fillGradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradient.from} stopOpacity={0.26} />
+              <stop offset="65%" stopColor={gradient.to} stopOpacity={0.1} />
+              <stop offset="100%" stopColor={gradient.to} stopOpacity={0.02} />
+            </linearGradient>
+            <linearGradient id={strokeGradientId} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={gradient.from} />
+              <stop offset="100%" stopColor={gradient.to} />
+            </linearGradient>
+          </defs>
+          <path d={areaPath} fill={`url(#${fillGradientId})`} />
+          <path
+            d={linePath}
+            fill="none"
+            stroke={`url(#${strokeGradientId})`}
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
-        )}
-        <rect
-          x={0}
-          y={0}
-          width={SPARKLINE_WIDTH}
-          height={SPARKLINE_HEIGHT}
-          fill="transparent"
-          pointerEvents="all"
-        />
-      </svg>
+          {activePoint !== null && (
+            <line
+              x1={activePoint.x}
+              y1={0}
+              x2={activePoint.x}
+              y2={SPARKLINE_HEIGHT}
+              stroke="var(--border)"
+              strokeWidth={0.75}
+              strokeDasharray="2 2"
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+          <rect
+            x={0}
+            y={0}
+            width={SPARKLINE_WIDTH}
+            height={SPARKLINE_HEIGHT}
+            fill="transparent"
+            pointerEvents="all"
+          />
+        </svg>
 
-      {activePoint !== null && (
-        <div
-          aria-hidden
-          className={vitalsSparklineActiveDotClass}
-          style={{
-            left: `${(activePoint.x / SPARKLINE_WIDTH) * 100}%`,
-            top: `${(activePoint.y / SPARKLINE_HEIGHT) * 100}%`,
-            transform: "translate(-50%, -50%)",
-            backgroundColor: gradient.from,
-          }}
-        />
-      )}
+        {activePoint !== null && (
+          <div
+            aria-hidden
+            className={vitalsSparklineActiveDotClass}
+            style={{
+              left: `${(activePoint.x / SPARKLINE_WIDTH) * 100}%`,
+              top: `${(activePoint.y / SPARKLINE_HEIGHT) * 100}%`,
+              transform: "translate(-50%, -50%)",
+              backgroundColor: gradient.from,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -514,68 +413,71 @@ function VitalCard({ vital }: { vital: VitalCardData }) {
     >
       <span aria-hidden className={vitalsCardSurfaceHoverOverlayClass} />
       <div className="relative z-1 flex min-h-0 w-full flex-1 flex-col">
-      <div className="flex min-h-12 items-start justify-between gap-3">
-        <p className="min-w-0 flex-1 truncate pr-1 pt-1.5 text-sm font-medium leading-5 text-muted-foreground transition-colors duration-200 group-hover:text-foreground">
-          {vital.label}
-        </p>
-        <VitalIconGlow
-          id={vital.id}
-          icon={vital.icon}
-          gradient={vital.iconGradient}
-        />
-      </div>
-
-      <div className={vitalsCardMetricsRowClass}>
-        <div className={vitalsCardMetricsValueClass}>
-          <span className={vitalsCardValueTextClass}>{vital.value}</span>
-          <span className="shrink-0 text-[13px] font-medium leading-none text-muted-foreground">
-            {vital.unit}
-          </span>
-        </div>
-        <div className={vitalsCardMetricsStatusClass}>
-          <span
+        <div className="flex min-h-12 items-start justify-between gap-3">
+          <p
             className={cn(
-              "inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1",
-              status.badgeBg,
+              typo.sidebarItem,
+              "min-w-0 flex-1 truncate pr-1 pt-1.5 transition-colors duration-200 group-hover:text-foreground",
             )}
           >
-            <span
-              className={cn("size-1.5 shrink-0 rounded-full", status.dot)}
-              aria-hidden
-            />
+            {vital.label}
+          </p>
+          <VitalIconGlow
+            id={vital.id}
+            icon={vital.icon}
+            gradient={vital.iconGradient}
+          />
+        </div>
+
+        <div className={vitalsCardMetricsRowClass}>
+          <div className={vitalsCardMetricsValueClass}>
+            <span className={vitalsCardValueTextClass}>{vital.value}</span>
+            <span className={cn(typo.label, "shrink-0 leading-none")}>
+              {vital.unit}
+            </span>
+          </div>
+          <div className={vitalsCardMetricsStatusClass}>
             <span
               className={cn(
-                "truncate text-xs font-semibold leading-4",
+                statusBadgeClass,
+                "max-w-full gap-1.5 font-semibold",
+                status.badgeBg,
                 status.badgeText,
               )}
             >
-              {vital.status}
+              <span
+                className={cn("size-1.5 shrink-0 rounded-full", status.dot)}
+                aria-hidden
+              />
+              <span className="truncate">{vital.status}</span>
             </span>
-          </span>
+          </div>
         </div>
-      </div>
 
-      <p className="mt-1.5 text-[11px] font-normal leading-4 text-tertiary-foreground">
-        {vital.updatedAgo}
-      </p>
+        <p className={cn(typo.caption, "mt-1.5")}>{vital.updatedAgo}</p>
 
-      <div className="mt-auto flex flex-col gap-1 pt-5">
-        <VitalSparkline
-          id={vital.id}
-          data={vital.sparkline}
-          gradient={vital.iconGradient}
-          unit={vital.unit}
-          chartStart={vital.chartStart}
-          chartEnd={vital.chartEnd}
-          activeIndex={chartIndex}
-          onActiveIndexChange={setChartIndex}
-          className="opacity-90 transition-opacity duration-200 group-hover:opacity-100"
-        />
-        <div className="flex w-full items-center justify-between text-[10px] font-normal leading-4 text-tertiary-foreground/80">
-          <span>{vital.chartStart}</span>
-          <span>{vital.chartEnd}</span>
+        <div className="mt-auto flex flex-col gap-1 pt-5">
+          <VitalSparkline
+            id={vital.id}
+            data={vital.sparkline}
+            gradient={vital.iconGradient}
+            unit={vital.unit}
+            chartStart={vital.chartStart}
+            chartEnd={vital.chartEnd}
+            activeIndex={chartIndex}
+            onActiveIndexChange={setChartIndex}
+            className="opacity-90 transition-opacity duration-200 group-hover:opacity-100"
+          />
+          <div
+            className={cn(
+              typo.caption,
+              "flex w-full items-center justify-between text-tertiary-foreground/80",
+            )}
+          >
+            <span>{vital.chartStart}</span>
+            <span>{vital.chartEnd}</span>
+          </div>
         </div>
-      </div>
       </div>
     </article>
   );
@@ -585,7 +487,7 @@ export function VitalsSummaryCards() {
   return (
     <section aria-label="Latest vitals summary">
       <div className={vitalsSummaryGridClass}>
-        {VITALS.map((vital) => (
+        {VITALS_SUMMARY.map((vital) => (
           <VitalCard key={vital.id} vital={vital} />
         ))}
       </div>
