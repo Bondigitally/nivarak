@@ -6,6 +6,9 @@ import { decodeJwtPayload, getRolesFromJwtPayload } from "@/lib/auth/jwt";
 
 const PUBLIC_PATHS = new Set([
   "/",
+  "/about",
+  "/contact",
+  "/blog",
   "/login",
   "/register",
   "/forgot-password",
@@ -17,9 +20,11 @@ const PUBLIC_PATHS = new Set([
 function isPublicPath(pathname: string): boolean {
   return (
     PUBLIC_PATHS.has(pathname) ||
+    pathname.startsWith("/blog/") ||
     pathname.startsWith("/iasp-assessment") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api")
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/marketing/")
   );
 }
 
@@ -104,6 +109,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|fonts|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|woff2?)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|fonts|images|marketing|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|woff2?)).*)",
   ],
 };
