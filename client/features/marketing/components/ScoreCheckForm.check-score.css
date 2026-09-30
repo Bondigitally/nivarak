@@ -1,0 +1,65 @@
+/* ---------- Check your score CTA ---------- */
+.check-score {
+  background:
+    radial-gradient(circle at 80% 20%, rgba(237, 221, 250, 0.7), transparent 45%),
+    var(--color-surface);
+}
+
+.check-score-layout {
+  display: grid;
+  gap: var(--space-48);
+  align-items: start;
+}
+
+@media (min-width: 744px) {
+  .check-score-layout {
+    grid-template-columns: 1fr 1.05fr;
+    gap: var(--space-64);
+  }
+}
+
+.check-score-intro h2 {
+  font-size: clamp(1.75rem, 3.5vw, var(--type-heading-xxl-size));
+  line-height: var(--type-heading-xxl-line);
+  font-weight: var(--type-heading-xxl-weight);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-16);
+  max-width: 12ch;
+}
+
+.check-score-intro > p {
+  color: var(--color-text-secondary);
+  font-size: var(--type-body-l-size);
+  max-width: 32rem;
+  margin-bottom: var(--space-32);
+}
+
+.check-score-points {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.check-score-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  font-size: var(--type-body-s-size);
+  font-weight: 600;
+  color: var(--color-brand-900);
+}
+
+.check-score-points .icon {
+  width: var(--icon-m);
+  height: var(--icon-m);
+  color: var(--color-success-500);
+  margin-top: 0.1rem;
+}
+
+.check-score-card h3 {
+  font-size: var(--type-heading-l-size);
+  margin-bottom: var(--space-8);
+}
+
+.check-score-card.is-success .contact-form {
+  display: none;
+}

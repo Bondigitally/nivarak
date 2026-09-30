@@ -4,8 +4,10 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loading03Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { cn } from '@/lib/utils';
+import { ICON_SIZE, ICON_STROKE } from '@/lib/icons';
 import { typo } from '@/lib/tokens/typography';
 
 /** Underline on hover — opacity fade */
@@ -44,7 +46,7 @@ const buttonVariants = cva(
         'destructive-outline':
           'border border-destructive bg-card text-destructive hover:bg-destructive/5 disabled:opacity-50',
         'primary-outline':
-          'border border-primary bg-card text-primary hover:text-ring hover:border-ring disabled:opacity-50',
+          'border border-primary bg-card text-primary hover:border-primary hover:bg-[color-mix(in_srgb,var(--primary)_5%,var(--card))] hover:text-primary disabled:opacity-50',
         'info-outline':
           'border border-info/40 bg-card text-info hover:border-info/60 hover:bg-info-muted disabled:opacity-50',
       },
@@ -125,7 +127,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <Loader2 className="size-5 shrink-0" strokeWidth={1.5} aria-hidden />
+            <HugeiconsIcon
+              icon={Loading03Icon}
+              size={ICON_SIZE}
+              strokeWidth={ICON_STROKE}
+              absoluteStrokeWidth
+              className="size-5 shrink-0 animate-spin"
+              aria-hidden
+            />
             {children}
           </>
         ) : (

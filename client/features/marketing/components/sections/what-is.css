@@ -1,0 +1,81 @@
+/* ---------- What is / shared marketing cards ---------- */
+.what-is {
+  background: var(--color-surface);
+}
+
+.what-grid {
+  display: grid;
+  gap: var(--space-24);
+  margin-bottom: var(--space-48);
+}
+
+@media (min-width: 744px) {
+  .what-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.what-tagline {
+  margin-top: var(--space-32);
+  text-align: center;
+  max-width: 40rem;
+  margin-inline: auto;
+  font-size: var(--type-body-l-size);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.what-card,
+.value-card,
+.usp-card,
+.contact-option,
+.post-card,
+.pillar-card {
+  background: var(--color-surface-raised);
+  border: none;
+  border-radius: var(--radius-l);
+  padding: var(--space-32) var(--space-24);
+  box-shadow: var(--shadow-xs);
+}
+
+.faq-item {
+  background: var(--color-surface-raised);
+  border: none;
+  box-shadow: var(--shadow-xs);
+}
+
+.card-icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-m);
+  margin-bottom: var(--space-16);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.card-icon-soft {
+  background: var(--color-brand-100);
+  color: var(--color-primary);
+}
+
+.what-card h3,
+.value-card h3,
+.usp-card h3,
+.pillar-card h3 {
+  font-size: var(--type-heading-m-size);
+  line-height: 1.5rem;
+  font-weight: var(--type-heading-m-weight);
+  margin-bottom: var(--space-8);
+  color: var(--color-text-primary);
+}
+
+.what-card p,
+.value-card p,
+.usp-card p,
+.pillar-card p {
+  font-size: var(--type-body-m-size);
+  line-height: var(--type-body-m-line);
+  color: var(--color-text-secondary);
+}
