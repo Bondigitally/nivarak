@@ -8,11 +8,12 @@ import "@/features/marketing/styles/base.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Nivarak — Helping Older Adults Age Independently",
+    default:
+      "Nivarak — Personalized Care for Older Adults to Live Independently, Longer",
     template: "%s — Nivarak",
   },
   description:
-    "Nivarak is your partner in independent aging — medically-led assessment, Independent Aging Score™, and continuous monitoring for older adults and their families.",
+    "Nivarak helps older adults stay independent at home with proactive health assessments, personalized care plans, and continuous support—while giving families greater confidence in their loved one's well-being.",
 };
 
 export default function MarketingLayout({
