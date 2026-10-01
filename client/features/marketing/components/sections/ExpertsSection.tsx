@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
 import {
   eyebrow,
@@ -32,8 +33,16 @@ export function ExpertsSection() {
           offset={24}
         >
           <article className="expert-card expert-card-founder">
-            <div className="avatar-ring" aria-hidden="true">
-              MK
+            <div className="avatar-ring avatar-ring-photo">
+              <Image
+                src="/images/dr-meetali-bidaye.avif"
+                alt="Dr. Meetali Kolhatkar Bidaye, Founder of Nivarak"
+                width={538}
+                height={736}
+                className="avatar-photo"
+                priority
+                unoptimized
+              />
             </div>
             <h3>Dr. Meetali</h3>
             <p className="role">Founder, Nivarak</p>
