@@ -40,15 +40,13 @@ export function HeroSection() {
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <h1 id="hero-title">
-              Helping Older Adults Age Independently,{" "}
-              <span className={textAccent}>With Confidence.</span>
+              Personalized Care for Older Adults to Live{" "} <span className={textAccent}>  Independently, Longer</span>{" "}
+
             </h1>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <p className="lede">
-              Nivarak brings medical expertise, whole-person assessment, and
-              continuous monitoring into one care partnership — so ageing parents
-              can stay safe and independent at home.
+              Nivarak helps older adults stay independent at home with proactive health assessments, personalized care plans, and continuous support—while giving families greater confidence in their loved one’s well-being.
             </p>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
