@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon, Calendar03Icon, UserIcon } from "@hugeicons/core-free-icons";
-import { authInputClassName } from "@/features/auth/components/primitives/AuthField";
 import { Button } from "@/components/ui/button";
+import { fieldInputClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,7 +89,7 @@ export function ProfileSettingsCard({
             id="settings-full-name"
             readOnly
             value={profile.fullName}
-            className={authInputClassName}
+            className={fieldInputClassName}
           />
         </Field>
 
@@ -99,7 +99,7 @@ export function ProfileSettingsCard({
               id="settings-dob"
               readOnly
               value={profile.dateOfBirth}
-              className={cn(authInputClassName, "pr-11")}
+              className={cn(fieldInputClassName, "pr-11")}
             />
             <span
               className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
@@ -123,7 +123,7 @@ export function ProfileSettingsCard({
                 id="settings-language"
                 type="button"
                 className={cn(
-                  authInputClassName,
+                  fieldInputClassName,
                   "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
                 )}
               >
@@ -142,7 +142,10 @@ export function ProfileSettingsCard({
                 <DropdownMenuItem
                   key={option}
                   onSelect={() => onLanguageChange(option)}
-                  className={cn(option === language && "bg-accent text-primary")}
+                  className={cn(
+                    option === language &&
+                      "bg-sidebar-selected text-primary focus:bg-sidebar-selected",
+                  )}
                 >
                   {option}
                 </DropdownMenuItem>
@@ -156,7 +159,7 @@ export function ProfileSettingsCard({
             id="settings-phone"
             readOnly
             value={profile.contactNumber}
-            className={authInputClassName}
+            className={fieldInputClassName}
           />
         </Field>
 
@@ -171,7 +174,7 @@ export function ProfileSettingsCard({
             rows={2}
             value={profile.residentialAddress}
             className={cn(
-              authInputClassName,
+              fieldInputClassName,
               "h-auto min-h-11 resize-none py-3 leading-6",
             )}
           />

@@ -1,17 +1,23 @@
 "use client";
 
 import {
-  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-  createColumnHelper,
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
+import {
+  DataTable,
+  DataTableAvatar,
+  DataTableIdentity,
+  DataTableLoadMore,
+  type DataTableColumn,
+} from "@/components/shared/data-table";
+import { TableSearch } from "@/components/shared/table-search";
 import { Button } from "@/components/ui/button";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
@@ -108,121 +114,20 @@ const LOG_DATA: VitalLogRow[] = [
   },
 ];
 
-// ─── Column definitions with specific widths & styles from Figma ──────────────
-const colHelper = createColumnHelper<VitalLogRow>();
-
-const COLUMNS: ColumnDef<VitalLogRow, string>[] = [
-  colHelper.accessor("date", {
+const COLUMNS: ColumnDef<VitalLogRow>[] = [
+  {
+    accessorKey: "date",
     id: "datetime",
-    header: "DATE & TIME",
     enableSorting: true,
     sortingFn: "alphanumeric",
-    cell: ({ row }) => (
-      <div className="flex flex-col justify-start items-start">
-        <div className="text-foreground text-sm font-medium leading-5 font-sans">
-          {row.original.date}
-        </div>
-        <div className="text-muted-foreground text-xs font-normal leading-4 font-sans mt-0.5">
-          {row.original.time}
-        </div>
-      </div>
-    ),
-  }),
-  colHelper.accessor("bp", {
-    header: "BP",
-    enableSorting: false,
-    cell: ({ getValue }) => (
-      <span className="text-foreground text-sm font-medium leading-5 font-sans">
-        {getValue()}
-      </span>
-    ),
-  }),
-  colHelper.accessor("spo2", {
-    header: "SPO₂",
-    enableSorting: false,
-    cell: ({ getValue }) => (
-      <span className="text-foreground text-sm font-normal leading-5 font-sans">
-        {getValue()}
-      </span>
-    ),
-  }),
-  colHelper.accessor("temp", {
-    header: "TEMP",
-    enableSorting: false,
-    cell: ({ getValue }) => (
-      <span className="text-foreground text-sm font-normal leading-5 font-sans">
-        {getValue()}
-      </span>
-    ),
-  }),
-  colHelper.accessor("weight", {
-    header: "WEIGHT",
-    enableSorting: false,
-    cell: ({ getValue }) => (
-      <span className="text-foreground text-sm font-normal leading-5 font-sans">
-        {getValue()}
-      </span>
-    ),
-  }),
-  colHelper.accessor("heartRate", {
-    header: "Heart rate",
-    enableSorting: false,
-    cell: ({ getValue }) => (
-      <span className="text-foreground text-sm font-normal leading-5 font-sans">
-        {getValue()}
-      </span>
-    ),
-  }),
-  colHelper.accessor((row) => row.recorder.name, {
+  },
+  {
+    accessorFn: (row) => row.recorder.name,
     id: "recorder",
-    header: "RECORDER",
     enableSorting: true,
     sortingFn: "alphanumeric",
-    cell: ({ row }) => {
-      const { initials, name, avatarClass } = row.original.recorder;
-      return (
-        <div className="flex items-center">
-          <div className="w-8 h-6 pr-2 flex flex-col justify-start items-start">
-            <div className={cn("w-6 h-6 rounded-full flex justify-center items-center font-sans font-bold text-[10px] leading-5 shrink-0", avatarClass)}>
-              {initials}
-            </div>
-          </div>
-          <div className="text-foreground text-sm font-normal leading-5 font-sans">
-            {name}
-          </div>
-        </div>
-      );
-    },
-  }),
+  },
 ];
-
-// ─── Sort icon ────────────────────────────────────────────────────────────────
-function SortIcon({ direction }: { direction: "asc" | "desc" | false }) {
-  return (
-    <span className="ml-1.5 inline-flex flex-col gap-[2px] text-tertiary-foreground group-hover:text-muted-foreground transition-colors">
-      <svg
-        width="8"
-        height="5"
-        viewBox="0 0 8 5"
-        fill="currentColor"
-        aria-hidden
-        className={cn(direction === "asc" ? "opacity-100" : "opacity-25")}
-      >
-        <path d="M4 0L7.46 4.5H.54L4 0Z" />
-      </svg>
-      <svg
-        width="8"
-        height="5"
-        viewBox="0 0 8 5"
-        fill="currentColor"
-        aria-hidden
-        className={cn(direction === "desc" ? "opacity-100" : "opacity-25")}
-      >
-        <path d="M4 5L.54.5H7.46L4 5Z" />
-      </svg>
-    </span>
-  );
-}
 
 const RECENT_LOG_INFO =
   "A chronological list of recorded vitals from you and your care team, including who logged each entry.";
@@ -244,6 +149,98 @@ const LOG_METRICS: {
   { key: "temp", label: "Temp" },
   { key: "weight", label: "Weight" },
   { key: "heartRate", label: "Heart rate" },
+];
+
+function parseVitalNumber(value: string) {
+  const match = value.match(/[\d.]+/);
+  return match ? parseFloat(match[0]) : 0;
+}
+
+
+function matchesLogQuery(row: VitalLogRow, needle: string) {
+  return [
+    row.date,
+    row.time,
+    row.bp,
+    row.spo2,
+    row.temp,
+    row.weight,
+    row.heartRate,
+    row.recorder.name,
+  ].some((value) => value.toLowerCase().includes(needle));
+}
+
+
+const TABLE_COLUMNS: DataTableColumn<VitalLogRow>[] = [
+  {
+    id: "datetime",
+    header: "Date & time",
+    className: "w-44",
+    sortValue: (row) => Date.parse(`${row.date} ${row.time}`),
+    cell: (row) => <DataTableIdentity title={row.date} subtitle={row.time} />,
+  },
+  {
+    id: "recorder",
+    header: "Recorder",
+    className: "w-52",
+    sortValue: (row) => row.recorder.name,
+    filterValue: (row) => row.recorder.name,
+    cell: (row) => (
+      <DataTableIdentity
+        leading={
+          <DataTableAvatar className={row.recorder.avatarClass}>
+            {row.recorder.initials}
+          </DataTableAvatar>
+        }
+        title={row.recorder.name}
+      />
+    ),
+  },
+  {
+    id: "bp",
+    header: "BP",
+    className: "w-24",
+    cellClassName: "font-medium text-foreground tabular-nums",
+    sortValue: (row) => parseVitalNumber(row.bp),
+    sortKind: "number",
+    cell: (row) => row.bp,
+  },
+  {
+    id: "spo2",
+    header: "SpO₂",
+    className: "w-24",
+    cellClassName: "tabular-nums",
+    sortValue: (row) => parseVitalNumber(row.spo2),
+    sortKind: "number",
+    cell: (row) => row.spo2,
+  },
+  {
+    id: "temp",
+    header: "Temp",
+    className: "w-24",
+    cellClassName: "tabular-nums",
+    sortValue: (row) => parseVitalNumber(row.temp),
+    sortKind: "number",
+    cell: (row) => row.temp,
+  },
+  {
+    id: "weight",
+    header: "Weight",
+    className: "w-24",
+    cellClassName: "tabular-nums",
+    sortValue: (row) => parseVitalNumber(row.weight),
+    sortKind: "number",
+    cell: (row) => row.weight,
+  },
+  {
+    id: "heartRate",
+    header: "Heart rate",
+    className: "w-28",
+    cellClassName: "tabular-nums",
+    sortValue: (row) => parseVitalNumber(row.heartRate),
+    sortKind: "number",
+    cell: (row) => row.heartRate,
+  },
 ];
 
 function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
@@ -306,25 +303,21 @@ function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
   );
 }
 
-// ─── Column flex shares — fill the row (no trailing dead space) ───────────────
-const COL_WIDTHS: Record<string, string> = {
-  datetime: "min-w-[9rem] flex-[1.35]",
-  bp: "min-w-[4.5rem] flex-1",
-  spo2: "min-w-[4rem] flex-1",
-  temp: "min-w-[4.5rem] flex-1",
-  weight: "min-w-[5rem] flex-1",
-  heartRate: "min-w-[5.5rem] flex-1",
-  recorder: "min-w-[10rem] flex-[1.5]",
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 export function VitalsRecentLog() {
+  const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([
     { id: "datetime", desc: true },
   ]);
 
+  const filteredData = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return LOG_DATA;
+    return LOG_DATA.filter((row) => matchesLogQuery(row, needle));
+  }, [query]);
+
   const table = useReactTable({
-    data: LOG_DATA,
+    data: filteredData,
     columns: COLUMNS,
     state: { sorting },
     onSortingChange: setSorting,
@@ -337,27 +330,39 @@ export function VitalsRecentLog() {
   const sortLabel =
     dateSorted === "asc" ? "Oldest" : dateSorted === "desc" ? "Newest" : "Date";
 
+  const search = (
+    <TableSearch
+      value={query}
+      onChange={setQuery}
+      placeholder="Search log…"
+      aria-label="Search recent log"
+    />
+  );
+
   return (
     <div className="flex w-full flex-col self-stretch">
       <section className="flex w-full flex-col gap-3 lg:hidden">
-        <div className="flex items-start justify-between gap-3">
-          <RecentLogTitle />
-          <Button
-            type="button"
-            variant="secondary"
-            className="h-9 shrink-0 px-3"
-            aria-label={`Sort by date, ${sortLabel}`}
-            onClick={() => table.getColumn("datetime")?.toggleSorting()}
-          >
-            <AppIcon
-              icon={ArrowDown01Icon}
-              className={cn(
-                "transition-transform",
-                dateSorted === "asc" && "rotate-180",
-              )}
-            />
-            <span className="text-xs">{sortLabel}</span>
-          </Button>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-3">
+            <RecentLogTitle />
+            <Button
+              type="button"
+              variant="secondary"
+              className="h-9 shrink-0 px-3"
+              aria-label={`Sort by date, ${sortLabel}`}
+              onClick={() => table.getColumn("datetime")?.toggleSorting()}
+            >
+              <AppIcon
+                icon={ArrowDown01Icon}
+                className={cn(
+                  "transition-transform",
+                  dateSorted === "asc" && "rotate-180",
+                )}
+              />
+              <span className="text-xs">{sortLabel}</span>
+            </Button>
+          </div>
+          {search}
         </div>
 
         <ul className="flex flex-col gap-3">
@@ -373,91 +378,15 @@ export function VitalsRecentLog() {
         </Button>
       </section>
 
-      <div
-        className="hidden flex-col items-start justify-start rounded-md bg-card pt-5 lg:flex"
-        style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
-      >
-      <div className="flex flex-col items-start justify-start self-stretch px-5 pb-5">
-        <RecentLogTitle />
-      </div>
-
-      {/* Table wrapper */}
-      <div className="self-stretch overflow-hidden rounded-b-md bg-card">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[860px] border-collapse">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  <th colSpan={COLUMNS.length} className="px-0 pt-3 pb-0">
-                    {/* Lavender pill header — same as assessments table */}
-                    <div className="mx-6 flex h-11 items-center rounded-xl bg-table-header">
-                      {headerGroup.headers.map((header) => {
-                        const canSort = header.column.getCanSort();
-                        const sorted = header.column.getIsSorted();
-                        const widthClass = COL_WIDTHS[header.id] || "";
-                        return (
-                          <div
-                            key={header.id}
-                            className={cn(
-                              "flex h-full min-w-0 items-center px-4 text-left text-xs font-semibold text-muted-foreground font-sans whitespace-nowrap select-none transition-colors",
-                              canSort && "cursor-pointer hover:text-foreground",
-                              widthClass
-                            )}
-                            style={{ letterSpacing: "0.3px" }}
-                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                          >
-                            {header.isPlaceholder ? null : (
-                              <span className="inline-flex items-center">
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                                {canSort && <SortIcon direction={sorted} />}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </th>
-                </tr>
-              ))}
-            </thead>
-
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-accent transition-colors duration-100"
-                >
-                  <td colSpan={COLUMNS.length} className="px-6 py-0">
-                    <div className="flex w-full items-center border-b border-divider">
-                      {row.getVisibleCells().map((cell) => {
-                        const widthClass = COL_WIDTHS[cell.column.id] || "";
-                        return (
-                          <div key={cell.id} className={cn("min-w-0 py-3 px-4", widthClass)}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {/* Load More row */}
-              <tr className="hover:bg-accent transition-colors duration-100">
-                <td colSpan={COLUMNS.length} className="px-6 py-0">
-                  <div className="flex items-center justify-center py-3">
-                    <button
-                      type="button"
-                      className="text-muted-foreground text-sm font-medium leading-5 font-sans outline-none"
-                    >
-                      Load More
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div className="hidden w-full lg:block">
+        <DataTable
+          leading={<RecentLogTitle />}
+          tools={search}
+          columns={TABLE_COLUMNS}
+          data={filteredData}
+          getRowId={(row) => row.id}
+          footer={<DataTableLoadMore />}
+        />
       </div>
     </div>
   );

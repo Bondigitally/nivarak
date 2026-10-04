@@ -14,8 +14,8 @@ export type IasAssessment = {
   description: string;
   lastUpdated: string;
   nextDue: string;
+  /** IAS percentage (0–100). Raw /48 is internal only. */
   score: number;
-  maxScore: number;
 };
 
 export type VitalPoint = {
@@ -46,14 +46,6 @@ export type VitalsSnapshot = {
   heartRate: HeartRateSeries;
 };
 
-export type HomeTask = {
-  id: string;
-  label: string;
-  /** Display time / due label, matching care tasks rows. */
-  time: string;
-  completed: boolean;
-};
-
 export type RiskAxis = {
   id: string;
   label: string;
@@ -81,6 +73,8 @@ export type CareTeamMember = {
   role: string;
   available: boolean;
   initials: string;
+  /** Profile photo in the avatar container; falls back to initials when absent. */
+  imageSrc?: string;
 };
 
 export type ActivityItem = {
@@ -89,39 +83,16 @@ export type ActivityItem = {
   timestamp: string;
 };
 
-export type CarePlanAction = {
-  id: string;
-  action: string;
-  owner: string;
-  timeframe: string;
-  status: "On Track" | "At Risk" | "Done";
-};
-
-export type CarePlanReferral = {
-  id: string;
-  label: string;
-  status: "Scheduled" | "Pending";
-  icon: "walking" | "nutrition";
-};
-
-export type CarePlanSnapshot = {
-  actions: CarePlanAction[];
-  referrals: CarePlanReferral[];
-  callTriggers: string[];
-};
-
 export type HomeDashboardData = {
   greetingName: string;
   greetingSubtitle: string;
   notificationCount: number;
   assessment: IasAssessment | null;
   vitals: VitalsSnapshot | null;
-  tasks: HomeTask[] | null;
   risk: RiskStatus | null;
   appointments: HomeAppointment[] | null;
   careTeam: CareTeamMember[] | null;
   activity: ActivityItem[] | null;
-  carePlan: CarePlanSnapshot | null;
 };
 
 const EMPTY_HOME_DASHBOARD: HomeDashboardData = {
@@ -130,12 +101,10 @@ const EMPTY_HOME_DASHBOARD: HomeDashboardData = {
   notificationCount: 3,
   assessment: null,
   vitals: null,
-  tasks: null,
   risk: null,
   appointments: null,
   careTeam: null,
   activity: null,
-  carePlan: null,
 };
 
 /** Sample payload matching the filled Figma Home screen. */
@@ -145,15 +114,14 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
   notificationCount: 3,
   assessment: {
     overline: "Latest assessment",
-    title: "Your Independent Ageing Score:",
+    title: "Your Independent Ageing Score",
     statusLabel: "Independent",
     deltaLabel: "+3 pts since last assessment",
     description:
       "Your overall health score based on recent physical, cognitive, and nutritional assessments indicates a strong level of independence.",
     lastUpdated: "Last updated: Oct 24, 2023",
     nextDue: "Next due Jul 15, 2026",
-    score: 38,
-    maxScore: 48,
+    score: 79,
   },
   vitals: {
     bloodPressure: {
@@ -197,14 +165,6 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
       ],
     },
   },
-  tasks: [
-    { id: "t1", label: "Take Morning Medication", time: "8:00 AM", completed: true },
-    { id: "t2", label: "Morning Walk (15 mins)", time: "9:30 AM", completed: true },
-    { id: "t3", label: "Drink 2L Water", time: "All day", completed: false },
-    { id: "t4", label: "Cognitive Exercise (Sudoku)", time: "2:00 PM", completed: false },
-    { id: "t5", label: "Take Night Medications", time: "8:00 PM", completed: false },
-    { id: "t6", label: "Evening Walk (15 mins)", time: "6:00 PM", completed: false },
-  ],
   risk: {
     highlightedAxisId: "mobility",
     axes: [
@@ -242,6 +202,7 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
       role: "Primary physician",
       available: true,
       initials: "DS",
+      imageSrc: "/images/care-team/dr-sarah-thorne.png",
     },
     {
       id: "c2",
@@ -249,6 +210,7 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
       role: "Care Coordinator",
       available: true,
       initials: "P",
+      imageSrc: "/images/care-team/ashish-pawar.png",
     },
     {
       id: "c3",
@@ -256,6 +218,7 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
       role: "Home nurse",
       available: true,
       initials: "A",
+      imageSrc: "/images/care-team/maria-garcia.png",
     },
   ],
   activity: [
@@ -280,43 +243,6 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
       timestamp: "Feb 28, 2026 · 08:45 AM",
     },
   ],
-  carePlan: {
-    actions: [
-      {
-        id: "ca1",
-        action: "30 min light walking",
-        owner: "You",
-        timeframe: "Daily",
-        status: "On Track",
-      },
-      {
-        id: "ca2",
-        action: "Blood pressure check",
-        owner: "Nurse",
-        timeframe: "Weekly",
-        status: "On Track",
-      },
-    ],
-    referrals: [
-      {
-        id: "cr1",
-        label: "Physical Therapy",
-        status: "Scheduled",
-        icon: "walking",
-      },
-      {
-        id: "cr2",
-        label: "Nutritionist",
-        status: "Pending",
-        icon: "nutrition",
-      },
-    ],
-    callTriggers: [
-      "Fever above 101°F",
-      "Shortness of breath at rest",
-      "Sudden weight gain (>2 lbs/day)",
-    ],
-  },
 };
 
 export function getHomeDashboardData(): HomeDashboardData {

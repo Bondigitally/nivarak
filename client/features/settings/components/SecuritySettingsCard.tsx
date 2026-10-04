@@ -39,10 +39,10 @@ export function SecuritySettingsCard({
         {sessions.map((session) => (
           <li
             key={session.id}
-            className="flex flex-col gap-3 rounded-md border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-md border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-sidebar-accent text-primary">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-sm text-muted-foreground">
                 <HugeiconsIcon
                   icon={LaptopIcon}
                   size={ICON_SIZE}

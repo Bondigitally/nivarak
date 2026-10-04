@@ -33,7 +33,7 @@ export function ScheduleRow({
   index: number;
 }) {
   const sts = appointmentStatusConfig(item.status);
-  const isCompleted = item.status === "completed";
+  const isCompleted = item.status === "Completed";
 
   return (
     <li className={dashboardDividedItemClass}>

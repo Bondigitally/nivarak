@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Target02Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
+import { cardShadowClass, cardShadowHoverClass } from "@/lib/tokens/elevation";
 import {
   dashboardPageShellClass,
   dashboardCardClass,
@@ -114,8 +115,11 @@ export function LeadsPageContent() {
                 type="button"
                 onClick={() => setStatusFilter(statusFilter === status ? "all" : status)}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-xl border border-border bg-card p-3 transition-all",
-                  statusFilter === status ? "ring-2 ring-primary ring-offset-1" : "hover:bg-accent",
+                  "flex flex-col items-center gap-1 rounded-xl bg-card p-3 transition-shadow",
+                  cardShadowClass,
+                  statusFilter === status
+                    ? "ring-2 ring-primary ring-offset-1"
+                    : cardShadowHoverClass,
                 )}
               >
                 <span className={cn(typo.headingXl, "tabular-nums")}>{counts[status]}</span>

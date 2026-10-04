@@ -3,6 +3,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { EnergyIcon } from "@hugeicons/core-free-icons";
 import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -22,8 +23,8 @@ export function HomeGreeting({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex min-w-0 flex-col gap-1">
-        <h1 className={typo.headingXxl}>Good Morning, {name}</h1>
-        <p className={typo.bodyL}>{subtitle}</p>
+        <h1 className={cn(typo.headingXl, "leading-[30px]")}>Good Morning, {name}</h1>
+        <p className={typo.bodyM}>{subtitle}</p>
       </div>
       <TooltipProvider delayDuration={200}>
         <Tooltip>
@@ -31,7 +32,7 @@ export function HomeGreeting({
             <DashboardIconButton
               type="button"
               aria-label="Quick menu"
-              className="text-primary"
+              className="text-muted-foreground"
             >
               <HugeiconsIcon
                 icon={EnergyIcon}

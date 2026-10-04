@@ -1,5 +1,7 @@
 export type VisitType = "Home Visit" | "Teleconsult" | "Clinic";
-export type AppointmentStatus = "confirmed" | "pending" | "completed" | "cancelled";
+
+/** Canonical appointment status — patient + coordinator surfaces. */
+export type AppointmentStatus = "Scheduled" | "Completed" | "Cancelled";
 
 export interface Appointment {
   id: string;

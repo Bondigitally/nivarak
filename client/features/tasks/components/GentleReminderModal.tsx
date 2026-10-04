@@ -118,6 +118,7 @@ function GentleReminderForm({
               layoutId="gentleReminderScope"
               value={scope}
               onChange={handleScopeChange}
+              surface="card"
               options={[
                 { id: "all", label: "All tasks" },
                 { id: "choose", label: "Choose tasks" },

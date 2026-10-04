@@ -14,7 +14,6 @@ import {
   ArrowDown01Icon,
   ArrowRight01Icon,
   ArrowUp01Icon,
-  CheckmarkSquare02Icon,
   Clock01Icon,
   SquareLock02Icon,
   Tick02Icon,
@@ -35,11 +34,11 @@ import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { IaspBandBadge } from "./IaspBandBadge";
 import type { IaspAnswersMap } from "../data/iasp-assessment-draft";
 import {
   iaspAlertPanelClass,
   iaspAnswerBadgeClass,
-  iaspBandBadgeClass,
   iaspModalScrollBodyClass,
   iaspMotionEase,
   iaspPanelCardClass,
@@ -57,11 +56,10 @@ import {
 } from "../data/iasp-red-flags-data";
 import { IASP_TOTAL_QUESTIONS } from "../data/iasp-questionnaire-data";
 import {
-  IASP_ANSWER_BADGE,
-  IASP_MAX_SCORE,
   calculateIaspPercentage,
   calculateIaspRawScore,
   formatIaspAssessmentDate,
+  getIaspAnswerBadgeForQuestion,
   getIaspBand,
   getIaspReviewSections,
   getSelectedRedFlagOptions,
@@ -81,6 +79,8 @@ const ANSWER_BADGE_ICONS: Record<IaspAnswerId, IconSvgElement> = {
   independent: Tick02Icon,
   assistance: Clock01Icon,
   dependent: Alert02Icon,
+  yes: Clock01Icon,
+  no: Tick02Icon,
 };
 
 /* ─── Red Flags ─────────────────────────────────────────────────────────── */
@@ -97,7 +97,7 @@ function RedFlagOptionRow({
   onToggle: (id: IaspRedFlagId) => void;
 }) {
   return (
-    <label className="flex min-h-11 cursor-pointer items-center gap-3 py-1">
+    <label className="flex min-h-9 cursor-pointer items-center gap-3 py-0.5">
       <input
         type="checkbox"
         className="sr-only"
@@ -171,17 +171,20 @@ export function RedFlagsStep({
         className={cn(
           iaspModalScrollBodyClass,
           iaspQuestionStepPaddingClass,
+          "gap-0 py-4 sm:gap-0 sm:py-5",
         )}
       >
-        {IASP_RED_FLAG_OPTIONS.map((option) => (
-          <RedFlagOptionRow
-            key={option.id}
-            id={option.id}
-            label={option.label}
-            selected={selectedSet.has(option.id)}
-            onToggle={toggle}
-          />
-        ))}
+        <div className="flex flex-col gap-0.5">
+          {IASP_RED_FLAG_OPTIONS.map((option) => (
+            <RedFlagOptionRow
+              key={option.id}
+              id={option.id}
+              label={option.label}
+              selected={selectedSet.has(option.id)}
+              onToggle={toggle}
+            />
+          ))}
+        </div>
       </div>
 
       <IaspStepNavFooter onBack={onBack}>
@@ -283,9 +286,10 @@ export function ReviewStep({
                 {expanded ? (
                   <div className="flex flex-col gap-3 pb-4 pl-12 pr-6 sm:pr-8">
                     {section.questions.map((question, index) => {
-                      const badge = question.answer
-                        ? IASP_ANSWER_BADGE[question.answer]
-                        : null;
+                      const badge = getIaspAnswerBadgeForQuestion(
+                        question.id,
+                        question.answer,
+                      );
                       const answerId = question.answer;
                       const isLast = index === section.questions.length - 1;
                       return (
@@ -355,10 +359,10 @@ export function ReviewStep({
 }
 
 /* ─── Results ───────────────────────────────────────────────────────────── */
-function ResultsGauge({ score, maxScore }: { score: number; maxScore: number }) {
+function ResultsGauge({ percentage }: { percentage: number }) {
   const reducedMotion = useReducedMotion();
   const scoreRef = useRef<HTMLSpanElement>(null);
-  const ratio = Math.min(1, Math.max(0, maxScore > 0 ? score / maxScore : 0));
+  const ratio = Math.min(1, Math.max(0, percentage / 100));
   const arcRadius = 84;
   const stroke = 14;
   const cx = 100;
@@ -374,7 +378,7 @@ function ResultsGauge({ score, maxScore }: { score: number; maxScore: number }) 
   useEffect(() => {
     if (reducedMotion) {
       progress.set(ratio);
-      if (scoreRef.current) scoreRef.current.textContent = String(score);
+      if (scoreRef.current) scoreRef.current.textContent = String(percentage);
       return;
     }
 
@@ -388,7 +392,7 @@ function ResultsGauge({ score, maxScore }: { score: number; maxScore: number }) 
       ease: iaspMotionEase,
       onUpdate: (value) => {
         const t = ratio > 0 ? value / ratio : 1;
-        const shown = Math.min(score, Math.max(0, Math.round(t * score)));
+        const shown = Math.min(percentage, Math.max(0, Math.round(t * percentage)));
         if (shown !== lastShown && scoreRef.current) {
           scoreRef.current.textContent = String(shown);
           lastShown = shown;
@@ -396,12 +400,12 @@ function ResultsGauge({ score, maxScore }: { score: number; maxScore: number }) 
       },
       onComplete: () => {
         progress.set(ratio);
-        if (scoreRef.current) scoreRef.current.textContent = String(score);
+        if (scoreRef.current) scoreRef.current.textContent = String(percentage);
       },
     });
 
     return () => controls.stop();
-  }, [progress, ratio, reducedMotion, score]);
+  }, [percentage, progress, ratio, reducedMotion]);
 
   return (
     <motion.div
@@ -431,15 +435,18 @@ function ResultsGauge({ score, maxScore }: { score: number; maxScore: number }) 
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
         <p className={cn(typo.displayXl, "leading-none text-foreground")}>
           <span ref={scoreRef} className="tabular-nums">
-            {reducedMotion ? score : 0}
+            {reducedMotion ? percentage : 0}
+          </span>
+          <span className="text-[0.55em] font-semibold text-muted-foreground">
+            %
           </span>
         </p>
         <p className={cn(typo.caption, "uppercase tracking-wide")}>
-          Out of {maxScore}
+          IAS Score
         </p>
       </div>
       <span className="sr-only">
-        Score {score} out of {maxScore}
+        IAS score {percentage} percent
       </span>
     </motion.div>
   );
@@ -486,7 +493,7 @@ export function ResultsStep({
           Your Assessment Results
         </DialogTitle>
         <DialogDescription className={cn(typo.bodyL, "text-center text-tertiary-foreground")}>
-          Based on the comprehensive IAS-P evaluation
+          Based on the comprehensive IAS evaluation
         </DialogDescription>
       </DialogHeader>
 
@@ -498,9 +505,9 @@ export function ResultsStep({
       >
         <div className="flex w-full flex-col items-center gap-4">
           <p className={cn(typo.overline, "text-tertiary-foreground")}>
-            IAS-P Independence Score
+            IAS Independence Score
           </p>
-          <ResultsGauge score={rawScore} maxScore={IASP_MAX_SCORE} />
+          <ResultsGauge percentage={percentage} />
         </div>
 
         <motion.div
@@ -516,10 +523,7 @@ export function ResultsStep({
             ease: iaspMotionEase,
           }}
         >
-          <span className={cn(iaspBandBadgeClass, band.badgeClass)}>
-            <AppIcon icon={CheckmarkSquare02Icon} size={BADGE_ICON_SIZE} />
-            {band.label}
-          </span>
+          <IaspBandBadge percentage={percentage} />
           <p className={cn(typo.bodyL, "max-w-md text-muted-foreground")}>
             {band.descriptionBefore}
             <span className={cn(typo.button, "font-semibold text-primary")}>

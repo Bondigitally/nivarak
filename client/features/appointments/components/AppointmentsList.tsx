@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Calendar03Icon } from "@hugeicons/core-free-icons";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
+import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import { cn } from "@/lib/utils";
 import { AppointmentDetailsDrawer } from "./AppointmentDetailsDrawer";
 import { AppointmentRow } from "./AppointmentRow";
 import type { AppointmentItem, AppointmentTab } from "../data/appointments-data";
@@ -24,7 +26,12 @@ export function AppointmentsList({
 
   if (appointments.length === 0) {
     return (
-      <div className="flex min-h-[380px] flex-col items-center justify-center rounded-lg border border-border bg-card px-6 py-5">
+      <div
+        className={cn(
+          dashboardCardClass,
+          "flex min-h-[380px] flex-col items-center justify-center px-6 py-5",
+        )}
+      >
         {tab === "upcoming" ? (
           <EmptyState
             icon={Calendar03Icon}
