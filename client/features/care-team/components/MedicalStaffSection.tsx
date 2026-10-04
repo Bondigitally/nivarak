@@ -14,6 +14,7 @@ import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type { MedicalStaffMember } from "../data/care-team-data";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const CARD_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -52,8 +53,8 @@ function ContactRow({
       <span className="inline-flex size-5 shrink-0 text-muted-foreground" aria-hidden>
         <HugeiconsIcon
           icon={icon}
-          size={19}
-          strokeWidth={1.5}
+          size={ICON_SIZE}
+          strokeWidth={ICON_STROKE}
           color="currentColor"
           absoluteStrokeWidth
         />

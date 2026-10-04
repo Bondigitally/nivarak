@@ -1,38 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { radius } from "@/lib/tokens/radius";
 
-const CARD_EASE = [0.22, 1, 0.36, 1] as const;
-
-const categoryCardVariants = {
-  rest: {
-    y: 0,
-    boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)",
-    borderColor: "var(--border)",
-  },
-  hover: {
-    y: -3,
-    boxShadow: "0px 8px 20px rgba(17, 24, 39, 0.10)",
-    borderColor: "var(--border)",
-  },
-  tap: {
-    y: -1,
-    scale: 0.985,
-    boxShadow: "0px 4px 12px rgba(17, 24, 39, 0.08)",
-  },
-};
-
-const categoryIconShellVariants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.06 },
-};
-
-const categoryIconVariants = {
-  rest: { rotate: 0, scale: 1 },
-  hover: { rotate: -2, scale: 1.02 },
-};
+const CARD_SURFACE_TRANSITION =
+  "motion-safe:transition-[transform_0.35s_cubic-bezier(0.2,0.8,0.2,1),box-shadow_0.35s_ease]";
 
 export function CategoryCard({
   label,
@@ -45,36 +17,37 @@ export function CategoryCard({
   updated: string;
   iconSrc: string;
 }) {
-  const reduceMotion = useReducedMotion();
-
   return (
-    <motion.button
+    <button
       type="button"
-      initial="rest"
-      whileHover={reduceMotion ? undefined : "hover"}
-      whileTap={reduceMotion ? undefined : "tap"}
-      variants={categoryCardVariants}
-      transition={{ duration: 0.22, ease: CARD_EASE }}
       className={cn(
+        "group relative isolate overflow-hidden",
         "@container flex min-w-0 w-full flex-col items-start gap-3 border border-solid border-border bg-card p-5 text-left",
         radius.lg,
+        "shadow-[0px_2px_8px_rgba(17,24,39,0.05)]",
+        CARD_SURFACE_TRANSITION,
+        "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-[0px_12px_32px_rgba(17,24,39,0.08)]",
+        "motion-safe:active:-translate-y-px motion-safe:active:shadow-[0px_4px_14px_rgba(17,24,39,0.06)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         "@min-[304px]:flex-row @min-[304px]:items-center @min-[304px]:gap-2 @min-[304px]:p-6",
       )}
     >
-      <motion.div
-        variants={categoryIconShellVariants}
-        transition={{ duration: 0.22, ease: CARD_EASE }}
+      <span
+        aria-hidden
         className={cn(
-          "flex size-12 shrink-0 items-center justify-center bg-table-header p-2",
+          "pointer-events-none absolute inset-0 z-0 opacity-0",
+          "bg-linear-to-br from-foreground/3 to-foreground/1",
+          "motion-safe:transition-opacity motion-safe:duration-350 motion-safe:ease-in-out",
+          "motion-safe:group-hover:opacity-100",
+        )}
+      />
+      <div
+        className={cn(
+          "relative z-1 flex size-12 shrink-0 items-center justify-center bg-table-header p-2",
           radius.md,
         )}
       >
-        <motion.div
-          variants={categoryIconVariants}
-          transition={{ duration: 0.28, ease: CARD_EASE }}
-          className="relative size-8"
-        >
+        <div className="relative size-8">
           <img
             src={iconSrc}
             alt=""
@@ -84,9 +57,9 @@ export function CategoryCard({
             draggable={false}
             className="pointer-events-none size-8 max-w-none object-contain"
           />
-        </motion.div>
-      </motion.div>
-      <div className="flex min-w-0 w-full flex-1 flex-col gap-1">
+        </div>
+      </div>
+      <div className="relative z-1 flex min-w-0 w-full flex-1 flex-col gap-1">
         <div className="flex w-full min-w-0 items-start gap-2">
           <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-semibold leading-7 text-foreground">
             {label}
@@ -97,6 +70,6 @@ export function CategoryCard({
         </div>
         <p className="w-full font-sans text-sm font-normal leading-5 text-tertiary-foreground">{updated}</p>
       </div>
-    </motion.button>
+    </button>
   );
 }

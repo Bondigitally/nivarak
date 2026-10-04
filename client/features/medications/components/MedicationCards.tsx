@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import type { IconSvgElement } from "@hugeicons/react";
 import {
   Cancel01Icon,
   Moon02Icon,
@@ -12,9 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { AnimatedStrikeText } from "@/components/shared/AnimatedStrikeText";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import {
   MOCK_TODAY_MEDICATIONS,
@@ -26,7 +26,7 @@ import {
 
 const PERIOD_STYLES: Record<
   DosePeriod,
-  { label: string; bg: string; text: string; icon: typeof Sun03Icon }
+  { label: string; bg: string; text: string; icon: IconSvgElement }
 > = {
   morning: {
     label: "Morning",
@@ -41,6 +41,28 @@ const PERIOD_STYLES: Record<
     icon: Moon02Icon,
   },
 };
+
+const ADHERENCE_ACTIONS: {
+  value: Exclude<DoseStatus, null>;
+  label: string;
+  icon: IconSvgElement;
+  activeClass: string;
+}[] = [
+  {
+    value: "taken",
+    label: "Taken",
+    icon: Tick02Icon,
+    activeClass:
+      "border-success text-success hover:bg-success/5 hover:text-success active:bg-success/10 active:text-success",
+  },
+  {
+    value: "skipped",
+    label: "Skipped",
+    icon: Cancel01Icon,
+    activeClass:
+      "border-destructive text-destructive hover:bg-destructive/5 hover:text-destructive active:bg-destructive/10 active:text-destructive",
+  },
+];
 
 function PeriodBadge({ period, dimmed = false }: { period: DosePeriod; dimmed?: boolean }) {
   const style = PERIOD_STYLES[period];
@@ -65,39 +87,27 @@ function AdherenceButtons({
   status: DoseStatus;
   onChange: (next: DoseStatus) => void;
 }) {
-  const buttonClass =
-    "min-w-[7.25rem] justify-center gap-1 shadow-[0_1px_2px_rgba(17,24,39,0.04)]";
-
   return (
     <div className="flex shrink-0 items-center gap-2">
-      <Button
-        type="button"
-        variant="secondary"
-        aria-pressed={status === "taken"}
-        onClick={() => onChange(status === "taken" ? null : "taken")}
-        className={cn(
-          buttonClass,
-          status === "taken" &&
-            "border-success text-success hover:bg-success/5 hover:text-success active:bg-success/10 active:text-success",
-        )}
-      >
-        <HugeiconsIcon icon={Tick02Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
-        Taken
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        aria-pressed={status === "skipped"}
-        onClick={() => onChange(status === "skipped" ? null : "skipped")}
-        className={cn(
-          buttonClass,
-          status === "skipped" &&
-            "border-destructive text-destructive hover:bg-destructive/5 hover:text-destructive active:bg-destructive/10 active:text-destructive",
-        )}
-      >
-        <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
-        Skipped
-      </Button>
+      {ADHERENCE_ACTIONS.map((action) => {
+        const active = status === action.value;
+        return (
+          <Button
+            key={action.value}
+            type="button"
+            variant="secondary"
+            aria-pressed={active}
+            onClick={() => onChange(active ? null : action.value)}
+            className={cn(
+              "min-w-29 justify-center gap-1 shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
+              active && action.activeClass,
+            )}
+          >
+            <AppIcon icon={action.icon} />
+            {action.label}
+          </Button>
+        );
+      })}
     </div>
   );
 }
@@ -112,6 +122,7 @@ function MedicationMeta({
   dimmed?: boolean;
 }) {
   const singleDose = medication.doses.length === 1 ? medication.doses[0] : null;
+  const muted = dimmed ? "text-tertiary-foreground" : "text-muted-foreground";
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
@@ -128,26 +139,14 @@ function MedicationMeta({
             {medication.name}
           </AnimatedStrikeText>
         </h2>
-        <span
-          className={cn(
-            "text-base font-normal leading-6 transition-colors duration-200",
-            dimmed ? "text-tertiary-foreground" : "text-muted-foreground",
-          )}
-        >
+        <span className={cn("text-base font-normal leading-6 transition-colors duration-200", muted)}>
           {medication.dosage}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-4">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 transition-colors duration-200",
-            dimmed ? "text-tertiary-foreground" : "text-muted-foreground",
-          )}
-        >
-          <HugeiconsIcon icon={RepeatIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
-          <span className={cn(typo.button, dimmed ? "text-tertiary-foreground" : "text-muted-foreground")}>
-            {medication.frequencyLabel}
-          </span>
+        <span className={cn("inline-flex items-center gap-1 transition-colors duration-200", muted)}>
+          <AppIcon icon={RepeatIcon} />
+          <span className={cn(typo.button, muted)}>{medication.frequencyLabel}</span>
         </span>
         {showPeriodBadge && singleDose ? (
           <PeriodBadge period={singleDose.period} dimmed={dimmed} />
@@ -182,49 +181,40 @@ function MedicationCard({
   onDoseChange: (doseId: string, status: DoseStatus) => void;
 }) {
   const isMultiDose = medication.doses.length > 1;
-  const allDosesTaken = medication.doses.every((dose) => dose.status === "taken");
-
-  if (!isMultiDose) {
-    const dose = medication.doses[0];
-    const isTaken = dose.status === "taken";
-    return (
-      <article
-        className={cn(
-          dashboardCardClass,
-          "flex flex-col gap-4 p-6 transition-colors duration-200 sm:flex-row sm:items-center sm:justify-between",
-          isTaken && "bg-muted/30",
-        )}
-      >
-        <MedicationMeta medication={medication} showPeriodBadge dimmed={isTaken} />
-        <AdherenceButtons
-          status={dose.status}
-          onChange={(status) => onDoseChange(dose.id, status)}
-        />
-      </article>
-    );
-  }
+  const allTaken = medication.doses.every((dose) => dose.status === "taken");
+  const singleDose = !isMultiDose ? medication.doses[0] : null;
 
   return (
     <article
       className={cn(
         dashboardCardClass,
         "flex flex-col gap-4 p-6 transition-colors duration-200",
-        allDosesTaken && "bg-muted/30",
+        !isMultiDose && "sm:flex-row sm:items-center sm:justify-between",
+        allTaken && "bg-muted/30",
       )}
     >
-      <MedicationMeta medication={medication} showPeriodBadge={false} dimmed={allDosesTaken} />
-      <div className="flex flex-col gap-2 border-t border-border pt-4.25">
-        {medication.doses.map((dose, index) => (
-          <DoseRow
-            key={dose.id}
-            dose={dose}
-            onChange={(status) => onDoseChange(dose.id, status)}
-            className={cn(
-              index > 0 && "border-t border-dashed border-border pt-2",
-            )}
-          />
-        ))}
-      </div>
+      <MedicationMeta
+        medication={medication}
+        showPeriodBadge={!isMultiDose}
+        dimmed={allTaken}
+      />
+      {singleDose ? (
+        <AdherenceButtons
+          status={singleDose.status}
+          onChange={(status) => onDoseChange(singleDose.id, status)}
+        />
+      ) : (
+        <div className="flex flex-col gap-2 border-t border-border pt-4.25">
+          {medication.doses.map((dose, index) => (
+            <DoseRow
+              key={dose.id}
+              dose={dose}
+              onChange={(status) => onDoseChange(dose.id, status)}
+              className={cn(index > 0 && "border-t border-dashed border-border pt-2")}
+            />
+          ))}
+        </div>
+      )}
     </article>
   );
 }
