@@ -15,6 +15,7 @@ import { PhoneOtpStep } from '@/features/auth/components/steps/PhoneOtpStep';
 import { useRouter } from 'next/navigation';
 import { typo } from '@/lib/tokens/typography';
 import { loginPasswordSchema } from '@/features/auth/lib/password';
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import {
   confirmLoginPhoneOtp,
   getSignInErrorMessage,
@@ -101,7 +102,7 @@ export function LoginForm({
         className="w-full"
         onClick={() => onLoginMethodChange('email')}
       >
-        <HugeiconsIcon icon={Mail02Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
+        <HugeiconsIcon icon={Mail02Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} absoluteStrokeWidth />
         Continue with Email
       </Button>
     ) : (
@@ -112,7 +113,7 @@ export function LoginForm({
         className="w-full"
         onClick={() => onLoginMethodChange('phone')}
       >
-        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
+        <HugeiconsIcon icon={Call02Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} absoluteStrokeWidth />
         Continue with Phone Number
       </Button>
     );

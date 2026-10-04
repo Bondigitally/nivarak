@@ -49,7 +49,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import type { UserRole } from "@/features/auth/lib/roles";
+import type { UserRole } from "@/lib/auth/roles";
 
 type NavChild = {
   label: string;
