@@ -1,18 +1,20 @@
 /**
  * Nivarak — Auth Middleware
  *
- * JWT validation, user context injection, and role-based access control.
+ * Cognito JWT validation, user context injection, and role-based access control.
  * Three-tier enforcement: JWT → Role Check → Business Logic (RLS at DB).
  */
 
 import { Context, Next } from 'hono';
-import jwt from 'jsonwebtoken';
-import { config } from '../config/index.js';
+import { and, eq, isNull } from 'drizzle-orm';
 import { AuthenticationError, AuthorizationError } from '../shared/errors.js';
 import { db } from '../db/connection.js';
 import { users, userRoles, roles, caregiverLinks } from '../db/schema/index.js';
-import { eq, and, isNull } from 'drizzle-orm';
 import type { Permission } from '../shared/permissions.js';
+import {
+  getCognitoAccessTokenVerifier,
+  type CognitoAccessTokenPayload,
+} from '../lib/cognito-jwt.js';
 
 export interface AuthUser {
   userId: string;
@@ -31,7 +33,7 @@ declare module 'hono' {
 }
 
 /**
- * Authenticate incoming requests via JWT Bearer token.
+ * Authenticate incoming requests via Cognito access JWT Bearer token.
  */
 export async function authMiddleware(c: Context, next: Next): Promise<void | Response> {
   const authHeader = c.req.header('Authorization');
@@ -42,14 +44,10 @@ export async function authMiddleware(c: Context, next: Next): Promise<void | Res
   const token = authHeader.slice(7);
 
   try {
-    const payload = jwt.verify(token, config.jwt.accessSecret) as {
-      sub: string;
-      phone: string;
-      roles: string[];
-    };
+    const verifier = getCognitoAccessTokenVerifier();
+    const payload = (await verifier.verify(token)) as CognitoAccessTokenPayload;
 
-    // Load full user context from DB
-    const user = await loadUserContext(payload.sub);
+    const user = await resolveUserFromCognitoPayload(payload);
     if (!user) {
       throw new AuthenticationError('User not found or deactivated');
     }
@@ -58,13 +56,7 @@ export async function authMiddleware(c: Context, next: Next): Promise<void | Res
     await next();
   } catch (err) {
     if (err instanceof AuthenticationError) throw err;
-    if (err instanceof jwt.TokenExpiredError) {
-      throw new AuthenticationError('Token expired');
-    }
-    if (err instanceof jwt.JsonWebTokenError) {
-      throw new AuthenticationError('Invalid token');
-    }
-    throw err;
+    throw new AuthenticationError('Invalid or expired token');
   }
 }
 
@@ -101,6 +93,44 @@ export function requirePermission(permission: Permission) {
 
     await next();
   };
+}
+
+async function resolveUserFromCognitoPayload(
+  payload: CognitoAccessTokenPayload,
+): Promise<AuthUser | null> {
+  const cognitoSub = payload.sub;
+  const username = typeof payload.username === 'string' ? payload.username : undefined;
+
+  const bySub = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.cognitoSub, cognitoSub), eq(users.isActive, true)))
+    .limit(1);
+
+  if (bySub.length > 0) {
+    return loadUserContext(bySub[0].id);
+  }
+
+  if (!username) return null;
+
+  const identityFilter = username.includes('@')
+    ? eq(users.email, username.toLowerCase())
+    : eq(users.phone, username);
+
+  const byIdentity = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(identityFilter, eq(users.isActive, true)))
+    .limit(1);
+
+  if (byIdentity.length === 0) return null;
+
+  await db
+    .update(users)
+    .set({ cognitoSub, updatedAt: new Date() })
+    .where(eq(users.id, byIdentity[0].id));
+
+  return loadUserContext(byIdentity[0].id);
 }
 
 /**
