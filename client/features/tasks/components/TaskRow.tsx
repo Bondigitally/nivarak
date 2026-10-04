@@ -1,90 +1,133 @@
 "use client";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Tick02Icon } from "@hugeicons/core-free-icons";
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/shared/AppIcon";
 import {
-  dashboardCardClass,
+  AnimatedStrikeText,
+  useStrikeToggle,
+} from "@/components/shared/AnimatedStrikeText";
+import {
+  dashboardDividedRowClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import type { CareTask } from "../data/tasks-data";
+import { getTaskSection, type CareTask } from "../data/tasks-data";
+import { TaskCheckbox } from "./TaskCheckbox";
 
 export function TaskRow({
   task,
-  onToggle,
+  onComplete,
+  onIncomplete,
 }: {
   task: CareTask;
-  onToggle: (id: string) => void;
+  onComplete: (id: string) => void;
+  onIncomplete?: (id: string) => void;
 }) {
-  const showOverdue = Boolean(task.overdue && !task.completed);
+  const { displayCompleted, isPending, toggle } = useStrikeToggle(task.completed, () => {
+    if (task.completed) {
+      onIncomplete?.(task.id);
+      return;
+    }
+    onComplete(task.id);
+  });
+
+  const isOverdue =
+    !displayCompleted && getTaskSection(task.dueAt) === "overdue";
+
+  const tooltipLabel = displayCompleted
+    ? "Mark as incomplete"
+    : "Mark as complete";
 
   return (
     <button
       type="button"
-      onClick={() => onToggle(task.id)}
-      aria-pressed={task.completed}
-      aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.label}`}
+      aria-pressed={displayCompleted}
+      aria-busy={isPending}
+      aria-label={
+        displayCompleted
+          ? `Mark as incomplete: ${task.label}`
+          : `Mark as complete: ${task.label}`
+      }
+      onClick={toggle}
+      disabled={isPending}
       className={cn(
-        dashboardCardClass,
-        "flex min-h-14 w-full min-w-0 items-center px-3.5 py-3 text-left sm:px-4 sm:py-3.5",
-        "transition-colors duration-150",
-        "hover:bg-accent active:bg-divider",
+        dashboardDividedRowClass,
+        "flex min-h-14 w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3 text-left sm:gap-3.5 sm:py-3.5",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        displayCompleted && "hover:before:opacity-0",
+        isPending && "pointer-events-none",
       )}
     >
-      {/* Inner row: native <button> flex can fail to grow children; wrap for reliable span. */}
-      <span className="flex w-full min-w-0 items-center justify-between gap-3">
-        <span className="flex min-w-0 flex-1 items-center gap-3">
-          <span
-            className={cn(
-              "flex size-5 shrink-0 items-center justify-center rounded-[4px]",
-              "shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
-              task.completed
-                ? "bg-primary"
-                : "border-[1.5px] border-primary bg-card",
-            )}
-            aria-hidden
-          >
-            {task.completed ? (
-              <HugeiconsIcon
-                icon={Tick02Icon}
-                size={16}
-                strokeWidth={2.5}
-                color="white"
-              />
-            ) : null}
-          </span>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="shrink-0">
+              <TaskCheckbox completed={displayCompleted} />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top">{tooltipLabel}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span
-              className={cn(
-                typo.headingM,
-                "block w-full truncate",
-                task.completed
-                  ? "text-tertiary-foreground line-through"
-                  : "text-foreground",
-              )}
-            >
-              {task.label}
-            </span>
-            <span className={cn(typo.caption, "block w-full truncate")}>
-              {task.detail}
-            </span>
-          </span>
+      <span className="flex min-w-0 flex-col gap-0.5 overflow-hidden">
+        <AnimatedStrikeText
+          active={displayCompleted}
+          className={cn(
+            typo.headingS,
+            "max-w-full truncate transition-colors duration-200",
+            displayCompleted ? "text-tertiary-foreground" : "text-foreground",
+          )}
+        >
+          {task.label}
+        </AnimatedStrikeText>
+        <span
+          className={cn(
+            typo.caption,
+            "truncate transition-colors duration-200",
+            displayCompleted && "text-tertiary-foreground",
+            isOverdue && "text-destructive",
+          )}
+        >
+          {task.time}
+          {task.detail ? ` · ${task.detail}` : null}
         </span>
-
-        {showOverdue ? (
-          <span
-            className={cn(
-              statusBadgeClass,
-              "ml-auto shrink-0 border border-warning-muted bg-warning-muted text-warning",
-            )}
-          >
-            Overdue
-          </span>
-        ) : null}
       </span>
+
+      <span className="min-w-3 flex-1" aria-hidden />
+
+      {displayCompleted ? (
+        <span
+          className={cn(
+            statusBadgeClass,
+            typo.badge,
+            "shrink-0 gap-1.5 border border-border bg-muted text-muted-foreground",
+          )}
+        >
+          <AppIcon
+            icon={CheckmarkCircle02Icon}
+            size={BADGE_ICON_SIZE}
+            aria-hidden
+          />
+          Completed
+        </span>
+      ) : (
+        <span
+          className={cn(
+            typo.button,
+            "inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-primary bg-card px-4 text-primary",
+          )}
+        >
+          Done
+        </span>
+      )}
     </button>
   );
 }
