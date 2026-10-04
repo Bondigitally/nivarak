@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * MedicationCards renders today's scheduled medications with per-dose
+ * adherence controls (taken / skipped / pending).
+ *
+ * All dose times are displayed in the patient's local timezone as returned
+ * by the medications API (once integrated — currently mock data).
+ *
+ * Adherence button clicks update local component state only; persistence
+ * to the backend is a TODO once the medication adherence API is available.
+ */
+
 import { useState } from "react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
@@ -70,8 +81,10 @@ function PeriodBadge({ period, dimmed = false }: { period: DosePeriod; dimmed?: 
     <span
       className={cn(
         statusBadgeClass,
-        "gap-1 transition-colors duration-200",
-        dimmed ? "bg-muted text-tertiary-foreground" : [style.bg, style.text],
+        "gap-1 border border-transparent transition-colors duration-200",
+        dimmed
+          ? "border-border bg-muted text-tertiary-foreground"
+          : [style.bg, style.text, "border-border/60"],
       )}
     >
       <AppIcon icon={style.icon} size={BADGE_ICON_SIZE} />
@@ -99,7 +112,8 @@ function AdherenceButtons({
             aria-pressed={active}
             onClick={() => onChange(active ? null : action.value)}
             className={cn(
-              "min-w-29 justify-center gap-1 shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
+              "min-w-29 justify-center gap-1 border border-border bg-card",
+              "shadow-[0_1px_2px_rgba(17,24,39,0.04)] dark:shadow-[0_0_0_1px_var(--border),0_1px_2px_rgba(0,0,0,0.25)]",
               active && action.activeClass,
             )}
           >

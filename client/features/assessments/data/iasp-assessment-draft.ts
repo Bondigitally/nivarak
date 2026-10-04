@@ -6,6 +6,11 @@ import {
 } from "./iasp-questionnaire-data";
 import type { IaspRedFlagId } from "./iasp-red-flags-data";
 
+/**
+ * Linear step order of the IASP flow.
+ * intro → about → questions → redFlags → review → results
+ * Steps are advanced sequentially; navigating back is allowed from any step.
+ */
 export type IaspFlowStep =
   | "intro"
   | "about"
@@ -20,6 +25,10 @@ export type IaspFlowState = {
   step: IaspFlowStep;
   aboutYou: IaspAboutYouValues;
   pageIndex: number;
+  /**
+   * Slide animation direction: +1 = forward (next question), -1 = back.
+   * Drives the `x` offset in questionPageVariants inside IaspAssessmentModal.
+   */
   pageDirection: number;
   answers: IaspAnswersMap;
   redFlags: IaspRedFlagId[];
@@ -71,6 +80,10 @@ export function isIaspResultsPreviewEnabled(): boolean {
   return process.env.NODE_ENV === "development";
 }
 
+/**
+ * Session-scoped draft key — cleared when the tab closes or when
+ * `hasIaspProgress` returns false (empty/default state).
+ */
 const DRAFT_KEY = "nivarak:iasp-assessment-draft";
 
 export function hasIaspProgress(state: IaspFlowState): boolean {
