@@ -111,7 +111,7 @@ export function SiteHeader() {
               )}
             >
               <Link
-                className="inline-flex shrink-0 items-center text-inherit no-underline"
+                className="inline-flex shrink-0 items-center text-inherit no-underline [&_span]:!text-[var(--color-text-primary)]"
                 href="/"
                 aria-label="Nivarak home"
               >

@@ -12,6 +12,7 @@
 
 .marketing-site {
   margin: 0;
+  color-scheme: light;
   font-family: var(--font-family);
   font-size: var(--type-body-m-size);
   font-weight: var(--type-body-m-weight);
@@ -24,6 +25,7 @@
 /* Window scroll (hash nav) — must be on html, not .marketing-site. */
 html:has(.marketing-site) {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 /* Clear fixed / floating header when jumping to a section. */

@@ -3,7 +3,11 @@
 @import "shadcn/tailwind.css";
 
 /* Class-based dark mode — pairs with next-themes `attribute="class"` */
-@custom-variant dark (&:where(.dark, .dark *):not(:where(.auth-light-mode, .auth-light-mode *)));
+@custom-variant dark (
+  &:where(.dark, .dark *):not(:where(.auth-light-mode, .auth-light-mode *)):not(
+      :where(.marketing-site, .marketing-site *)
+    )
+);
 
 @theme inline {
   --color-background: var(--background);
@@ -240,10 +244,10 @@
 }
 
 /*
- * Dark palette — skipped on auth routes (`.auth-light-mode`) so login/register
- * always match light mode, including before hydration.
+ * Dark palette — skipped on auth and marketing routes so public pages
+ * always match the light brand palette, including before hydration.
  */
-html.dark:not(:has(.auth-light-mode)) {
+html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
   --background: #0F1013;
   --foreground: #F4F4F5;
   --card: #15171B;

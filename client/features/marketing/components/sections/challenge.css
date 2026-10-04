@@ -169,6 +169,20 @@
   color: var(--color-primary);
 }
 
+.path-arrow {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 1.25rem;
+}
+
+.path-arrow-lottie {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 @keyframes path-dot-glow {
   0%,
   100% {
