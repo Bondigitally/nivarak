@@ -245,7 +245,7 @@ export function SpotlightSearch({
                             className={cn(
                               "flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left transition-colors",
                               active
-                                ? "bg-sidebar-selected"
+                                ? "bg-muted"
                                 : "hover:bg-accent",
                             )}
                           >

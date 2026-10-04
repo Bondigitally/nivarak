@@ -132,9 +132,9 @@ function CalendarCell({ className, ...props }: AriaCalendarCellProps) {
             isRange &&
             !renderProps.isSelectionStart &&
             !renderProps.isSelectionEnd &&
-            "rounded-none bg-sidebar-selected text-accent-foreground",
+            "rounded-none bg-muted text-accent-foreground",
           renderProps.isOutsideMonth &&
-            "text-muted-foreground opacity-50 data-[selected]:bg-sidebar-selected/50 data-[selected]:text-muted-foreground data-[selected]:opacity-30",
+            "text-muted-foreground opacity-50 data-[selected]:bg-muted/50 data-[selected]:text-muted-foreground data-[selected]:opacity-30",
           renderProps.date.compare(today(getLocalTimeZone())) === 0 &&
             !renderProps.isSelected &&
             "bg-accent text-accent-foreground",

@@ -279,7 +279,7 @@ export function BookVisitModal() {
                       cardShadowClass,
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       selected
-                        ? "border-primary bg-sidebar-accent text-primary-active"
+                        ? "border-primary bg-muted text-primary-active"
                         : cn("bg-card text-foreground hover:bg-background", cardShadowHoverClass),
                     )}
                   >

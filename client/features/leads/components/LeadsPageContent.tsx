@@ -34,7 +34,7 @@ function LeadCard({ lead }: { lead: Lead }) {
   return (
     <div className={cn(dashboardCardClass, "flex min-w-0 flex-col gap-3 p-4")}>
       <div className="flex min-w-0 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-sm font-semibold text-primary-active">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-primary-active">
           {lead.initials}
         </span>
         <div className="min-w-0 flex-1 overflow-hidden">
