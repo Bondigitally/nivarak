@@ -4,6 +4,7 @@ import { AppPageFrame } from "@/components/layout/app-page-frame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
+  dashboardCardClass,
   dashboardPageShellClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
@@ -11,12 +12,83 @@ import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import { IasScoreCard } from "@/features/dashboard/components/IasScoreCard";
 import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
 import { AssessmentActionsMenu } from "@/features/assessments/components/AssessmentActionsMenu";
-import { ASSESSMENT_ROWS } from "@/features/assessments/data/assessments-data";
+import {
+  ASSESSMENT_ROWS,
+  type AssessmentRow,
+  type AssessmentStatusType,
+} from "@/features/assessments/data/assessments-data";
+import { AppIcon } from "@/components/shared/AppIcon";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AssignmentsIcon } from "@hugeicons/core-free-icons";
+import { AssignmentsIcon, Pdf02Icon, ViewIcon } from "@hugeicons/core-free-icons";
+import { radius } from "@/lib/tokens/radius";
+import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { EMPTY_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+
+function assessmentResultClass(statusType: AssessmentStatusType) {
+  return cn(
+    statusBadgeClass,
+    "shrink-0 gap-1.5 border",
+    statusType === "normal" && "border-success-muted bg-success-muted text-success",
+    statusType === "mid" && "border-warning-muted bg-warning-muted text-warning",
+    statusType === "high" && "border-destructive-muted bg-destructive-muted text-destructive",
+  );
+}
+
+function AssessmentMobileCard({ row }: { row: AssessmentRow }) {
+  return (
+    <article className={cn(dashboardCardClass, "p-3")}>
+      <header>
+        <h3 className={cn(typo.headingS, "text-foreground")}>
+          {row.name}
+        </h3>
+      </header>
+
+      <div
+        className={cn(
+          radius.md,
+          "mt-3 flex items-center justify-between gap-3 border border-border bg-muted/70 px-3 py-2",
+        )}
+      >
+        <div className="min-w-0">
+          <p className={cn(typo.caption, "text-muted-foreground")}>Completed</p>
+          <p className="font-sans text-sm font-semibold leading-5 text-foreground">
+            {row.date}
+          </p>
+        </div>
+        <span className={assessmentResultClass(row.statusType)}>
+          {row.result}
+        </span>
+      </div>
+
+      <footer className="mt-3 flex gap-2">
+        <Button type="button" variant="primary-outline" className="h-9 min-w-0 flex-1 px-3">
+          <AppIcon icon={ViewIcon} />
+          View report
+        </Button>
+        <Button type="button" variant="secondary" className="h-9 min-w-0 flex-1 px-3">
+          <AppIcon icon={Pdf02Icon} />
+          Download PDF
+        </Button>
+      </footer>
+    </article>
+  );
+}
+
+function RecentAssessmentsHeading() {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <h2 className="font-sans text-[22px] font-semibold leading-7 text-foreground">
+        Recent Assessments
+      </h2>
+      <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
+        {ASSESSMENT_ROWS.length}
+      </span>
+      <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
+    </div>
+  );
+}
 
 export default function AssessmentsPage() {
   const data = getHomeDashboardData();
@@ -35,8 +107,22 @@ export default function AssessmentsPage() {
           <div className="flex flex-col gap-3">
             <IasScoreCard assessment={assessment} variant="plain" />
 
+            <section className="flex flex-col gap-3 lg:hidden">
+              <RecentAssessmentsHeading />
+              <ul className="flex flex-col gap-3">
+                {ASSESSMENT_ROWS.map((row, index) => (
+                  <li key={`${row.name}-${row.date}-${index}`}>
+                    <AssessmentMobileCard row={row} />
+                  </li>
+                ))}
+              </ul>
+              <Button type="button" variant="secondary" className="w-full">
+                Load more
+              </Button>
+            </section>
+
             <div
-              className="flex flex-col items-stretch justify-start self-stretch rounded-md bg-card"
+              className="hidden flex-col items-stretch justify-start self-stretch rounded-md bg-card lg:flex"
               style={{
                 outline: "1px solid var(--border)",
                 outlineOffset: "-1px",
@@ -44,13 +130,7 @@ export default function AssessmentsPage() {
               }}
             >
               <div className="flex items-center gap-2 self-stretch px-5 pt-5 pb-3">
-                <h2 className="font-sans text-[22px] font-semibold leading-7 text-foreground">
-                  Recent Assessments
-                </h2>
-                <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
-                  {ASSESSMENT_ROWS.length}
-                </span>
-                <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
+                <RecentAssessmentsHeading />
               </div>
 
               <div className="overflow-hidden self-stretch rounded-b-md px-5 pt-2 pb-2">
@@ -88,14 +168,7 @@ export default function AssessmentsPage() {
                             {row.date}
                           </td>
                           <td className="border-b border-divider px-4 py-3">
-                            <span
-                              className={cn(
-                                statusBadgeClass,
-                                row.statusType === "normal" && "bg-success-muted text-success",
-                                row.statusType === "mid" && "bg-warning-muted text-warning",
-                                row.statusType === "high" && "bg-destructive-muted text-destructive"
-                              )}
-                            >
+                            <span className={assessmentResultClass(row.statusType)}>
                               {row.result}
                             </span>
                           </td>

@@ -12,6 +12,23 @@ const STATUS_STYLES: Record<
   Done: { bg: "bg-background", text: "text-muted-foreground" },
 };
 
+function OwnerBadge({ owner }: { owner: string }) {
+  return (
+    <span className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}>
+      {owner}
+    </span>
+  );
+}
+
+function ActionStatusBadge({ status }: { status: CarePlanAction["status"] }) {
+  const style = STATUS_STYLES[status];
+  return (
+    <span className={cn(statusBadgeClass, "shrink-0", style.bg, style.text)}>
+      {status}
+    </span>
+  );
+}
+
 export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
   return (
     <section className="overflow-hidden rounded-lg border border-border bg-card">
@@ -24,7 +41,40 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
         </SectionTitle>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <ul className="flex flex-col gap-3 p-4 lg:hidden">
+        {actions.map((row) => (
+          <li key={row.id}>
+            <article className="rounded-lg border border-border bg-background p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 text-base font-normal leading-6 text-foreground">
+                  {row.action}
+                </p>
+                <ActionStatusBadge status={row.status} />
+              </div>
+              <dl className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <dt className="text-[13px] font-normal leading-4 text-muted-foreground">
+                    Owner
+                  </dt>
+                  <dd>
+                    <OwnerBadge owner={row.owner} />
+                  </dd>
+                </div>
+                <div className="flex items-center gap-2">
+                  <dt className="text-[13px] font-normal leading-4 text-muted-foreground">
+                    Timeframe
+                  </dt>
+                  <dd className="text-[13px] font-normal leading-4 text-muted-foreground">
+                    {row.timeframe}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden w-full overflow-x-auto lg:block">
         <table className="w-full min-w-[620px] border-collapse">
           <thead>
             <tr className="border-b border-border bg-table-header">
@@ -56,7 +106,6 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
           </thead>
           <tbody>
             {actions.map((row, index) => {
-              const statusStyle = STATUS_STYLES[row.status];
               const isLast = index === actions.length - 1;
 
               return (
@@ -68,25 +117,13 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
                     {row.action}
                   </td>
                   <td className="px-6 py-3.5">
-                    <span
-                      className={cn(statusBadgeClass, "bg-sidebar-accent text-primary")}
-                    >
-                      {row.owner}
-                    </span>
+                    <OwnerBadge owner={row.owner} />
                   </td>
                   <td className="px-6 py-3.5 text-[13px] font-normal leading-4 text-muted-foreground">
                     {row.timeframe}
                   </td>
                   <td className="px-6 py-3.5">
-                    <span
-                      className={cn(
-                        statusBadgeClass,
-                        statusStyle.bg,
-                        statusStyle.text,
-                      )}
-                    >
-                      {row.status}
-                    </span>
+                    <ActionStatusBadge status={row.status} />
                   </td>
                 </tr>
               );

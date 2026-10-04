@@ -10,8 +10,14 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/shared/AppIcon";
+import { Button } from "@/components/ui/button";
+import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
+import { radius } from "@/lib/tokens/radius";
+import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
 
 // ─── Data model ───────────────────────────────────────────────────────────────
 interface Recorder {
@@ -20,7 +26,7 @@ interface Recorder {
   avatarClass: string;
 }
 
-export interface VitalLogRow {
+interface VitalLogRow {
   id: string;
   date: string;
   time: string;
@@ -218,6 +224,88 @@ function SortIcon({ direction }: { direction: "asc" | "desc" | false }) {
   );
 }
 
+const RECENT_LOG_INFO =
+  "A chronological list of recorded vitals from you and your care team, including who logged each entry.";
+
+function RecentLogTitle() {
+  return (
+    <SectionTitle info={RECENT_LOG_INFO} className="flex-none pr-0 text-foreground">
+      Recent Log
+    </SectionTitle>
+  );
+}
+
+const LOG_METRICS: {
+  key: keyof Pick<VitalLogRow, "bp" | "spo2" | "temp" | "weight" | "heartRate">;
+  label: string;
+}[] = [
+  { key: "bp", label: "BP" },
+  { key: "spo2", label: "SpO₂" },
+  { key: "temp", label: "Temp" },
+  { key: "weight", label: "Weight" },
+  { key: "heartRate", label: "Heart rate" },
+];
+
+function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
+  const { initials, name, avatarClass } = row.recorder;
+
+  return (
+    <article className={cn(dashboardCardClass, "p-3")}>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-lg font-semibold leading-6 text-foreground">
+            {row.date}
+          </p>
+          <p className={cn(typo.bodyM, "mt-0.5")}>{row.time}</p>
+        </div>
+        <div
+          className={cn(
+            radius.full,
+            "flex max-w-[55%] shrink-0 items-center gap-1.5 border border-border bg-muted/70 py-1 pr-2.5 pl-1",
+          )}
+        >
+          <span
+            className={cn(
+              radius.full,
+              "flex size-6 shrink-0 items-center justify-center font-sans text-[10px] font-bold leading-none",
+              avatarClass,
+            )}
+          >
+            {initials}
+          </span>
+          <span className={cn(typo.caption, "truncate font-medium text-foreground")}>
+            {name}
+          </span>
+        </div>
+      </header>
+
+      <dl
+        className={cn(
+          radius.md,
+          "mt-3 overflow-hidden border border-border bg-muted/70",
+        )}
+      >
+        {LOG_METRICS.map((metric, index) => (
+          <div
+            key={metric.key}
+            className={cn(
+              "flex items-center justify-between gap-3 px-3 py-2",
+              index > 0 && "border-t border-border",
+            )}
+          >
+            <dt className={cn(typo.caption, "text-muted-foreground")}>
+              {metric.label}
+            </dt>
+            <dd className="font-sans text-sm font-semibold leading-5 tabular-nums text-foreground">
+              {row[metric.key]}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  );
+}
+
 // ─── Column flex shares — fill the row (no trailing dead space) ───────────────
 const COL_WIDTHS: Record<string, string> = {
   datetime: "min-w-[9rem] flex-[1.35]",
@@ -231,7 +319,9 @@ const COL_WIDTHS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export function VitalsRecentLog() {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "datetime", desc: true },
+  ]);
 
   const table = useReactTable({
     data: LOG_DATA,
@@ -243,24 +333,57 @@ export function VitalsRecentLog() {
     getRowId: (row) => row.id,
   });
 
+  const dateSorted = table.getColumn("datetime")?.getIsSorted() ?? false;
+  const sortLabel =
+    dateSorted === "asc" ? "Oldest" : dateSorted === "desc" ? "Newest" : "Date";
+
   return (
-    <div
-      className="self-stretch pt-5 bg-card flex flex-col justify-start items-start rounded-md"
-      style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
-    >
-      {/* Title */}
-      <div className="self-stretch px-5 pb-5 flex flex-col justify-start items-start">
-        <SectionTitle
-          info="A chronological list of recorded vitals from you and your care team, including who logged each entry."
-          className="flex-none pr-0 text-foreground"
-        >
-          Recent Log
-        </SectionTitle>
+    <div className="flex w-full flex-col self-stretch">
+      <section className="flex w-full flex-col gap-3 lg:hidden">
+        <div className="flex items-start justify-between gap-3">
+          <RecentLogTitle />
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-9 shrink-0 px-3"
+            aria-label={`Sort by date, ${sortLabel}`}
+            onClick={() => table.getColumn("datetime")?.toggleSorting()}
+          >
+            <AppIcon
+              icon={ArrowDown01Icon}
+              className={cn(
+                "transition-transform",
+                dateSorted === "asc" && "rotate-180",
+              )}
+            />
+            <span className="text-xs">{sortLabel}</span>
+          </Button>
+        </div>
+
+        <ul className="flex flex-col gap-3">
+          {table.getRowModel().rows.map((row) => (
+            <li key={row.id}>
+              <VitalLogMobileCard row={row.original} />
+            </li>
+          ))}
+        </ul>
+
+        <Button type="button" variant="secondary" className="w-full">
+          Load more
+        </Button>
+      </section>
+
+      <div
+        className="hidden flex-col items-start justify-start rounded-md bg-card pt-5 lg:flex"
+        style={{ outline: "1px solid var(--border)", outlineOffset: "-1px", boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)" }}
+      >
+      <div className="flex flex-col items-start justify-start self-stretch px-5 pb-5">
+        <RecentLogTitle />
       </div>
 
       {/* Table wrapper */}
-      <div className="self-stretch bg-card overflow-hidden rounded-b-md">
-        <div className="overflow-x-auto w-full">
+      <div className="self-stretch overflow-hidden rounded-b-md bg-card">
+        <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[860px] border-collapse">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -334,6 +457,7 @@ export function VitalsRecentLog() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );
