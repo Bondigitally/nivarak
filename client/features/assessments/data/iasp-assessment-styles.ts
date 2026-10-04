@@ -1,10 +1,55 @@
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  dialogBodyShellClass,
+  dialogFooterShellClass,
+  dialogHeaderShellClass,
+} from "@/components/ui/dialog";
 import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 /** Shared max-width for every IAS-P assessment modal step. */
 export const iaspModalShellWidthClass = "max-w-2xl";
+
+/** Desktop modal shell — matches previous PR (max-height only, content-sized). */
+export const iaspModalShellLayoutClass =
+  "flex w-full max-h-[min(92vh,880px)] flex-col items-stretch";
+
+/**
+ * Mobile drawer shell — near full-bleed with a 20px top radius
+ * (small top inset so the curve reads against the overlay).
+ */
+export const iaspDrawerShellLayoutClass = cn(
+  "inset-x-0 top-auto bottom-0 flex h-[calc(100dvh-0.75rem)] max-h-[calc(100dvh-0.75rem)] w-full max-w-none flex-col items-stretch gap-0",
+  "overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-card p-0 shadow-none",
+);
+
+/**
+ * Scrollable step body — extends dialog body shell; below `sm` adds drawer
+ * scroll bounds (`h-0` + touch scroll) without changing desktop PR behavior.
+ */
+export const iaspModalScrollBodyClass = cn(
+  dialogBodyShellClass,
+  "iasp-modal-scroll max-sm:h-0 max-sm:overflow-y-scroll max-sm:touch-pan-y",
+);
+
+/** Standard stacked header for questionnaire / review steps. */
+export const iaspStepHeaderClass = cn(
+  dialogHeaderShellClass,
+  "flex-col items-stretch gap-3",
+);
+
+/** Back + primary action footer row (red flags, review, etc.). */
+export const iaspStepNavFooterClass = cn(
+  dialogFooterShellClass,
+  "flex-row items-center justify-between gap-3 bg-background py-4",
+);
+
+/** Centered results step header. */
+export const iaspResultsHeaderClass = cn(
+  dialogHeaderShellClass,
+  "flex-col items-center gap-2 border-b-0 pb-0 text-center sm:pb-0",
+);
 
 /** Shared motion easing curve for IAS-P page and modal animations. */
 export const iaspMotionEase = [0.22, 1, 0.36, 1] as const;
@@ -86,11 +131,11 @@ export const iaspQuestionStepGapClass = "gap-3";
 /** Consistent horizontal + vertical padding for questionnaire regions. */
 export const iaspQuestionStepPaddingClass = "px-5 py-3 sm:px-6";
 
-/** Keyboard shortcut pill on answer options and footer hints. */
+/** Keyboard shortcut pill on answer options and footer hints. Hidden on mobile. */
 export const iaspKeyHintClass = cn(
   radius.full,
   typo.caption,
-  "inline-flex shrink-0 items-center border border-border bg-background px-2 py-0.5 font-medium text-foreground",
+  "hidden shrink-0 items-center border border-border bg-background px-2 py-0.5 font-medium text-foreground sm:inline-flex",
 );
 
 /** Auto-saved status badge in questionnaire footer. */
