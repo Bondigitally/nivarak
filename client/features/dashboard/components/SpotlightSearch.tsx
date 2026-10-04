@@ -18,6 +18,7 @@ import {
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { dashboardSearchBarClass, dashboardSearchBarIconClass } from "../data/dashboard-styles";
+import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 export function SearchShortcutHint() {
   return (
@@ -28,8 +29,8 @@ export function SearchShortcutHint() {
       )}
       aria-hidden
     >
-      <HugeiconsIcon icon={CommandIcon} size={12} strokeWidth={1.75} color="currentColor" />
-      <HugeiconsIcon icon={PlusSignIcon} size={12} strokeWidth={1.75} color="currentColor" />
+      <HugeiconsIcon icon={CommandIcon} size={BADGE_ICON_SIZE} strokeWidth={1.75} color="currentColor" />
+      <HugeiconsIcon icon={PlusSignIcon} size={BADGE_ICON_SIZE} strokeWidth={1.75} color="currentColor" />
       K
     </span>
   );
@@ -186,8 +187,8 @@ export function SpotlightSearch({
               <div className={cn(dashboardSearchBarClass, "h-dash-control w-full max-w-full flex-none")}>
                 <HugeiconsIcon
                   icon={Search01Icon}
-                  size={19}
-                  strokeWidth={1.5}
+                  size={ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
                   color="currentColor"
                   className={dashboardSearchBarIconClass}
                 absoluteStrokeWidth />
@@ -209,7 +210,7 @@ export function SpotlightSearch({
                     onClick={() => onQueryChange("")}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+                    <HugeiconsIcon icon={Cancel01Icon} size={ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
                   </button>
                 ) : (
                   <SearchShortcutHint />
@@ -248,8 +249,8 @@ export function SpotlightSearch({
                             <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground">
                               <HugeiconsIcon
                                 icon={item.icon}
-                                size={19}
-                                strokeWidth={1.5}
+                                size={ICON_SIZE}
+                                strokeWidth={ICON_STROKE}
                                 color="currentColor"
                               absoluteStrokeWidth />
                             </span>

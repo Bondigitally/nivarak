@@ -1,17 +1,21 @@
+"use client";
+
 import { AppPageFrame } from "@/components/layout/app-page-frame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
-import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
+import { TasksList } from "@/features/tasks/components/TasksList";
 import { cn } from "@/lib/utils";
 
-export default function RiskStatusPage() {
-  const data = getHomeDashboardData();
-
+export function TasksPageContent() {
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <PageHeader title="Risk Status" subtitle="Placeholder for risk status." />
+        <PageHeader
+          title="Tasks"
+          subtitle="Overdue, today, and completed actions from your care team."
+        />
+        <TasksList />
       </DashboardReveal>
     </AppPageFrame>
   );

@@ -49,6 +49,8 @@ export type VitalsSnapshot = {
 export type HomeTask = {
   id: string;
   label: string;
+  /** Display time / due label, matching care tasks rows. */
+  time: string;
   completed: boolean;
 };
 
@@ -196,12 +198,12 @@ const MOCK_HOME_DASHBOARD_FILLED: HomeDashboardData = {
     },
   },
   tasks: [
-    { id: "t1", label: "Take Morning Medication", completed: true },
-    { id: "t2", label: "Morning Walk (15 mins)", completed: true },
-    { id: "t3", label: "Drink 2L Water", completed: false },
-    { id: "t4", label: "Cognitive Exercise (Sudoku)", completed: false },
-    { id: "t5", label: "Take Night Medications", completed: false },
-    { id: "t6", label: "Evening Walk (15 mins)", completed: false },
+    { id: "t1", label: "Take Morning Medication", time: "8:00 AM", completed: true },
+    { id: "t2", label: "Morning Walk (15 mins)", time: "9:30 AM", completed: true },
+    { id: "t3", label: "Drink 2L Water", time: "All day", completed: false },
+    { id: "t4", label: "Cognitive Exercise (Sudoku)", time: "2:00 PM", completed: false },
+    { id: "t5", label: "Take Night Medications", time: "8:00 PM", completed: false },
+    { id: "t6", label: "Evening Walk (15 mins)", time: "6:00 PM", completed: false },
   ],
   risk: {
     highlightedAxisId: "mobility",

@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Calendar03Icon,
   Clock01Icon,
-  UserMultiple02Icon,
+  User03Icon,
 } from "@hugeicons/core-free-icons";
-import { typo } from "@/lib/tokens/typography";
-import { cn } from "@/lib/utils";
+import type { IconSvgElement } from "@hugeicons/react";
+import { AppIcon } from "@/components/shared/AppIcon";
 import { Button } from "@/components/ui/button";
 import { AppointmentDetailsDrawer } from "@/features/appointments/components/AppointmentDetailsDrawer";
 import {
@@ -16,9 +15,39 @@ import {
   type AppointmentItem,
   type AppointmentVisitType,
 } from "@/features/appointments/data/appointments-data";
-import { dashboardCardClass, dashboardCardHeaderClass, dashboardDividedRowClass, dashboardRowDividerClass } from "../data/dashboard-styles";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
+import { radius } from "@/lib/tokens/radius";
+import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
+import {
+  dashboardCardClass,
+  dashboardCardHeaderClass,
+  dashboardDividedItemClass,
+  dashboardDividedRowClass,
+  dashboardRowDividerClass,
+} from "../data/dashboard-styles";
 import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
 import type { HomeAppointment } from "../data/home-data";
+
+function MetaIcon({
+  icon,
+  className,
+}: {
+  icon: IconSvgElement;
+  className: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex size-6 shrink-0 items-center justify-center text-muted-foreground",
+        radius.sm,
+        className,
+      )}
+    >
+      <AppIcon icon={icon} size={BADGE_ICON_SIZE} aria-hidden />
+    </span>
+  );
+}
 
 function homeAppointmentToDetails(home: HomeAppointment): AppointmentItem {
   const matched = getAppointmentById(home.id);
@@ -54,7 +83,7 @@ function homeAppointmentToDetails(home: HomeAppointment): AppointmentItem {
     clinicianInitials: initials || "—",
     clinicianAvatarUrl: null,
     visitType,
-    placeLabel: visitType === "Teleconsult" ? "Video Call" : "Patient Residence",
+    placeLabel: visitType === "Teleconsult" ? "Teleconsult" : "Home Visit",
     placeKind: visitType === "Teleconsult" ? "video" : "location",
     addressLines: null,
     reason: home.title,
@@ -88,7 +117,7 @@ export function AppointmentsCard({
         {appointments && appointments.length > 0 ? (
           <ul className="flex min-w-0 flex-col">
             {appointments.map((appointment, index) => (
-              <li key={appointment.id} className="relative">
+              <li key={appointment.id} className={dashboardDividedItemClass}>
                 {index > 0 ? (
                   <div className={dashboardRowDividerClass} aria-hidden />
                 ) : null}
@@ -109,22 +138,13 @@ export function AppointmentsCard({
                       <p className={cn(typo.headingS, "truncate text-sm leading-5")}>
                         {appointment.title}
                       </p>
-                      <div className="mt-1.5 flex flex-col gap-1">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-info-muted text-muted-foreground">
-                            <HugeiconsIcon icon={Clock01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
-                          </span>
+                      <div className="mt-1.5 flex flex-col gap-1.5">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <MetaIcon icon={Clock01Icon} className="bg-info-muted" />
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>{appointment.time}</span>
                         </div>
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent text-muted-foreground">
-                            <HugeiconsIcon
-                              icon={UserMultiple02Icon}
-                              size={19}
-                              strokeWidth={1.5}
-                              color="currentColor"
-                            absoluteStrokeWidth />
-                          </span>
+                        <div className="flex min-w-0 items-center gap-2">
+                          <MetaIcon icon={User03Icon} className="bg-sidebar-accent" />
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>
                             {appointment.clinician}
                           </span>
