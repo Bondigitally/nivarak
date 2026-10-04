@@ -24,7 +24,7 @@ export function AppointmentsList({
 
   if (appointments.length === 0) {
     return (
-      <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-5">
+      <div className="flex min-h-[380px] flex-col items-center justify-center rounded-lg border border-border bg-card px-6 py-5">
         {tab === "upcoming" ? (
           <EmptyState
             icon={Calendar03Icon}

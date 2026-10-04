@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { AnimatedArrowIcon } from "./AnimatedArrowIcon";
-import { statusBadgeClass } from "../data/dashboard-styles";
+import { dashboardCardClass, statusBadgeClass } from "../data/dashboard-styles";
 import type { IasAssessment } from "../data/home-data";
 
 /** Overall donut size with a thick ring and large center opening. */
@@ -288,7 +288,7 @@ function ViewReportButton() {
     >
       View Report
       <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-card text-primary">
-        <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={14} className="size-3.5" hovered={hovered} />
+        <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={19} className="size-5" hovered={hovered} />
       </span>
     </Button>
   );
@@ -342,7 +342,8 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
 
   return (
     <section className={cn(
-      "flex flex-col items-stretch gap-5 overflow-hidden rounded-xl border border-border px-5 py-4 shadow-[0px_2px_8px_rgba(17,24,39,0.05)]",
+      dashboardCardClass,
+      "flex flex-col items-stretch gap-5 overflow-hidden px-5 py-4",
       "sm:flex-row sm:items-center sm:justify-between",
       variant === "dashboard" ? "bg-[linear-gradient(225deg,rgba(239,230,247,0.6)_0%,rgba(255,255,255,1)_60%)]" : "bg-card"
     )}>
@@ -350,7 +351,7 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-full bg-muted text-success">
-              <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={1.75} color="currentColor" />
+              <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
             </span>
             <p
               className={cn(
@@ -377,7 +378,7 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
         <div className="flex flex-wrap items-center gap-2">
           {isFilled ? (
             <>
-              <span className="inline-flex h-7 items-center gap-1.75 overflow-visible rounded-[14px] bg-success-muted px-2.5 text-[13px] font-semibold leading-none text-success">
+              <span className="inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md bg-success-muted px-2.5 text-[13px] font-semibold leading-none text-success">
                 <StatusBadgeDot className="bg-success" pulse />
                 {assessment.statusLabel}
               </span>

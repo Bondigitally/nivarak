@@ -44,7 +44,7 @@ export default function MedicationsPage() {
                   aria-label="Quick menu"
                   className="shrink-0 text-primary"
                 >
-                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.75} color="currentColor" />
+                  <HugeiconsIcon icon={EnergyIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                 </DashboardIconButton>
               </TooltipTrigger>
               <TooltipContent side="bottom">Quick menu</TooltipContent>
@@ -55,7 +55,7 @@ export default function MedicationsPage() {
         {hasMedications ? (
           <MedicationCards medications={medications} />
         ) : (
-          <div className={cn(dashboardCardClass, "flex min-h-[380px] flex-col")}>
+          <div className={cn(dashboardCardClass, "flex min-h-95 flex-col")}>
             <EmptyState
               icon={Medicine02Icon}
               title="No medications on file"

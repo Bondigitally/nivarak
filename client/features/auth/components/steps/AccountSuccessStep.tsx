@@ -97,7 +97,7 @@ export function AccountSuccessStep() {
                 <Button asChild size="cta" className="w-full">
                   <Link href="/login">
                     Go to Login
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={19} strokeWidth={1.75} />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
                   </Link>
                 </Button>
               </motion.div>

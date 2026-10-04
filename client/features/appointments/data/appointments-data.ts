@@ -40,7 +40,7 @@ export const APPOINTMENTS: AppointmentItem[] = [
     clinician: "Dr. Aris Mehta",
     clinicianRole: "General Practitioner",
     clinicianInitials: "AM",
-    clinicianAvatarUrl: "/images/appointments/dr-aris-mehta.jpg",
+    clinicianAvatarUrl: "/images/appointments/book-visit/dr-aris-mehta.jpg",
     visitType: "Home Visit",
     placeLabel: "Patient Residence",
     placeKind: "location",

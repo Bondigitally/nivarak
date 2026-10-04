@@ -17,10 +17,10 @@ export function SettingsSectionHeader({
       <HugeiconsIcon
         icon={icon}
         size={19}
-        strokeWidth={1.75}
+        strokeWidth={1.5}
         color="currentColor"
         className="size-4.75 shrink-0 text-foreground"
-      />
+      absoluteStrokeWidth />
       <h2 className={typo.headingXl}>{title}</h2>
     </div>
   );

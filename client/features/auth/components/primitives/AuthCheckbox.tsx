@@ -50,7 +50,7 @@ export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
           }}
           whileTap={{ scale: 0.92 }}
           transition={{ duration: 0.18, ease: CHECK_EASE }}
-          className="mt-0.5 flex size-4.75 shrink-0 items-center justify-center overflow-hidden rounded border group-has-focus-visible:ring-2 group-has-focus-visible:ring-ring group-has-focus-visible:ring-offset-1"
+          className="mt-0.5 flex size-4.75 shrink-0 items-center justify-center overflow-hidden rounded-xs border group-has-focus-visible:ring-2 group-has-focus-visible:ring-ring group-has-focus-visible:ring-offset-1"
         >
           <AnimatePresence initial={false} mode="wait">
             {isChecked && (
@@ -66,8 +66,8 @@ export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
                   icon={CheckIcon}
                   size={19}
                   color="var(--primary-foreground)"
-                  strokeWidth={2}
-                />
+                  strokeWidth={1.5}
+                absoluteStrokeWidth />
               </motion.span>
             )}
           </AnimatePresence>

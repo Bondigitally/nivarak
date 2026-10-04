@@ -4,7 +4,8 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { InformationDiamondIcon } from "@hugeicons/core-free-icons";
+import { InformationCircleIcon } from "@hugeicons/core-free-icons";
+import { ICON_STROKE, INFO_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export function EmptyState({
       )}
     >
       <span className="flex size-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-        <HugeiconsIcon icon={icon} size={32} strokeWidth={1.75} color="currentColor" />
+        <HugeiconsIcon icon={icon} size={32} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
       </span>
       <div className="flex max-w-dash-search flex-col items-center gap-1.5 text-center">
         <h3 className={cn(typo.headingL, "text-foreground")}>{title}</h3>
@@ -62,21 +63,22 @@ export function SectionInfoButton({ info }: { info: string }) {
           <button
             type="button"
             aria-label="Section info"
-            className="inline-flex size-[19px] shrink-0 items-center justify-center self-center rounded-sm text-info outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-info/40"
+            className="inline-flex size-4 shrink-0 items-center justify-center rounded-xs leading-none text-info outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-info/40"
           >
             <HugeiconsIcon
-              icon={InformationDiamondIcon}
-              size={19}
-              strokeWidth={1.75}
+              icon={InformationCircleIcon}
+              size={INFO_ICON_SIZE}
+              strokeWidth={ICON_STROKE}
+              absoluteStrokeWidth
               color="currentColor"
-              className="size-[19px]"
+              className="block size-4"
             />
           </button>
         </TooltipTrigger>
         <TooltipContent
           side="top"
           align="start"
-          className="max-w-60 rounded-lg px-3 py-2 text-left text-xs font-normal leading-snug whitespace-normal"
+          className="max-w-60 rounded-md px-3 py-2 text-left text-xs font-normal leading-snug whitespace-normal"
         >
           {info}
         </TooltipContent>
@@ -102,7 +104,7 @@ export function SectionTitle({
         className,
       )}
     >
-      <span className="min-w-0">{children}</span>
+      <span className="min-w-0 leading-[inherit]">{children}</span>
       {info ? <SectionInfoButton info={info} /> : null}
     </h2>
   );

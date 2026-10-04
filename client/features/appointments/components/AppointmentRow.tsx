@@ -1,13 +1,17 @@
 "use client";
 
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   CheckmarkCircle02Icon,
+  Clock01Icon,
   Location01Icon,
+  Tick02Icon,
   Video01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { AppIcon } from "@/components/shared/AppIcon";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import type {
@@ -27,19 +31,19 @@ const visitTypeStyles: Record<AppointmentVisitType, { className: string }> = {
 
 const statusStyles: Record<
   AppointmentStatus,
-  { className: string; dotClassName: string }
+  { className: string; icon?: IconSvgElement; dotClassName?: string }
 > = {
   Confirmed: {
     className: "border-success-muted bg-success-muted text-success",
-    dotClassName: "bg-success",
+    icon: Tick02Icon,
   },
   Scheduled: {
     className: "border-info-muted bg-info-muted text-info",
-    dotClassName: "bg-info",
+    icon: Clock01Icon,
   },
   Completed: {
     className: "border-border bg-muted text-muted-foreground",
-    dotClassName: "bg-placeholder",
+    icon: CheckmarkCircle02Icon,
   },
   Cancelled: {
     className: "border-destructive-muted bg-destructive-muted text-destructive",
@@ -65,14 +69,8 @@ function StatusBadge({
         className,
       )}
     >
-      {status === "Completed" ? (
-        <HugeiconsIcon
-          icon={CheckmarkCircle02Icon}
-          size={12}
-          strokeWidth={1.75}
-          color="currentColor"
-          aria-hidden
-        />
+      {statusStyle.icon ? (
+        <AppIcon icon={statusStyle.icon} size={BADGE_ICON_SIZE} aria-hidden />
       ) : (
         <span
           className={cn("size-1.5 rounded-full", statusStyle.dotClassName)}
@@ -96,7 +94,7 @@ export function AppointmentRow({
     appointment.placeKind === "video" ? Video01Icon : Location01Icon;
 
   return (
-    <article className="w-full rounded-[14px] border border-border bg-card shadow-[0px_2px_8px_rgba(17,24,39,0.05)]">
+    <article className="w-full rounded-lg border border-border bg-card shadow-[0px_2px_8px_rgba(17,24,39,0.05)]">
       {/* Mobile */}
       <div className="flex flex-col items-stretch p-3 md:hidden">
         <div className="flex items-center justify-between gap-4 self-stretch">
@@ -180,9 +178,10 @@ export function AppointmentRow({
             <div className="flex items-center gap-1 text-muted-foreground">
               <HugeiconsIcon
                 icon={placeIcon}
-                size={12}
-                strokeWidth={1.75}
+                size={19}
+                strokeWidth={1.5}
                 color="currentColor"
+                absoluteStrokeWidth
                 className="shrink-0"
               />
               <span className={cn(typo.caption, "text-muted-foreground")}>

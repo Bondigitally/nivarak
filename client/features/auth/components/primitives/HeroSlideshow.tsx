@@ -43,7 +43,7 @@ function PageIndicator({
             <span
               aria-hidden
               className={cn(
-                'relative block h-2 overflow-hidden rounded-[4px]',
+                'relative block h-2 overflow-hidden rounded-xs',
                 'motion-safe:transition-[width,background-color] motion-safe:duration-400 motion-safe:ease-in-out',
                 isActive ? 'bg-white/35' : 'bg-white/70 hover:bg-white',
               )}

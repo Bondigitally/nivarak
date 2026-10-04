@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -48,8 +49,14 @@ function ContactRow({
 }) {
   return (
     <div className="flex w-full items-center gap-2">
-      <span className="inline-flex size-4 shrink-0 text-muted-foreground" aria-hidden>
-        <HugeiconsIcon icon={icon} size={16} strokeWidth={1.75} color="currentColor" />
+      <span className="inline-flex size-5 shrink-0 text-muted-foreground" aria-hidden>
+        <HugeiconsIcon
+          icon={icon}
+          size={19}
+          strokeWidth={1.5}
+          color="currentColor"
+          absoluteStrokeWidth
+        />
       </span>
       <span className={cn(typo.bodyS, "text-muted-foreground")}>{children}</span>
     </div>
@@ -58,6 +65,28 @@ function ContactRow({
 
 function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
   const reduceMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const nameRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  useLayoutEffect(() => {
+    const container = nameRef.current;
+    const measure = measureRef.current;
+    if (!container || !measure) return;
+
+    const update = () => {
+      const overflow = measure.scrollWidth - container.clientWidth;
+      setShift(overflow > 1 ? overflow : 0);
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [member.name]);
+
+  const marquee = shift > 0 && hovered && !reduceMotion;
 
   return (
     <motion.article
@@ -66,9 +95,11 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       whileTap={reduceMotion ? undefined : "tap"}
       variants={staffCardVariants}
       transition={{ duration: 0.32, ease: CARD_EASE }}
-      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-[14px] border border-solid border-border bg-card p-0.75"
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-lg border border-solid border-border bg-card p-0.75"
     >
-      <div className="relative h-48 w-full overflow-hidden rounded-[14px]">
+      <div className="relative h-48 w-full overflow-hidden rounded-md">
         <motion.div
           variants={staffImageVariants}
           transition={{ duration: 0.32, ease: CARD_EASE }}
@@ -85,10 +116,37 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       </div>
 
       <div className="flex flex-col gap-2 p-4">
-        <div className="flex flex-wrap items-start gap-2">
-          <h3 className={cn(typo.headingL, "text-foreground")}>{member.name}</h3>
+        <div className="flex min-w-0 items-center gap-2">
+          <div ref={nameRef} className="relative min-w-0 flex-1 overflow-hidden">
+            <span
+              ref={measureRef}
+              className={cn(typo.headingL, "invisible absolute whitespace-nowrap")}
+              aria-hidden
+            >
+              {member.name}
+            </span>
+            <motion.h3
+              title={shift > 0 ? member.name : undefined}
+              className={cn(
+                typo.headingL,
+                "min-w-0 whitespace-nowrap text-foreground",
+                marquee ? "inline-block" : "truncate",
+              )}
+              animate={marquee ? { x: [0, -shift, 0] } : { x: 0 }}
+              transition={
+                marquee
+                  ? { duration: 5, repeat: Infinity, ease: "easeInOut" }
+                  : undefined
+              }
+            >
+              {member.name}
+            </motion.h3>
+          </div>
           <span
-            className={cn(statusBadgeClass, "bg-sidebar-accent text-muted-foreground")}
+            className={cn(
+              statusBadgeClass,
+              "shrink-0 bg-sidebar-accent text-muted-foreground",
+            )}
           >
             {member.role}
           </span>

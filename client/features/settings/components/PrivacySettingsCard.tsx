@@ -20,7 +20,7 @@ export function PrivacySettingsCard({
     <section className={cn(dashboardCardClass, "flex flex-col gap-6 p-6")}>
       <SettingsSectionHeader icon={UserShield01Icon} title="Privacy" />
 
-      <div className="flex flex-col gap-4 rounded-lg border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="flex flex-col gap-4 rounded-md border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0 space-y-2">
           <p className={cn(typo.headingS, "text-primary-active")}>{title}</p>
           <p className={cn(typo.caption, "text-muted-foreground")}>{body}</p>
@@ -36,10 +36,10 @@ export function PrivacySettingsCard({
             <HugeiconsIcon
               icon={ArrowRight01Icon}
               size={19}
-              strokeWidth={1.75}
+              strokeWidth={1.5}
               color="currentColor"
               className="size-4.75"
-            />
+            absoluteStrokeWidth />
           </Link>
         </Button>
       </div>

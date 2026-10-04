@@ -14,7 +14,7 @@ const STATUS_STYLES: Record<
 
 export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+    <section className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border px-6 pt-5 pb-4">
         <SectionTitle
           info="Recommended actions from your care plan, with owners and status so you can see what is on track."

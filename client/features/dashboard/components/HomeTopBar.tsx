@@ -20,7 +20,7 @@ import {
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
 import { DashboardIconButton } from "./DashboardIconButton";
-import { dashboardSearchBarClass } from "../data/dashboard-styles";
+import { dashboardSearchBarClass, dashboardSearchBarIconClass } from "../data/dashboard-styles";
 import { cn } from "@/lib/utils";
 import { SpotlightSearch, SearchShortcutHint } from "./SpotlightSearch";
 
@@ -119,7 +119,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
                 aria-label={menuLabel}
                 aria-expanded={menuExpanded}
                 onClick={toggle}
-                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground"
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <HugeiconsIcon
                   icon={
@@ -130,9 +130,9 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
                         : PanelRightCloseIcon
                   }
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
-                />
+                absoluteStrokeWidth />
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom">{menuLabel}</TooltipContent>
@@ -151,10 +151,10 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
           <HugeiconsIcon
             icon={Search01Icon}
             size={19}
-            strokeWidth={1.75}
+            strokeWidth={1.5}
             color="currentColor"
-            className="shrink-0 text-muted-foreground"
-          />
+            className={dashboardSearchBarIconClass}
+          absoluteStrokeWidth />
           <span className={cn(typo.bodyM, "min-w-0 flex-1 truncate text-placeholder")}>
             Search patients, vitals, reports…
           </span>
@@ -167,7 +167,7 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
             className={cn(typo.button, "max-sm:px-3")}
             onClick={openBookVisit}
           >
-            <HugeiconsIcon icon={CalendarAdd01Icon} size={19} strokeWidth={1.75} color="currentColor" />
+            <HugeiconsIcon icon={CalendarAdd01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
             <span className="max-sm:sr-only">Book Appointment</span>
           </Button>
           <Tooltip>
@@ -176,9 +176,9 @@ export function HomeTopBar({ notificationCount }: { notificationCount: number })
                 <HugeiconsIcon
                   icon={Notification01Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
-                />
+                absoluteStrokeWidth />
                 {notificationCount > 0 ? (
                   <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[12px] leading-4 text-primary-foreground">
                     {notificationCount}

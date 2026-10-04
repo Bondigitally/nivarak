@@ -17,12 +17,12 @@ function FamilyCaregiverCard({ caregiver }: { caregiver: FamilyCaregiver }) {
   return (
     <article
       className={cn(
-        "flex w-full flex-col gap-4 rounded-[14px] border border-border bg-card px-4 py-5 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        "flex w-full flex-col gap-4 rounded-lg border border-border bg-card px-4 py-5 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:py-6",
       )}
     >
       <div className="flex min-w-0 items-center gap-4">
-        <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-md">
           <Image
             src={caregiver.imageSrc}
             alt=""
@@ -63,7 +63,7 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
   return (
     <div
       className={cn(
-        "flex w-full flex-col gap-4 rounded-[14px] border border-dashed border-border bg-card p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
+        "flex w-full flex-col gap-4 rounded-lg border border-dashed border-border bg-card p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
         "sm:min-h-24 sm:flex-row sm:items-center sm:justify-between sm:p-6",
       )}
     >
@@ -71,10 +71,10 @@ function AddFamilyMemberCard({ onInvite }: { onInvite: () => void }) {
         <span className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-card text-muted-foreground">
           <HugeiconsIcon
             icon={Add01Icon}
-            size={16}
-            strokeWidth={1.75}
+            size={19}
+            strokeWidth={1.5}
             color="currentColor"
-          />
+          absoluteStrokeWidth />
         </span>
         <p className="text-lg font-normal leading-7 text-muted-foreground">
           Add Family Member

@@ -99,7 +99,7 @@ export function AppointmentsCard({
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-                    <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-background px-1.5 py-1.5 transition-colors duration-150 group-hover:bg-card sm:min-w-14 sm:w-auto sm:px-2.5">
+                    <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-md bg-background px-1.5 py-1.5 transition-colors duration-150 group-hover:bg-card sm:min-w-14 sm:w-auto sm:px-2.5">
                       <span className={cn(typo.headingS, "text-tertiary-foreground")}>{appointment.month}</span>
                       <span className={cn(typo.headingXl, "text-primary-active")}>
                         {appointment.day}
@@ -112,7 +112,7 @@ export function AppointmentsCard({
                       <div className="mt-1.5 flex flex-col gap-1">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-info-muted text-muted-foreground">
-                            <HugeiconsIcon icon={Clock01Icon} size={19} strokeWidth={1.75} color="currentColor" />
+                            <HugeiconsIcon icon={Clock01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                           </span>
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>{appointment.time}</span>
                         </div>
@@ -121,9 +121,9 @@ export function AppointmentsCard({
                             <HugeiconsIcon
                               icon={UserMultiple02Icon}
                               size={19}
-                              strokeWidth={1.75}
+                              strokeWidth={1.5}
                               color="currentColor"
-                            />
+                            absoluteStrokeWidth />
                           </span>
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>
                             {appointment.clinician}

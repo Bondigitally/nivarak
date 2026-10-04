@@ -22,6 +22,11 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
+  dialogBodyShellClass,
+  dialogCloseButtonClass,
+  dialogFooterShellClass,
+  dialogHeaderShellClass,
+  dialogPrimitiveContentClass,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -217,22 +222,18 @@ export function BookVisitModal() {
   return (
     <Dialog open={bookVisitOpen} onOpenChange={setBookVisitOpen}>
       <DialogPortal>
-        <DialogOverlay className="z-100" />
+        <DialogOverlay />
         <DialogPrimitive.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-100 flex max-h-[min(92vh,880px)] w-[calc(100%-2rem)] max-w-160 -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[20px] border border-border bg-card p-0 shadow-[0_12px_24px_-4px_rgba(17,24,39,0.12)] outline-none sm:max-w-160",
-            "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            dialogPrimitiveContentClass("max-w-160 sm:max-w-160"),
+            "max-h-[min(92vh,880px)]",
           )}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             (event.currentTarget as HTMLElement).focus();
           }}
         >
-        <DialogHeader
-          className="flex shrink-0 flex-row items-center justify-between gap-4 space-y-0 rounded-none border-b border-border bg-transparent px-6 py-5 text-left sm:px-8 sm:py-6"
-        >
+        <DialogHeader className={dialogHeaderShellClass}>
           <div className="min-w-0 pr-2">
             <DialogTitle className={cn(typo.headingXxl, "text-foreground")}>
               Book a visit
@@ -247,19 +248,19 @@ export function BookVisitModal() {
               variant="ghost"
               size="icon"
               aria-label="Close"
-              className="size-10 shrink-0 rounded-full text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] hover:text-foreground"
+              className={cn("inline-flex", dialogCloseButtonClass)}
             >
               <HugeiconsIcon
                 icon={Cancel01Icon}
-                size={16}
-                strokeWidth={1.75}
+                size={19}
+                strokeWidth={1.5}
                 color="currentColor"
-              />
+              absoluteStrokeWidth />
             </Button>
           </DialogClose>
         </DialogHeader>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-x-hidden overflow-y-auto overscroll-contain px-6 py-6 sm:gap-8 sm:px-8 sm:py-7">
+        <div className={dialogBodyShellClass}>
           <section className="flex flex-col gap-3 sm:gap-4">
             <h2 className={cn(typo.headingM, "text-foreground")}>Select Visit Type</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
@@ -272,7 +273,7 @@ export function BookVisitModal() {
                     onClick={() => setVisitType(type.id)}
                     aria-pressed={selected}
                     className={cn(
-                      "flex flex-col items-start gap-1 rounded-[14px] border p-4 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)] transition-colors",
+                      "flex flex-col items-start gap-1 rounded-md border p-4 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)] transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       selected
                         ? "border-primary bg-sidebar-accent text-primary-active"
@@ -282,9 +283,9 @@ export function BookVisitModal() {
                     <HugeiconsIcon
                       icon={type.icon}
                       size={19}
-                      strokeWidth={1.75}
+                      strokeWidth={1.5}
                       color="currentColor"
-                    />
+                    absoluteStrokeWidth />
                     <span
                       className={cn(
                         typo.headingS,
@@ -312,7 +313,7 @@ export function BookVisitModal() {
                 <button
                   type="button"
                   className={cn(
-                    "relative flex h-12 w-full items-center rounded-[14px] border border-border bg-card px-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] sm:h-14",
+                    "relative flex h-12 w-full items-center rounded-md border border-border bg-card px-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] sm:h-14",
                     "text-left outline-none transition-colors hover:bg-background",
                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   )}
@@ -328,24 +329,24 @@ export function BookVisitModal() {
                   </span>
                   <HugeiconsIcon
                     icon={ArrowDown01Icon}
-                    size={16}
-                    strokeWidth={1.75}
+                    size={19}
+                    strokeWidth={1.5}
                     color="currentColor"
                     className="shrink-0 text-muted-foreground"
-                  />
+                  absoluteStrokeWidth />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
                 sideOffset={8}
-                className="z-110 w-(--radix-dropdown-menu-trigger-width) rounded-[14px] border-border bg-card p-1.5 shadow-md"
+                className="z-110 w-(--radix-dropdown-menu-trigger-width) rounded-md border-border bg-card p-1.5 shadow-md"
               >
                 {VISIT_REASONS.map((item) => (
                   <DropdownMenuItem
                     key={item}
                     onSelect={() => setReason(item)}
                     className={cn(
-                      "cursor-pointer rounded-[10px] px-3 py-2.5",
+                      "cursor-pointer rounded-sm px-3 py-2.5",
                       typo.input,
                       reason === item && "bg-background",
                     )}
@@ -372,10 +373,10 @@ export function BookVisitModal() {
                 >
                   <HugeiconsIcon
                     icon={ArrowLeft01Icon}
-                    size={16}
-                    strokeWidth={1.75}
+                    size={19}
+                    strokeWidth={1.5}
                     color="currentColor"
-                  />
+                  absoluteStrokeWidth />
                 </button>
                 <button
                   type="button"
@@ -385,10 +386,10 @@ export function BookVisitModal() {
                 >
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}
-                    size={16}
-                    strokeWidth={1.75}
+                    size={19}
+                    strokeWidth={1.5}
                     color="currentColor"
-                  />
+                  absoluteStrokeWidth />
                 </button>
               </div>
             </div>
@@ -407,7 +408,7 @@ export function BookVisitModal() {
                       onClick={() => setDateId(date.id)}
                       aria-pressed={selected}
                       className={cn(
-                        "flex min-w-0 flex-1 flex-col items-center rounded-xl px-1.5 py-2.5 transition-colors duration-300 ease-out sm:px-2",
+                        "flex min-w-0 flex-1 flex-col items-center rounded-md px-1.5 py-2.5 transition-colors duration-300 ease-out sm:px-2",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
                           ? "bg-primary p-2 text-primary-foreground"
@@ -458,7 +459,7 @@ export function BookVisitModal() {
                       onClick={() => setTimeId(time.id)}
                       aria-pressed={selected}
                       className={cn(
-                        "flex h-11 items-center justify-center rounded-[14px] border px-4 shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-colors sm:px-5",
+                        "flex h-11 items-center justify-center rounded-md border px-4 shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-colors sm:px-5",
                         typo.button,
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
@@ -475,7 +476,7 @@ export function BookVisitModal() {
             </div>
           </section>
 
-          <div className="flex items-start justify-between gap-4 rounded-[14px] bg-background p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]">
+          <div className="flex items-start justify-between gap-4 rounded-md bg-background p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]">
             <div className="flex min-w-0 flex-col gap-0.5">
               <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
                 {selectedVisit.title}
@@ -495,7 +496,7 @@ export function BookVisitModal() {
           </div>
         </div>
 
-        <DialogFooter className="flex shrink-0 flex-col gap-3 rounded-none border-t border-border bg-card px-6 py-5 sm:flex-col sm:justify-stretch sm:gap-4 sm:px-8 sm:py-6">
+        <DialogFooter className={cn(dialogFooterShellClass, "sm:flex-col sm:justify-stretch")}>
           <p className={cn(typo.bodyM, "text-center text-tertiary-foreground")}>
             Your care coordinator will confirm the assigned clinician.
           </p>
@@ -518,9 +519,9 @@ export function BookVisitModal() {
               <HugeiconsIcon
                 icon={DateTimeIcon}
                 size={19}
-                strokeWidth={1.75}
+                strokeWidth={1.5}
                 color="currentColor"
-              />
+              absoluteStrokeWidth />
               Confirm request
             </Button>
           </div>

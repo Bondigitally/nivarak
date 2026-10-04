@@ -101,7 +101,7 @@ export function LoginForm({
         className="w-full"
         onClick={() => onLoginMethodChange('email')}
       >
-        <HugeiconsIcon icon={Mail02Icon} size={19} strokeWidth={1.75} />
+        <HugeiconsIcon icon={Mail02Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
         Continue with Email
       </Button>
     ) : (
@@ -112,7 +112,7 @@ export function LoginForm({
         className="w-full"
         onClick={() => onLoginMethodChange('phone')}
       >
-        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.75} />
+        <HugeiconsIcon icon={Call02Icon} size={19} strokeWidth={1.5} absoluteStrokeWidth />
         Continue with Phone Number
       </Button>
     );

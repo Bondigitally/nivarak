@@ -53,9 +53,9 @@ function BackToLoginLink({ className }: { className?: string }) {
       <HugeiconsIcon
         icon={ArrowLeft01Icon}
         size={19}
-        strokeWidth={1.75}
+        strokeWidth={1.5}
         className="shrink-0"
-      />
+      absoluteStrokeWidth />
       <span className="leading-none">Back to login</span>
     </Link>
   );

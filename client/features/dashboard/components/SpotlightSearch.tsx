@@ -17,14 +17,14 @@ import {
 } from "@hugeicons/core-free-icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { dashboardSearchBarClass } from "../data/dashboard-styles";
+import { dashboardSearchBarClass, dashboardSearchBarIconClass } from "../data/dashboard-styles";
 
 export function SearchShortcutHint() {
   return (
     <span
       className={cn(
         typo.caption,
-        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full bg-background px-2.5 text-muted-foreground sm:flex",
+        "hidden h-9 w-fit shrink-0 items-center gap-0.5 rounded-full bg-table-header px-2.5 text-muted-foreground transition-colors duration-200 ease-out group-hover:text-foreground/85 sm:flex",
       )}
       aria-hidden
     >
@@ -187,10 +187,10 @@ export function SpotlightSearch({
                 <HugeiconsIcon
                   icon={Search01Icon}
                   size={19}
-                  strokeWidth={1.75}
+                  strokeWidth={1.5}
                   color="currentColor"
-                  className="shrink-0 text-muted-foreground"
-                />
+                  className={dashboardSearchBarIconClass}
+                absoluteStrokeWidth />
                 <input
                   ref={inputRef}
                   type="search"
@@ -209,7 +209,7 @@ export function SpotlightSearch({
                     onClick={() => onQueryChange("")}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.75} color="currentColor" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
                   </button>
                 ) : (
                   <SearchShortcutHint />
@@ -220,7 +220,7 @@ export function SpotlightSearch({
                 initial={reducedMotion ? false : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={FADE}
-                className="overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
+                className="overflow-hidden rounded-md border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
               >
                 <p className={cn(typo.overline, "px-4 pt-3 pb-1")}>
                   {hasQuery ? "Results" : "Suggested"}
@@ -241,7 +241,7 @@ export function SpotlightSearch({
                               onOpenChange(false);
                             }}
                             className={cn(
-                              "flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left transition-colors",
+                              "flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left transition-colors",
                               active ? "bg-accent" : "hover:bg-accent/70",
                             )}
                           >
@@ -249,9 +249,9 @@ export function SpotlightSearch({
                               <HugeiconsIcon
                                 icon={item.icon}
                                 size={19}
-                                strokeWidth={1.75}
+                                strokeWidth={1.5}
                                 color="currentColor"
-                              />
+                              absoluteStrokeWidth />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className={cn(typo.button, "block truncate text-foreground")}>

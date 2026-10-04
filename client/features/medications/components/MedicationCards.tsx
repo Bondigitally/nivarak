@@ -10,8 +10,11 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { AppIcon } from "@/components/shared/AppIcon";
+import { AnimatedStrikeText } from "@/components/shared/AnimatedStrikeText";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import {
   MOCK_TODAY_MEDICATIONS,
@@ -39,14 +42,18 @@ const PERIOD_STYLES: Record<
   },
 };
 
-function PeriodBadge({ period }: { period: DosePeriod }) {
+function PeriodBadge({ period, dimmed = false }: { period: DosePeriod; dimmed?: boolean }) {
   const style = PERIOD_STYLES[period];
   return (
     <span
-      className={cn(statusBadgeClass, "gap-1", style.bg, style.text)}
+      className={cn(
+        statusBadgeClass,
+        "gap-1 transition-colors duration-200",
+        dimmed ? "bg-muted text-tertiary-foreground" : [style.bg, style.text],
+      )}
     >
-      <HugeiconsIcon icon={style.icon} size={16} strokeWidth={1.75} color="currentColor" />
-      {style.label}
+      <AppIcon icon={style.icon} size={BADGE_ICON_SIZE} />
+      <AnimatedStrikeText active={dimmed}>{style.label}</AnimatedStrikeText>
     </span>
   );
 }
@@ -74,7 +81,7 @@ function AdherenceButtons({
             "border-success text-success hover:bg-success/5 hover:text-success active:bg-success/10 active:text-success",
         )}
       >
-        <HugeiconsIcon icon={Tick02Icon} size={16} strokeWidth={1.75} color="currentColor" />
+        <HugeiconsIcon icon={Tick02Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
         Taken
       </Button>
       <Button
@@ -88,7 +95,7 @@ function AdherenceButtons({
             "border-destructive text-destructive hover:bg-destructive/5 hover:text-destructive active:bg-destructive/10 active:text-destructive",
         )}
       >
-        <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.75} color="currentColor" />
+        <HugeiconsIcon icon={Cancel01Icon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
         Skipped
       </Button>
     </div>
@@ -98,28 +105,53 @@ function AdherenceButtons({
 function MedicationMeta({
   medication,
   showPeriodBadge,
+  dimmed = false,
 }: {
   medication: MedicationItem;
   showPeriodBadge: boolean;
+  dimmed?: boolean;
 }) {
   const singleDose = medication.doses.length === 1 ? medication.doses[0] : null;
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className={cn(typo.headingXl, "text-[20px] leading-7.5 text-foreground")}>
-          {medication.name}
+        <h2 className="min-w-0">
+          <AnimatedStrikeText
+            active={dimmed}
+            className={cn(
+              typo.headingXl,
+              "text-[20px] leading-7.5 transition-colors duration-200",
+              dimmed ? "text-tertiary-foreground" : "text-foreground",
+            )}
+          >
+            {medication.name}
+          </AnimatedStrikeText>
         </h2>
-        <span className="text-base font-normal leading-6 text-muted-foreground">{medication.dosage}</span>
+        <span
+          className={cn(
+            "text-base font-normal leading-6 transition-colors duration-200",
+            dimmed ? "text-tertiary-foreground" : "text-muted-foreground",
+          )}
+        >
+          {medication.dosage}
+        </span>
       </div>
       <div className="flex flex-wrap items-center gap-4">
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <HugeiconsIcon icon={RepeatIcon} size={16} strokeWidth={1.75} color="currentColor" />
-          <span className={cn(typo.button, "text-muted-foreground")}>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 transition-colors duration-200",
+            dimmed ? "text-tertiary-foreground" : "text-muted-foreground",
+          )}
+        >
+          <HugeiconsIcon icon={RepeatIcon} size={19} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
+          <span className={cn(typo.button, dimmed ? "text-tertiary-foreground" : "text-muted-foreground")}>
             {medication.frequencyLabel}
           </span>
         </span>
-        {showPeriodBadge && singleDose ? <PeriodBadge period={singleDose.period} /> : null}
+        {showPeriodBadge && singleDose ? (
+          <PeriodBadge period={singleDose.period} dimmed={dimmed} />
+        ) : null}
       </div>
     </div>
   );
@@ -136,7 +168,7 @@ function DoseRow({
 }) {
   return (
     <div className={cn("flex flex-wrap items-center justify-between gap-3", className)}>
-      <PeriodBadge period={dose.period} />
+      <PeriodBadge period={dose.period} dimmed={dose.status === "taken"} />
       <AdherenceButtons status={dose.status} onChange={onChange} />
     </div>
   );
@@ -150,17 +182,20 @@ function MedicationCard({
   onDoseChange: (doseId: string, status: DoseStatus) => void;
 }) {
   const isMultiDose = medication.doses.length > 1;
+  const allDosesTaken = medication.doses.every((dose) => dose.status === "taken");
 
   if (!isMultiDose) {
     const dose = medication.doses[0];
+    const isTaken = dose.status === "taken";
     return (
       <article
         className={cn(
           dashboardCardClass,
-          "flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between",
+          "flex flex-col gap-4 p-6 transition-colors duration-200 sm:flex-row sm:items-center sm:justify-between",
+          isTaken && "bg-muted/30",
         )}
       >
-        <MedicationMeta medication={medication} showPeriodBadge />
+        <MedicationMeta medication={medication} showPeriodBadge dimmed={isTaken} />
         <AdherenceButtons
           status={dose.status}
           onChange={(status) => onDoseChange(dose.id, status)}
@@ -170,8 +205,14 @@ function MedicationCard({
   }
 
   return (
-    <article className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
-      <MedicationMeta medication={medication} showPeriodBadge={false} />
+    <article
+      className={cn(
+        dashboardCardClass,
+        "flex flex-col gap-4 p-6 transition-colors duration-200",
+        allDosesTaken && "bg-muted/30",
+      )}
+    >
+      <MedicationMeta medication={medication} showPeriodBadge={false} dimmed={allDosesTaken} />
       <div className="flex flex-col gap-2 border-t border-border pt-4.25">
         {medication.doses.map((dose, index) => (
           <DoseRow

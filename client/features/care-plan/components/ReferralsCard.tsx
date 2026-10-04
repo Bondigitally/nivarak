@@ -20,7 +20,7 @@ const STATUS_STYLES: Record<
 
 export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) {
   return (
-    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-2xl border border-border bg-card p-6">
+    <section className="flex h-full flex-1 flex-col gap-5 self-stretch rounded-lg border border-border bg-card p-6">
       <SectionTitle
         info="Specialist and therapy referrals arranged by your care team, with scheduling status for each."
         className="flex-none pr-0 text-[20px] text-foreground"
@@ -35,16 +35,16 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
           return (
             <li
               key={referral.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted p-4"
+              className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted p-4"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span className="inline-flex size-4.75 shrink-0 text-foreground" aria-hidden>
                   <HugeiconsIcon
                     icon={REFERRAL_ICONS[referral.icon]}
                     size={19}
-                    strokeWidth={1.75}
+                    strokeWidth={1.5}
                     color="currentColor"
-                  />
+                  absoluteStrokeWidth />
                 </span>
                 <span className="truncate text-base font-normal leading-6 text-foreground">
                   {referral.label}

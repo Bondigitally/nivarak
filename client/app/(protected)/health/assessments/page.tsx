@@ -38,7 +38,7 @@ export default function AssessmentsPage() {
             <IasScoreCard assessment={assessment} variant="plain" />
 
             <div
-              className="flex flex-col items-stretch justify-start self-stretch rounded-[12px] bg-card"
+              className="flex flex-col items-stretch justify-start self-stretch rounded-md bg-card"
               style={{
                 outline: "1px solid var(--border)",
                 outlineOffset: "-1px",
@@ -55,13 +55,13 @@ export default function AssessmentsPage() {
                 <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
               </div>
 
-              <div className="overflow-hidden self-stretch rounded-b-[12px] px-5 pt-2 pb-2">
+              <div className="overflow-hidden self-stretch rounded-b-md px-5 pt-2 pb-2">
                 <div className="w-full overflow-x-auto">
-                  <table className="w-full min-w-[640px] table-fixed border-separate border-spacing-0">
+                  <table className="w-full min-w-160 table-fixed border-separate border-spacing-0">
                     <colgroup>
                       <col />
-                      <col className="w-[11rem]" />
-                      <col className="w-[9rem]" />
+                      <col className="w-44" />
+                      <col className="w-36" />
                       <col className="w-14" />
                     </colgroup>
                     <thead>
@@ -123,10 +123,10 @@ export default function AssessmentsPage() {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
-            <div className="flex max-w-[480px] flex-col items-center text-center">
+          <div className="flex min-h-95 flex-col items-center justify-center rounded-lg border border-border bg-card p-6">
+            <div className="flex max-w-dash-search flex-col items-center text-center">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-                <HugeiconsIcon icon={AssignmentsIcon} size={32} strokeWidth={1.75} color="currentColor" />
+                <HugeiconsIcon icon={AssignmentsIcon} size={32} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
               </div>
               <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">No assessments yet</h2>
               <p className="mt-2 text-sm font-normal leading-5 text-muted-foreground">
