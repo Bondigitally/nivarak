@@ -40,7 +40,7 @@ export function CategoryCard({
       <span aria-hidden className={cardLiftHoverWashClass} />
       <div
         className={cn(
-          "relative z-1 flex size-12 shrink-0 items-center justify-center bg-table-header p-2",
+          "relative z-1 flex size-12 shrink-0 items-center justify-center border border-border bg-table-header p-2",
           radius.md,
           "motion-safe:transition-transform motion-safe:duration-220 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]",
           "motion-safe:group-hover:scale-[1.04]",

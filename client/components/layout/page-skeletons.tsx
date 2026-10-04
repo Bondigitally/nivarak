@@ -24,7 +24,7 @@ function TopBarSkeleton() {
       )}
     >
       <div className="justify-self-start">
-        <Skeleton className="size-8 rounded-md" />
+        <Skeleton className="size-8 rounded-md lg:hidden" />
       </div>
       <div
         className={cn(

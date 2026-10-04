@@ -40,11 +40,11 @@ const buttonVariants = cva(
           'disabled:text-[var(--text-disabled)] disabled:after:hidden',
         ),
         destructive:
-          'bg-destructive text-white hover:bg-destructive/90 disabled:opacity-50',
+          'bg-destructive text-primary-foreground hover:bg-destructive/90 disabled:opacity-50',
         'destructive-outline':
           'border border-destructive bg-card text-destructive hover:bg-destructive/5 disabled:opacity-50',
         'primary-outline':
-          'border border-primary bg-card text-primary hover:bg-primary/5 disabled:opacity-50',
+          'border border-primary bg-card text-primary hover:text-ring hover:border-ring disabled:opacity-50',
         'info-outline':
           'border border-info/40 bg-card text-info hover:border-info/60 hover:bg-info-muted disabled:opacity-50',
       },

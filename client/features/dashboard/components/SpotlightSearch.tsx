@@ -37,7 +37,9 @@ export function SearchShortcutHint() {
   );
 }
 
+/** Spring for the panel entrance — fast settle avoids elastic overshoot. */
 const SPRING = { type: "spring", stiffness: 520, damping: 36, mass: 0.75 } as const;
+/** Overlay fade uses the shared ease curve from elevation tokens. */
 const FADE = { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const };
 
 type SpotlightItem = {
@@ -48,6 +50,10 @@ type SpotlightItem = {
   icon: IconSvgElement;
 };
 
+/**
+ * "Book appointment" currently links to /dashboard (placeholder) because the
+ * standalone booking route doesn't exist yet. Update the href when it ships.
+ */
 const SPOTLIGHT_ITEMS: SpotlightItem[] = [
   {
     id: "patients",
@@ -107,6 +113,8 @@ export function SpotlightSearch({
   }, [query]);
 
   useEffect(() => {
+    // Defer portal mount to avoid SSR/hydration mismatch when creating
+    // a portal to document.body.
     const id = window.setTimeout(() => setMounted(true), 0);
     return () => window.clearTimeout(id);
   }, []);
@@ -222,7 +230,7 @@ export function SpotlightSearch({
                 initial={reducedMotion ? false : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={FADE}
-                className="overflow-hidden rounded-md border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
+                className="overflow-hidden rounded-md border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.55)]"
               >
                 <p className={cn(typo.overline, "px-4 pt-3 pb-1")}>
                   {hasQuery ? "Results" : "Suggested"}
