@@ -24,7 +24,6 @@ import {
 import {
   AnimatePresence,
   motion,
-  useAnimationControls,
   useReducedMotion,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -36,6 +35,7 @@ import {
   SIDEBAR_WIDTH_EXPANDED,
   useSidebar,
 } from "@/components/layout/sidebar-context";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import {
   Sheet,
   SheetContent,
@@ -57,16 +57,12 @@ type NavChild = {
   roles?: UserRole[];
 };
 
-/** One-shot transform when a parent nav item becomes active. */
-type NavIconMotion = "lift" | "pulse" | "shift" | "gear";
-
 type NavItem = {
   label: string;
   icon: IconSvgElement;
   href?: string;
   children?: NavChild[];
   roles?: UserRole[];
-  iconMotion: NavIconMotion;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -74,12 +70,10 @@ const NAV_ITEMS: NavItem[] = [
     label: "Home",
     icon: Home12Icon,
     href: "/dashboard",
-    iconMotion: "lift",
   },
   {
     label: "Health",
     icon: HealthIcon,
-    iconMotion: "pulse",
     children: [
       { label: "Assessments", href: "/health/assessments" },
       { label: "Vitals", href: "/health/vitals" },
@@ -89,7 +83,6 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "Care",
     icon: HealtcareIcon,
-    iconMotion: "lift",
     children: [
       { label: "Care Plan", href: "/care/plan" },
       { label: "Medications", href: "/care/medications" },
@@ -101,7 +94,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Care Team",
     icon: UserMultiple02Icon,
     href: "/care-team",
-    iconMotion: "shift",
   },
 ];
 
@@ -117,32 +109,18 @@ const SUBMENU_MOTION = {
   duration: 0.32,
   ease: [0.22, 1, 0.36, 1] as const,
 };
-/** Chevron open/close — separate from parent icon active-state motion. */
+/** Chevron open/close when a section expands. */
 const CHEVRON_MOTION = {
   duration: 0.24,
   ease: "easeOut" as const,
 };
-const NAV_ICON_MOTION = {
-  duration: 0.24,
-  ease: "easeOut" as const,
-};
-
-const NAV_ICON_ACTIVE_FRAMES: Record<
-  NavIconMotion,
-  { y?: number[]; scale?: number[]; x?: number[]; rotate?: number[] }
-> = {
-  lift: { y: [0, -2, 0] },
-  pulse: { scale: [1, 1.08, 1] },
-  shift: { x: [0, 2, 0] },
-  gear: { rotate: [0, 24, 0] },
-};
 const CHROME = "flex shrink-0 items-center";
 /** Expanded row — pairs with nav `p-2`. */
 const NAV_BTN =
-  "flex h-11 w-full items-center gap-2 rounded-[14px] px-2 py-3";
+  "flex h-11 w-full items-center gap-2 rounded-md px-2 py-3";
 /** Icon rail hit target — pairs with collapsed `w-14` (56px) + `p-1.5`. */
 const COLLAPSED_BTN =
-  "flex size-10 shrink-0 items-center justify-center rounded-[14px]";
+  "flex size-10 shrink-0 items-center justify-center rounded-md";
 /** Left inset so a size-10 control is centered in the 56px clipped rail. */
 const COLLAPSED_ICON_INSET = "pl-2"; // (56 - 40) / 2 = 8px
 
@@ -180,72 +158,24 @@ function SidebarDivider({
   );
 }
 
+/** Sidebar icons — Material-like: 19×19, regular stroke, stroke-rounded set. */
 function NavIcon({
   icon,
-  size = 19,
-  strokeWidth = 1.75,
+  size = ICON_SIZE,
 }: {
   icon: IconSvgElement;
   size?: number;
-  strokeWidth?: number;
 }) {
   return (
     <HugeiconsIcon
       icon={icon}
       size={size}
-      strokeWidth={strokeWidth}
-      absoluteStrokeWidth={false}
+      strokeWidth={ICON_STROKE}
+      absoluteStrokeWidth
       color="currentColor"
-      className="shrink-0"
+      className="block size-[19px] shrink-0"
+      aria-hidden
     />
-  );
-}
-
-/**
- * Plays a one-shot transform when `active` flips false → true.
- * Does not loop while active; skips entirely under prefers-reduced-motion.
- */
-function AnimatedNavIcon({
-  icon,
-  active,
-  motion: motionType,
-  size = 19,
-  strokeWidth = 1.75,
-}: {
-  icon: IconSvgElement;
-  active: boolean;
-  motion: NavIconMotion;
-  size?: number;
-  strokeWidth?: number;
-}) {
-  const reduceMotion = useReducedMotion();
-  const controls = useAnimationControls();
-  const prevActive = useRef(active);
-  const skipInitial = useRef(true);
-
-  useEffect(() => {
-    if (skipInitial.current) {
-      skipInitial.current = false;
-      prevActive.current = active;
-      return;
-    }
-    if (active && !prevActive.current && !reduceMotion) {
-      void controls.start({
-        ...NAV_ICON_ACTIVE_FRAMES[motionType],
-        transition: { ...NAV_ICON_MOTION, times: [0, 0.45, 1] },
-      });
-    }
-    prevActive.current = active;
-  }, [active, controls, motionType, reduceMotion]);
-
-  return (
-    <motion.span
-      className="inline-flex shrink-0 items-center justify-center"
-      initial={false}
-      animate={controls}
-    >
-      <NavIcon icon={icon} size={size} strokeWidth={strokeWidth} />
-    </motion.span>
   );
 }
 
@@ -254,12 +184,12 @@ function NavChevron({ open }: { open: boolean }) {
 
   return (
     <motion.span
-      className="inline-flex size-4.75 shrink-0 text-tertiary-foreground"
+      className="inline-flex size-[19px] shrink-0 items-center justify-center"
       // ChevronRight: 0° = right, 90° = down when the submenu is open.
       animate={{ rotate: open ? 90 : 0 }}
       transition={reduceMotion ? { duration: 0 } : CHEVRON_MOTION}
     >
-      <NavIcon icon={ChevronRightIcon} size={19} />
+      <NavIcon icon={ChevronRightIcon} />
     </motion.span>
   );
 }
@@ -393,7 +323,7 @@ export function Sidebar() {
               FOCUS,
               railCollapsed
                 ? COLLAPSED_BTN
-                : "flex min-w-0 flex-1 items-center gap-2 rounded-[14px] px-2",
+                : "flex min-w-0 flex-1 items-center gap-2 rounded-md px-2",
             )}
             aria-label="Nivarak home"
             onClick={() => {
@@ -402,7 +332,7 @@ export function Sidebar() {
           >
             <span className="flex size-10 shrink-0 items-center justify-center">
               <Image
-                src="/images/nivarak-logo-no-text.png"
+                src="/images/nivarak-logo.png"
                 alt=""
                 width={40}
                 height={40}
@@ -421,7 +351,7 @@ export function Sidebar() {
                 >
                   nivarak
                 </span>
-                <span className={cn("truncate", typo.caption)}>
+                <span className={cn("truncate", typo.caption, "text-muted-foreground")}>
                   Unifying Eldercare
                 </span>
               </span>
@@ -435,15 +365,10 @@ export function Sidebar() {
               onClick={() => setOpen(false)}
               className={cn(
                 FOCUS,
-                "inline-flex size-10 shrink-0 items-center justify-center rounded-[14px] text-muted-foreground hover:bg-accent hover:text-foreground",
+                "inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
             >
-              <HugeiconsIcon
-                icon={Cancel01Icon}
-                size={19}
-                strokeWidth={1.75}
-                color="currentColor"
-              />
+              <NavIcon icon={Cancel01Icon} />
             </button>
           ) : null}
         </div>
@@ -487,11 +412,7 @@ export function Sidebar() {
                       FOCUS,
                     )}
                   >
-                    <AnimatedNavIcon
-                      icon={item.icon}
-                      active={parentActive}
-                      motion={item.iconMotion}
-                    />
+                    <NavIcon icon={item.icon} />
                     {!railCollapsed ? (
                       <>
                         <span className="min-w-0 flex-1 truncate text-left">
@@ -517,7 +438,7 @@ export function Sidebar() {
                         className="w-full overflow-hidden"
                       >
                         <div className="flex flex-col px-3.5 pt-2">
-                          <div className="flex flex-col gap-1 border-l-2 border-border py-0.5 pl-2.5">
+                          <div className="flex flex-col gap-1 border-l border-border py-0.5 pl-2.5">
                             {item.children.map((child) => {
                               const active = isActive(child.href);
                               return (
@@ -529,7 +450,7 @@ export function Sidebar() {
                                     active
                                       ? typo.sidebarItemActive
                                       : typo.sidebarItem,
-                                    "flex h-9 items-center rounded-[14px] py-2 pr-2 pl-4",
+                                    "flex h-9 items-center rounded-md py-2 pr-2 pl-4",
                                     active ? NAV_ACTIVE : NAV_IDLE,
                                     FOCUS,
                                   )}
@@ -567,11 +488,7 @@ export function Sidebar() {
                   FOCUS,
                 )}
               >
-                <AnimatedNavIcon
-                  icon={item.icon}
-                  active={active}
-                  motion={item.iconMotion}
-                />
+                <NavIcon icon={item.icon} />
                 {!railCollapsed ? (
                   <span className="min-w-0 flex-1 truncate">{item.label}</span>
                 ) : null}
@@ -608,11 +525,7 @@ export function Sidebar() {
                   FOCUS,
                 )}
               >
-                <AnimatedNavIcon
-                  icon={Settings01Icon}
-                  active={isActive("/settings")}
-                  motion="gear"
-                />
+                <NavIcon icon={Settings01Icon} />
                 {!railCollapsed ? (
                   <span className="min-w-0 flex-1 truncate">Settings</span>
                 ) : null}
@@ -666,12 +579,12 @@ export function Sidebar() {
               aria-label="Sign out"
               onClick={openSignOut}
               className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                "flex size-8 shrink-0 items-center justify-center rounded-md",
                 "text-muted-foreground hover:text-destructive",
                 FOCUS,
               )}
             >
-              <NavIcon icon={Logout01Icon} size={19} />
+              <NavIcon icon={Logout01Icon} />
             </button>
           </div>
         )}

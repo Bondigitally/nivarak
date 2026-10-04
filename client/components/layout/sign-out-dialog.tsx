@@ -11,6 +11,9 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
+  dialogFooterShellClass,
+  dialogHeaderShellClass,
+  dialogPrimitiveContentClass,
 } from "@/components/ui/dialog";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
@@ -40,16 +43,11 @@ export function SignOutDialog() {
       }}
     >
       <DialogPortal>
-        <DialogOverlay className="z-100" />
+        <DialogOverlay />
         <DialogPrimitive.Content
-          className={cn(
-            "fixed top-1/2 left-1/2 z-100 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-0 overflow-hidden rounded-[14px] border border-border bg-background p-0 shadow-lg outline-none",
-            "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          )}
+          className={dialogPrimitiveContentClass("max-w-md")}
         >
-          <div className="gap-2 space-y-0 border-b border-border px-6 py-5 text-left">
+          <div className={cn(dialogHeaderShellClass, "flex-col items-start gap-2")}>
             <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
               Sign out?
             </DialogTitle>
@@ -57,7 +55,12 @@ export function SignOutDialog() {
               You’ll need to sign in again to access your dashboard.
             </DialogDescription>
           </div>
-          <div className="flex flex-row justify-end gap-3 px-6 py-4">
+          <div
+            className={cn(
+              dialogFooterShellClass,
+              "flex-row items-center justify-end gap-3 py-4 sm:py-4",
+            )}
+          >
             <Button
               type="button"
               variant="secondary"
