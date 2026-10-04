@@ -1,0 +1,93 @@
+/* ==========================================================================
+   Marketing site base reset — section styles live as Tailwind on each piece.
+   Tokens: tokens.css
+   ========================================================================== */
+
+.marketing-site,
+.marketing-site *,
+.marketing-site *::before,
+.marketing-site *::after {
+  box-sizing: border-box;
+}
+
+.marketing-site {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
+  line-height: var(--type-body-m-line);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Window scroll (hash nav) — must be on html, not .marketing-site. */
+html:has(.marketing-site) {
+  scroll-behavior: smooth;
+}
+
+/* Clear fixed / floating header when jumping to a section. */
+.marketing-site section[id],
+.marketing-site [id].section,
+.marketing-site main > section[id],
+.marketing-site .check-score[id] {
+  scroll-margin-top: 5.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.marketing-site) {
+    scroll-behavior: auto;
+  }
+
+  .marketing-site *,
+  .marketing-site *::before,
+  .marketing-site *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.marketing-site img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.marketing-site a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.marketing-site ul,
+.marketing-site ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marketing-site p {
+  margin: 0;
+}
+
+.marketing-site h1,
+.marketing-site h2,
+.marketing-site h3,
+.marketing-site h4,
+.marketing-site h5 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+}
+
+.marketing-site button,
+.marketing-site input,
+.marketing-site select,
+.marketing-site textarea {
+  font: inherit;
+}
+
+.marketing-site :focus-visible {
+  outline: var(--stroke-bold) solid var(--color-border-focus);
+  outline-offset: 3px;
+}

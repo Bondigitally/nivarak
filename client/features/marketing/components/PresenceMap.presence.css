@@ -1,0 +1,281 @@
+/* ---------- Pune Presence Map ---------- */
+.presence {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(108, 48, 144, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--color-surface-raised) 0%, var(--color-brand-50) 100%);
+}
+
+.presence-inner {
+  display: grid;
+  gap: var(--space-40);
+}
+
+.presence-copy {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.presence-stage {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.presence-badge {
+  position: absolute;
+  z-index: 3;
+  top: var(--space-16);
+  left: var(--space-16);
+  display: flex;
+  align-items: center;
+  max-width: min(17.5rem, calc(100% - 2rem));
+  padding: var(--space-12) var(--space-16);
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 1px 2px rgba(60, 64, 67, 0.3),
+    0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  backdrop-filter: none;
+}
+
+.presence-badge-live {
+  position: relative;
+  flex: none;
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  min-width: 0.5rem;
+  min-height: 0.5rem;
+  padding: 0;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: var(--color-success-500);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success-500) 45%, transparent);
+  animation: presence-pulse 2.4s var(--ease-out) infinite;
+}
+
+.presence-badge-live::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  transform-origin: center;
+  animation: presence-ripple 2.4s var(--ease-out) infinite;
+}
+
+.presence-badge-text {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.presence-badge-text strong {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--type-body-s-size, 0.9375rem);
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.presence-badge-text > span {
+  padding-left: calc(0.5rem + var(--space-8));
+  font-size: var(--type-badge-size);
+  color: var(--color-text-secondary);
+}
+
+.presence-map {
+  position: relative;
+  width: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: #e8eaed;
+  box-shadow:
+    0 1px 2px rgba(60, 64, 67, 0.2),
+    0 2px 6px 2px rgba(60, 64, 67, 0.1);
+  isolation: isolate;
+}
+
+.presence-map-gmaps {
+  border-radius: 8px;
+}
+
+.presence-map-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 800 / 560;
+}
+
+.presence-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Google Maps–style teardrop pins (Nivarak brand fill) */
+.presence-pin {
+  position: absolute;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  margin: 0;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-primary);
+  transform: translate(-50%, -100%) rotate(-45deg);
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.presence-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+
+.presence-pin::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 115%;
+  width: 0.85rem;
+  height: 0.4rem;
+  margin-left: -0.425rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.22);
+  filter: blur(1.5px);
+  animation: presence-ripple 2.8s var(--ease-out) infinite;
+  pointer-events: none;
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+.presence-pin:nth-child(3n)::before {
+  animation-delay: 0.6s;
+}
+
+.presence-pin:nth-child(4n)::before {
+  animation-delay: 1.2s;
+}
+
+.presence-pin:nth-child(5n)::before {
+  animation-delay: 1.8s;
+}
+
+.presence-pin:hover,
+.presence-pin:focus-visible,
+.presence-pin.is-active {
+  transform: translate(-50%, -108%) rotate(-45deg) scale(1.12);
+  box-shadow: -1px 2px 5px rgba(0, 0, 0, 0.4);
+  outline: none;
+  z-index: 2;
+}
+
+.presence-tooltip {
+  position: absolute;
+  z-index: 4;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: #fff;
+  color: #202124;
+  font-size: 12px;
+  line-height: 1.3;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 1px 2px rgba(60, 64, 67, 0.3),
+    0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  transform: translate(-50%, calc(-100% - 1.75rem));
+}
+
+.presence-tooltip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@keyframes presence-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success-500) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 0.55rem color-mix(in srgb, var(--color-success-500) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success-500) 0%, transparent);
+  }
+}
+
+@keyframes presence-ripple {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 743px) {
+  .presence-badge {
+    position: static;
+    margin: 0 var(--space-12) var(--space-12);
+    max-width: none;
+  }
+
+  .presence-stage {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .presence-map {
+    order: 1;
+  }
+
+  .presence-badge {
+    order: 0;
+  }
+
+  .presence-pin {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presence-badge-live,
+  .presence-pin::before {
+    animation: none;
+  }
+}
