@@ -35,10 +35,10 @@ export default function VitalsPage() {
 
         {!hasVitals && (
           /* Empty State */
-          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-border bg-card p-6">
+          <div className="flex min-h-[380px] flex-col items-center justify-center rounded-lg border border-border bg-card p-6">
             <div className="flex max-w-[480px] flex-col items-center text-center">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
-                <HugeiconsIcon icon={Medicine02Icon} size={32} strokeWidth={1.75} color="currentColor" />
+                <HugeiconsIcon icon={Medicine02Icon} size={32} strokeWidth={1.5} color="currentColor" absoluteStrokeWidth />
               </div>
               <h2 className="font-sans text-xl font-semibold leading-7 text-foreground">
                 No vitals recorded yet
