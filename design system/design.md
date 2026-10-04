@@ -57,8 +57,12 @@ typography:
     fontWeight: 500
     lineHeight: "20px"
 rounded:
-  default: "14px"
-  large: "20px"
+  none: "0px"
+  xs: "6px"
+  sm: "8px"
+  md: "12px"
+  lg: "16px"
+  xl: "20px"
   full: "9999px"
 spacing:
   xs: "4px"
@@ -137,17 +141,17 @@ components:
   input:
     backgroundColor: "{colors.surface-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.default}"
+    rounded: "{rounded.md}"
     padding: "12px 16px"
     height: "44px"
   card:
     backgroundColor: "{colors.surface-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.default}"
+    rounded: "{rounded.lg}"
     padding: "24px"
   card-hero:
     backgroundColor: "{colors.surface-white}"
-    rounded: "{rounded.large}"
+    rounded: "{rounded.xl}"
     padding: "32px"
   badge:
     backgroundColor: "{colors.surface-selected}"
@@ -158,10 +162,10 @@ components:
   segmented-control:
     trackBackground: "{colors.lavender-canvas}"
     trackPadding: "2px"
-    trackRounded: "{rounded.default}"
+    trackRounded: "{rounded.md}"
     trackBorderSameSurface: "{colors.border-lilac-gray}"
     segmentPadding: "12px 20px"
-    segmentRounded: "{rounded.default}"
+    segmentRounded: "{rounded.md}"
     selectedBackground: "{colors.surface-white}"
     selectedBorder: "{colors.border-lilac-gray}"
     selectedText: "{colors.brand-purple-active}"
@@ -188,14 +192,14 @@ Canonical source for all UI work in this repo. When implementing screens, prefer
 1. Map all colors to tokens in the tables below — do not invent new hues.
 2. Button hierarchy (all modules): **Filled brand** → one Primary per section · **Neutral outline** → default Secondary · **Ghost / Link** → tertiary / navigation. **Brand outline** is **auth-only** (method switch). Never invent screen-specific button components.
 3. Wizards: single **672px** centered hero card, one step per screen, Back + Continue footer.
-3b. Auth: **one unified login** for every entity (Patient, Caregiver, Nurse, Doctor, Care Coordinator, Admin, and any other role). Page chrome = **Split** (full-bleed photo + **720px Auth Card**) for everyone — **no** role-specific centered auth, **no** subdomain portals (`admin.*`, `care.*`, etc.). Buttons follow **Rule 1** (always pill); primary auth actions **and** method switch (Continue with Email / Phone) both use size **CTA** (48px) — filled brand vs **Brand Outline**. Form fields stay **Rule 2** (14px).
+3b. Auth: **one unified login** for every entity (Patient, Caregiver, Nurse, Doctor, Care Coordinator, Admin, and any other role). Page chrome = **Split** (full-bleed photo + **720px Auth Card**) for everyone — **no** role-specific centered auth, **no** subdomain portals (`admin.*`, `care.*`, etc.). Buttons follow **Rule 1** (always pill); primary auth actions **and** method switch (Continue with Email / Phone) both use size **CTA** (48px) — filled brand vs **Brand Outline**. Form fields stay **Rule 2** (`rounded-md` / 12px).
 3c. Errors follow their control: left fields → left errors; centered OTP → centered errors under the OTP cluster.
 4. Assessment scoring: use **Selectable Option Cards** with emerald / amber / rose selected states.
 5. Load **Hanken Grotesk** in the root layout; apply `tabular-nums` to all structured numbers.
 6. Prefer **borders** over shadows; hero cards are the only borderless elevated surfaces.
 7. Public/assessment pages = spacious; dashboards/tables = comfortable–compact density.
 8. If a spec conflicts with an existing component, update the component to match this doc.
-9. Radius: **Rule 1** Button = pill · **Rule 2** form controls = 14px · **Rule 3** sidebar active / tabs / segmented control / pagination = 14px. Never pill inputs or nav; never give Button 14px radius.
+9. Radius: **Rule 1** Button = pill · **Rule 2** form controls = `rounded-md` (12px) · **Rule 3** nav chrome = `rounded-md` (12px). Cards = `rounded-lg` (16px). Dialogs/auth = `rounded-xl` (20px). Nested children step down one tier. Never pill inputs or nav; never give Button corner radius.
 
 **Token naming in code:** Use CSS variables or Tailwind theme keys that mirror the `Token` column (e.g. `--background` → `Background/Primary`, `--primary` → `Brand/Primary/Default`). The YAML frontmatter above is for design-tool import; the markdown body is the human/agent spec.
 
@@ -216,7 +220,7 @@ In particular: **do not** implement multi-auth via subdomains (`admin.nivarak.co
 
 Nivarak helps families assess an elderly person's independence and clinicians manage resulting care. The UI is clinical but not cold, premium but not ornamental — a lavender-white canvas, one purple accent, generous whitespace on public flows, and higher density in clinical tables and dashboards.
 
-**Foundations:** 8pt grid · **Rule 1** buttons pill · **Rule 2** form controls 14px · **Rule 3** nav 14px · cards 14px / dialogs 20px · brand `#6C318E` · Hanken Grotesk only
+**Foundations:** 8pt grid · **Rule 1** buttons pill · **Rule 2** form controls 12px (`md`) · **Rule 3** nav 12px (`md`) · cards 16px (`lg`) / dialogs 20px (`xl`) · brand `#6C318E` · Hanken Grotesk only
 
 **Layout defaults:** wizards in a centered **672px** card · dashboards max **1280px** · auth uses a **720px Auth Card** in a **unified Split** layout (photo + card) for **all** roles
 
@@ -244,7 +248,7 @@ Use these as templates when building or reviewing pages.
 ### Public assessment landing
 
 - **Background:** `Background/Primary` (#F8F5FA), full viewport
-- **Layout:** Split or stacked — headline + primary CTA left, hero photo right (14px radius card or full-bleed on mobile)
+- **Layout:** Split or stacked — headline + primary CTA left, hero photo right (`rounded-lg` card or full-bleed on mobile)
 - **Type:** Display XL or L for headline (e.g. "Let's start with your quick Health Assessment")
 - **CTA:** Primary CTA button, 48px tall, **full pill**, full-width up to ~553px
 - **Header:** Minimal — logo only, or logo + ghost links + one purple "Start Assessment"
@@ -275,7 +279,7 @@ Use these as templates when building or reviewing pages.
 #### Auth Card (all roles)
 
 - **Width:** fixed **720px** on 1440 desktop
-- **Chrome:** **20px** radius (`Radius/Large`), soft shadow, white surface
+- **Chrome:** **20px** radius (`rounded-xl`), soft shadow, white surface
 - **Padding / gap:** **64px** padding · **32px** vertical item spacing
 - **Nested Auto Layout (required structure — do not flatten):**
   ```
@@ -294,7 +298,7 @@ Use these as templates when building or reviewing pages.
 - **Method switch (after OR):** **Brand Outline** `Button` size **CTA** (48px) — same height as primary; e.g. Continue with Email / Continue with Phone Number; stays enabled while primary may be disabled. **Auth only** — do not use 48px Brand Outline outside auth.
 - **All auth buttons:** same composable `Button` (Primary / Brand Outline / Secondary / Ghost / Link) — **Rule 1** pill; do not create a separate AuthButton. Do **not** use Brand Outline outside auth method switch.
 - **No SSO / social login** — do not add Google, Microsoft, or other identity-provider buttons on auth screens
-- **Inputs:** 44–48px tall, **Rule 2** 14px radius, lilac border, Focus Lilac ring
+- **Inputs:** 44–48px tall, **Rule 2** `rounded-md` (12px), lilac border, Focus Lilac ring
 - **OTP:** digit boxes fixed size (40–48px) · fixed gap **16px** · cluster **centered** in the Form (do not stretch boxes with space-between / FILL across full form width)
 - **Error alignment follows the control it belongs to:**
   - Field is left → error is left (under the input / left-aligned callout in the Form)
@@ -536,27 +540,33 @@ Flat by default. The lavender canvas plus 1px lilac-gray borders create separati
 
 ### Radius
 
-#### Three interactive rules (memorize these)
+#### Interactive rules (memorize these)
 
-| **Rule** | **Family** | **Radius** | **Applies to** |
-| -------- | ---------- | ---------- | -------------- |
-| **1. Buttons are pill** | Actions | **Full pill** (`Radius/Full` / 9999px) | Every `Button` variant: Primary, Brand Outline, Secondary, Ghost, Link (when boxed), Destructive, Destructive Outline, Icon Button — all sizes (Default, CTA, Icon Only). Auth uses the same rule. |
-| **2. Form controls are 14px** | Data entry | **14px** (`Radius/Default`) | Input, Search, Select, Dropdown, Combobox, Date Picker, Textarea, OTP digit boxes |
-| **3. Navigation defines its own shape** | Wayfinding | **14px** (`Radius/Default`) | Sidebar active item, Tabs / Segmented Control, Pagination |
+| **Rule** | **Family** | **Token** | **Applies to** |
+| -------- | ---------- | --------- | -------------- |
+| **1. Buttons are pill** | Actions | `rounded-full` | Every `Button` variant and size. Auth included. |
+| **2. Form controls are md** | Data entry | `rounded-md` (12px) | Input, Search, Select, Dropdown trigger, Combobox, Date Picker, Textarea, OTP digit boxes |
+| **3. Navigation is md** | Wayfinding | `rounded-md` (12px) | Sidebar active item, Tabs / Segmented Control, Pagination |
 
-**Read as:** Pill = “do something” · 14px = “enter / navigate.”
+**Read as:** Pill = “do something” · `md` = “enter / navigate” · `lg` = surfaces · `xl` = overlays.
 
-Do **not** pill form controls or nav chrome. Do **not** apply 14px to the `Button` component. Clickable list rows, selectable option cards, and assessment score cards are **not** Button — they follow card / option-card radius (14px), not Rule 1.
+Do **not** pill form controls or nav chrome. Do **not** apply corner radius to the `Button` component. Clickable list rows and option cards are **not** Button — they use `sm` inside `lg` surfaces, not Rule 1.
 
-#### Container tokens (surfaces)
+#### Semantic radius scale
 
-| **Token**      | **Alias** | **Value** | **Use case**                                                   |
-| -------------- | --------- | --------- | -------------------------------------------------------------- |
-| Radius/Default | default   | 14px      | Cards, tables, popovers, standard surfaces; **form controls (Rule 2)**; **nav chrome (Rule 3)** |
-| Radius/Large   | large     | 20px      | Dialogs, auth cards, assessment wizard cards                   |
-| Radius/Full    | full      | 9999px    | **All Button variants (Rule 1)**; badges, chips, status pills, role tags |
+| **Token** | **Tailwind** | **Value** | **Use case** |
+| --------- | ------------ | --------- | ------------ |
+| Radius/None | `rounded-none` | 0px | Flush edges, square utilities |
+| Radius/XS | `rounded-xs` | 6px | Chart markers, checkboxes, tiny wells |
+| Radius/SM | `rounded-sm` | 8px | Menu items, list hovers, nested tiles |
+| Radius/MD | `rounded-md` | 12px | Form controls (Rule 2), nav chrome (Rule 3), inner panels |
+| Radius/LG | `rounded-lg` | 16px | Cards, tables, popovers, standard containers |
+| Radius/XL | `rounded-xl` | 20px | Dialogs, drawers, auth cards, wizard shells |
+| Radius/Full | `rounded-full` | pill | Buttons (Rule 1), badges, chips, avatars, top-bar search chrome |
 
-Use only these three radius tokens. Do not introduce intermediate radius values or one-off rounding.
+**Nesting:** When a child’s curve shares the parent’s inner edge, step down one token (e.g. `lg` card → `md` callout → `sm` row hover). Pill actions ignore nesting.
+
+Use only these tokens via `lib/tokens/radius.ts` or Tailwind utilities. Do not use `rounded-[Npx]` or legacy shadcn scale steps.
 
 ### Shadows & elevation
 
@@ -810,7 +820,7 @@ Form controls and nav are **not** buttons — see **Rule 2** and **Rule 3** in R
 - Auth primary stays **disabled until valid input**; Brand Outline method switch may remain enabled. In auth, both stacked actions are **48px** — hierarchy is fill vs outline, not height.
 - Destructive only for irreversible actions.
 - Never create screen-specific button components.
-- Always pill (`Radius/Full`) — never 14px on the Button component.
+- Always pill (`Radius/Full`) — never corner radius on the Button component.
 
 #### Component rule
 
@@ -820,20 +830,20 @@ If a new button differs only by text, icon, underline, width, loading, or disabl
 
 | **Type**   | **Radius** | **Border**        | **Shadow**   | **Padding** | **Notes**                                |
 | ---------- | ---------- | ----------------- | ------------ | ----------- | ---------------------------------------- |
-| Standard   | 14px       | 1px Border/Primary| Shadow/SM or none | 24px  | White on lavender canvas                 |
-| Large      | 20px       | none              | Hero Lift    | 32px        | Dialog, wizard card, auth card — borderless only |
+| Standard   | 16px (`lg`) | 1px Border/Primary| Shadow/SM or none | 24px  | White on lavender canvas                 |
+| Large      | 20px (`xl`) | none              | Hero Lift    | 32px        | Dialog, wizard card, auth card — borderless only |
 
 Do not nest a shadowed card inside another shadowed card.
 
 ### Inputs & fields
 
-**Rule 2 — all form controls use `Radius/Default` (14px):** Input, Search, Select, Dropdown, Combobox, Date Picker, Textarea, OTP digit boxes. Never pill form controls.
+**Rule 2 — all form controls use `rounded-md` (12px):** Input, Search, Select, Dropdown, Combobox, Date Picker, Textarea, OTP digit boxes. Never pill form controls.
 
 | **Property**   | **Value**                                              |
 | -------------- | ------------------------------------------------------ |
 | Background     | Surface/Primary                                        |
 | Border         | 1px Border/Primary                                     |
-| Radius         | **14px** (`Radius/Default`) — Rule 2                   |
+| Radius         | **`rounded-md` (12px)** — Rule 2                   |
 | Height         | 44px (standard) · 48px (hero/auth forms)               |
 | Padding        | 12px vertical · 16px horizontal                        |
 | Text           | Body M (14px), Text/Primary                            |
@@ -849,13 +859,13 @@ Do not nest a shadowed card inside another shadowed card.
 
 **Error alignment:** follows the control — left-aligned fields get left-aligned errors; centered OTP clusters get centered errors under the OTP (see Auth Card). Never mix (e.g. full-width left error under centered OTP).
 
-Tables, popovers, and other standard surfaces also use `Radius/Default` (14px). Dialog containers use `Radius/Large` (20px). Dropdown **menus / list panels** use 14px (Rule 2 / container); the trigger control is also 14px.
+Tables, popovers, and other standard surfaces use `rounded-lg` (16px). Dialog containers use `rounded-xl` (20px). Dropdown **menus / list panels** use `rounded-md` with `rounded-sm` items.
 
 ### Selectable option cards *(signature — assessment scoring)*
 
 Used for IAS-P item scores and similar single/multi-select patterns.
 
-**Structure:** full-width `<button>` or tappable row · 2px border · 14px radius · min 12px padding · Body M label
+**Structure:** full-width `<button>` or tappable row · 2px border · `rounded-md` (12px) · min 12px padding · Body M label
 
 | **State**    | **Background**     | **Border**       | **Text**        |
 | ------------ | ------------------ | ---------------- | --------------- |
@@ -866,7 +876,7 @@ Used for IAS-P item scores and similar single/multi-select patterns.
 | Dependent    | rose-50            | rose-500 2px     | rose-800        |
 | Red flag     | Error/Background     | Error/Default 2px| Error/Foreground + filled red check square |
 
-Always show selection via **border + fill + text** — never color alone (accessibility). These are not Button components — radius stays **14px** (card / option), not Rule 1 pill.
+Always show selection via **border + fill + text** — never color alone (accessibility). These are not Button components — radius stays **`rounded-md` (12px)** (card / option), not Rule 1 pill.
 
 ### Wizard progress *(signature)*
 
@@ -884,7 +894,7 @@ Rounded banner for inline guidance — not a toast.
 
 | **Property** | **Value**                                                       |
 | ------------ | --------------------------------------------------------------- |
-| Radius       | 14px                                                            |
+| Radius       | 12px (`rounded-md`)                                                            |
 | Padding      | 12px vertical · 16px horizontal                                 |
 | Structure    | Optional 20px leading icon + Body M message                     |
 | Variants     | Info / Warning / Error / Success / Risk band (use Feedback or Risk tables) |
@@ -904,13 +914,13 @@ Rounded banner for inline guidance — not a toast.
 
 ### Navigation
 
-**Rule 3 — navigation defines its own shape.** Nivarak nav chrome uses **`Radius/Default` (14px)** — not pill. Do not style sidebar items, tabs, segmented controls, or pagination as Button pills.
+**Rule 3 — navigation defines its own shape.** Nivarak nav chrome uses **`rounded-md` (12px)** — not pill. Do not style sidebar items, tabs, segmented controls, or pagination as Button pills.
 
 | **Nav control** | **Radius** |
 | --------------- | ---------- |
-| Sidebar active item | **14px** |
-| Tabs / Segmented Control (track + selected thumb) | **14px** |
-| Pagination controls | **14px** |
+| Sidebar active item | **12px** (`md`) |
+| Tabs / Segmented Control (track + selected thumb) | **12px** (`md`) |
+| Pagination controls | **12px** (`md`) |
 
 #### Segmented Control (segmented tabs)
 
@@ -920,9 +930,9 @@ Figma source: [Nivarak UI — Segmented Control](https://www.figma.com/design/lq
 
 | **Part** | **Spec** |
 | -------- | -------- |
-| Track | Horizontal flex row · `Background/Primary` (#F8F5FA) · **2px** padding all sides · **14px** radius (`Radius/Default`) · hugs content width (or full-width when the layout requires equal segments) |
-| Segment (each) | `px-5 py-3` (**20×12**) · center-aligned label · optional leading icon · **14px** radius · transparent bg when inactive |
-| Selected thumb | `Surface/Primary` (#FFFFFF) · **1px** `Border/Primary` (#E9E4ED) · elevation `0 2px 4px rgba(17,24,39,0.05)` (between Shadow/XS and Shadow/SM) · **14px** radius · same padding as inactive segments |
+| Track | Horizontal flex row · `Background/Primary` (#F8F5FA) · **2px** padding all sides · **12px** radius (`rounded-md`) · hugs content width (or full-width when the layout requires equal segments) |
+| Segment (each) | `px-5 py-3` (**20×12**) · center-aligned label · optional leading icon · **12px** radius · transparent bg when inactive |
+| Selected thumb | `Surface/Primary` (#FFFFFF) · **1px** `Border/Primary` (#E9E4ED) · elevation `0 2px 4px rgba(17,24,39,0.05)` (between Shadow/XS and Shadow/SM) · **12px** radius · same padding as inactive segments |
 
 **Track border (contrast rule)**
 
@@ -958,7 +968,7 @@ Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same bord
 **Authenticated app:**
 
 - White left sidebar · Body M (14px) nav items · Icon/MD (20px, 1.5px stroke) leading icon per item
-- Active: Surface/Selected background + Brand/Primary text + optional left accent · **14px** radius (Rule 3)
+- Active: Surface/Selected background + Brand/Primary text + optional left accent · **12px** radius (`md`, Rule 3)
 - Desktop: expanded · Tablet: collapsible · Mobile: drawer or bottom navigation
 
 **Public app:**
@@ -967,8 +977,8 @@ Selected thumb always keeps **1px `Border/Primary`** in both contexts. Same bord
 
 **Dialogs:**
 
-- Desktop/tablet: centered modal, 20px `Radius/Large`, Shadow/LG, Overlay/Dark backdrop
-- Mobile: full-width bottom sheet with 20px top-corner `Radius/Large`
+- Desktop/tablet: centered modal, 20px `rounded-xl`, Shadow/LG, Overlay/Dark backdrop
+- Mobile: full-width bottom sheet with 20px top-corner `rounded-xl`
 
 ### Component padding reference
 
@@ -1016,9 +1026,13 @@ When wiring `client/app/globals.css` and shadcn theme:
   --muted: #FCFBFD;              /* Surface/Secondary */
   --muted-foreground: #5F6368;   /* Text/Secondary */
   --destructive: #DC2626;        /* Error/Text */
-  --radius: 0.875rem;            /* 14px — Radius/Default */
-  --radius-large: 1.25rem;       /* 20px — Radius/Large */
-  --radius-full: 9999px;         /* Radius/Full */
+  --radius-none: 0;
+  --radius-xs: 0.375rem;         /* 6px */
+  --radius-sm: 0.5rem;           /* 8px */
+  --radius-md: 0.75rem;          /* 12px */
+  --radius-lg: 1rem;             /* 16px */
+  --radius-xl: 1.25rem;          /* 20px */
+  --radius-full: 9999px;
 }
 ```
 
@@ -1033,7 +1047,7 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 **Tailwind conventions:**
 
 - Prefer theme tokens: `bg-background`, `text-foreground`, `border-border`, `bg-primary`
-- Radius: **Rule 1** `rounded-full` for all Button variants · **Rule 2 / Rule 3** `rounded-[14px]` for form controls, sidebar active, tabs / segmented control, pagination, cards · `rounded-[20px]` for dialogs/auth/wizard cards · badges/chips stay `rounded-full`
+- Radius: import from `@/lib/tokens/radius` or use Tailwind `rounded-xs` … `rounded-xl` · **Rule 1** `rounded-full` for buttons/badges · **Rule 2 / 3** `rounded-md` for controls and nav · `rounded-lg` for cards · `rounded-xl` for dialogs/auth · nested children step down (`lg` → `md` → `sm`)
 - When theme is not yet wired, use token hex from this doc — not arbitrary Tailwind grays or `blue-600`
 
 ---
@@ -1044,7 +1058,7 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 
 - Keep all spacing on the 8pt grid.
 - One filled brand Primary per section; neutral outline Secondary elsewhere; Ghost / Link for tertiary / navigation; Brand Outline only for auth method switch.
-- **Rule 1 / 2 / 3:** Button = pill · form controls = 14px · nav (sidebar active, tabs / segmented control, pagination) = 14px.
+- **Rule 1 / 2 / 3:** Button = pill · form controls = `md` (12px) · nav = `md` (12px) · cards = `lg` (16px).
 - Build every feedback surface with the full tint recipe (background + border + foreground + icon).
 - Use Hugeicons at 16px inside controls, 20px in navigation.
 - Apply tabular numerals to every score, vital, ID, and metric.
@@ -1062,14 +1076,15 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
 - Nested shadowed cards or shadow + border on the same surface.
 - Multiple assessment sections on one wizard step.
 - Default shadcn blue primary — brand purple is `#6C318E`.
-- Pill radius on inputs, search, select, or nav chrome — or 14px radius on the Button component.
+- Pill radius on inputs, select, or nav chrome — or corner radius on the Button component.
+- Ad-hoc `rounded-[Npx]` or legacy Tailwind steps (`rounded-2xl`, etc.) outside the semantic scale.
 - Role-specific auth layouts (centered staff vs split patient) or subdomain multi-auth portals.
 - SSO / social identity-provider login buttons on auth screens.
 - Brand Outline outside auth method switch (use neutral Secondary instead).
 
 ### Most used tokens (80% of UI)
 
-`Background/Primary` · `Surface/Primary` · `Text/Primary` · `Text/Secondary` · `Border/Primary` · `Brand/Primary/Default` · `Radius/Default` (14px) · `Radius/Large` (20px) · `Radius/Full` (9999px) · `Shadow/XS` · `Space/16` · `Space/24` · `Space/32`
+`Background/Primary` · `Surface/Primary` · `Text/Primary` · `Text/Secondary` · `Border/Primary` · `Brand/Primary/Default` · `Radius/MD` (12px) · `Radius/LG` (16px) · `Radius/XL` (20px) · `Radius/Full` · `Shadow/XS` · `Space/16` · `Space/24` · `Space/32`
 
 ### Final rule
 

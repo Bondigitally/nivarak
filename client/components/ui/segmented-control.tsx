@@ -31,7 +31,7 @@ export function SegmentedControl<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       className={cn(
-        "flex w-fit max-w-full items-start overflow-x-auto overscroll-x-contain rounded-[14px] border border-border bg-background p-0.5 scrollbar-none [&::-webkit-scrollbar]:hidden",
+        "flex w-fit max-w-full items-start overflow-x-auto overscroll-x-contain rounded-md border border-border bg-background p-0.5 scrollbar-none [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >
@@ -52,7 +52,7 @@ export function SegmentedControl<T extends string>({
             {isActive ? (
               <motion.div
                 layoutId={reducedMotion ? undefined : layoutId}
-                className="absolute inset-0 rounded-[14px] border border-border bg-card shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
+                className="absolute inset-0 rounded-md border border-border bg-card shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
                 transition={
                   reducedMotion
                     ? { duration: 0 }

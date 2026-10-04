@@ -4,8 +4,12 @@ import './globals.css';
 import { ConfigureAmplify } from '@/features/auth/lib/amplify';
 
 export const metadata: Metadata = {
-  title: 'Nivarak',
-  description: 'Elderly independence assessment and care management',
+  title: 'Nivarak - Unifying Eldercare',
+  description:
+    'Nivarak is an eldercare platform for independence assessment, daily care tasks, vitals, medications, and coordinated support between patients, families, and care teams.',
+  icons: {
+    icon: '/images/favicon.ico',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

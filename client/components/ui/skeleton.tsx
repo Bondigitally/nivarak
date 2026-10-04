@@ -8,7 +8,7 @@ export function Skeleton({
     <div
       data-slot="skeleton"
       className={cn(
-        "rounded-xl bg-border/80 motion-safe:animate-pulse",
+        "rounded-md bg-border/80 motion-safe:animate-pulse",
         className,
       )}
       {...props}
