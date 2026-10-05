@@ -1,16 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { TablePaginationBar } from "@/components/shared/data-table";
 import { TableSearch } from "@/components/shared/table-search";
 import { Button } from "@/components/ui/button";
-import { SegmentedControl } from "@/components/ui/segmented-control";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
-import {
-  SectionInfoButton,
-  SectionTitle,
-} from "@/features/dashboard/components/EmptyState";
+import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import {
   cardTitleClass,
   dashboardCardClass,
@@ -20,11 +17,11 @@ import { CategoryCard } from "@/features/records/components/CategoryCard";
 import { DocActionsMenu } from "@/features/records/components/DocActionsMenu";
 import { DocumentsTable } from "@/features/records/components/DocumentsTable";
 import {
-  TABS,
   DOCUMENTS,
   CATEGORIES,
   DOC_ICON_MAP,
-  type TabId,
+  categoryDocumentCount,
+  type CategoryId,
 } from "@/features/records/data/records-data";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -36,33 +33,57 @@ import { EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
-function DocumentsHeading({ count }: { count: number }) {
+const MOBILE_PAGE_SIZES = [10, 15, 25, 50];
+
+function DocumentsHeading({ title }: { title: string }) {
   return (
-    <div className="flex min-w-0 shrink-0 items-center gap-2">
-      <h2 className={cardTitleClass}>All Documents</h2>
-      <span className="rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-bold text-primary">
-        {count}
-      </span>
-      <SectionInfoButton info="Every uploaded health document in one place. Search, filter, view, or download files." />
+    <div className="flex min-w-0 shrink-0 flex-col gap-0.5">
+      <h2 className={cardTitleClass}>{title}</h2>
+      <p className={typo.bodyM}>
+        Search, filter, and open your uploaded health documents.
+      </p>
     </div>
   );
 }
 
 export function RecordsPageContent() {
-  const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [query, setQuery] = useState("");
+  const [mobilePage, setMobilePage] = useState(1);
+  const [mobilePageSize, setMobilePageSize] = useState(15);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedCategory =
+    CATEGORIES.find((category) => category.id === activeCategory) ??
+    CATEGORIES[0]!;
 
   const filteredDocuments = useMemo(() => {
     const q = query.trim().toLowerCase();
     return DOCUMENTS.filter((doc) => {
-      if (activeTab === "recent" && !doc.recent) return false;
-      if (activeTab === "favorites" && !doc.favorite) return false;
-      if (activeTab === "shared" && !doc.shared) return false;
+      if (activeCategory !== "all" && doc.type !== activeCategory) return false;
       if (!q) return true;
       return doc.name.toLowerCase().includes(q);
     });
-  }, [activeTab, query]);
+  }, [activeCategory, query]);
+
+  const mobilePageCount = Math.max(
+    1,
+    Math.ceil(filteredDocuments.length / mobilePageSize) || 1,
+  );
+  const safeMobilePage = Math.min(Math.max(1, mobilePage), mobilePageCount);
+
+  useEffect(() => {
+    setMobilePage(1);
+  }, [activeCategory, query, mobilePageSize]);
+
+  useEffect(() => {
+    if (mobilePage !== safeMobilePage) setMobilePage(safeMobilePage);
+  }, [mobilePage, safeMobilePage]);
+
+  const pagedMobileDocuments = useMemo(() => {
+    const start = (safeMobilePage - 1) * mobilePageSize;
+    return filteredDocuments.slice(start, start + mobilePageSize);
+  }, [filteredDocuments, mobilePageSize, safeMobilePage]);
 
   const search = (
     <TableSearch
@@ -73,17 +94,7 @@ export function RecordsPageContent() {
     />
   );
 
-  const tabs = (
-    <SegmentedControl
-      value={activeTab}
-      onChange={setActiveTab}
-      options={TABS}
-      ariaLabel="Document filters"
-      layoutId="recordsActiveTab"
-      surface="card"
-      className="w-full min-w-0 md:w-fit [&_button]:min-w-0 [&_button]:flex-1 md:[&_button]:flex-none"
-    />
-  );
+  const heading = <DocumentsHeading title={selectedCategory.label} />;
 
   return (
     <AppPageFrame>
@@ -164,10 +175,21 @@ export function RecordsPageContent() {
           <SectionTitle className="flex-none pr-0 text-foreground">
             Categories
           </SectionTitle>
-          <div className="grid grid-cols-1 gap-dash-gutter md:grid-cols-2 xl:grid-cols-4">
-            {CATEGORIES.map((cat) => (
-              <CategoryCard key={cat.label} {...cat} />
-            ))}
+          <div className="grid grid-cols-1 gap-dash-gutter sm:grid-cols-2 xl:grid-cols-5">
+            {CATEGORIES.map((cat) => {
+              const count = categoryDocumentCount(cat.id);
+              return (
+                <CategoryCard
+                  key={cat.id}
+                  label={cat.label}
+                  count={`${count} ${count === 1 ? "file" : "files"}`}
+                  updated={cat.updated}
+                  iconSrc={cat.iconSrc}
+                  selected={activeCategory === cat.id}
+                  onSelect={() => setActiveCategory(cat.id)}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -179,84 +201,89 @@ export function RecordsPageContent() {
         >
           <div className="flex flex-col gap-3 px-5 pt-5 pb-3 lg:hidden">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <DocumentsHeading count={filteredDocuments.length} />
+              {heading}
               {search}
             </div>
-            {tabs}
           </div>
 
-          <div className="overflow-hidden self-stretch px-5 pt-2 pb-2 lg:hidden">
+          <div className="overflow-hidden self-stretch pt-2 pb-2 lg:hidden">
             {filteredDocuments.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-1 px-4 py-10 text-center">
                 <p className="font-sans text-sm font-medium leading-5 text-foreground">
                   No documents found
                 </p>
                 <p className="font-sans text-sm font-normal leading-5 text-muted-foreground">
-                  Try a different search or filter.
+                  Try a different search or category.
                 </p>
               </div>
             ) : (
-              <ul className="flex flex-col">
-                {filteredDocuments.map((doc) => {
-                  const { icon, bg, color } = DOC_ICON_MAP[doc.type];
-                  return (
-                    <li
-                      key={doc.id}
-                      className="flex items-start gap-3 border-b border-divider py-3 first:pt-1 last:border-b-0"
-                    >
-                      <div
-                        className={cn(
-                          "flex size-10 shrink-0 items-center justify-center rounded-sm",
-                          bg,
-                        )}
+              <>
+                <ul className="flex flex-col px-5">
+                  {pagedMobileDocuments.map((doc) => {
+                    const { icon, bg, color } = DOC_ICON_MAP[doc.type];
+                    return (
+                      <li
+                        key={doc.id}
+                        className="flex items-start gap-3 border-b border-divider py-3 first:pt-1 last:border-b-0"
                       >
-                        <HugeiconsIcon
-                          icon={icon}
-                          size={ICON_SIZE}
-                          strokeWidth={ICON_STROKE}
-                          color={color}
-                          absoluteStrokeWidth
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-sans text-sm font-medium leading-5 text-foreground">
-                          {doc.name}
-                        </p>
-                        <p className="mt-1 font-sans text-sm font-normal leading-5 text-muted-foreground">
-                          <span>{doc.date}</span>
-                          <span
-                            className="mx-1.5 text-tertiary-foreground"
-                            aria-hidden
-                          >
-                            ·
-                          </span>
-                          <span>{doc.size}</span>
-                        </p>
-                      </div>
-                      <div className="shrink-0 pt-0.5">
-                        <DocActionsMenu />
-                      </div>
-                    </li>
-                  );
-                })}
-                <li className="py-3 text-center">
-                  <button
-                    type="button"
-                    className="font-sans text-sm font-medium leading-5 text-muted-foreground outline-none transition-colors hover:text-ring"
-                  >
-                    Load More
-                  </button>
-                </li>
-              </ul>
+                        <div
+                          className={cn(
+                            "flex size-10 shrink-0 items-center justify-center rounded-sm",
+                            bg,
+                          )}
+                        >
+                          <HugeiconsIcon
+                            icon={icon}
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE}
+                            color={color}
+                            absoluteStrokeWidth
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-sans text-sm font-medium leading-5 text-foreground">
+                            {doc.name}
+                          </p>
+                          <p className="mt-1 font-sans text-sm font-normal leading-5 text-muted-foreground">
+                            <span>{doc.date}</span>
+                            <span
+                              className="mx-1.5 text-tertiary-foreground"
+                              aria-hidden
+                            >
+                              ·
+                            </span>
+                            <span>{doc.size}</span>
+                          </p>
+                        </div>
+                        <div className="shrink-0 pt-0.5">
+                          <DocActionsMenu />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="mt-1 border-t border-border py-3">
+                  <TablePaginationBar
+                    total={filteredDocuments.length}
+                    page={safeMobilePage}
+                    pageSize={mobilePageSize}
+                    pageSizes={MOBILE_PAGE_SIZES}
+                    onPageChange={setMobilePage}
+                    onPageSizeChange={(size) => {
+                      setMobilePageSize(size);
+                      setMobilePage(1);
+                    }}
+                  />
+                </div>
+              </>
             )}
           </div>
 
           <div className="hidden w-full lg:block">
             <DocumentsTable
               data={filteredDocuments}
-              leading={<DocumentsHeading count={filteredDocuments.length} />}
+              leading={heading}
               tools={search}
-              subheader={tabs}
             />
           </div>
         </div>

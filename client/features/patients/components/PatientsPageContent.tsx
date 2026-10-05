@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
   UserGroupIcon,
   Search01Icon,
-  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -21,9 +19,13 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPillGroup } from "@/components/shared/FilterPillGroup";
 import { PatientAvatar } from "@/components/shared/PatientAvatar";
 import { PatientRiskBadge } from "@/components/shared/PatientRiskBadge";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { getAllPatients } from "@/features/patients/data/patients-list-data";
+import { DoctorPatientsView } from "@/features/patients/views/doctor";
 import type { PatientListItem, RiskLevel } from "@/lib/domain";
 import { BADGE_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 function PatientCard({ patient }: { patient: PatientListItem }) {
   return (
@@ -35,40 +37,59 @@ function PatientCard({ patient }: { patient: PatientListItem }) {
       )}
     >
       <div className="flex min-w-0 items-start gap-3">
-        <PatientAvatar initials={patient.initials} riskLevel={patient.riskLevel} size="md" />
+        <PatientAvatar
+          initials={patient.initials}
+          riskLevel={patient.riskLevel}
+          size="md"
+        />
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="flex min-w-0 items-center gap-2">
-            <span className={cn(typo.headingS, "min-w-0 truncate")}>{patient.name}</span>
+            <span className={cn(typo.headingS, "min-w-0 truncate")}>
+              {patient.name}
+            </span>
             <PatientRiskBadge level={patient.riskLevel} />
           </div>
           <p className={cn(typo.bodyS, "mt-0.5 truncate")}>
             {patient.age}y · {patient.conditions.join(", ")}
           </p>
         </div>
-        <HugeiconsIcon
-          icon={ArrowRight01Icon}
+        <ChevronIcon
+          direction="right"
           size={BADGE_ICON_SIZE}
-          strokeWidth={ICON_STROKE}
-          color="currentColor"
-          className="mt-1 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-          absoluteStrokeWidth
+          className="mt-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
         />
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 border-t border-divider pt-3">
         <div>
           <p className={cn(typo.caption, "text-tertiary-foreground")}>Nurse</p>
-          <p className={cn(typo.bodyS, "truncate font-medium text-foreground")}>{patient.assignedNurse}</p>
+          <p
+            className={cn(
+              typo.bodyS,
+              "truncate font-medium text-foreground",
+            )}
+          >
+            {patient.assignedNurse}
+          </p>
         </div>
         <div>
-          <p className={cn(typo.caption, "text-tertiary-foreground")}>Next Visit</p>
-          <p className={cn(typo.bodyS, "truncate font-medium text-foreground")}>{patient.nextVisit}</p>
+          <p className={cn(typo.caption, "text-tertiary-foreground")}>
+            Next Visit
+          </p>
+          <p
+            className={cn(
+              typo.bodyS,
+              "truncate font-medium text-foreground",
+            )}
+          >
+            {patient.nextVisit}
+          </p>
         </div>
       </div>
     </Link>
   );
 }
 
-export function PatientsPageContent() {
+function CoordinatorPatientsView() {
   const allPatients = getAllPatients();
   const [search, setSearch] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskLevel | "all">("all");
@@ -108,7 +129,7 @@ export function PatientsPageContent() {
               absoluteStrokeWidth
             />
             <input
-              type="text"
+              type="search"
               placeholder="Search patients or conditions…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -149,4 +170,12 @@ export function PatientsPageContent() {
       </DashboardReveal>
     </AppPageFrame>
   );
+}
+
+export function PatientsPageContent() {
+  const { role } = useUserRole();
+  if (role === "doctor") {
+    return <DoctorPatientsView />;
+  }
+  return <CoordinatorPatientsView />;
 }

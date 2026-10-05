@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowDown01Icon, ColorsIcon } from "@hugeicons/core-free-icons";
-import { fieldInputClassName } from "@/components/ui/input";
+import { ColorsIcon } from "@hugeicons/core-free-icons";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
+import { fieldSelectTriggerClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
-import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
@@ -62,21 +61,14 @@ export function AppearanceSettingsCard() {
               id="settings-appearance"
               type="button"
               disabled={!mounted}
-              className={cn(
-                fieldInputClassName,
-                "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
-              )}
+              className={fieldSelectTriggerClassName}
             >
               <span className={cn(typo.input, "truncate")}>
                 {mounted ? selectedLabel : "System"}
               </span>
-              <HugeiconsIcon
-                icon={ArrowDown01Icon}
-                size={ICON_SIZE}
-                strokeWidth={ICON_STROKE}
-                color="currentColor"
-                className="size-5 shrink-0 text-muted-foreground"
-                absoluteStrokeWidth
+              <ChevronIcon
+                direction="down"
+                className="text-muted-foreground"
               />
             </button>
           </DropdownMenuTrigger>

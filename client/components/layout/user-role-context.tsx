@@ -59,10 +59,17 @@ async function readAuthRoles(): Promise<string[]> {
 }
 
 export function UserRoleProvider({ children }: { children: ReactNode }) {
-  const [roles, setRoles] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Dev role is known at module load — seed it synchronously so doctor/coordinator
+  // UIs do not flash the patient dashboard on first paint / reload.
+  const initialDevRole = resolveDevRole();
+  const [roles, setRoles] = useState<string[]>(() =>
+    initialDevRole ? [initialDevRole] : [],
+  );
+  const [isLoading, setIsLoading] = useState(() => !initialDevRole);
 
   useEffect(() => {
+    if (initialDevRole) return;
+
     let active = true;
 
     void readAuthRoles().then((nextRoles) => {
@@ -71,11 +78,10 @@ export function UserRoleProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    // Prevent stale setState if the component unmounts before the async resolves.
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialDevRole]);
 
   // Unauthenticated or unrecognised users fall back to the patient UX.
   const role = getPrimaryRole(roles) ?? "patient";

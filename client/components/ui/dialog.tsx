@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/shared/AppIcon";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 const Dialog = DialogPrimitive.Root;
@@ -15,7 +17,7 @@ const DialogClose = DialogPrimitive.Close;
 
 /** Shared overlay — matches Book a visit / invite caregiver modals. */
 export const dialogOverlayClass =
-  "fixed inset-0 z-100 bg-black/40 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0";
+  "fixed inset-0 z-100 bg-black/40 backdrop-blur-[0.5px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0";
 
 /** White card shell shared by app modals. */
 export const dialogShellClass =
@@ -86,7 +88,7 @@ const DialogContent = React.forwardRef<
             dialogCloseButtonClass,
           )}
         >
-          <X className="size-4" />
+          <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       ) : null}

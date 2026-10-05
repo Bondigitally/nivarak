@@ -11,12 +11,12 @@ import {
 } from "react";
 import {
   Cancel01Icon,
-  FilterHorizontalIcon,
-  Sorting01Icon,
+  FilterIcon,
 } from "@hugeicons/core-free-icons";
 import { parseDate, type DateValue } from "@internationalized/date";
 import type { RangeValue } from "react-aria-components";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { Button } from "@/components/ui/button";
 import { JollyDateRangePicker } from "@/components/ui/date-range-picker";
 import {
@@ -28,9 +28,6 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
@@ -97,17 +94,28 @@ export type DataTableProps<T> = {
    * Set false when the parent is already a card so the table stays on that surface.
    */
   framed?: boolean;
-  /** Sort + Filter buttons. Default true. */
+  /** Filter button. Default true. Sorting is via column headers. */
   toolbar?: boolean;
-  /** Optional controls before Sort / Filter (e.g. search). */
+  /** Optional controls before Filter (e.g. search). */
   tools?: ReactNode;
   /** Row below the toolbar (e.g. segmented tabs). */
   subheader?: ReactNode;
   /** Explicit Filter menu groups. When set, replaces column-derived filters. */
   filterGroups?: DataTableFilterGroup<T>[];
-  /** Flat Sort menu choices. When set, replaces nested column sort. */
+  /**
+   * @deprecated Prefer `sortValue` on columns — header click sorting.
+   * Still applied when set, but no Sort toolbar is shown.
+   */
   sortChoices?: DataTableSortChoice<T>[];
+  /** Client-side pagination with page-size dropdown. Default true. Set false to opt out. */
+  paginate?: boolean;
+  /** Page-size options for `paginate`. Default: 10, 15, 25, 50. */
+  pageSizes?: number[];
+  /** Initial page size when `paginate` is enabled. Default: first of `pageSizes`. */
+  defaultPageSize?: number;
 };
+
+const DEFAULT_PAGE_SIZES = [10, 15, 25, 50] as const;
 
 type SortState = { id: string; desc: boolean } | null;
 
@@ -139,12 +147,6 @@ function resolveSortKind<T>(column: DataTableColumn<T>): "text" | "date" | "numb
   return "text";
 }
 
-function sortDirectionLabel(kind: "text" | "date" | "number", desc: boolean) {
-  if (kind === "date") return desc ? "Newest first" : "Oldest first";
-  if (kind === "number") return desc ? "High to low" : "Low to high";
-  return desc ? "Z to A" : "A to Z";
-}
-
 function preferredSortDesc(kind: "text" | "date" | "number") {
   return kind !== "text";
 }
@@ -159,8 +161,8 @@ function DataTableChip({
   return (
     <span
       className={cn(
-        radius.full,
-        "inline-flex max-w-full items-center gap-0.5 bg-muted py-1 pr-1 pl-2.5 text-xs font-medium leading-4 text-primary",
+        radius.sm,
+        "inline-flex max-w-full items-center gap-0.5 bg-primary/10 py-1 pr-1 pl-2.5 text-xs font-medium leading-4 text-primary",
       )}
     >
       <span className="truncate">{label}</span>
@@ -168,7 +170,7 @@ function DataTableChip({
         type="button"
         aria-label={`Remove ${label}`}
         onClick={onRemove}
-        className="flex size-5 shrink-0 items-center justify-center rounded-full text-primary hover:text-ring hover:bg-ring/10"
+        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-primary outline-none hover:bg-primary/15 hover:text-ring"
       >
         <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
       </button>
@@ -246,19 +248,57 @@ export function DataTableSortHeader({
   direction: "asc" | "desc" | false;
   onClick: () => void;
 }) {
+  const active = direction !== false;
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-muted-foreground select-none hover:text-foreground"
+      className={cn(
+        "inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium leading-5 select-none",
+        "outline-none focus-visible:text-foreground",
+        active
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground",
+      )}
     >
       {title}
-      <span className="inline-flex flex-col gap-px text-tertiary-foreground">
-        <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" aria-hidden className={cn(direction === "asc" ? "opacity-100" : "opacity-25")}>
-          <path d="M4 0L7.46 4.5H.54L4 0Z" />
+      <span
+        className={cn(
+          "inline-flex flex-col gap-0.5",
+          active ? "text-primary" : "text-tertiary-foreground",
+        )}
+      >
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          aria-hidden
+          className={cn(direction === "asc" ? "opacity-100" : "opacity-30")}
+        >
+          <path
+            d="M2 4.25L5 1.75L8 4.25"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-        <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" aria-hidden className={cn(direction === "desc" ? "opacity-100" : "opacity-25")}>
-          <path d="M4 5L.54.5H7.46L4 5Z" />
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          aria-hidden
+          className={cn(direction === "desc" ? "opacity-100" : "opacity-30")}
+        >
+          <path
+            d="M2 1.75L5 4.25L8 1.75"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </span>
     </button>
@@ -276,6 +316,183 @@ export function DataTableLoadMore({ onClick }: { onClick?: () => void }) {
     </button>
   );
 }
+
+export function TablePaginationBar({
+  total,
+  page,
+  pageSize,
+  pageSizes = [...DEFAULT_PAGE_SIZES],
+  onPageChange,
+  onPageSizeChange,
+}: {
+  total: number;
+  page: number;
+  pageSize: number;
+  pageSizes?: number[];
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
+  const pageCount = Math.max(1, Math.ceil(total / pageSize) || 1);
+  const safePage = Math.min(Math.max(1, page), pageCount);
+  const canPrev = safePage > 1;
+  const canNext = safePage < pageCount;
+  const pages = buildPaginationItems(safePage, pageCount);
+
+  const pageBtnClass =
+    "inline-flex size-8 shrink-0 items-center justify-center rounded-sm border border-border " +
+    "font-sans text-sm tabular-nums outline-none transition-colors " +
+    "focus-visible:ring-2 focus-visible:ring-primary/30 " +
+    "disabled:pointer-events-none disabled:opacity-40";
+
+  return (
+    <div className="flex w-full flex-wrap items-center justify-between gap-3 px-5">
+      <div className="flex items-center gap-1.5 font-sans text-sm leading-5 text-muted-foreground">
+        <span>Showing</span>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Rows per page, currently ${pageSize}`}
+              className={cn(
+                "inline-flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2",
+                "font-sans text-sm font-medium text-foreground outline-none",
+                "transition-colors hover:bg-accent",
+                "focus-visible:ring-2 focus-visible:ring-primary/30",
+              )}
+            >
+              {pageSize}
+              <ChevronIcon direction="down" size={14} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="min-w-20 rounded-md border border-border bg-card p-1 shadow-lg"
+          >
+            <DropdownMenuRadioGroup
+              value={String(pageSize)}
+              onValueChange={(value) => onPageSizeChange(Number(value))}
+            >
+              {pageSizes.map((size) => (
+                <DropdownMenuRadioItem
+                  key={size}
+                  value={String(size)}
+                  className="cursor-pointer text-muted-foreground"
+                >
+                  {size}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <span>
+          of {total} {total === 1 ? "result" : "results"}
+        </span>
+      </div>
+
+      <nav
+        aria-label="Pagination"
+        className="flex flex-wrap items-center gap-1.5"
+      >
+        <button
+          type="button"
+          aria-label="Previous page"
+          disabled={!canPrev}
+          onClick={() => onPageChange(safePage - 1)}
+          className={cn(
+            pageBtnClass,
+            "border-transparent bg-transparent text-muted-foreground",
+            "hover:border-border hover:text-foreground",
+            "active:border-border",
+          )}
+        >
+          <ChevronIcon direction="left" size={16} />
+        </button>
+        {pages.map((item, index) =>
+          item === "ellipsis" ? (
+            <span
+              key={`ellipsis-${index}`}
+              aria-hidden
+              className="inline-flex size-8 items-center justify-center font-sans text-sm text-muted-foreground"
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              aria-label={`Page ${item}`}
+              aria-current={item === safePage ? "page" : undefined}
+              onClick={() => onPageChange(item)}
+              className={cn(
+                pageBtnClass,
+                item === safePage
+                  ? "border-primary bg-transparent font-medium text-primary hover:bg-transparent"
+                  : "bg-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {item}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          aria-label="Next page"
+          disabled={!canNext}
+          onClick={() => onPageChange(safePage + 1)}
+          className={cn(
+            pageBtnClass,
+            "border-transparent bg-transparent text-muted-foreground",
+            "hover:border-border hover:text-foreground",
+            "active:border-border",
+          )}
+        >
+          <ChevronIcon direction="right" size={16} />
+        </button>
+      </nav>
+    </div>
+  );
+}
+
+/** Standard pagination window: 1 2 3 4 5 … N / 1 … 8 9 10 … N / 1 … N-4 … N */
+function buildPaginationItems(
+  current: number,
+  pageCount: number,
+  siblingCount = 1,
+): Array<number | "ellipsis"> {
+  const range = (from: number, to: number) =>
+    Array.from({ length: Math.max(0, to - from + 1) }, (_, i) => from + i);
+
+  // first + last + current + 2*siblings + 2 ellipsis placeholders
+  const maxButtons = siblingCount * 2 + 5;
+
+  if (pageCount <= maxButtons) {
+    return range(1, pageCount);
+  }
+
+  const leftSibling = Math.max(current - siblingCount, 1);
+  const rightSibling = Math.min(current + siblingCount, pageCount);
+  const showLeftEllipsis = leftSibling > 2;
+  const showRightEllipsis = rightSibling < pageCount - 1;
+
+  if (!showLeftEllipsis && showRightEllipsis) {
+    const leftCount = 3 + 2 * siblingCount;
+    return [...range(1, leftCount), "ellipsis", pageCount];
+  }
+
+  if (showLeftEllipsis && !showRightEllipsis) {
+    const rightCount = 3 + 2 * siblingCount;
+    return [1, "ellipsis", ...range(pageCount - rightCount + 1, pageCount)];
+  }
+
+  return [
+    1,
+    "ellipsis",
+    ...range(leftSibling, rightSibling),
+    "ellipsis",
+    pageCount,
+  ];
+}
+
 
 function DataTableCheckbox({
   checked,
@@ -316,7 +533,7 @@ function ToolbarButton({
   label,
   active,
 }: {
-  icon: typeof Sorting01Icon;
+  icon: typeof FilterIcon;
   label: string;
   active?: boolean;
 }) {
@@ -325,7 +542,7 @@ function ToolbarButton({
       type="button"
       variant="secondary"
       className={cn(
-        "h-11 shrink-0",
+        "shrink-0 border border-border bg-transparent hover:bg-accent",
         active && "border-primary/30 text-primary hover:text-ring",
       )}
     >
@@ -349,7 +566,13 @@ export function DataTable<T>({
   subheader,
   filterGroups,
   sortChoices,
+  paginate = true,
+  pageSizes,
+  defaultPageSize,
 }: DataTableProps<T>) {
+  const resolvedPageSizes = pageSizes?.length
+    ? pageSizes
+    : [...DEFAULT_PAGE_SIZES];
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<SortState>(null);
   const [sortChoiceId, setSortChoiceId] = useState<string | null>(null);
@@ -358,6 +581,10 @@ export function DataTable<T>({
     from: "",
     to: "",
   });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(
+    () => defaultPageSize ?? resolvedPageSizes[0] ?? 10,
+  );
   const toolbarAnchorRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const pendingAnchorTopRef = useRef<number | null>(null);
@@ -392,13 +619,6 @@ export function DataTable<T>({
   const useCustomFilters = filterGroups != null && filterGroups.length > 0;
   const useCustomSort = sortChoices != null && sortChoices.length > 0;
 
-  const sortableColumns = useMemo(
-    () =>
-      columns.filter(
-        (column) => column.sortValue != null && columnLabel(column) != null,
-      ),
-    [columns],
-  );
   const filterableColumns = useMemo(
     () =>
       columns.filter(
@@ -469,12 +689,31 @@ export function DataTable<T>({
     useCustomSort,
   ]);
 
+  const pageCount = Math.max(1, Math.ceil(visibleRows.length / pageSize) || 1);
+  const safePage = Math.min(Math.max(1, page), pageCount);
+
+  useEffect(() => {
+    if (!paginate) return;
+    if (page !== safePage) setPage(safePage);
+  }, [paginate, page, safePage]);
+
+  useEffect(() => {
+    if (!paginate) return;
+    setPage(1);
+  }, [paginate, filters, sort, sortChoiceId, customRange, data, pageSize]);
+
+  const pagedRows = useMemo(() => {
+    if (!paginate) return visibleRows;
+    const start = (safePage - 1) * pageSize;
+    return visibleRows.slice(start, start + pageSize);
+  }, [paginate, pageSize, safePage, visibleRows]);
+
   const rowIds = useMemo(
     () =>
-      visibleRows.map(
+      pagedRows.map(
         (row, index) => getRowId?.(row, index) ?? String(index),
       ),
-    [visibleRows, getRowId],
+    [pagedRows, getRowId],
   );
 
   const selectedCount = rowIds.filter((id) => selected.has(id)).length;
@@ -500,10 +739,9 @@ export function DataTable<T>({
 
   function toggleFilterValue(groupId: string, value: string, mode: "multi" | "single" = "multi") {
     const clearingCustom =
-      groupId === "dateCompleted" &&
       value === "custom" &&
       mode === "single" &&
-      filters.dateCompleted?.[0] === "custom";
+      filters[groupId]?.[0] === "custom";
 
     captureToolbarAnchor();
     setFilters((current) => {
@@ -539,17 +777,18 @@ export function DataTable<T>({
           const optionLabel =
             group.options.find((option) => option.value === value)?.label ??
             value;
-          const isCustomDate =
-            group.id === "dateCompleted" && value === "custom";
+          const isCustomDate = value === "custom";
           const rangeLabel =
             isCustomDate && customRange.from && customRange.to
               ? `${customRange.from} – ${customRange.to}`
-              : null;
+              : isCustomDate
+                ? "Custom range"
+                : null;
 
           return {
             groupId: group.id,
             value,
-            label: rangeLabel ?? optionLabel,
+            label: `${group.label}: ${rangeLabel ?? optionLabel}`,
             mode: group.mode ?? "multi",
           };
         }),
@@ -560,7 +799,7 @@ export function DataTable<T>({
       (filters[column.id] ?? []).map((value) => ({
         groupId: column.id,
         value,
-        label: value,
+        label: `${column.filterLabel ?? columnLabel(column) ?? column.id}: ${value}`,
         mode: "multi" as const,
       })),
     );
@@ -573,53 +812,14 @@ export function DataTable<T>({
     useCustomFilters,
   ]);
 
-  const sortChipLabel = useMemo(() => {
-    if (useCustomSort && sortChoiceId) {
-      const choice = sortChoices!.find((item) => item.id === sortChoiceId);
-      if (!choice) return null;
-      return choice.group
-        ? `${choice.group} — ${choice.label}`
-        : choice.label;
-    }
-    if (!sort) return null;
-    const column = columns.find((item) => item.id === sort.id);
-    if (!column) return null;
-    return `${columnLabel(column) ?? column.id} · ${sortDirectionLabel(resolveSortKind(column), sort.desc)}`;
-  }, [columns, sort, sortChoiceId, sortChoices, useCustomSort]);
-
-  const sortChoiceGroups = useMemo(() => {
-    if (!useCustomSort) return [];
-    const groups: { label: string; options: DataTableSortChoice<T>[] }[] = [];
-    const indexByLabel = new Map<string, number>();
-
-    for (const choice of sortChoices!) {
-      const label = choice.group ?? "";
-      if (!label) {
-        groups.push({ label: "", options: [choice] });
-        continue;
-      }
-      const existing = indexByLabel.get(label);
-      if (existing == null) {
-        indexByLabel.set(label, groups.length);
-        groups.push({ label, options: [choice] });
-      } else {
-        groups[existing].options.push(choice);
-      }
-    }
-    return groups;
-  }, [sortChoices, useCustomSort]);
-
   const showCustomRange =
-    useCustomFilters && (filters.dateCompleted ?? []).includes("custom");
-  const hasChips = activeFilterChips.length > 0 || sortChipLabel != null;
-  const sortMenuActive = useCustomSort
-    ? sortChoiceId != null
-    : sort != null;
-  const showSortMenu = useCustomSort || sortableColumns.length > 0;
+    useCustomFilters &&
+    Object.values(filters).some((values) => values.includes("custom"));
   const showFilterMenu = useCustomFilters || filterableColumns.length > 0;
+  const hasFilterChips = activeFilterChips.length > 0;
 
   const colCount = columns.length + 1;
-  const showToolbar = toolbar && (showSortMenu || showFilterMenu);
+  const showToolbar = toolbar && showFilterMenu;
   const showTools = tools != null;
   const showSubheader = subheader != null;
   const showHeader =
@@ -645,14 +845,30 @@ export function DataTable<T>({
     if (Math.abs(delta) > 0.5) {
       root.scrollTop += delta;
     }
-  }, [visibleRows.length, hasChips, filters, sort, sortChoiceId, customRange, cardMinHeight]);
+  }, [
+    visibleRows.length,
+    hasFilterChips,
+    filters,
+    sort,
+    sortChoiceId,
+    customRange,
+    cardMinHeight,
+  ]);
 
-  function clearAll() {
+  function toggleColumnSort(column: DataTableColumn<T>) {
+    if (column.sortValue == null) return;
+    const preferred = preferredSortDesc(resolveSortKind(column));
     captureToolbarAnchor();
-    setFilters({});
-    setSort(null);
     setSortChoiceId(null);
-    setCustomRange({ from: "", to: "" });
+    setSort((current) => {
+      if (current?.id !== column.id) {
+        return { id: column.id, desc: preferred };
+      }
+      if (current.desc === preferred) {
+        return { id: column.id, desc: !preferred };
+      }
+      return null;
+    });
   }
 
   function onRowClick(id: string, event: MouseEvent<HTMLTableRowElement>) {
@@ -684,8 +900,6 @@ export function DataTable<T>({
                 <div className="flex min-w-0 shrink-0 items-center gap-2">
                   {tools}
                   {showToolbar ? (
-                    <>
-                  {showSortMenu ? (
                     <DropdownMenu
                       modal={false}
                       onOpenChange={onToolbarMenuOpenChange}
@@ -693,169 +907,17 @@ export function DataTable<T>({
                       <DropdownMenuTrigger asChild>
                         <span>
                           <ToolbarButton
-                            icon={Sorting01Icon}
-                            label="Sort"
-                            active={sortMenuActive}
+                            icon={FilterIcon}
+                            label="Filter"
+                            active={activeFilterCount > 0}
                           />
                         </span>
                       </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-64 rounded-md border border-border bg-card p-1 shadow-lg"
-                      onCloseAutoFocus={(event) => event.preventDefault()}
-                    >
-                      <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-                        Sort by
-                      </DropdownMenuLabel>
-                      {useCustomSort ? (
-                        sortChoiceGroups.map((group) => {
-                          if (!group.label) {
-                            return (
-                              <div key={group.options[0]?.id ?? "ungrouped"}>
-                                {group.options.map((choice) => (
-                                  <DropdownMenuItem
-                                    key={choice.id}
-                                    onClick={() => {
-                                      captureToolbarAnchor();
-                                      setSortChoiceId(choice.id);
-                                    }}
-                                    onSelect={(event) => event.preventDefault()}
-                                    className={cn(
-                                      "cursor-pointer px-3 py-2 text-muted-foreground hover:bg-background hover:text-primary",
-                                      sortChoiceId === choice.id && "text-primary",
-                                    )}
-                                  >
-                                    {choice.label}
-                                  </DropdownMenuItem>
-                                ))}
-                              </div>
-                            );
-                          }
-
-                          const activeChoice = group.options.find(
-                            (option) => option.id === sortChoiceId,
-                          );
-                          return (
-                            <DropdownMenuSub key={group.label}>
-                              <DropdownMenuSubTrigger className="cursor-pointer px-3 py-2 text-muted-foreground focus:bg-background focus:text-primary data-[state=open]:bg-background data-[state=open]:text-primary">
-                                <span className="min-w-0 flex-1 truncate">
-                                  {group.label}
-                                </span>
-                                {activeChoice ? (
-                                  <span className="mr-1 shrink-0 text-xs text-primary">
-                                    {activeChoice.label}
-                                  </span>
-                                ) : null}
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent className="w-48 rounded-md border border-border bg-card p-1 shadow-lg">
-                                <DropdownMenuRadioGroup
-                                  value={activeChoice?.id ?? ""}
-                                  onValueChange={(value) => {
-                                    captureToolbarAnchor();
-                                    setSortChoiceId(value);
-                                  }}
-                                >
-                                  {group.options.map((choice) => (
-                                    <DropdownMenuRadioItem
-                                      key={choice.id}
-                                      value={choice.id}
-                                      onSelect={(event) => event.preventDefault()}
-                                      className="cursor-pointer text-muted-foreground"
-                                    >
-                                      {choice.label}
-                                    </DropdownMenuRadioItem>
-                                  ))}
-                                </DropdownMenuRadioGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                          );
-                        })
-                      ) : (
-                        sortableColumns.map((column) => {
-                          const label = columnLabel(column);
-                          if (!label || column.sortValue == null) return null;
-                          const kind = resolveSortKind(column);
-                          const preferred = preferredSortDesc(kind);
-                          const active = sort?.id === column.id;
-                          return (
-                            <DropdownMenuSub key={column.id}>
-                              <DropdownMenuSubTrigger className="cursor-pointer px-3 py-2 text-muted-foreground focus:bg-background focus:text-primary data-[state=open]:bg-background data-[state=open]:text-primary">
-                                <span className="min-w-0 flex-1 truncate">{label}</span>
-                                {active ? (
-                                  <span className="mr-1 shrink-0 text-xs text-primary">
-                                    {sortDirectionLabel(kind, sort.desc)}
-                                  </span>
-                                ) : null}
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent className="w-44 rounded-md border border-border bg-card p-1 shadow-lg">
-                                <DropdownMenuRadioGroup
-                                  value={active ? (sort.desc ? "desc" : "asc") : ""}
-                                  onValueChange={(value) => {
-                                    captureToolbarAnchor();
-                                    setSort({
-                                      id: column.id,
-                                      desc: value === "desc",
-                                    });
-                                  }}
-                                >
-                                  <DropdownMenuRadioItem
-                                    value={preferred ? "desc" : "asc"}
-                                    onSelect={(event) => event.preventDefault()}
-                                    className="cursor-pointer text-muted-foreground"
-                                  >
-                                    {sortDirectionLabel(kind, preferred)}
-                                  </DropdownMenuRadioItem>
-                                  <DropdownMenuRadioItem
-                                    value={preferred ? "asc" : "desc"}
-                                    onSelect={(event) => event.preventDefault()}
-                                    className="cursor-pointer text-muted-foreground"
-                                  >
-                                    {sortDirectionLabel(kind, !preferred)}
-                                  </DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                          );
-                        })
-                      )}
-                      {sortMenuActive ? (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => {
-                              captureToolbarAnchor();
-                              setSort(null);
-                              setSortChoiceId(null);
-                            }}
-                            className="cursor-pointer px-3 py-2 text-muted-foreground hover:bg-background hover:text-primary"
-                          >
-                            Clear sort
-                          </DropdownMenuItem>
-                        </>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
-
-                {showFilterMenu ? (
-                  <DropdownMenu
-                    modal={false}
-                    onOpenChange={onToolbarMenuOpenChange}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <span>
-                        <ToolbarButton
-                          icon={FilterHorizontalIcon}
-                          label="Filter"
-                          active={activeFilterCount > 0}
-                        />
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-auto max-w-[min(100vw-2rem,56rem)] rounded-md border border-border bg-card p-3 shadow-lg"
-                      onCloseAutoFocus={(event) => event.preventDefault()}
-                    >
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-auto max-w-[min(100vw-2rem,56rem)] rounded-md border border-border bg-card p-3 shadow-lg"
+                        onCloseAutoFocus={(event) => event.preventDefault()}
+                      >
                       {useCustomFilters ? (
                         <div className="flex flex-col gap-4">
                           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
@@ -999,7 +1061,6 @@ export function DataTable<T>({
                                 onClick={() => {
                                   captureToolbarAnchor();
                                   setFilters({});
-                                  setCustomRange({ from: "", to: "" });
                                 }}
                                 className="cursor-pointer px-3 py-2 text-muted-foreground hover:bg-background hover:text-primary"
                               >
@@ -1011,8 +1072,6 @@ export function DataTable<T>({
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : null}
-                    </>
                   ) : null}
                 </div>
               ) : null}
@@ -1021,39 +1080,30 @@ export function DataTable<T>({
 
           {showSubheader ? <div className="min-w-0">{subheader}</div> : null}
 
-          {hasChips ? (
-            <div className="flex flex-col gap-2 [overflow-anchor:none]">
-              <div className="flex flex-wrap items-center gap-2">
-                {sortChipLabel ? (
-                  <DataTableChip
-                    label={sortChipLabel}
-                    onRemove={() => {
-                      captureToolbarAnchor();
-                      setSort(null);
-                      setSortChoiceId(null);
-                    }}
-                  />
-                ) : null}
-                {activeFilterChips.map((chip) => (
-                  <DataTableChip
-                    key={`${chip.groupId}-${chip.value}`}
-                    label={chip.label}
-                    onRemove={() =>
-                      toggleFilterValue(chip.groupId, chip.value, chip.mode)
-                    }
-                  />
-                ))}
-                {activeFilterChips.length > 1 ||
-                (sortChipLabel != null && activeFilterChips.length > 0) ? (
-                  <button
-                    type="button"
-                    onClick={clearAll}
-                    className="text-xs font-medium leading-4 text-muted-foreground outline-none hover:text-primary"
-                  >
-                    Clear all
-                  </button>
-                ) : null}
-              </div>
+          {hasFilterChips ? (
+            <div className="flex flex-wrap items-center gap-2 [overflow-anchor:none]">
+              {activeFilterChips.map((chip) => (
+                <DataTableChip
+                  key={`${chip.groupId}-${chip.value}`}
+                  label={chip.label}
+                  onRemove={() =>
+                    toggleFilterValue(chip.groupId, chip.value, chip.mode)
+                  }
+                />
+              ))}
+              {activeFilterChips.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    captureToolbarAnchor();
+                    setFilters({});
+                    setCustomRange({ from: "", to: "" });
+                  }}
+                  className="text-xs font-medium leading-4 text-muted-foreground outline-none hover:text-primary"
+                >
+                  Clear all
+                </button>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -1082,24 +1132,52 @@ export function DataTable<T>({
                   />
                 </div>
               </th>
-              {columns.map((column) => (
-                <th
-                  key={column.id}
-                  scope="col"
-                  className={cn(
-                    "h-16 border-b border-border px-4 text-left align-middle text-sm font-medium leading-5 whitespace-nowrap text-muted-foreground",
-                    column.className,
-                    column.headerClassName,
-                  )}
-                >
-                  {column.header}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const label = columnLabel(column);
+                const sortable = column.sortValue != null && label != null;
+                const direction =
+                  sort?.id === column.id
+                    ? sort.desc
+                      ? "desc"
+                      : "asc"
+                    : false;
+
+                return (
+                  <th
+                    key={column.id}
+                    scope="col"
+                    aria-sort={
+                      direction === "asc"
+                        ? "ascending"
+                        : direction === "desc"
+                          ? "descending"
+                          : sortable
+                            ? "none"
+                            : undefined
+                    }
+                    className={cn(
+                      "h-16 border-b border-border px-4 text-left align-middle text-sm font-medium leading-5 whitespace-nowrap text-muted-foreground",
+                      column.className,
+                      column.headerClassName,
+                    )}
+                  >
+                    {sortable ? (
+                      <DataTableSortHeader
+                        title={label}
+                        direction={direction}
+                        onClick={() => toggleColumnSort(column)}
+                      />
+                    ) : (
+                      column.header
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {visibleRows.length > 0 ? (
-              visibleRows.map((row, rowIndex) => {
+            {pagedRows.length > 0 ? (
+              pagedRows.map((row, rowIndex) => {
                 const id = rowIds[rowIndex];
                 const isSelected = selected.has(id);
 
@@ -1154,7 +1232,21 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
-      {footer ? (
+      {paginate ? (
+        <div className="flex min-h-16 items-center border-t border-border py-3">
+          <TablePaginationBar
+            total={visibleRows.length}
+            page={safePage}
+            pageSize={pageSize}
+            pageSizes={resolvedPageSizes}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        </div>
+      ) : footer ? (
         <div className="flex h-16 items-center justify-center border-t border-border">
           {footer}
         </div>

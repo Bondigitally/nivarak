@@ -6,6 +6,7 @@ import {
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
+import { typo } from "@/lib/tokens/typography";
 import type { CarePlanReferral } from "@/features/care-plan/data/care-plan-data";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
@@ -30,12 +31,14 @@ export function ReferralsCard({ referrals }: { referrals: CarePlanReferral[] }) 
         "flex h-full flex-1 flex-col gap-5 self-stretch p-6",
       )}
     >
-      <SectionTitle
-        info="Specialist and therapy referrals arranged by your care team, with scheduling status for each."
-        className="flex-none pr-0 text-foreground"
-      >
-        Referrals
-      </SectionTitle>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <SectionTitle className="flex-none pr-0 text-foreground">
+          Referrals
+        </SectionTitle>
+        <p className={typo.bodyM}>
+          Specialist and therapy referrals from your care team.
+        </p>
+      </div>
 
       <ul className="flex flex-col gap-3">
         {referrals.map((referral) => {

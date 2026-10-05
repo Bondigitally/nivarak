@@ -16,20 +16,33 @@ export const fieldInputClassName = cn(
   "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
+/** Dropdown / combobox trigger — same 44px chrome as {@link fieldInputClassName}. */
+export const fieldSelectTriggerClassName = cn(
+  fieldInputClassName,
+  "inline-flex items-center justify-between gap-2 text-left",
+);
+
+/** Multiline fields — min height matches single-line inputs. */
+export const fieldTextareaClassName = cn(
+  fieldInputClassName,
+  "h-auto min-h-11 resize-y py-3 leading-6",
+);
+
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
         type={type}
         className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive",
-          className
+          fieldInputClassName,
+          "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/30",
+          className,
         )}
         ref={ref}
         {...props}
       />
     );
-  }
+  },
 );
 Input.displayName = "Input";
 

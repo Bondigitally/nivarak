@@ -11,15 +11,14 @@ import {
 } from "framer-motion";
 import {
   Alert02Icon,
-  ArrowDown01Icon,
   ArrowRight01Icon,
-  ArrowUp01Icon,
   Clock01Icon,
   SquareLock02Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { Button } from "@/components/ui/button";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { openIaspReportCheckout } from "@/features/assessments/lib/razorpay-checkout";
@@ -193,7 +192,7 @@ export function RedFlagsStep({
       </div>
 
       <IaspStepNavFooter onBack={onBack}>
-        <Button type="button" onClick={onNext}>
+        <Button type="button" size="cta" onClick={onNext}>
           Next
           <AppIcon icon={ArrowRight01Icon} />
         </Button>
@@ -262,10 +261,10 @@ export function ReviewStep({
                     }
                     aria-expanded={expanded}
                   >
-                    <AppIcon
-                      icon={expanded ? ArrowUp01Icon : ArrowDown01Icon}
+                    <ChevronIcon
+                      direction={expanded ? "up" : "down"}
                       size={14}
-                      className="shrink-0 text-primary"
+                      className="text-primary"
                     />
                     <span className={cn(typo.headingS, "text-foreground")}>
                       {section.title}
@@ -354,7 +353,7 @@ export function ReviewStep({
       </div>
 
       <IaspStepNavFooter onBack={onBack}>
-        <Button type="button" onClick={onSubmit}>
+        <Button type="button" size="cta" onClick={onSubmit}>
           Submit Assessment
         </Button>
       </IaspStepNavFooter>
@@ -617,7 +616,7 @@ export function ResultsStep({
           "flex-row flex-wrap items-center justify-center gap-4 border-t-0 bg-card pt-2",
         )}
       >
-        <Button type="button" variant="secondary" onClick={onRetake}>
+        <Button type="button" variant="secondary" size="cta" onClick={onRetake}>
           Retake assessment
         </Button>
         {/* TODO: replace /register with the dedicated booking/consultation
@@ -625,6 +624,7 @@ export function ResultsStep({
         <Button
           type="button"
           variant="primary-outline"
+          size="cta"
           onClick={() => router.push("/register")}
         >
           Book a Free Consultation
