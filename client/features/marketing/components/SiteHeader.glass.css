@@ -1,0 +1,88 @@
+/*
+ * Two-layer frost: tint stays visible even when Chromium drops
+ * painting for an element that has a failing backdrop-filter.
+ */
+.site-header-frost {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  corner-shape: inherit;
+}
+
+.site-header-frost-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(228, 228, 231, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition:
+    background 280ms ease-out,
+    border-color 280ms ease-out,
+    box-shadow 280ms ease-out,
+    border-radius 280ms ease-out;
+}
+
+.site-header-frost-blur {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  -webkit-backdrop-filter: blur(20px) saturate(1.55);
+  backdrop-filter: blur(20px) saturate(1.55);
+  transition:
+    -webkit-backdrop-filter 280ms ease-out,
+    backdrop-filter 280ms ease-out;
+}
+
+.site-header-float {
+  border-radius: 0;
+  corner-shape: round;
+  transition:
+    border-radius 280ms ease-out,
+    box-shadow 280ms ease-out;
+}
+
+.site-header-float.is-glass-active .site-header-frost-tint {
+  background: rgba(255, 255, 255, 0.32);
+  border-bottom-color: rgba(228, 228, 231, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 32px rgba(17, 24, 39, 0.06);
+}
+
+.site-header-float.is-glass-active .site-header-frost-blur {
+  -webkit-backdrop-filter: blur(28px) saturate(1.65);
+  backdrop-filter: blur(28px) saturate(1.65);
+}
+
+/* Floating squircle on scroll */
+.site-header-float.is-floating {
+  border-radius: var(--radius-squircle);
+  corner-shape: squircle;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 12px 40px rgba(17, 24, 39, 0.12),
+    0 2px 8px rgba(17, 24, 39, 0.06);
+}
+
+.site-header-float.is-floating .site-header-frost-tint {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(228, 228, 231, 0.45);
+  border-bottom: 1px solid rgba(228, 228, 231, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.site-header-float.is-floating .site-header-frost-blur {
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
+  backdrop-filter: blur(24px) saturate(1.7);
+}
+
+/*
+ * Global `body { overflow-x: clip }` (globals.css) prevents fixed
+ * backdrop-filter from sampling scrolled content. Lift it on marketing.
+ */
+body:has(.marketing-site) {
+  overflow-x: visible;
+}

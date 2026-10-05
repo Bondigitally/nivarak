@@ -1,0 +1,112 @@
+/* ---------- Experts ---------- */
+.experts {
+  background: var(--color-surface);
+}
+
+.experts-grid {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.experts-grid-single {
+  max-width: 28rem;
+  margin-inline: auto;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 744px) {
+  .experts-grid:not(.experts-grid-single) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1440px) {
+  .experts-grid:not(.experts-grid-single) {
+    grid-template-columns: 1.15fr 1fr 1fr 1fr;
+  }
+}
+
+.expert-card {
+  background: var(--color-surface-raised);
+  border: none;
+  border-radius: var(--radius-l);
+  padding: var(--space-32) var(--space-24);
+  text-align: center;
+  box-shadow: var(--shadow-xs);
+}
+
+.expert-card-founder {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  border-color: transparent;
+}
+
+.avatar-ring {
+  width: 5.25rem;
+  height: 5.25rem;
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-16);
+  display: grid;
+  place-items: center;
+  background: var(--color-brand-100);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: var(--type-heading-s-size);
+  border: var(--stroke-thin) solid var(--color-border);
+}
+
+.expert-card-founder .avatar-ring {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--color-text-inverse);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.expert-card h3 {
+  font-size: var(--type-heading-m-size);
+  line-height: 1.5rem;
+  font-weight: var(--type-heading-m-weight);
+  margin-bottom: var(--space-4);
+  color: var(--color-text-primary);
+}
+
+.expert-card-founder h3 {
+  color: var(--color-text-inverse);
+}
+
+.expert-card .role {
+  font-size: var(--type-overline-size);
+  font-weight: var(--type-overline-weight);
+  line-height: var(--type-overline-line);
+  text-transform: uppercase;
+  letter-spacing: var(--type-overline-tracking);
+  color: var(--color-text-tertiary);
+}
+
+.expert-card-founder .role {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.expert-card .bio {
+  margin-top: var(--space-12);
+  font-size: var(--type-body-m-size);
+  line-height: var(--type-body-m-line);
+  color: var(--color-text-secondary);
+}
+
+.expert-card-founder .bio {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.experts-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-top: var(--space-32);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--type-button-size);
+}
+
+.experts-cta {
+  text-align: center;
+}

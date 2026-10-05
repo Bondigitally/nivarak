@@ -1,0 +1,104 @@
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: var(--space-48);
+  background: var(--color-surface);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-hero);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  display: grid;
+  gap: var(--space-48);
+  align-items: center;
+}
+
+@media (min-width: 744px) {
+  .hero-inner {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--space-64);
+  }
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4.5vw, var(--type-display-xl-size));
+  line-height: 1.15;
+  font-weight: var(--type-display-xl-weight);
+  letter-spacing: var(--type-display-xl-tracking);
+  margin-bottom: var(--space-24);
+  max-width: 18ch;
+  color: var(--color-text-primary);
+}
+
+@media (min-width: 744px) {
+  .hero h1 {
+    line-height: var(--type-display-xl-line);
+  }
+}
+
+.hero .lede {
+  font-size: var(--type-body-l-size);
+  line-height: var(--type-body-l-line);
+  font-weight: var(--type-body-l-weight);
+  color: var(--color-text-secondary);
+  max-width: 36rem;
+  margin-bottom: var(--space-32);
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-bottom: var(--space-32);
+}
+
+.trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-16) var(--space-8) var(--space-8);
+  background: var(--color-surface-raised);
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xs);
+  font-size: var(--type-caption-size);
+  font-weight: 600;
+  color: var(--color-brand-900);
+}
+
+.trust-badge .tb-icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.trust-badge .icon {
+  width: var(--icon-s);
+  height: var(--icon-s);
+}
+
+.hero-visual {
+  position: relative;
+  min-height: 22rem;
+  display: grid;
+  place-items: center;
+  width: 100%;
+}

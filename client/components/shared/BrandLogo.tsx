@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils";
 
 export { BRAND_LOGO };
 
+/** Same mark + wordmark sizing as the marketing site header. */
+export const brandLogoNavClassName =
+  "[&>div]:!h-8 [&>span]:!text-xl [&>span]:!leading-7";
+
 /**
  * Nivarak mark + wordmark. Optional `onReady` for auth preload gating;
  * assessments and other surfaces omit it.
@@ -52,7 +56,7 @@ export function BrandLogo({
         className={cn(
           roundedElegance.className,
           typo.logo,
-          "text-2xl leading-8 tracking-[0.08em] text-primary",
+          "text-2xl leading-8 tracking-[0.08em]",
         )}
         aria-hidden
       >
