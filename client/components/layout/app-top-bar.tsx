@@ -82,11 +82,12 @@ export function AppTopBar({
         className={cn(
           shellHeaderChromeClass,
           scrolled && shellHeaderScrolledClass,
-          "sticky top-0 z-20 grid w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap px-dash-pad-x",
+          "sticky top-0 z-20 flex w-full items-center gap-dash-topbar-gap px-dash-pad-x",
         )}
       >
-        {isDrawer ? (
-          <div className="justify-self-start">
+        {/* Equal flex sides keep the search optically centered */}
+        <div className="flex min-w-0 flex-1 items-center justify-start">
+          {isDrawer ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -107,16 +108,17 @@ export function AppTopBar({
               </TooltipTrigger>
               <TooltipContent side="bottom">{menuLabel}</TooltipContent>
             </Tooltip>
-          </div>
-        ) : (
-          <div aria-hidden />
-        )}
+          ) : null}
+        </div>
 
         <button
           type="button"
           aria-label={searchAriaLabel}
           onClick={onSearchClick}
-          className={cn(dashboardSearchBarClass, "w-full min-w-0 flex-none text-left")}
+          className={cn(
+            dashboardSearchBarClass,
+            "w-full min-w-0 max-w-dash-search flex-none text-left",
+          )}
           {...searchAriaProps}
         >
           <HugeiconsIcon
@@ -139,7 +141,7 @@ export function AppTopBar({
           {searchHint}
         </button>
 
-        <div className="flex shrink-0 items-center justify-self-end gap-dash-topbar-gap">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-dash-topbar-gap">
           <Button
             type="button"
             className={cn(typo.button, "max-sm:px-3")}

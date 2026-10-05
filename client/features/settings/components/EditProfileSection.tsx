@@ -4,11 +4,11 @@ import { useEffect, useId, useState, type FormEvent, type ReactNode } from "reac
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowDown01Icon,
   Calendar03Icon,
   UserIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { fieldInputClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -192,13 +192,10 @@ export function EditProfileSection({
                   <span className={cn(typo.input, "truncate")}>
                     {draft.preferredLanguage}
                   </span>
-                  <HugeiconsIcon
-                    icon={ArrowDown01Icon}
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE}
-                    color="currentColor"
-                    className="size-5 shrink-0 text-muted-foreground"
-                  absoluteStrokeWidth />
+                  <ChevronIcon
+                    direction="down"
+                    className="text-muted-foreground"
+                  />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent

@@ -20,6 +20,7 @@ import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPillGroup } from "@/components/shared/FilterPillGroup";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { getTodaySchedule } from "@/features/schedule/data/schedule-data";
 import {
   appointmentStatusConfig,
@@ -85,25 +86,31 @@ function ScheduleCard({ item }: { item: Appointment }) {
 }
 
 export function SchedulePageContent() {
+  const { role } = useUserRole();
   const schedule = getTodaySchedule();
   const [dayFilter, setDayFilter] = useState<"today" | "week" | "month">("today");
   const completed = schedule.filter((s) => s.status === "Completed").length;
   const total = schedule.length;
+  const isDoctor = role === "doctor";
 
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
         <div className="flex min-w-0 items-start justify-between gap-4">
           <PageHeader
-            title="Schedule"
-            subtitle={`${completed}/${total} appointments completed today.`}
+            title={isDoctor ? "Clinical Schedule" : "Schedule"}
+            subtitle={
+              isDoctor
+                ? `${completed}/${total} visits completed today · remaining clinic and consult slots.`
+                : `${completed}/${total} appointments completed today.`
+            }
           />
           <button
             type="button"
             className="flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             <HugeiconsIcon icon={Add01Icon} size={BADGE_ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
-            Book Appointment
+            {isDoctor ? "Add Visit" : "Book Appointment"}
           </button>
         </div>
 

@@ -2,6 +2,7 @@
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
@@ -12,12 +13,19 @@ import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
 import { VitalsSummaryCards } from "@/features/vitals/components/VitalsSummaryCards";
 import { VitalsTrendCard } from "@/features/vitals/components/VitalsTrendCard";
 import { VitalsRecentLog } from "@/features/vitals/components/VitalsRecentLog";
+import { DoctorVitalsView } from "@/features/vitals/views/doctor";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Medicine02Icon } from "@hugeicons/core-free-icons";
 import { EMPTY_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 export function VitalsPageContent() {
+  const { role } = useUserRole();
+
+  if (role === "doctor") {
+    return <DoctorVitalsView />;
+  }
+
   const data = getHomeDashboardData();
   const hasVitals = data?.vitals != null;
 

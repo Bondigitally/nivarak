@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
@@ -22,6 +23,7 @@ import {
 import { ActionPlanCard } from "@/features/care-plan/components/ActionPlanCard";
 import { CallCareTeamCard } from "@/features/care-plan/components/CallCareTeamCard";
 import { ReferralsCard } from "@/features/care-plan/components/ReferralsCard";
+import { DoctorCarePlansView } from "@/features/care-plan/views/doctor";
 import { getCarePlanSnapshot } from "@/features/care-plan/data/care-plan-data";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ClipboardListIcon, EnergyIcon } from "@hugeicons/core-free-icons";
@@ -29,6 +31,12 @@ import { EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 export function CarePlanPageContent() {
+  const { role } = useUserRole();
+
+  if (role === "doctor") {
+    return <DoctorCarePlansView />;
+  }
+
   const carePlan = getCarePlanSnapshot();
 
   return (

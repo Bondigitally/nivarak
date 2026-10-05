@@ -6,7 +6,6 @@ import {
   AuthPreloadProvider,
   useAuthPreload,
 } from '@/features/auth/components/AuthPreload';
-import { ThemeProvider } from '@/components/theme-provider';
 import { HeroSlideshow } from '../primitives/HeroSlideshow';
 
 const LG_MEDIA = '(min-width: 1024px)';
@@ -60,10 +59,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" forcedTheme="light" enableSystem={false}>
-      <AuthPreloadProvider waitForHero={showHero} bootstrapped={bootstrapped}>
-        <AuthShell showHero={showHero}>{children}</AuthShell>
-      </AuthPreloadProvider>
-    </ThemeProvider>
+    <AuthPreloadProvider waitForHero={showHero} bootstrapped={bootstrapped}>
+      <AuthShell showHero={showHero}>{children}</AuthShell>
+    </AuthPreloadProvider>
   );
 }

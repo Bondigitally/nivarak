@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { TablePaginationBar } from "@/components/shared/data-table";
 import { TableSearch } from "@/components/shared/table-search";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { Button } from "@/components/ui/button";
+import { useUserRole } from "@/components/layout/user-role-context";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { IasScoreCard } from "@/features/dashboard/components/IasScoreCard";
@@ -18,6 +20,7 @@ import {
   RecentAssessmentsTable,
   assessmentResultClass,
 } from "@/features/assessments/components/RecentAssessmentsTable";
+import { DoctorAssessmentsView } from "@/features/assessments/views/doctor";
 import {
   ASSESSMENT_ROWS,
   type AssessmentRow,
@@ -75,11 +78,15 @@ function AssessmentMobileCard({ row }: { row: AssessmentRow }) {
   );
 }
 
-export function AssessmentsPageContent() {
+const PAGE_SIZES = [10, 15, 25, 50];
+
+function PatientAssessmentsView() {
   const data = getHomeDashboardData();
   const hasAssessment = data?.assessment !== null;
   const assessment = data?.assessment;
   const [mobileQuery, setMobileQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
 
   const mobileRows = useMemo(() => {
     const needle = mobileQuery.trim().toLowerCase();
@@ -90,6 +97,22 @@ export function AssessmentsPageContent() {
       ),
     );
   }, [mobileQuery]);
+
+  const pageCount = Math.max(1, Math.ceil(mobileRows.length / pageSize) || 1);
+  const safePage = Math.min(Math.max(1, page), pageCount);
+
+  useEffect(() => {
+    setPage(1);
+  }, [mobileQuery, pageSize]);
+
+  useEffect(() => {
+    if (page !== safePage) setPage(safePage);
+  }, [page, safePage]);
+
+  const pagedMobileRows = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return mobileRows.slice(start, start + pageSize);
+  }, [mobileRows, pageSize, safePage]);
 
   return (
     <AppPageFrame>
@@ -104,7 +127,7 @@ export function AssessmentsPageContent() {
             <IasScoreCard assessment={assessment} variant="plain" />
 
             <section className="flex flex-col gap-3 lg:hidden">
-              <RecentAssessmentsHeading count={mobileRows.length} />
+              <RecentAssessmentsHeading />
               <TableSearch
                 value={mobileQuery}
                 onChange={setMobileQuery}
@@ -112,15 +135,27 @@ export function AssessmentsPageContent() {
                 aria-label="Search assessments"
               />
               <ul className="flex flex-col gap-3">
-                {mobileRows.map((row, index) => (
+                {pagedMobileRows.map((row, index) => (
                   <li key={`${row.name}-${row.date}-${index}`}>
                     <AssessmentMobileCard row={row} />
                   </li>
                 ))}
               </ul>
-              <Button type="button" variant="secondary" className="w-full">
-                Load more
-              </Button>
+              {mobileRows.length > 0 ? (
+                <div className="rounded-lg border border-border bg-card py-3">
+                  <TablePaginationBar
+                    total={mobileRows.length}
+                    page={safePage}
+                    pageSize={pageSize}
+                    pageSizes={PAGE_SIZES}
+                    onPageChange={setPage}
+                    onPageSizeChange={(size) => {
+                      setPageSize(size);
+                      setPage(1);
+                    }}
+                  />
+                </div>
+              ) : null}
             </section>
 
             <div className="hidden lg:block">
@@ -165,4 +200,14 @@ export function AssessmentsPageContent() {
       </DashboardReveal>
     </AppPageFrame>
   );
+}
+
+export function AssessmentsPageContent() {
+  const { role } = useUserRole();
+
+  if (role === "doctor") {
+    return <DoctorAssessmentsView />;
+  }
+
+  return <PatientAssessmentsView />;
 }

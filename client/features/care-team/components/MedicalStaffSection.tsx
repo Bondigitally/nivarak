@@ -180,12 +180,14 @@ export function MedicalStaffSection({
 }) {
   return (
     <section className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
-      <SectionTitle
-        info="Doctors, nurses, and care coordinators assigned to you, with contact details and experience."
-        className="flex-none pr-0 text-foreground"
-      >
-        Medical Staff
-      </SectionTitle>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <SectionTitle className="flex-none pr-0 text-foreground">
+          Medical Staff
+        </SectionTitle>
+        <p className={typo.bodyM}>
+          Doctors, nurses, and care coordinators assigned to you.
+        </p>
+      </div>
       <div className="flex flex-wrap justify-center gap-dash-gutter lg:justify-start">
         {members.map((member) => (
           <MedicalStaffCard key={member.id} member={member} />

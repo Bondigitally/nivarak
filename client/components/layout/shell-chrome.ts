@@ -1,4 +1,4 @@
-/** Hero card wash — neutral lift, not brand purple */
+/** Hero card wash — subtle neutral lift on white card */
 export const heroPlumWashSurfaceClass =
   "bg-[linear-gradient(225deg,var(--background)_0%,var(--card)_55%)]";
 

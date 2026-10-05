@@ -28,6 +28,9 @@ export type AppointmentItem = {
   reason: string;
   status: AppointmentStatus;
   showMap: boolean;
+  /** When set, drawer shows a link into the patient chart (doctor schedule). */
+  patientId?: string;
+  patientName?: string;
 };
 
 /** Shared row + drawer badge styles. */

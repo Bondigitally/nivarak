@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowDown01Icon,
   Cancel01Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
@@ -28,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSidebar } from "@/components/layout/sidebar-context";
@@ -170,13 +170,10 @@ export function InviteCaregiverDialog() {
                     >
                       {relationship ?? "Select relationship"}
                     </span>
-                    <HugeiconsIcon
-                      icon={ArrowDown01Icon}
-                      size={ICON_SIZE}
-                      strokeWidth={ICON_STROKE}
-                      color="currentColor"
-                      className="shrink-0 text-muted-foreground"
-                    absoluteStrokeWidth />
+                    <ChevronIcon
+                      direction="down"
+                      className="text-muted-foreground"
+                    />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent

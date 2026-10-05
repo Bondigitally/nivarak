@@ -6,9 +6,9 @@ import {
   DataTable,
   DataTableAvatar,
   DataTableIdentity,
-  DataTableLoadMore,
   type DataTableColumn,
 } from "@/components/shared/data-table";
+import { createDateRangeFilterGroup } from "@/components/shared/data-table-date-filter";
 import { DocActionsMenu } from "@/features/records/components/DocActionsMenu";
 import {
   DOC_ICON_MAP,
@@ -32,6 +32,13 @@ function parseFileSize(size: string) {
   return value;
 }
 
+const FILTER_GROUPS = [
+  createDateRangeFilterGroup<DocumentRow>({
+    label: "Date uploaded",
+    getDateMs: (row) => Date.parse(row.date),
+  }),
+];
+
 export function DocumentsTable({
   data,
   leading,
@@ -49,8 +56,6 @@ export function DocumentsTable({
         id: "name",
         header: "Document",
         sortValue: (row) => row.name,
-        filterValue: (row) => DOC_TYPE_LABEL[row.type].label,
-        filterLabel: "Type",
         cell: (row) => {
           const { icon, bg, color } = DOC_ICON_MAP[row.type];
           return (
@@ -87,6 +92,7 @@ export function DocumentsTable({
         className: "w-40",
         cellClassName: "whitespace-nowrap",
         sortValue: (row) => Date.parse(row.date),
+        sortKind: "date",
         cell: (row) => row.date,
       },
       {
@@ -109,7 +115,8 @@ export function DocumentsTable({
       columns={columns}
       data={data}
       getRowId={(row) => row.id}
-      footer={<DataTableLoadMore />}
+      filterGroups={FILTER_GROUPS}
+      defaultPageSize={15}
     />
   );
 }

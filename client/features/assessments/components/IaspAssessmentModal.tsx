@@ -12,7 +12,6 @@ import {
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowRight02Icon,
@@ -24,6 +23,7 @@ import {
   SquareLock02Icon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { Button } from "@/components/ui/button";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import {
@@ -513,9 +513,9 @@ function SelectField({
             >
               {value ?? placeholder}
             </span>
-            <AppIcon
-              icon={ArrowDown01Icon}
-              className="shrink-0 text-muted-foreground"
+            <ChevronIcon
+              direction="down"
+              className="text-muted-foreground"
             />
           </button>
         </DropdownMenuTrigger>
@@ -611,9 +611,9 @@ function LivingSituationField({
             >
               {display ?? "Select situation"}
             </span>
-            <AppIcon
-              icon={ArrowDown01Icon}
-              className="shrink-0 text-muted-foreground"
+            <ChevronIcon
+              direction="down"
+              className="text-muted-foreground"
             />
           </button>
         </DropdownMenuTrigger>
@@ -1182,7 +1182,7 @@ function QuestionsStep({
             </p>
           </div>
           <IaspProgressBar value={progressPct} label="Assessment progress" />
-          <div aria-hidden className="border-t border-border" />
+          <div aria-hidden className="border-t border-divider" />
           <div className="flex flex-col items-start gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-3 sm:gap-y-0">
             <p
               className={cn(

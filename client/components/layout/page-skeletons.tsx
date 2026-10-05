@@ -20,22 +20,22 @@ function TopBarSkeleton() {
     <header
       className={cn(
         shellHeaderChromeClass,
-        "sticky top-0 z-20 grid w-full grid-cols-[1fr_minmax(0,var(--max-width-dash-search))_1fr] items-center gap-dash-topbar-gap px-dash-pad-x",
+        "sticky top-0 z-20 flex w-full items-center gap-dash-topbar-gap px-dash-pad-x",
       )}
     >
-      <div className="justify-self-start">
+      <div className="flex min-w-0 flex-1 items-center justify-start">
         <Skeleton className="size-8 rounded-md lg:hidden" />
       </div>
       <div
         className={cn(
           dashboardSearchBarClass,
-          "w-full min-w-0 flex-none border-transparent bg-border/50 shadow-none",
+          "w-full min-w-0 max-w-dash-search flex-none border-transparent bg-border/50 shadow-none",
         )}
       >
         <Skeleton className="size-4 shrink-0 rounded-full" />
         <Skeleton className="h-4 w-48 max-w-[60%] rounded-full" />
       </div>
-      <div className="flex shrink-0 items-center justify-self-end gap-dash-topbar-gap">
+      <div className="flex min-w-0 flex-1 items-center justify-end gap-dash-topbar-gap">
         <Skeleton className="hidden h-10 w-40 rounded-full sm:block" />
         <Skeleton className="size-10 rounded-full sm:hidden" />
         <Skeleton className="size-10 rounded-full" />
@@ -441,32 +441,51 @@ export function VitalsPageSkeleton() {
           <div
             key={index}
             className={cn(
-              "@container flex min-h-55 flex-col p-5",
+              "flex min-h-55 flex-col gap-6 p-6",
               dashboardCardClass,
             )}
           >
-            <div className="flex min-h-12 items-start justify-between gap-3">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="size-12 shrink-0 rounded-full" />
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 flex-col gap-6">
+                <div className="flex min-h-11 items-center gap-3.5">
+                  <Skeleton className="size-11 shrink-0 rounded-xl" />
+                  <Skeleton className="h-5 w-28" />
+                </div>
+                <div className={vitalsCardMetricsRowClass}>
+                  <Skeleton className="h-10 w-28" />
+                  <div className="mt-4 flex min-h-6 w-full items-center gap-2">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              </div>
+              <Skeleton className="h-[105px] w-full max-w-[312px] rounded-sm" />
             </div>
-            <div className={vitalsCardMetricsRowClass}>
-              <Skeleton className="h-8 w-20 @max-[15.5rem]:h-[30px]" />
-              <Skeleton className="h-6 w-16 shrink-0 rounded-full @max-[15.5rem]:mt-1" />
-            </div>
-            <Skeleton className="mt-1.5 h-3 w-20" />
-            <div className="mt-auto flex flex-col gap-1 pt-5">
-              <Skeleton className="h-9 w-full rounded-sm" />
-              <div className="flex justify-between">
-                <Skeleton className="h-2.5 w-8" />
-                <Skeleton className="h-2.5 w-8" />
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <Skeleton className="h-4 w-36" />
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-8 w-12" />
+                <Skeleton className="h-8 w-12" />
+                <Skeleton className="h-8 w-12" />
               </div>
             </div>
           </div>
         ))}
       </div>
       <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-10 w-full max-w-lg rounded-full" />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-64 max-w-full" />
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:justify-end lg:w-auto">
+            <Skeleton className="h-10 w-full max-w-lg rounded-full sm:w-80" />
+            <div className="flex flex-col items-end gap-3 self-end sm:self-start">
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          </div>
+        </div>
         <Skeleton className="h-64 w-full rounded-lg" />
       </div>
       <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-6")}>

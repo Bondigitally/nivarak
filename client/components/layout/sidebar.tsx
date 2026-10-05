@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,12 +22,14 @@ import { cn } from "@/lib/utils";
 import { roundedElegance } from "@/lib/fonts";
 import { typo } from "@/lib/tokens/typography";
 import type { UserRole } from "@/lib/auth/roles";
+import { getCurrentUserProfile } from "@/lib/auth/current-user-profile";
 import {
   SIDEBAR_TRANSITION_MS,
   SIDEBAR_WIDTH_COLLAPSED,
   SIDEBAR_WIDTH_EXPANDED,
   useSidebar,
 } from "@/components/layout/sidebar-context";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import {
   Sheet,
@@ -34,7 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getSidebarNavForRole } from "./sidebar-nav";
+import { getSidebarNavForRole, type NavItem } from "./sidebar-nav";
 import { sidebarFooterClass, sidebarHeaderClass, sidebarNavActiveSurfaceClass } from "./shell-chrome";
 
 const SIDEBAR_NAV_BADGE_CLASS = cn(
@@ -97,12 +106,13 @@ function SidebarTooltipContent({ children }: { children: React.ReactNode }) {
 }
 
 const SIDEBAR_NAV_HOVER =
-  "hover:text-foreground hover:bg-accent dark:hover:bg-border";
+  "hover:text-foreground hover:bg-accent dark:hover:bg-border active:bg-border active:text-foreground dark:active:bg-muted";
 
 const SIDEBAR_NAV_ACTIVE = cn(
   sidebarNavActiveSurfaceClass,
   typo.sidebarItemActive,
   "text-sidebar-active-text hover:text-sidebar-active-text",
+  "active:bg-muted dark:active:bg-border",
 );
 
 const SIDEBAR_NAV_INACTIVE = typo.sidebarItem;
@@ -204,10 +214,10 @@ function CollapsedTip({
   );
 }
 
-function Avatar() {
+function Avatar({ initials }: { initials: string }) {
   return (
     <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold text-foreground">
-      A
+      {initials}
     </span>
   );
 }
@@ -221,6 +231,7 @@ export function AppSidebar({
   navBadges?: Record<string, number>;
 }) {
   const badgeByHref = navBadges;
+  const profile = getCurrentUserProfile(role);
 
   const { homeHref, sections } = getSidebarNavForRole(role);
   const {
@@ -241,6 +252,32 @@ export function AppSidebar({
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
+
+  const isGroupActive = (item: NavItem) => {
+    if (item.children?.length) {
+      return item.children.some((child) => isActive(child.href));
+    }
+    return isActive(item.href);
+  };
+
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  useEffect(() => {
+    const next: Record<string, boolean> = {};
+    for (const section of sections) {
+      for (const item of section.items) {
+        if (item.children?.length && item.children.some((c) => isActive(c.href))) {
+          next[item.label] = true;
+        }
+      }
+    }
+    if (Object.keys(next).length === 0) return;
+    setExpandedGroups((prev) => ({ ...prev, ...next }));
+    // pathname-driven expand only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, sections]);
 
   useEffect(() => {
     if (skipAnimRef.current) {
@@ -265,9 +302,23 @@ export function AppSidebar({
     return () => window.clearTimeout(id);
   }, [pathname, isDrawer, setOpen]);
 
+  /** Expand when clicking rail padding/background — not nav links or buttons. */
+  const handleCollapsedRailClick = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      if (!railCollapsed) return;
+      const target = event.target as HTMLElement;
+      if (target.closest("a, button, [data-sidebar-interactive]")) return;
+      setCollapsed(false);
+    },
+    [railCollapsed, setCollapsed],
+  );
+
   const chrome = (
     <div
-      className="group/sidebar flex h-full min-h-full flex-col bg-sidebar"
+      className={cn(
+        "group/sidebar flex h-full min-h-full flex-col bg-sidebar",
+        railCollapsed && "[&_a]:cursor-pointer [&_button]:cursor-pointer",
+      )}
       style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
       <div className={cn(sidebarHeaderClass, "flex items-center")}>
@@ -302,7 +353,7 @@ export function AppSidebar({
                       "truncate",
                       roundedElegance.className,
                       typo.logo,
-                      "text-2xl leading-6 tracking-[0.08em] text-primary dark:text-[var(--primary-ui)]",
+                      "text-2xl leading-6 tracking-[0.08em]",
                     )}
                   >
                     nivarak
@@ -366,7 +417,12 @@ export function AppSidebar({
             )}
 
             {section.items.map((item) => {
-              const active = isActive(item.href);
+              const hasChildren = Boolean(item.children?.length);
+              const childActive = hasChildren && isGroupActive(item);
+              const active = hasChildren ? childActive : isActive(item.href);
+              const expanded =
+                hasChildren &&
+                (expandedGroups[item.label] ?? childActive);
               const badgeCount = badgeByHref[item.href] ?? 0;
               const showBadge = badgeCount > 0;
               const badgeLabel = formatBadgeCount(badgeCount);
@@ -376,6 +432,86 @@ export function AppSidebar({
                   ? `${item.label} (${badgeAria})`
                   : item.label;
 
+              if (hasChildren && !railCollapsed) {
+                return (
+                  <div key={item.label} className="flex flex-col gap-0.5">
+                    <button
+                      type="button"
+                      aria-expanded={expanded}
+                      onClick={() =>
+                        setExpandedGroups((prev) => ({
+                          ...prev,
+                          [item.label]: !expanded,
+                        }))
+                      }
+                      className={cn(
+                        "flex h-11 w-full items-center gap-3 rounded-md border px-3 py-2.5 transition-colors duration-150",
+                        active
+                          ? cn(SIDEBAR_NAV_ACTIVE)
+                          : cn(
+                              SIDEBAR_NAV_INACTIVE,
+                              SIDEBAR_NAV_HOVER,
+                              "border-transparent",
+                            ),
+                        FOCUS,
+                      )}
+                      data-sidebar-interactive=""
+                    >
+                      <span className="relative size-5 shrink-0">
+                        <NavIcon
+                          icon={item.icon}
+                          className={
+                            active ? "text-sidebar-active-icon" : undefined
+                          }
+                        />
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-left">
+                        {item.label}
+                      </span>
+                      <ChevronIcon
+                        direction={expanded ? "down" : "right"}
+                        className="text-muted-foreground"
+                      />
+                    </button>
+                    {expanded &&
+                      item.children?.map((child) => {
+                        const childIsActive = isActive(child.href);
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            aria-current={childIsActive ? "page" : undefined}
+                            className={cn(
+                              "ml-4 flex h-10 items-center gap-3 rounded-md border px-3 py-2 transition-colors duration-150",
+                              childIsActive
+                                ? SIDEBAR_NAV_ACTIVE
+                                : cn(
+                                    SIDEBAR_NAV_INACTIVE,
+                                    SIDEBAR_NAV_HOVER,
+                                    "border-transparent",
+                                  ),
+                              FOCUS,
+                            )}
+                            data-sidebar-interactive=""
+                            onClick={() => {
+                              if (isDrawer) setOpen(false);
+                            }}
+                          >
+                            <span className="min-w-0 flex-1 truncate pl-2">
+                              {child.label}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                  </div>
+                );
+              }
+
+              const linkHref =
+                hasChildren && item.children?.[0]
+                  ? item.children[0].href
+                  : item.href;
+
               return (
                 <CollapsedTip
                   key={item.href}
@@ -383,7 +519,7 @@ export function AppSidebar({
                   enabled={tipsEnabled}
                 >
                   <Link
-                    href={item.href}
+                    href={linkHref}
                     aria-current={active ? "page" : undefined}
                     aria-label={
                       showBadge && badgeAria
@@ -392,7 +528,7 @@ export function AppSidebar({
                     }
                     className={cn(
                       railCollapsed
-                        ? COLLAPSED_BTN
+                        ? cn(COLLAPSED_BTN, "cursor-pointer")
                         : "flex h-11 w-full items-center gap-3 rounded-md px-3 py-2.5",
                       "border transition-colors duration-150",
                       active
@@ -404,6 +540,7 @@ export function AppSidebar({
                           ),
                       FOCUS,
                     )}
+                    data-sidebar-interactive=""
                   >
                     <span className="relative size-5 shrink-0">
                       <NavIcon
@@ -448,25 +585,25 @@ export function AppSidebar({
           )}
         >
           {railCollapsed ? (
-            <CollapsedTip label="Alex" enabled={tipsEnabled}>
+            <CollapsedTip label={profile.displayName} enabled={tipsEnabled}>
               <button
                 type="button"
-                aria-label="Alex"
+                aria-label={profile.displayName}
                 onClick={() => setCollapsed(false)}
                 className={cn(COLLAPSED_BTN, FOCUS)}
               >
-                <Avatar />
+                <Avatar initials={profile.initials} />
               </button>
             </CollapsedTip>
           ) : (
             <div className="flex w-full min-w-0 items-center gap-2">
-              <Avatar />
+              <Avatar initials={profile.initials} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold leading-none text-foreground">
-                  Alex
+                  {profile.displayName}
                 </p>
                 <p className="mt-0.5 truncate text-xs font-normal leading-4 text-muted-foreground">
-                  alex@example.com
+                  {profile.email}
                 </p>
               </div>
               <button
@@ -516,8 +653,13 @@ export function AppSidebar({
   return (
     <TooltipProvider delayDuration={200}>
       <aside
-        className="relative z-10 flex h-full min-h-full shrink-0 flex-col self-stretch overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out"
+        className={cn(
+          "relative z-10 flex h-full min-h-full shrink-0 flex-col self-stretch overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out",
+          railCollapsed && "cursor-ew-resize",
+        )}
         style={{ width, transitionDuration: `${SIDEBAR_TRANSITION_MS}ms` }}
+        onClick={handleCollapsedRailClick}
+        aria-expanded={!railCollapsed}
       >
         {chrome}
       </aside>

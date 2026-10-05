@@ -4,9 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
-  ArrowDown01Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
   Cancel01Icon,
   DateTimeIcon,
   Home03Icon,
@@ -35,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
 import { cardShadowClass, cardShadowHoverClass } from "@/lib/tokens/elevation";
@@ -337,13 +335,10 @@ export function BookVisitModal() {
                   >
                     {reason ?? "Select a reason..."}
                   </span>
-                  <HugeiconsIcon
-                    icon={ArrowDown01Icon}
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE}
-                    color="currentColor"
-                    className="shrink-0 text-muted-foreground"
-                  absoluteStrokeWidth />
+                  <ChevronIcon
+                    direction="down"
+                    className="text-muted-foreground"
+                  />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -381,12 +376,7 @@ export function BookVisitModal() {
                   onClick={goPrevWeek}
                   className={DATE_NAV_BTN}
                 >
-                  <HugeiconsIcon
-                    icon={ArrowLeft01Icon}
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE}
-                    color="currentColor"
-                  absoluteStrokeWidth />
+                  <ChevronIcon direction="left" />
                 </button>
                 <button
                   type="button"
@@ -394,12 +384,7 @@ export function BookVisitModal() {
                   onClick={goNextWeek}
                   className={DATE_NAV_BTN}
                 >
-                  <HugeiconsIcon
-                    icon={ArrowRight01Icon}
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE}
-                    color="currentColor"
-                  absoluteStrokeWidth />
+                  <ChevronIcon direction="right" />
                 </button>
               </div>
             </div>

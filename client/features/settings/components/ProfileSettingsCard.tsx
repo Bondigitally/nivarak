@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowDown01Icon, Calendar03Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { Calendar03Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { fieldInputClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -128,13 +129,10 @@ export function ProfileSettingsCard({
                 )}
               >
                 <span className={cn(typo.input, "truncate")}>{language}</span>
-                <HugeiconsIcon
-                  icon={ArrowDown01Icon}
-                  size={ICON_SIZE}
-                  strokeWidth={ICON_STROKE}
-                  color="currentColor"
-                  className="size-5 shrink-0 text-muted-foreground"
-                absoluteStrokeWidth />
+                <ChevronIcon
+                  direction="down"
+                  className="text-muted-foreground"
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-(--radix-dropdown-menu-trigger-width)">
