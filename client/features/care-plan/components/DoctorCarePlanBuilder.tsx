@@ -7,7 +7,10 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CheckboxIndicator } from "@/components/shared/checkbox-indicator";
 import { Button } from "@/components/ui/button";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldTextareaClassName,
+} from "@/components/ui/input";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { PatientChartShell } from "@/features/patients/components/PatientChartShell";
 import { getDoctorPatientById } from "@/features/patients/data/doctor-patients-data";
@@ -61,8 +64,7 @@ export function DoctorCarePlanBuilder({ patientId }: { patientId: string }) {
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
           className={cn(
-            fieldInputClassName,
-            "h-auto min-h-11 resize-y py-3 leading-6",
+            fieldTextareaClassName,
           )}
         />
       </div>

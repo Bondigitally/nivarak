@@ -28,7 +28,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { fieldInputClassName, Input } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldSelectTriggerClassName,
+  Input,
+} from "@/components/ui/input";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
@@ -146,10 +150,7 @@ export function InviteCaregiverDialog() {
                   <button
                     id="caregiver-relationship"
                     type="button"
-                    className={cn(
-                      fieldInputClassName,
-                      "inline-flex items-center justify-between gap-2 text-left",
-                    )}
+                    className={fieldSelectTriggerClassName}
                   >
                     <span className={cn(typo.input, "min-w-0 flex-1 truncate")}>
                       {relationship ?? "Select relationship"}

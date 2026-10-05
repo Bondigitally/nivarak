@@ -17,7 +17,7 @@ import {
   dialogHeaderShellClass,
   dialogPrimitiveContentClass,
 } from "@/components/ui/dialog";
-import { fieldInputClassName } from "@/components/ui/input";
+import { fieldTextareaClassName } from "@/components/ui/input";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
@@ -87,10 +87,7 @@ export function CarePlanReviewDialog({
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Optional feedback for the care team…"
-                  className={cn(
-                    fieldInputClassName,
-                    "h-auto min-h-11 resize-y py-3 leading-6",
-                  )}
+                  className={fieldTextareaClassName}
                 />
               </div>
             </div>
@@ -104,11 +101,12 @@ export function CarePlanReviewDialog({
               <Button
                 type="button"
                 variant="primary-outline"
+                size="cta"
                 onClick={handleRequestChanges}
               >
                 Request changes
               </Button>
-              <Button type="button" onClick={handleApprove}>
+              <Button type="button" size="cta" onClick={handleApprove}>
                 Approve &amp; publish
               </Button>
             </div>

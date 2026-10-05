@@ -460,6 +460,7 @@ export function AppointmentDetailsDrawer({
             <Button
               type="button"
               variant="secondary"
+              size="cta"
               className="w-full sm:w-auto"
               onClick={() => setConfirmCancelOpen(false)}
             >
@@ -468,6 +469,7 @@ export function AppointmentDetailsDrawer({
             <Button
               type="button"
               variant="destructive"
+              size="cta"
               className="w-full sm:w-auto"
               onClick={handleConfirmCancel}
             >

@@ -545,7 +545,8 @@ export function PatientOverviewProxyCard({
         <Button
           type="button"
           variant="ghost"
-          className="h-9 w-full gap-2 text-muted-foreground"
+          size="sm"
+          className="w-full gap-2 text-muted-foreground"
         >
           <AppIcon icon={Refresh01Icon} size={ICON_SIZE} />
           Request family reassessment

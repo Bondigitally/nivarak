@@ -60,7 +60,8 @@ function AssessmentMobileCard({ row }: { row: AssessmentRow }) {
         <Button
           type="button"
           variant="primary-outline"
-          className="h-9 min-w-0 flex-1 px-3"
+          size="sm"
+          className="min-w-0 flex-1 px-3"
         >
           <AppIcon icon={ViewIcon} />
           View report
@@ -68,7 +69,8 @@ function AssessmentMobileCard({ row }: { row: AssessmentRow }) {
         <Button
           type="button"
           variant="secondary"
-          className="h-9 min-w-0 flex-1 px-3"
+          size="sm"
+          className="min-w-0 flex-1 px-3"
         >
           <AppIcon icon={Pdf02Icon} />
           Download PDF

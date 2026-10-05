@@ -377,7 +377,7 @@ export function AssessmentsPageSkeleton() {
         <div className="flex flex-col gap-2">
           <Skeleton className="h-11 w-full rounded-md" />
           {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-md" />
+            <Skeleton key={index} className="h-11 w-full rounded-md" />
           ))}
         </div>
       </div>
@@ -423,7 +423,7 @@ export function RecordsPageSkeleton() {
         <Skeleton className="h-11 w-full max-w-md rounded-full" />
         <div className="flex flex-col gap-2">
           {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-md" />
+            <Skeleton key={index} className="h-11 w-full rounded-md" />
           ))}
         </div>
       </div>
@@ -493,7 +493,7 @@ export function VitalsPageSkeleton() {
         <div className="flex flex-col gap-2">
           <Skeleton className="h-11 w-full rounded-md" />
           {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-md" />
+            <Skeleton key={index} className="h-11 w-full rounded-md" />
           ))}
         </div>
       </div>

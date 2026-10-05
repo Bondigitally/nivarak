@@ -192,7 +192,7 @@ export function RedFlagsStep({
       </div>
 
       <IaspStepNavFooter onBack={onBack}>
-        <Button type="button" onClick={onNext}>
+        <Button type="button" size="cta" onClick={onNext}>
           Next
           <AppIcon icon={ArrowRight01Icon} />
         </Button>
@@ -353,7 +353,7 @@ export function ReviewStep({
       </div>
 
       <IaspStepNavFooter onBack={onBack}>
-        <Button type="button" onClick={onSubmit}>
+        <Button type="button" size="cta" onClick={onSubmit}>
           Submit Assessment
         </Button>
       </IaspStepNavFooter>
@@ -616,7 +616,7 @@ export function ResultsStep({
           "flex-row flex-wrap items-center justify-center gap-4 border-t-0 bg-card pt-2",
         )}
       >
-        <Button type="button" variant="secondary" onClick={onRetake}>
+        <Button type="button" variant="secondary" size="cta" onClick={onRetake}>
           Retake assessment
         </Button>
         {/* TODO: replace /register with the dedicated booking/consultation
@@ -624,6 +624,7 @@ export function ResultsStep({
         <Button
           type="button"
           variant="primary-outline"
+          size="cta"
           onClick={() => router.push("/register")}
         >
           Book a Free Consultation

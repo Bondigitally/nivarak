@@ -47,7 +47,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FieldErrorMessage } from "@/components/ui/field-error-message";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldSelectTriggerClassName,
+} from "@/components/ui/input";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { radius } from "@/lib/tokens/radius";
@@ -499,10 +502,7 @@ function SelectField({
           <button
             id={id}
             type="button"
-            className={cn(
-              fieldInputClassName,
-              "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
-            )}
+            className={fieldSelectTriggerClassName}
           >
             <span
               className={cn(
@@ -597,10 +597,7 @@ function LivingSituationField({
           <button
             id={id}
             type="button"
-            className={cn(
-              fieldInputClassName,
-              "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
-            )}
+            className={fieldSelectTriggerClassName}
           >
             <span
               className={cn(
@@ -669,7 +666,6 @@ function LivingSituationField({
           }
           className={cn(
             fieldInputClassName,
-            "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
           )}
         />
       ) : null}
@@ -752,7 +748,6 @@ function AboutYouStep({
               }
               className={cn(
                 fieldInputClassName,
-                "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
                 showAgeError &&
                   "border-destructive focus-visible:ring-destructive/30",
               )}
@@ -797,6 +792,7 @@ function AboutYouStep({
           </Button>
           <Button
             type="button"
+            size="cta"
             disabled={!complete}
             onClick={onContinue}
             className="min-w-35"
@@ -1311,6 +1307,7 @@ function QuestionsStep({
             <IaspAutoSavedBadge status={saveStatus} />
             <Button
               type="button"
+              size="cta"
               disabled={!pageComplete}
               onClick={handleNextClick}
               className="min-w-28 shrink-0"

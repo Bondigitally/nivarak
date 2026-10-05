@@ -6,7 +6,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Calendar03Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldSelectTriggerClassName,
+  fieldTextareaClassName,
+} from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,10 +127,7 @@ export function ProfileSettingsCard({
               <button
                 id="settings-language"
                 type="button"
-                className={cn(
-                  fieldInputClassName,
-                  "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
-                )}
+                className={fieldSelectTriggerClassName}
               >
                 <span className={cn(typo.input, "truncate")}>{language}</span>
                 <ChevronIcon
@@ -171,10 +172,7 @@ export function ProfileSettingsCard({
             readOnly
             rows={2}
             value={profile.residentialAddress}
-            className={cn(
-              fieldInputClassName,
-              "h-auto min-h-11 resize-none py-3 leading-6",
-            )}
+            className={cn(fieldTextareaClassName, "resize-none")}
           />
         </Field>
       </div>

@@ -16,6 +16,18 @@ export const fieldInputClassName = cn(
   "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
+/** Dropdown / combobox trigger — same 44px chrome as {@link fieldInputClassName}. */
+export const fieldSelectTriggerClassName = cn(
+  fieldInputClassName,
+  "inline-flex items-center justify-between gap-2 text-left",
+);
+
+/** Multiline fields — min height matches single-line inputs. */
+export const fieldTextareaClassName = cn(
+  fieldInputClassName,
+  "h-auto min-h-11 resize-y py-3 leading-6",
+);
+
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (

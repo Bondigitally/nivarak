@@ -226,6 +226,7 @@ function GentleReminderForm({
             <Button
               type="button"
               variant="secondary"
+              size="cta"
               onClick={() => onOpenChange(false)}
             >
               Cancel
@@ -233,6 +234,7 @@ function GentleReminderForm({
             <Button
               type="button"
               variant="info-outline"
+              size="cta"
               disabled={scope === "choose" && selectedIds.length === 0}
               // TODO: integrate Google Calendar deep-link or calendar API.
               // For now, closes the modal only — no reminder is actually created.

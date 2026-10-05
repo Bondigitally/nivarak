@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { fieldSelectTriggerClassName } from "@/components/ui/input";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
@@ -321,9 +322,8 @@ export function BookVisitModal() {
                 <button
                   type="button"
                   className={cn(
-                    "relative flex h-12 w-full items-center rounded-md border border-border bg-card px-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] dark:shadow-[0_2px_4px_rgba(0,0,0,0.3)] sm:h-14",
-                    "text-left outline-none transition-colors hover:bg-background",
-                    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    fieldSelectTriggerClassName,
+                    "transition-colors hover:bg-background",
                   )}
                 >
                   <span

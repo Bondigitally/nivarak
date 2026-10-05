@@ -5,7 +5,10 @@ import { useState } from "react";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldTextareaClassName,
+} from "@/components/ui/input";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { PatientChartShell } from "@/features/patients/components/PatientChartShell";
 import { getDoctorPatientById } from "@/features/patients/data/doctor-patients-data";
@@ -98,8 +101,7 @@ export function WriteClinicalNotePage({ patientId }: { patientId: string }) {
             onChange={(e) => updateField(field.id, e.target.value)}
             placeholder={field.placeholder}
             className={cn(
-              fieldInputClassName,
-              "h-auto min-h-11 resize-y py-3 leading-6",
+              fieldTextareaClassName,
             )}
           />
         </div>

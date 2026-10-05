@@ -476,7 +476,8 @@ export function VitalsRecentLog() {
             <Button
               type="button"
               variant="secondary"
-              className="h-9 shrink-0 border border-border bg-transparent px-3 hover:bg-accent"
+              size="sm"
+              className="shrink-0 border border-border bg-transparent px-3 hover:bg-accent"
               aria-label={`Sort by date, ${sortLabel}`}
               onClick={() => table.getColumn("datetime")?.toggleSorting()}
             >

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { ColorsIcon } from "@hugeicons/core-free-icons";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { fieldInputClassName } from "@/components/ui/input";
+import { fieldSelectTriggerClassName } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,10 +61,7 @@ export function AppearanceSettingsCard() {
               id="settings-appearance"
               type="button"
               disabled={!mounted}
-              className={cn(
-                fieldInputClassName,
-                "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
-              )}
+              className={fieldSelectTriggerClassName}
             >
               <span className={cn(typo.input, "truncate")}>
                 {mounted ? selectedLabel : "System"}

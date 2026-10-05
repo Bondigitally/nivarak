@@ -542,7 +542,7 @@ function ToolbarButton({
       type="button"
       variant="secondary"
       className={cn(
-        "h-11 shrink-0 border border-border bg-transparent hover:bg-accent",
+        "shrink-0 border border-border bg-transparent hover:bg-accent",
         active && "border-primary/30 text-primary hover:text-ring",
       )}
     >

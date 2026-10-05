@@ -29,7 +29,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldTextareaClassName,
+} from "@/components/ui/input";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
@@ -78,15 +81,12 @@ const optionCardClass = cn(
 );
 const optionCardSelectedClass =
   "border-primary bg-primary/5 shadow-[0_0_0_1px_var(--primary)] hover:bg-primary/5";
-const cgaTextareaClass = cn(
-  fieldInputClassName,
-  "h-auto min-h-[6.5rem] resize-y py-3 leading-6",
-);
+const cgaTextareaClass = cn(fieldTextareaClassName, "min-h-[6.5rem]");
 const cgaTableInputClass = cn(
-  "h-9 w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 text-sm text-foreground",
-  "placeholder:text-placeholder",
+  fieldInputClassName,
+  "min-w-0 border-transparent bg-transparent px-2",
   "hover:border-border hover:bg-card",
-  "focus-visible:border-border-focus focus-visible:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+  "focus-visible:bg-card",
 );
 const cgaReadonlyInputClass = cn(
   fieldInputClassName,
