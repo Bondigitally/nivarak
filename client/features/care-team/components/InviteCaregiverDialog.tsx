@@ -28,8 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { fieldInputClassName, Input } from "@/components/ui/input";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
@@ -43,19 +42,11 @@ import {
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
   return (
-    <Label
-      htmlFor={htmlFor}
-      className={cn(typo.button, "font-semibold tracking-[0.14px] text-foreground")}
-    >
+    <label htmlFor={htmlFor} className={typo.label}>
       {children}
-    </Label>
+    </label>
   );
 }
-
-const fieldClassName = cn(
-  "h-auto min-h-12 w-full rounded-md border border-border bg-card px-4 py-3.5 text-base shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
-  "placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring",
-);
 
 export function InviteCaregiverDialog() {
   const { inviteCaregiverOpen, setInviteCaregiverOpen } = useSidebar();
@@ -138,18 +129,17 @@ export function InviteCaregiverDialog() {
 
         <div className={cn(dialogBodyShellClass, "gap-8 pt-0 sm:pt-0")}>
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-auth-field">
               <FieldLabel htmlFor="caregiver-full-name">Full name</FieldLabel>
               <Input
                 id="caregiver-full-name"
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
                 placeholder="Enter caregiver's full name"
-                className={fieldClassName}
               />
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-auth-field">
               <FieldLabel htmlFor="caregiver-relationship">Relationship</FieldLabel>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -157,17 +147,11 @@ export function InviteCaregiverDialog() {
                     id="caregiver-relationship"
                     type="button"
                     className={cn(
-                      fieldClassName,
-                      "flex items-center text-left outline-none transition-colors hover:bg-background",
-                      "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      fieldInputClassName,
+                      "inline-flex items-center justify-between gap-2 text-left",
                     )}
                   >
-                    <span
-                      className={cn(
-                        "min-w-0 flex-1 text-base leading-6",
-                        relationship ? "text-foreground" : "text-foreground",
-                      )}
-                    >
+                    <span className={cn(typo.input, "min-w-0 flex-1 truncate")}>
                       {relationship ?? "Select relationship"}
                     </span>
                     <ChevronIcon
@@ -186,7 +170,8 @@ export function InviteCaregiverDialog() {
                       key={item}
                       onSelect={() => setRelationship(item)}
                       className={cn(
-                        "cursor-pointer rounded-sm px-3 py-2.5 text-base",
+                        "cursor-pointer rounded-sm px-3 py-2.5",
+                        typo.input,
                         relationship === item && "bg-background",
                       )}
                     >
@@ -197,13 +182,24 @@ export function InviteCaregiverDialog() {
               </DropdownMenu>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-auth-field">
               <FieldLabel htmlFor="caregiver-mobile">Mobile number</FieldLabel>
-              <div className="flex overflow-hidden rounded-md border border-border bg-card shadow-[0_2px_8px_rgba(17,24,39,0.05)]">
-                <span className="inline-flex shrink-0 items-center border-r border-border bg-background px-4 text-base leading-6 text-muted-foreground">
+              <div
+                className={cn(
+                  fieldInputClassName,
+                  "flex items-center gap-0 overflow-hidden p-0",
+                  "focus-within:border-border-focus focus-within:ring-2 focus-within:ring-ring/40",
+                )}
+              >
+                <span
+                  className={cn(
+                    typo.input,
+                    "inline-flex h-full shrink-0 items-center border-r border-border bg-background px-4 text-muted-foreground",
+                  )}
+                >
                   +91
                 </span>
-                <Input
+                <input
                   id="caregiver-mobile"
                   type="tel"
                   inputMode="numeric"
@@ -212,12 +208,15 @@ export function InviteCaregiverDialog() {
                     setMobile(event.target.value.replace(/\D/g, "").slice(0, 10))
                   }
                   placeholder="00000 00000"
-                  className="h-auto min-h-12 flex-1 rounded-none border-0 bg-transparent px-4 py-3.5 text-base shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+                  className={cn(
+                    typo.input,
+                    "min-w-0 flex-1 border-0 bg-transparent px-4 outline-none placeholder:text-placeholder",
+                  )}
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-auth-field">
               <FieldLabel htmlFor="caregiver-email">Email address</FieldLabel>
               <Input
                 id="caregiver-email"
@@ -225,7 +224,6 @@ export function InviteCaregiverDialog() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="caregiver@example.com"
-                className={fieldClassName}
               />
             </div>
           </div>
@@ -277,14 +275,16 @@ export function InviteCaregiverDialog() {
             <Button
               type="button"
               variant="secondary"
-              className="h-11 flex-1 font-semibold tracking-[0.14px] text-muted-foreground"
+              size="cta"
+              className="flex-1"
               onClick={() => setInviteCaregiverOpen(false)}
             >
               Cancel
             </Button>
             <Button
               type="button"
-              className="h-11 flex-1 font-semibold tracking-[0.14px]"
+              size="cta"
+              className="flex-1"
               onClick={handleSendInvitation}
             >
               Send invitation
