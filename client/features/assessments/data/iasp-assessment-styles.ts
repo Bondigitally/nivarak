@@ -119,6 +119,16 @@ export const iaspBandBadgeClass = cn(
   "inline-flex items-center gap-1.5 px-4 py-1.5",
 );
 
+/** Dashboard hero — muted ping badge shell (`IaspBandPingBadge`). */
+export const iaspBandPingBadgeClass =
+  "inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md px-2.5 text-[13px] font-semibold leading-none";
+
+/** Dashboard hero — score not yet available. */
+export const iaspBandPendingBadgeClass = cn(
+  statusBadgeClass,
+  "gap-1.5 bg-muted text-muted-foreground",
+);
+
 /** Dropdown menu surface inside the assessment modal. */
 export const iaspDropdownContentClass = cn(
   radius.md,

@@ -15,19 +15,29 @@ import {
   type AppointmentItem,
   type AppointmentVisitType,
 } from "@/features/appointments/data/appointments-data";
+import { EmptyState, SectionTitle, ViewAllLink } from "@/features/dashboard/components/EmptyState";
+import {
+  dashboardCardClass,
+  dashboardCardHeaderClass,
+  dashboardCardListLooseClass,
+  dashboardDividedItemClass,
+  dashboardDividedRowClass,
+  dashboardRowDividerClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import {
-  dashboardCardClass,
-  dashboardCardHeaderClass,
-  dashboardDividedItemClass,
-  dashboardDividedRowClass,
-  dashboardRowDividerClass,
-} from "../data/dashboard-styles";
-import { EmptyState, SectionTitle, ViewAllLink } from "./EmptyState";
-import type { HomeAppointment } from "../data/home-data";
+
+/** Compact home-preview shape for upcoming appointments. */
+export type AppointmentPreview = {
+  id: string;
+  month: string;
+  day: string;
+  title: string;
+  time: string;
+  clinician: string;
+};
 
 function MetaIcon({
   icon,
@@ -49,7 +59,7 @@ function MetaIcon({
   );
 }
 
-function homeAppointmentToDetails(home: HomeAppointment): AppointmentItem {
+function previewToDetails(home: AppointmentPreview): AppointmentItem {
   const matched = getAppointmentById(home.id);
   if (matched) return matched;
 
@@ -95,13 +105,13 @@ function homeAppointmentToDetails(home: HomeAppointment): AppointmentItem {
 export function AppointmentsCard({
   appointments,
 }: {
-  appointments: HomeAppointment[] | null;
+  appointments: AppointmentPreview[] | null;
 }) {
   const [selected, setSelected] = useState<AppointmentItem | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  function openDetails(home: HomeAppointment) {
-    setSelected(homeAppointmentToDetails(home));
+  function openDetails(home: AppointmentPreview) {
+    setSelected(previewToDetails(home));
     setDrawerOpen(true);
   }
 
@@ -115,7 +125,7 @@ export function AppointmentsCard({
           <ViewAllLink href="/care/appointments" />
         </div>
         {appointments && appointments.length > 0 ? (
-          <ul className="flex min-w-0 flex-col">
+          <ul className={dashboardCardListLooseClass}>
             {appointments.map((appointment, index) => (
               <li key={appointment.id} className={dashboardDividedItemClass}>
                 {index > 0 ? (
@@ -124,13 +134,13 @@ export function AppointmentsCard({
                 <div
                   className={cn(
                     dashboardDividedRowClass,
-                    "group -mx-2 flex min-w-0 items-center gap-2.5 px-2 py-3.5 sm:gap-3 sm:py-4",
+                    "group -mx-2 flex min-h-20 min-w-0 items-center gap-2.5 px-2 py-3.5 sm:min-h-24 sm:gap-3 sm:py-4",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-                    <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-md bg-background px-1.5 py-1.5 transition-colors duration-150 group-hover:bg-card sm:min-w-14 sm:w-auto sm:px-2.5">
+                    <div className="flex h-14 w-12 shrink-0 flex-col items-center justify-center rounded-md bg-background px-1.5 transition-colors duration-150 group-hover:bg-card sm:h-16 sm:w-14 sm:px-2.5">
                       <span className={cn(typo.headingS, "text-tertiary-foreground")}>{appointment.month}</span>
-                      <span className={cn(typo.headingXl, "text-primary-active")}>
+                      <span className={cn(typo.headingXl, "text-foreground")}>
                         {appointment.day}
                       </span>
                     </div>
@@ -140,11 +150,11 @@ export function AppointmentsCard({
                       </p>
                       <div className="mt-1.5 flex flex-col gap-1.5">
                         <div className="flex min-w-0 items-center gap-2">
-                          <MetaIcon icon={Clock01Icon} className="bg-info-muted" />
+                          <MetaIcon icon={Clock01Icon} className="bg-muted" />
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>{appointment.time}</span>
                         </div>
                         <div className="flex min-w-0 items-center gap-2">
-                          <MetaIcon icon={User03Icon} className="bg-sidebar-accent" />
+                          <MetaIcon icon={User03Icon} className="bg-muted" />
                           <span className={cn(typo.bodyS, "min-w-0 truncate")}>
                             {appointment.clinician}
                           </span>

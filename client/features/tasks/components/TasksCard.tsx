@@ -1,25 +1,28 @@
 "use client";
 
 import { TaskDaily01Icon } from "@hugeicons/core-free-icons";
-import { TaskRow } from "@/features/tasks/components/TaskRow";
+import { EmptyState, SectionInfoButton, ViewAllLink } from "@/features/dashboard/components/EmptyState";
+import {
+  cardTitleClass,
+  dashboardCardClass,
+  dashboardCardHeaderClass,
+  dashboardCardListClass,
+  dashboardDividedItemClass,
+  dashboardPreviewRowClass,
+  dashboardRowDividerClass,
+  statusBadgeClass,
+} from "@/features/dashboard/data/dashboard-styles";
+import { cn } from "@/lib/utils";
 import {
   getTodayTaskProgress,
   getTodayTasks,
-} from "@/features/tasks/data/tasks-data";
-import { useTaskStore } from "@/features/tasks/store/task-store";
-import { typo } from "@/lib/tokens/typography";
-import { cn } from "@/lib/utils";
-import {
-  dashboardCardClass,
-  dashboardCardHeaderClass,
-  dashboardDividedItemClass,
-  dashboardRowDividerClass,
-  statusBadgeClass,
-} from "../data/dashboard-styles";
-import { EmptyState, SectionInfoButton, ViewAllLink } from "./EmptyState";
+} from "../data/tasks-data";
+import { useTaskStore } from "../store/task-store";
+import { TaskRow } from "./TaskRow";
 
 const VISIBLE_TASK_COUNT = 3;
 
+/** Home / coordinator preview of today's care tasks. */
 export function TasksCard() {
   const groups = useTaskStore((s) => s.groups);
   const setCompleted = useTaskStore((s) => s.setCompleted);
@@ -29,10 +32,10 @@ export function TasksCard() {
   const visible = todayTasks.slice(0, VISIBLE_TASK_COUNT);
 
   return (
-    <section className={cn(dashboardCardClass, "flex h-fit shrink-0 flex-col p-5")}>
+    <section className={cn(dashboardCardClass, "flex h-full min-h-0 flex-col p-5")}>
       <div className={dashboardCardHeaderClass}>
         <div className="flex min-w-0 items-center gap-2">
-          <h2 className={typo.headingXl}>Today&apos;s tasks</h2>
+          <h2 className={cardTitleClass}>Today&apos;s tasks</h2>
           {total > 0 ? (
             <span
               className={cn(
@@ -48,7 +51,7 @@ export function TasksCard() {
         <ViewAllLink href="/care/tasks" />
       </div>
       {visible.length > 0 ? (
-        <ul className="flex min-w-0 flex-col">
+        <ul className={dashboardCardListClass}>
           {visible.map((task, index) => (
             <li key={task.id} className={dashboardDividedItemClass}>
               {index > 0 ? (
@@ -58,8 +61,12 @@ export function TasksCard() {
                 task={task}
                 onComplete={(id) => setCompleted(id, true)}
                 onIncomplete={(id) => setCompleted(id, false)}
-                showStatusAction={false}
-                className="-mx-2 w-[calc(100%+1rem)] px-2"
+                showStatusAction
+                revealStatusActionOnHover
+                className={cn(
+                  dashboardPreviewRowClass,
+                  "-mx-2 w-[calc(100%+1rem)] sm:gap-3 sm:py-3.5",
+                )}
               />
             </li>
           ))}

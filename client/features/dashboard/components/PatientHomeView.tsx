@@ -1,14 +1,14 @@
 "use client";
 
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
-import { AppointmentsCard } from "@/features/dashboard/components/AppointmentsCard";
+import { AppointmentsCard } from "@/features/appointments/components/AppointmentsCard";
 import { CareTeamCard } from "@/features/dashboard/components/CareTeamCard";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { HomeGreeting } from "@/features/dashboard/components/HomeGreeting";
 import { IasScoreCard } from "@/features/dashboard/components/IasScoreCard";
 import { RecentActivityCard } from "@/features/dashboard/components/RecentActivityCard";
 import { RiskStatusCard } from "@/features/dashboard/components/RiskStatusCard";
-import { TasksCard } from "@/features/dashboard/components/TasksCard";
+import { TasksCard } from "@/features/tasks/components/TasksCard";
 import { VitalsCard } from "@/features/dashboard/components/VitalsCard";
 import {
   dashboardGridClass,
