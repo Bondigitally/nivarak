@@ -22,14 +22,12 @@ import { EmptyState, SectionTitle } from "./EmptyState";
 import type { RiskAxis, RiskStatus } from "../data/home-data";
 import { cssVar } from "@/lib/tokens/colors";
 
-/** Soft pastel teal — fill + outline for the risk radar polygon. */
-const RADAR_FILL = "#B8E3DE";
-const RADAR_STROKE = "#69BDB4";
+const RADAR_FILL = "#9DD5CD";
 
 const chartConfig = {
   score: {
     label: "Score",
-    color: RADAR_STROKE,
+    color: RADAR_FILL,
   },
 } satisfies ChartConfig;
 
@@ -53,7 +51,7 @@ type RiskChartPoint = {
 
 type RadarPoint = { x: number; y: number };
 
-/** Rounded polygon path so radar vertices aren't sharp corners. */
+/** Soften radar polygon corners */
 function roundedPolygonPath(points: RadarPoint[], cornerRadius: number) {
   const n = points.length;
   if (n < 3) return "";
@@ -121,7 +119,7 @@ function RoundedRadarShape({
   );
 }
 
-/** Place angle labels just outside the ring; anchor by side so long labels aren’t clipped. */
+/** Labels outside the ring; textAnchor by side so long names aren't clipped */
 function RadarAxisTick({
   x,
   y,
@@ -210,6 +208,7 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
         className={cn(
           "aspect-square w-full overflow-visible [&_.recharts-surface]:overflow-visible [&_svg]:overflow-visible",
           "[&_.recharts-polar-grid-concentric-circle]:stroke-[#D4DAF0]! [&_.recharts-polar-grid-concentric-circle]:stroke-[0.8]! [&_.recharts-polar-grid-concentric-circle]:opacity-70",
+          "dark:[&_.recharts-polar-grid-concentric-circle]:stroke-[#5A5470]! dark:[&_.recharts-polar-grid-concentric-circle]:opacity-80",
         )}
         initialDimension={{ width: 280, height: 280 }}
       >
@@ -224,7 +223,7 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <PolarGrid
             gridType="circle"
             radialLines={false}
-            className="fill-[#A8C4F5]/22"
+            className="fill-[#A8C4F5]/22 dark:fill-[#3A3550]/20"
           />
           <PolarAngleAxis
             dataKey="axis"
@@ -240,16 +239,14 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <Radar
             dataKey="score"
             fill={RADAR_FILL}
-            fillOpacity={0.4}
-            stroke={RADAR_STROKE}
-            strokeWidth={1.5}
+            fillOpacity={0.55}
+            stroke="none"
             shape={RoundedRadarShape}
             dot={false}
             activeDot={{
               r: 4,
-              fill: "var(--card)",
-              stroke: RADAR_STROKE,
-              strokeWidth: 2,
+              fill: RADAR_FILL,
+              stroke: "none",
             }}
             isAnimationActive={isAnimationActive}
             onAnimationEnd={onAnimationEnd}

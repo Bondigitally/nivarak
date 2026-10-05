@@ -56,7 +56,7 @@ function StaffCard({ member }: { member: StaffMember }) {
       <div className="flex gap-2 border-t border-divider pt-3">
         <a
           href={`tel:${member.phone}`}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-primary-active"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-ring"
         >
           <HugeiconsIcon icon={Call02Icon} size={BADGE_ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
           Call

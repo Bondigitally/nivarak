@@ -32,6 +32,12 @@ export type SidebarNavConfig = {
   sections: NavSection[];
 };
 
+/**
+ * Navigation for patient-facing roles (patient, caregiver, nurse, doctor).
+ * Clinical staff use the same nav because they interact on behalf of patients
+ * rather than managing the patient roster.
+ * "Notifications" routes to /notifications which is the shared alerts surface.
+ */
 export const PATIENT_NAV: SidebarNavConfig = {
   homeHref: "/dashboard",
   sections: [
@@ -67,6 +73,11 @@ export const PATIENT_NAV: SidebarNavConfig = {
   ],
 };
 
+/**
+ * Navigation for coordinator/admin roles.
+ * Focuses on the patient roster and operational tasks rather than individual
+ * health data. "Alerts" also routes to /notifications (same shared surface).
+ */
 export const COORDINATOR_NAV: SidebarNavConfig = {
   homeHref: "/dashboard",
   sections: [
@@ -106,6 +117,7 @@ const NAV_CONFIGS: Record<UserRole, SidebarNavConfig> = {
   admin: COORDINATOR_NAV,
 };
 
+/** Falls back to PATIENT_NAV for unrecognised roles. */
 export function getSidebarNavForRole(role: UserRole): SidebarNavConfig {
   return NAV_CONFIGS[role] ?? PATIENT_NAV;
 }

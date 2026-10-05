@@ -10,8 +10,10 @@ interface AuthHeaderProps {
 export function AuthHeader({ title, subtitle }: AuthHeaderProps) {
   return (
     <div className="flex w-full flex-col gap-1">
-      <h1 className={cn(typo.headingXxl, 'text-auth-title')}>{title}</h1>
-      <p className={typo.bodyL}>{subtitle}</p>
+      <h1 className={cn(typo.headingXxl, 'text-auth-title text-foreground')}>
+        {title}
+      </h1>
+      <p className={cn(typo.bodyL, 'text-muted-foreground')}>{subtitle}</p>
     </div>
   );
 }
