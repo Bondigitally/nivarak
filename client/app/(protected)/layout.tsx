@@ -1,4 +1,4 @@
-import { RoleAwareAppShell } from "@/components/layout/role-aware-app-shell";
+import { ProtectedAppShell } from "./protected-app-shell";
 import { BookVisitModal } from "@/features/appointments/components/BookVisitModal";
 import { InviteCaregiverDialog } from "@/features/care-team/components/InviteCaregiverDialog";
 
@@ -8,7 +8,7 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RoleAwareAppShell
+    <ProtectedAppShell
       dialogs={
         <>
           <BookVisitModal />
@@ -17,6 +17,6 @@ export default function ProtectedLayout({
       }
     >
       {children}
-    </RoleAwareAppShell>
+    </ProtectedAppShell>
   );
 }

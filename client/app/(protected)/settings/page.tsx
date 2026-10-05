@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AppPageFrame } from "@/components/layout/app-page-frame";
+import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
 import { EditProfileSection } from "@/features/settings/components/EditProfileSection";
