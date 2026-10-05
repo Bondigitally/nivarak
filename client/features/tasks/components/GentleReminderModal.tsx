@@ -26,6 +26,11 @@ import { cn } from "@/lib/utils";
 import type { CareTask } from "../data/tasks-data";
 import { TaskCheckbox } from "./TaskCheckbox";
 
+/**
+ * Reminder timing options that mirror Google Calendar reminder offsets.
+ * These ids must map 1:1 to `reminders.overrides` values when the
+ * Calendar API integration lands (e.g. "5m" → offset: 5, method: "popup").
+ */
 const GOOGLE_CALENDAR_REMINDER_OPTIONS = [
   { id: "at-time", label: "At time of task" },
   { id: "5m", label: "5 minutes before" },
@@ -229,6 +234,8 @@ function GentleReminderForm({
               type="button"
               variant="info-outline"
               disabled={scope === "choose" && selectedIds.length === 0}
+              // TODO: integrate Google Calendar deep-link or calendar API.
+              // For now, closes the modal only — no reminder is actually created.
               onClick={() => onOpenChange(false)}
             >
               Add reminder

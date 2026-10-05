@@ -25,6 +25,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+/**
+ * Parses the initial country from an E.164-formatted value.
+ *
+ * Sorts by `dialCode` length descending before matching so that longer
+ * prefixes (e.g. +91) are tested before shorter ones (e.g. +1), preventing
+ * false matches when multiple dial codes share a common prefix.
+ */
 function parseInitialCountry(value: string): CountryDialCode {
   const fallback = getDefaultCountry();
   if (!value) return fallback;
@@ -69,6 +76,8 @@ export function PhoneField({
   const inputShellRef = useRef<HTMLDivElement>(null);
   const [menuWidth, setMenuWidth] = useState<number>();
 
+  // Track the input shell width so the country dropdown aligns to the full
+  // field width, not just the trigger button — per auth layout spec.
   useEffect(() => {
     const el = inputShellRef.current;
     if (!el) return;
@@ -85,6 +94,8 @@ export function PhoneField({
     getCountryByIso(countryIso) ?? parseInitialCountry(value);
   const { max: maxNationalLength } = getNationalLength(country);
 
+  // Strip the dial code prefix so only the national segment is shown/edited.
+  // `onChange` always emits the full E.164 value.
   const national = useMemo(() => {
     const raw = value.startsWith(country.dialCode)
       ? value.slice(country.dialCode.length)

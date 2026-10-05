@@ -149,6 +149,11 @@ export function getIaspAnswerBadgeForQuestion(
   };
 }
 
+/**
+ * Returns 0 for unscored questions (e.g. red flags, about-you fields).
+ * Unscored questions have `scored?: false` in the questionnaire data and are
+ * excluded from the raw score intentionally — they affect band text only.
+ */
 function getIaspAnswerPoints(
   questionId: string,
   answer: IaspAnswerId | undefined,
@@ -177,6 +182,15 @@ export function calculateIaspPercentage(rawScore: number): number {
   return Math.round((rawScore / IASP_MAX_SCORE) * 100);
 }
 
+/**
+ * Maps a percentage score to an independence band.
+ * Thresholds align with the IASP clinical care pathways:
+ *   ≥ 85% → Strong Independence  (home care)
+ *   ≥ 70% → Independent but Vulnerable  (home care + monitoring)
+ *   ≥ 55% → Supported Independence  (hybrid care model)
+ *   ≥ 40% → Limited Independence  (clinic-based care)
+ *    < 40% → High Dependence  (high-dependency pathway)
+ */
 export function getIaspBand(percentage: number): IaspBandResult {
   let band: IaspRiskBand;
   if (percentage >= 85) band = "strong_independent";

@@ -1,3 +1,9 @@
+/**
+ * Walks up the DOM to find the nearest scrollable ancestor.
+ * Falls back to `[data-dashboard-scroll]` — the fixed scroll root set on
+ * AppShell's main element — so components inside dialogs and portals can
+ * still reach the page scroll container without a direct ref.
+ */
 export function findScrollParent(node: HTMLElement | null): HTMLElement | null {
   let current = node?.parentElement ?? null;
   while (current) {

@@ -38,6 +38,15 @@ const PANEL_FILTER_OPTIONS = [
   { id: "unread" as const, label: "Unread" },
 ];
 
+/**
+ * Merges the static `item.read` flag with runtime `readIds` from the store,
+ * then caps the list at 6 items.
+ *
+ * The 6-item cap is intentional — this popover is a quick-glance preview,
+ * not the full inbox. "View all notifications" links to /notifications.
+ * Mirrors the dual-model read tracking in `notification-store` (static read
+ * flag on item OR marked read at runtime).
+ */
 function getPanelItems(
   items: NotificationItem[],
   readIds: string[],
