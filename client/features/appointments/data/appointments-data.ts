@@ -1,8 +1,10 @@
+import type { AppointmentStatus } from "@/lib/domain";
+
 export type AppointmentTab = "upcoming" | "past";
 
 export type AppointmentVisitType = "Home Visit" | "Teleconsult";
 
-export type AppointmentStatus = "Confirmed" | "Scheduled" | "Completed" | "Cancelled";
+export type { AppointmentStatus };
 
 export type AppointmentPlaceKind = "location" | "video";
 
@@ -28,6 +30,25 @@ export type AppointmentItem = {
   showMap: boolean;
 };
 
+/** Shared row + drawer badge styles. */
+export const appointmentStatusBadgeStyles: Record<
+  AppointmentStatus,
+  { className: string; icon: "tick" | "clock" | "close" }
+> = {
+  Scheduled: {
+    className: "border-info-muted bg-info-muted text-info",
+    icon: "clock",
+  },
+  Completed: {
+    className: "border-success-muted bg-success-muted text-success",
+    icon: "tick",
+  },
+  Cancelled: {
+    className: "border-border bg-muted text-muted-foreground",
+    icon: "close",
+  },
+};
+
 /** Sample payload matching Figma Appointments (node 936:5825) + drawer (936:7164). */
 export const APPOINTMENTS: AppointmentItem[] = [
   {
@@ -46,7 +67,7 @@ export const APPOINTMENTS: AppointmentItem[] = [
     placeKind: "location",
     addressLines: ["123 Maple Street, Apt 4B", "Metropolis, NY 10001"],
     reason: "Routine monthly health assessment and mobility check.",
-    status: "Confirmed",
+    status: "Scheduled",
     showMap: true,
   },
   {
@@ -103,7 +124,7 @@ export const APPOINTMENTS: AppointmentItem[] = [
     placeKind: "video",
     addressLines: null,
     reason: "Care coordination check-in and caregiver updates.",
-    status: "Completed",
+    status: "Cancelled",
     showMap: false,
   },
 ];

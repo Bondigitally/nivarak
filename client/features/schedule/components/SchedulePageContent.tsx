@@ -30,7 +30,7 @@ import { BADGE_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 function ScheduleCard({ item }: { item: Appointment }) {
   const sts = appointmentStatusConfig(item.status);
-  const isCompleted = item.status === "completed";
+  const isCompleted = item.status === "Completed";
 
   return (
     <div
@@ -87,7 +87,7 @@ function ScheduleCard({ item }: { item: Appointment }) {
 export function SchedulePageContent() {
   const schedule = getTodaySchedule();
   const [dayFilter, setDayFilter] = useState<"today" | "week" | "month">("today");
-  const completed = schedule.filter((s) => s.status === "completed").length;
+  const completed = schedule.filter((s) => s.status === "Completed").length;
   const total = schedule.length;
 
   return (

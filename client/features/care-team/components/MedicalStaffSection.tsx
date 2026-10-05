@@ -7,32 +7,31 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Briefcase01Icon,
   Call02Icon,
-  Mail01Icon,
+  Mail02Icon,
 } from "@hugeicons/core-free-icons";
 import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
+import { cardShadowCss, cardShadowHoverCss } from "@/lib/tokens/elevation";
 import { cn } from "@/lib/utils";
 import type { MedicalStaffMember } from "../data/care-team-data";
-import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 const CARD_EASE = [0.22, 1, 0.36, 1] as const;
 
 const staffCardVariants = {
   rest: {
     y: 0,
-    boxShadow: "0px 2px 8px rgba(17, 24, 39, 0.05)",
-    borderColor: "var(--border)",
+    boxShadow: cardShadowCss,
   },
   hover: {
     y: -3,
-    boxShadow: "0px 8px 20px rgba(17, 24, 39, 0.10)",
-    borderColor: "var(--border)",
+    boxShadow: cardShadowHoverCss,
   },
   tap: {
     y: -1,
     scale: 0.985,
-    boxShadow: "0px 4px 12px rgba(17, 24, 39, 0.08)",
+    boxShadow: cardShadowCss,
   },
 };
 
@@ -45,15 +44,15 @@ function ContactRow({
   icon,
   children,
 }: {
-  icon: typeof Mail01Icon;
+  icon: typeof Mail02Icon;
   children: string;
 }) {
   return (
     <div className="flex w-full items-center gap-2">
-      <span className="inline-flex size-5 shrink-0 text-muted-foreground" aria-hidden>
+      <span className="inline-flex size-4 shrink-0 text-muted-foreground" aria-hidden>
         <HugeiconsIcon
           icon={icon}
-          size={ICON_SIZE}
+          size={BADGE_ICON_SIZE}
           strokeWidth={ICON_STROKE}
           color="currentColor"
           absoluteStrokeWidth
@@ -98,7 +97,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       transition={{ duration: 0.32, ease: CARD_EASE }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-lg border border-solid border-border bg-card p-0.75"
+      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-lg bg-card p-0.75"
     >
       <div className="relative h-48 w-full overflow-hidden rounded-md">
         <motion.div
@@ -121,7 +120,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
           <div ref={nameRef} className="relative min-w-0 flex-1 overflow-hidden">
             <span
               ref={measureRef}
-              className={cn(typo.headingL, "invisible absolute whitespace-nowrap")}
+              className={cn(typo.headingS, "invisible absolute whitespace-nowrap")}
               aria-hidden
             >
               {member.name}
@@ -129,7 +128,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
             <motion.h3
               title={shift > 0 ? member.name : undefined}
               className={cn(
-                typo.headingL,
+                typo.headingS,
                 "min-w-0 whitespace-nowrap text-foreground",
                 marquee ? "inline-block" : "truncate",
               )}
@@ -153,7 +152,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
           </span>
         </div>
 
-        <ContactRow icon={Mail01Icon}>{member.email}</ContactRow>
+        <ContactRow icon={Mail02Icon}>{member.email}</ContactRow>
         <ContactRow icon={Call02Icon}>{member.phone}</ContactRow>
         <ContactRow icon={Briefcase01Icon}>
           {`${member.experienceYears} Years Experience`}

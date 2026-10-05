@@ -8,6 +8,7 @@ import { InformationCircleIcon } from "@hugeicons/core-free-icons";
 import { BADGE_ICON_SIZE, EMPTY_ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { typo } from "@/lib/tokens/typography";
+import { cardTitleClass } from "@/features/dashboard/data/dashboard-styles";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -39,11 +40,11 @@ export function EmptyState({
         className,
       )}
     >
-      <span className="flex size-16 items-center justify-center rounded-full bg-sidebar-accent text-primary">
+      <span className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
         <HugeiconsIcon icon={icon} size={EMPTY_ICON_SIZE} strokeWidth={ICON_STROKE} color="currentColor" absoluteStrokeWidth />
       </span>
       <div className="flex max-w-dash-search flex-col items-center gap-1.5 text-center">
-        <h3 className={cn(typo.headingL, "text-foreground")}>{title}</h3>
+        <h3 className={cn(cardTitleClass, "text-foreground")}>{title}</h3>
         <p className={typo.bodyM}>{body}</p>
       </div>
       {actionLabel ? (
@@ -99,7 +100,7 @@ export function SectionTitle({
   return (
     <h2
       className={cn(
-        typo.headingXl,
+        cardTitleClass,
         "flex min-w-0 flex-1 items-center gap-2 pr-2",
         className,
       )}

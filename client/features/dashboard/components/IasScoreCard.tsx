@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Award01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { Award01Icon } from "@hugeicons/core-free-icons";
 import {
   animate,
   motion,
@@ -15,12 +15,20 @@ import {
   hasAnimatedOnce,
   markAnimatedOnce,
 } from "@/components/ui/use-once-animation";
+import { IaspBandPendingBadge, IaspBandPingBadge } from "@/features/assessments/components/IaspBandPingBadge";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { AnimatedArrowIcon } from "./AnimatedArrowIcon";
-import { dashboardCardClass, statusBadgeClass } from "../data/dashboard-styles";
+import {
+  cardTitleClass,
+  dashboardCardClass,
+  dashboardCtaArrowChipClass,
+  dashboardHeroCardSurfaceClass,
+  dashboardViewReportButtonClass,
+} from "../data/dashboard-styles";
 import type { IasAssessment } from "../data/home-data";
-import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { chartHex } from "@/lib/tokens/colors";
+import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
 /** Overall donut size with a thick ring and large center opening. */
 const RING_SIZE = 192;
@@ -65,9 +73,9 @@ const RING_ENTER_DELAY = 0.12;
 const RING_ENTER_DURATION = 0.45;
 const RING_FILL_DELAY = RING_ENTER_DELAY + RING_ENTER_DURATION;
 
-/** Matches --primary / --chart-8 — literal hex required for lerpHex. */
-const GRADIENT_START = "#6C318E";
-const GRADIENT_END = "#1E0E28";
+/** Matches --chart-1 / --chart-8 — literal hex required for lerpHex. */
+const GRADIENT_START = chartHex.brandStart;
+const GRADIENT_END = chartHex.brandEnd;
 /** Dense segments so the color appears to travel along the circular path. */
 const ARC_SEGMENT_COUNT = 96;
 
@@ -120,20 +128,18 @@ function buildArcGradientSegments(arcRatio: number): Array<{
 
 function ScoreRing({
   score,
-  maxScore,
 }: {
   score: number | null;
-  maxScore: number;
 }) {
   const maskId = `ias-arc-mask-${useId().replace(/:/g, "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
   const isEmpty = score == null;
-  const targetRatio = isEmpty ? 0 : Math.min(score / maxScore, 1);
+  const targetRatio = isEmpty ? 0 : Math.min(score / 100, 1);
   // Small gap only at the end of the arc (before sticks); start is always 12 o'clock.
   const finalArcRatio = Math.max(0, targetRatio - GAP_RATIO);
-  const animationId = `ias-score-ring:${score ?? "empty"}:${maxScore}`;
+  const animationId = `ias-score-ring:${score ?? "empty"}`;
   const skipEnter = reducedMotion || hasAnimatedOnce(animationId);
 
   const progress = useMotionValue(skipEnter || isEmpty ? finalArcRatio : 0);
@@ -274,7 +280,7 @@ function ScoreRing({
         {isEmpty ? (
           <p className="flex items-baseline text-placeholder">
             <span className="text-[28px] leading-none font-medium">–</span>
-            <span className={cn(typo.headingS, "text-placeholder")}>/ {maxScore}</span>
+            <span className={cn(typo.headingS, "text-placeholder")}>%</span>
           </p>
         ) : (
           <p className="flex items-baseline">
@@ -285,7 +291,7 @@ function ScoreRing({
               {skipEnter ? score : 0}
             </span>
             <span className="text-base leading-4 font-semibold text-muted-foreground">
-              / {maxScore}
+              %
             </span>
           </p>
         )}
@@ -301,58 +307,17 @@ function ViewReportButton() {
     <Button
       type="button"
       size="cta"
-      className="pr-1 pl-4"
+      className={dashboardViewReportButtonClass}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
     >
       View Report
-      <span className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-card text-primary">
-        <AnimatedArrowIcon icon={ArrowUpRight01Icon} size={ICON_SIZE} className="size-5" hovered={hovered} />
+      <span className={dashboardCtaArrowChipClass}>
+        <AnimatedArrowIcon size={BADGE_ICON_SIZE} className="size-4" hovered={hovered} />
       </span>
     </Button>
-  );
-}
-
-/** Compact status dot with a restrained expanding pulse ring (Independent only). */
-function StatusBadgeDot({
-  className,
-  pulse = false,
-}: {
-  className?: string;
-  pulse?: boolean;
-}) {
-  const reducedMotion = useReducedMotion();
-  const shouldPulse = pulse && !reducedMotion;
-  /** Inner dot ~7px; ring expands to ~20px. */
-  const scaleEnd = 20 / 7;
-
-  return (
-    <span
-      className="relative flex size-1.75 shrink-0 items-center justify-center overflow-visible"
-      aria-hidden
-    >
-      {shouldPulse ? (
-        <motion.span
-          className={cn(
-            "pointer-events-none absolute inset-0 rounded-full will-change-transform",
-            className,
-          )}
-          style={{ transformOrigin: "center" }}
-          animate={{ scale: [1, scaleEnd], opacity: [0.55, 0] }}
-          transition={{
-            duration: 1.25,
-            ease: "easeOut",
-            repeat: Infinity,
-            repeatDelay: 0.2,
-          }}
-        />
-      ) : null}
-      <span
-        className={cn("relative z-1 size-1.75 rounded-full", className)}
-      />
-    </span>
   );
 }
 
@@ -364,7 +329,7 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
       dashboardCardClass,
       "flex flex-col items-stretch gap-5 overflow-hidden px-5 py-4",
       "sm:flex-row sm:items-center sm:justify-between",
-      variant === "dashboard" ? "bg-[linear-gradient(225deg,rgba(239,230,247,0.6)_0%,rgba(255,255,255,1)_60%)]" : "bg-card"
+      variant === "dashboard" && dashboardHeroCardSurfaceClass,
     )}>
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -382,50 +347,38 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
               {isFilled ? assessment.overline : "No active assessment"}
             </p>
           </div>
-          <h2 className={cn(typo.headingXl, "pt-1")}>
-            {isFilled ? assessment.title : "Your Independent Ageing Score:"}
+          <h2 className={cn(cardTitleClass, "pt-1")}>
+            {isFilled ? assessment.title : "Your Independent Ageing Score"}
           </h2>
         </div>
 
         <div className="flex justify-center sm:hidden">
           <ScoreRing
             score={isFilled ? assessment.score : null}
-            maxScore={isFilled ? assessment.maxScore : 48}
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-3">
           {isFilled ? (
-            <>
-              <span className="inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md bg-success-muted px-2.5 text-[13px] font-semibold leading-none text-success">
-                <StatusBadgeDot className="bg-success" pulse />
-                {assessment.statusLabel}
-              </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <IaspBandPingBadge percentage={assessment.score} />
               {assessment.deltaLabel ? (
                 <span className="text-xs font-medium text-success/80">
                   {assessment.deltaLabel}
                 </span>
               ) : null}
-            </>
+            </div>
           ) : (
-            <>
-              <span
-                className={cn(
-                  statusBadgeClass,
-                  "gap-1.5 bg-muted text-muted-foreground",
-                )}
-              >
-                <StatusBadgeDot className="bg-placeholder" />
-                Pending
-              </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <IaspBandPendingBadge />
               <span className="text-xs font-medium text-muted-foreground">
                 Score will be available after your first clinical interview
               </span>
-            </>
+            </div>
           )}
         </div>
 
-        <p className={cn(typo.bodyL, "max-w-2xl")}>
+        <p className={cn(typo.bodyM, "max-w-2xl")}>
           {isFilled
             ? assessment.description
             : "Your overall health score based on recent physical, cognitive, and nutritional assessments indicates a strong level of independence."}
@@ -445,7 +398,6 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
       <div className="hidden shrink-0 sm:flex sm:items-center sm:justify-end">
         <ScoreRing
           score={isFilled ? assessment.score : null}
-          maxScore={isFilled ? assessment.maxScore : 48}
         />
       </div>
     </section>

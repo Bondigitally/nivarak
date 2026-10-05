@@ -1,6 +1,6 @@
 import type { IconSvgElement } from "@hugeicons/react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { typo } from "@/lib/tokens/typography";
+import { cardTitleClass } from "@/features/dashboard/data/dashboard-styles";
 import { cn } from "@/lib/utils";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 
@@ -22,7 +22,7 @@ export function SettingsSectionHeader({
         color="currentColor"
         className="size-4.75 shrink-0 text-foreground"
       absoluteStrokeWidth />
-      <h2 className={typo.headingXl}>{title}</h2>
+      <h2 className={cardTitleClass}>{title}</h2>
     </div>
   );
 }
