@@ -40,7 +40,7 @@ function DocumentsHeading({ count }: { count: number }) {
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-2">
       <h2 className={cardTitleClass}>All Documents</h2>
-      <span className="rounded-full bg-sidebar-accent px-2 py-0.5 font-sans text-xs font-bold text-primary">
+      <span className="rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-bold text-primary">
         {count}
       </span>
       <SectionInfoButton info="Every uploaded health document in one place. Search, filter, view, or download files." />
@@ -111,7 +111,7 @@ export function RecordsPageContent() {
             aria-hidden
             tabIndex={-1}
           />
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sidebar-accent text-primary">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-primary">
             <HugeiconsIcon
               icon={CloudUploadIcon}
               size={EMPTY_ICON_SIZE}

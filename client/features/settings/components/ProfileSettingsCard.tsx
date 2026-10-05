@@ -64,7 +64,7 @@ export function ProfileSettingsCard({
       <SettingsSectionHeader icon={UserIcon} title="Profile" />
 
       <div className="flex items-center justify-between gap-4">
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-sidebar-accent">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-md border-2 border-primary/20">
           <Image
             src={profile.avatarSrc}
             alt={`${profile.fullName} profile photo`}
@@ -144,7 +144,7 @@ export function ProfileSettingsCard({
                   onSelect={() => onLanguageChange(option)}
                   className={cn(
                     option === language &&
-                      "bg-sidebar-selected text-primary focus:bg-sidebar-selected",
+                      "bg-muted text-primary focus:bg-muted",
                   )}
                 >
                   {option}

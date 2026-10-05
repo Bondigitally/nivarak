@@ -32,6 +32,6 @@ export const cardLiftActiveClass =
  */
 export const cardLiftHoverWashClass =
   "pointer-events-none absolute inset-0 z-0 opacity-0 " +
-  "bg-linear-to-br from-primary/6 via-sidebar-accent/40 to-transparent " +
+  "bg-linear-to-br from-primary/6 via-muted to-transparent " +
   "motion-safe:transition-opacity motion-safe:duration-220 motion-safe:ease-out " +
   "motion-safe:group-hover:opacity-100";
