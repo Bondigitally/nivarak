@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
 import {
   MarketingStagger,
@@ -13,12 +14,33 @@ import {
 import { cn } from "@/lib/utils";
 import "@/features/marketing/components/sections/challenge.css";
 
+const PATH_ARROW_LOTTIE = "/images/neon-right-arrow.lottie";
+
+const DotLottieReact = dynamic(
+  () =>
+    import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
+  { ssr: false },
+);
+
 function PathDots() {
   return (
     <span className="path-dots" aria-hidden="true">
       <span className="path-dot" />
       <span className="path-dot" />
       <span className="path-dot" />
+    </span>
+  );
+}
+
+function PathArrow() {
+  return (
+    <span className="path-arrow" aria-hidden="true">
+      <DotLottieReact
+        src={PATH_ARROW_LOTTIE}
+        autoplay
+        loop
+        className="path-arrow-lottie"
+      />
     </span>
   );
 }
@@ -82,9 +104,9 @@ export function ChallengeSection() {
             <p className="path-label">The Nivarak Way</p>
             <div className="path-steps">
               <span className="path-step">Small changes</span>
-              <PathDots />
+              <PathArrow />
               <span className="path-step">Detected early</span>
-              <PathDots />
+              <PathArrow />
               <span className="path-step">Independence maintained</span>
             </div>
           </MarketingStaggerItem>
