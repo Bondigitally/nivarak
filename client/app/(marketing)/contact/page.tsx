@@ -107,27 +107,16 @@ export default function ContactPage() {
             <ContactForm />
           </MarketingReveal>
           <MarketingReveal delay={0.12} direction="right">
-            <aside>
+            <aside className="areas-aside">
               <p className={eyebrow}>Areas We Serve</p>
               <h2 className="areas-heading">Where we currently care</h2>
               <p className="areas-intro">
                 Our clinic is located in Kothrud, Pune. We serve families
                 across the city and surrounding neighbourhoods.
               </p>
-              <ul className="areas-list">
-                <li>
-                  <Icon name="i-map" /> Kothrud
-                </li>
-                <li>
-                  <Icon name="i-map" /> Karve Nagar
-                </li>
-                <li>
-                  <Icon name="i-map" /> Erandwane
-                </li>
-                <li>
-                  <Icon name="i-map" /> Baner &amp; Aundh
-                </li>
-              </ul>
+              <div className="areas-card">
+                <Icon name="i-map" /> Pune
+              </div>
             </aside>
           </MarketingReveal>
         </div>

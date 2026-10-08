@@ -190,15 +190,28 @@
   display: none;
 }
 
-.areas-list {
-  display: grid;
+.areas-aside {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-12);
 }
 
-.areas-list li {
+.areas-aside .areas-intro {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--type-body-s-size);
+}
+
+.areas-aside .areas-heading {
+  margin: 0;
+  font-size: var(--type-heading-l-size);
+}
+
+.areas-aside .areas-card {
   display: flex;
   align-items: center;
   gap: var(--space-12);
+  margin-top: var(--space-24);
   padding: var(--space-12) var(--space-16);
   background: var(--color-surface);
   border-radius: var(--radius-m);
@@ -208,7 +221,7 @@
   color: var(--color-brand-900);
 }
 
-.areas-list .icon {
+.areas-aside .areas-card .icon {
   width: var(--icon-m);
   height: var(--icon-m);
   color: var(--color-primary);
