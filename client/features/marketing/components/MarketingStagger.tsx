@@ -1,6 +1,11 @@
 "use client";
 
-import { createElement, type ElementType, type ReactNode } from "react";
+import {
+  createElement,
+  type ComponentType,
+  type ElementType,
+  type ReactNode,
+} from "react";
 import {
   marketingEase,
   marketingHero,
@@ -75,11 +80,13 @@ const motionTags = {
 
 type MotionTagName = keyof typeof motionTags;
 
-function resolveMotionTag(as: ElementType) {
+function resolveMotionTag(as: ElementType): ComponentType<Record<string, unknown>> {
   if (typeof as === "string" && as in motionTags) {
-    return motionTags[as as MotionTagName];
+    return motionTags[as as MotionTagName] as ComponentType<
+      Record<string, unknown>
+    >;
   }
-  return motion.div;
+  return motion.div as ComponentType<Record<string, unknown>>;
 }
 
 export function MarketingStagger({
