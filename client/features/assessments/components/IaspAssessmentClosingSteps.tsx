@@ -620,12 +620,10 @@ export function ResultsStep({
         <Button type="button" variant="secondary" onClick={onRetake}>
           Retake assessment
         </Button>
-        {/* TODO: replace /register with the dedicated booking/consultation
-            route once that flow exists. */}
         <Button
           type="button"
           variant="primary-outline"
-          onClick={() => router.push("/register")}
+          onClick={() => router.push("/contact#book")}
         >
           Book a Free Consultation
         </Button>

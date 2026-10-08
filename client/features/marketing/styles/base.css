@@ -26,6 +26,11 @@
 html:has(.marketing-site) {
   scroll-behavior: smooth;
   color-scheme: light;
+  /*
+   * Reserve classic-scrollbar width so short/long pages and open overlays
+   * don’t shift the fixed header or full-width sections horizontally.
+   */
+  scrollbar-gutter: stable;
 }
 
 /* Clear fixed / floating header when jumping to a section. */
@@ -50,7 +55,7 @@ html:has(.marketing-site) {
   }
 }
 
-.marketing-site img {
+.marketing-site img:not(.brand-logo__img) {
   max-width: 100%;
   height: auto;
   display: block;

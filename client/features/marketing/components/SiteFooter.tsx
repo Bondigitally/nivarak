@@ -8,12 +8,13 @@ import {
   Linkedin02Icon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
-import { BrandLogo, brandLogoNavClassName } from "@/components/shared/BrandLogo";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { marketingHomeHash } from "@/features/marketing/lib/home-hash";
 import { wrap } from "@/features/marketing/lib/marketing-classes";
 import { MARKETING_SECTION_NAV } from "@/features/marketing/lib/marketing-nav";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import "@/features/marketing/components/SiteFooter.css";
 
 const footerLink = cn(
   "!text-white/75 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out)]",
@@ -36,7 +37,7 @@ const footerCol = "flex min-w-0 flex-col gap-4 text-left";
 export function SiteFooter() {
   const isHome = usePathname() === "/";
   return (
-    <footer className="bg-[var(--color-neutral-950)] pb-6 pt-16 !text-white">
+    <footer className="site-footer bg-[var(--color-neutral-950)] pb-6 pt-16 !text-white">
       <div className={wrap}>
         <div
           className={cn(
@@ -48,13 +49,11 @@ export function SiteFooter() {
             <Link
               href="/"
               aria-label="Nivarak home"
-              className="inline-flex !text-white no-underline [&_img]:h-full [&_img]:w-auto [&_img]:max-w-none"
+              className="inline-flex shrink-0 !text-white no-underline"
             >
               <BrandLogo
-                className={cn(
-                  brandLogoNavClassName,
-                  "!text-white [&_span]:!text-white",
-                )}
+                size="compact"
+                className="!text-white [&_.brand-logo__wordmark]:!text-white"
               />
             </Link>
             <p
@@ -175,11 +174,13 @@ export function SiteFooter() {
                   </a>
                 </li>
                 <li className={footerItem}>
-                  <a className={footerLink} href="mailto:hello@nivarak.example">
-                    [Insert Email]
+                  <a className={footerLink} href="mailto:meetali@nivarak.com">
+                    meetali@nivarak.com
                   </a>
                 </li>
-                <li className={footerItem}>[Insert Address / City]</li>
+                <li className={footerItem}>
+                  56 Mayur Colony, Kothrud, Pune 411038
+                </li>
               </ul>
             </div>
           </div>

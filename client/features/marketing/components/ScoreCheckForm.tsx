@@ -1,8 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { PhoneField } from "@/features/auth/components/primitives/PhoneField";
+import { FormSelect } from "@/components/ui/form-select";
 import { Icon } from "@/features/marketing/components/Icon";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
+import {
+  focusFirstField,
+  scoreCheckFormSchema,
+  validateWithSchema,
+  type FieldErrors,
+} from "@/features/marketing/lib/form-validation";
 import "@/features/marketing/components/ScoreCheckForm.check-score.css";
 import "@/features/marketing/components/ContactForm.contact.css";
 import {
@@ -15,49 +23,64 @@ import {
 } from "@/features/marketing/lib/marketing-classes";
 import { cn } from "@/lib/utils";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SCORE_FOR_OPTIONS = [
+  { value: "self", label: "Myself" },
+  { value: "parent", label: "A parent" },
+  { value: "spouse", label: "Spouse / partner" },
+  { value: "other", label: "Someone else I care for" },
+] as const;
 
-type FieldErrors = Record<string, boolean>;
+const FIELD_IDS: Record<string, string> = {
+  name: "score-name",
+  phone: "score-phone",
+  email: "score-email",
+  scoreFor: "score-for",
+  age: "score-age",
+  city: "score-city",
+  message: "score-message",
+};
 
 export function ScoreCheckForm() {
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [scoreFor, setScoreFor] = useState("");
+  const [age, setAge] = useState("");
+  const [city, setCity] = useState("");
+  const [message, setMessage] = useState("");
+
+  function clearError(field: string) {
+    if (!errors[field]) return;
+    setErrors((current) => {
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const data = new FormData(form);
-    const next: FieldErrors = {};
 
-    if (!String(data.get("name") ?? "").trim()) next["score-name"] = true;
-    if (!String(data.get("phone") ?? "").trim()) next["score-phone"] = true;
-    if (!EMAIL_RE.test(String(data.get("email") ?? "").trim())) {
-      next["score-email"] = true;
-    }
-    if (!String(data.get("score_for") ?? "").trim()) next["score-for"] = true;
-    const age = Number(data.get("age"));
-    if (
-      String(data.get("age") ?? "").trim() === "" ||
-      Number.isNaN(age) ||
-      age < 40 ||
-      age > 120
-    ) {
-      next["score-age"] = true;
-    }
+    const result = validateWithSchema(scoreCheckFormSchema, {
+      name,
+      phone,
+      email,
+      scoreFor,
+      age,
+      city,
+      message,
+    });
 
-    setErrors(next);
-    if (Object.keys(next).length) {
-      requestAnimationFrame(() => {
-        const el = form.querySelector<HTMLElement>(
-          Object.keys(next)
-            .map((id) => `#${id}`)
-            .join(", "),
-        );
-        el?.focus();
-      });
+    if (!result.success) {
+      setErrors(result.errors);
+      focusFirstField(form, FIELD_IDS, Object.keys(result.errors));
       return;
     }
 
+    setErrors({});
     setSuccess(true);
   }
 
@@ -85,7 +108,7 @@ export function ScoreCheckForm() {
         noValidate
         onSubmit={onSubmit}
       >
-        <div className={`form-group${errors["score-name"] ? " has-error" : ""}`}>
+        <div className={`form-group${errors.name ? " has-error" : ""}`}>
           <label htmlFor="score-name">
             Your name <span className="req" aria-hidden="true">*</span>
           </label>
@@ -94,24 +117,32 @@ export function ScoreCheckForm() {
             name="name"
             type="text"
             autoComplete="name"
+            maxLength={80}
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value);
+              clearError("name");
+            }}
+            aria-invalid={!!errors.name}
             required
           />
-          <p className="field-error">Please enter your name.</p>
+          <p className="field-error">{errors.name ?? "Please enter your name."}</p>
         </div>
-        <div className={`form-group${errors["score-phone"] ? " has-error" : ""}`}>
-          <label htmlFor="score-phone">
-            Phone <span className="req" aria-hidden="true">*</span>
-          </label>
-          <input
+
+        <div className={`form-group${errors.phone ? " has-error" : ""}`}>
+          <PhoneField
             id="score-phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            required
+            label="Phone *"
+            value={phone}
+            onChange={(value) => {
+              setPhone(value);
+              clearError("phone");
+            }}
+            error={errors.phone}
           />
-          <p className="field-error">Please enter a phone number.</p>
         </div>
-        <div className={`form-group${errors["score-email"] ? " has-error" : ""}`}>
+
+        <div className={`form-group${errors.email ? " has-error" : ""}`}>
           <label htmlFor="score-email">
             Email <span className="req" aria-hidden="true">*</span>
           </label>
@@ -120,25 +151,43 @@ export function ScoreCheckForm() {
             name="email"
             type="email"
             autoComplete="email"
+            maxLength={254}
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              clearError("email");
+            }}
+            aria-invalid={!!errors.email}
             required
           />
-          <p className="field-error">Please enter a valid email address.</p>
+          <p className="field-error">
+            {errors.email ?? "Please enter a valid email address."}
+          </p>
         </div>
-        <div className={`form-group${errors["score-for"] ? " has-error" : ""}`}>
+
+        <div className={`form-group${errors.scoreFor ? " has-error" : ""}`}>
           <label htmlFor="score-for">
             Who is this score for?{" "}
             <span className="req" aria-hidden="true">*</span>
           </label>
-          <select id="score-for" name="score_for" required>
-            <option value="">Select one</option>
-            <option value="self">Myself</option>
-            <option value="parent">A parent</option>
-            <option value="spouse">Spouse / partner</option>
-            <option value="other">Someone else I care for</option>
-          </select>
-          <p className="field-error">Please tell us who this is for.</p>
+          <FormSelect
+            id="score-for"
+            name="score_for"
+            value={scoreFor}
+            options={SCORE_FOR_OPTIONS}
+            onChange={(value) => {
+              setScoreFor(value);
+              clearError("scoreFor");
+            }}
+            error={!!errors.scoreFor}
+            aria-label="Who is this score for?"
+          />
+          <p className="field-error">
+            {errors.scoreFor ?? "Please tell us who this is for."}
+          </p>
         </div>
-        <div className={`form-group${errors["score-age"] ? " has-error" : ""}`}>
+
+        <div className={`form-group${errors.age ? " has-error" : ""}`}>
           <label htmlFor="score-age">
             Age of the person <span className="req" aria-hidden="true">*</span>
           </label>
@@ -148,29 +197,57 @@ export function ScoreCheckForm() {
             type="number"
             min={40}
             max={120}
+            step={1}
             inputMode="numeric"
+            value={age}
+            onChange={(event) => {
+              setAge(event.target.value);
+              clearError("age");
+            }}
+            aria-invalid={!!errors.age}
             required
           />
-          <p className="field-error">Please enter an age.</p>
+          <p className="field-error">
+            {errors.age ?? "Please enter an age between 40 and 120."}
+          </p>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group${errors.city ? " has-error" : ""}`}>
           <label htmlFor="score-city">City / area</label>
           <input
             id="score-city"
             name="city"
             type="text"
             autoComplete="address-level2"
+            maxLength={80}
+            value={city}
+            onChange={(event) => {
+              setCity(event.target.value);
+              clearError("city");
+            }}
+            aria-invalid={!!errors.city}
             placeholder="[City]"
           />
+          <p className="field-error">{errors.city ?? "Please enter a valid city name."}</p>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group${errors.message ? " has-error" : ""}`}>
           <label htmlFor="score-message">Anything we should know?</label>
           <textarea
             id="score-message"
             name="message"
+            maxLength={1000}
+            value={message}
+            onChange={(event) => {
+              setMessage(event.target.value);
+              clearError("message");
+            }}
+            aria-invalid={!!errors.message}
             placeholder="Preferred callback time, concerns, or questions"
           />
+          <p className="field-error">{errors.message ?? "Message is too long."}</p>
         </div>
+
         <button type="submit" className={btnPrimary}>
           Check my score
         </button>

@@ -71,7 +71,8 @@
   margin-bottom: var(--space-16);
 }
 
-.form-group label {
+/* Direct-child selectors only — avoid restyling nested controls (e.g. PhoneField shell). */
+.form-group > label {
   display: block;
   margin-bottom: var(--space-8);
   font-size: var(--type-label-size);
@@ -80,13 +81,12 @@
   color: var(--color-text-secondary);
 }
 
-.form-group .req {
+.form-group > label .req {
   color: var(--color-error-500);
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-group > input,
+.form-group > textarea {
   width: 100%;
   min-height: var(--density-control-h);
   padding: var(--space-12) var(--space-16);
@@ -100,28 +100,65 @@
     box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.form-group textarea {
+.form-group > textarea {
   min-height: 8rem;
   resize: vertical;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group > input:focus,
+.form-group > textarea:focus {
   outline: none;
   border-color: var(--color-border-focus);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-border-focus) 35%, transparent);
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.form-group > input::placeholder,
+.form-group > textarea::placeholder {
   color: var(--color-text-placeholder);
 }
 
-.form-group.has-error input,
-.form-group.has-error select,
-.form-group.has-error textarea {
+.form-group.has-error > input,
+.form-group.has-error > textarea,
+.form-group.has-error .form-select-trigger {
   border-color: var(--color-error-500);
+}
+
+/* PhoneField — single shell, aligned with marketing form controls */
+.contact-form .phone-field > label {
+  display: block;
+  margin-bottom: var(--space-8);
+  font-size: var(--type-label-size);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line);
+  color: var(--color-text-secondary);
+}
+
+.contact-form .phone-field__shell {
+  min-height: var(--density-control-h);
+  border-radius: var(--radius-m);
+  border-color: var(--color-border);
+  background: var(--color-surface-raised);
+  box-shadow: none;
+}
+
+.contact-form .phone-field__shell:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-border-focus) 35%, transparent);
+}
+
+.form-group.has-error .phone-field__shell {
+  border-color: var(--color-error-500);
+}
+
+.form-group.has-error .phone-field__shell:focus-within {
+  border-color: var(--color-error-500);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-error-500) 30%, transparent);
+}
+
+.contact-form .phone-field__input:focus,
+.contact-form .phone-field__input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .field-error {

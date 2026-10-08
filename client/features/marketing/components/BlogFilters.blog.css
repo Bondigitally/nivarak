@@ -182,6 +182,13 @@
   color: var(--color-primary);
 }
 
+.newsletter-error {
+  margin-top: var(--space-12);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--color-error-500);
+}
+
 .newsletter-success {
   display: none;
   margin-top: var(--space-16);
