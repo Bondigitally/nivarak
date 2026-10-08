@@ -8,10 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { fieldSelectTriggerClassName } from "@/components/ui/input";
+import { fieldInputClassName } from "@/components/ui/input";
 import { ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+
+const formSelectTriggerClassName = cn(
+  fieldInputClassName,
+  "inline-flex items-center justify-between gap-2 text-left",
+);
 
 export type FormSelectOption = { value: string; label: string };
 
@@ -77,12 +82,11 @@ export function FormSelect({
             id={id}
             type="button"
             aria-label={ariaLabel}
-            aria-invalid={error || undefined}
+            data-invalid={error || undefined}
             className={cn(
-              fieldSelectTriggerClassName,
+              formSelectTriggerClassName,
               "form-select-trigger",
-              error &&
-                "border-destructive focus-visible:ring-destructive/30 aria-[invalid=true]:border-destructive",
+              error && "border-destructive focus-visible:ring-destructive/30",
               className,
             )}
           >

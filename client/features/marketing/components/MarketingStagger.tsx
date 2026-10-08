@@ -1,6 +1,6 @@
 "use client";
 
-import type { ElementType, ReactNode } from "react";
+import { createElement, type ElementType, type ReactNode } from "react";
 import {
   marketingEase,
   marketingHero,
@@ -92,7 +92,6 @@ export function MarketingStagger({
   mode = "default",
 }: MarketingStaggerProps) {
   const reduceMotion = useReducedMotion();
-  const MotionTag = resolveMotionTag(Tag);
   const isLite = mode === "lite";
   const resolvedStagger =
     stagger ??
@@ -103,13 +102,14 @@ export function MarketingStagger({
     delayChildren ??
     (isLite ? marketingHero.delayChildren : marketingStagger.delayChildren);
 
-  return (
-    <MotionTag
-      className={cn(
+  return createElement(
+    resolveMotionTag(Tag),
+    {
+      className: cn(
         !reduceMotion && "transform-gpu will-change-[transform,opacity]",
         className,
-      )}
-      variants={{
+      ),
+      variants: {
         hidden: {},
         show: {
           transition: {
@@ -117,18 +117,16 @@ export function MarketingStagger({
             delayChildren: resolvedDelay,
           },
         },
-      }}
-      initial="hidden"
-      animate={eager ? "show" : undefined}
-      whileInView={eager || reduceMotion ? undefined : "show"}
-      viewport={
+      },
+      initial: "hidden",
+      animate: eager ? "show" : undefined,
+      whileInView: eager || reduceMotion ? undefined : "show",
+      viewport:
         eager || reduceMotion
           ? undefined
-          : { once: true, margin: marketingReveal.inViewMargin }
-      }
-    >
-      {children}
-    </MotionTag>
+          : { once: true, margin: marketingReveal.inViewMargin },
+    },
+    children,
   );
 }
 
@@ -145,22 +143,21 @@ export function MarketingStaggerItem({
   mode?: "default" | "lite";
 }) {
   const reduceMotion = useReducedMotion();
-  const MotionTag = resolveMotionTag(Tag);
   const variants = reduceMotion
     ? reducedItemVariants
     : mode === "lite"
       ? liteItemVariants
       : defaultItemVariants;
 
-  return (
-    <MotionTag
-      className={cn(
+  return createElement(
+    resolveMotionTag(Tag),
+    {
+      className: cn(
         !reduceMotion && "transform-gpu will-change-[transform,opacity]",
         className,
-      )}
-      variants={variants}
-    >
-      {children}
-    </MotionTag>
+      ),
+      variants,
+    },
+    children,
   );
 }

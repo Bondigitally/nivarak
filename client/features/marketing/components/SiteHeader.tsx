@@ -36,13 +36,16 @@ export function SiteHeader() {
   const isBlog = pathname === "/blog" || pathname.startsWith("/blog/");
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [navPathname, setNavPathname] = useState(pathname);
   const [activeSection, setActiveSection] = useState<MarketingSectionId | null>(
     null,
   );
 
-  useEffect(() => {
+  // Reset mobile nav when the route changes (React-allowed render-time adjust).
+  if (pathname !== navPathname) {
+    setNavPathname(pathname);
     setNavOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     const syncChrome = () => {
