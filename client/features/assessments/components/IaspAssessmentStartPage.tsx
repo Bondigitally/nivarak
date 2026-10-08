@@ -7,8 +7,8 @@ import { IaspResumeConfirmDialog } from "@/features/assessments/components/IaspR
 import {
   INITIAL_IASP_FLOW_STATE,
   clearIaspDraft,
-  createIaspResultsPreviewState,
-  isIaspResultsPreviewEnabled,
+  // createIaspResultsPreviewState,
+  // isIaspResultsPreviewEnabled,
   loadIaspDraft,
   type IaspFlowState,
 } from "@/features/assessments/data/iasp-assessment-draft";
@@ -28,16 +28,17 @@ export function IaspAssessmentStartPage() {
   useEffect(() => {
     allowExitRef.current = true;
     queueMicrotask(() => {
-      const previewResults =
-        isIaspResultsPreviewEnabled() &&
-        new URLSearchParams(window.location.search).get("preview") === "results";
-      const draft = previewResults ? null : loadIaspDraft();
+      // const previewResults =
+      //   isIaspResultsPreviewEnabled() &&
+      //   new URLSearchParams(window.location.search).get("preview") === "results";
+      const draft = loadIaspDraft();
 
-      if (previewResults) {
-        setFlowState(createIaspResultsPreviewState());
-        setConfirmOpen(false);
-        setOpen(true);
-      } else if (draft) {
+      // if (previewResults) {
+      //   setFlowState(createIaspResultsPreviewState());
+      //   setConfirmOpen(false);
+      //   setOpen(true);
+      // } else
+      if (draft) {
         setFlowState(draft);
         setConfirmOpen(true);
         setOpen(false);

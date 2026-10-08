@@ -1,0 +1,16 @@
+/* Footer brand — fixed size on every public marketing / legal page */
+.site-footer .brand-logo__mark {
+  height: 2rem;
+  width: 4.375rem;
+}
+
+.site-footer .brand-logo__wordmark {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.site-footer .brand-logo__img {
+  max-width: none;
+  height: 100%;
+  width: 100%;
+}

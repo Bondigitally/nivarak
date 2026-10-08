@@ -43,8 +43,8 @@ const CONTACT_OPTIONS = [
     title: "Book an Assessment",
     body: (
       <p>
-        <a href="#book">Use the form below</a> and we&apos;ll schedule a
-        callback.
+        <a href="#book">Use the form below</a> and we&apos;ll call you back to
+        schedule a clinical assessment.
       </p>
     ),
   },
@@ -53,14 +53,14 @@ const CONTACT_OPTIONS = [
     title: "Email Us",
     body: (
       <p>
-        <a href="mailto:hello@nivarak.example">[Insert Email]</a>
+        <a href="mailto:meetali@nivarak.com">meetali@nivarak.com</a>
       </p>
     ),
   },
   {
     icon: "i-map",
     title: "Visit Us",
-    body: <p>[Physical address TBD — see areas we serve]</p>,
+    body: <p>56 Mayur Colony, Kothrud, Pune 411038</p>,
   },
 ] as const;
 
@@ -107,27 +107,16 @@ export default function ContactPage() {
             <ContactForm />
           </MarketingReveal>
           <MarketingReveal delay={0.12} direction="right">
-            <aside>
+            <aside className="areas-aside">
               <p className={eyebrow}>Areas We Serve</p>
               <h2 className="areas-heading">Where we currently care</h2>
               <p className="areas-intro">
-                Physical clinic address not confirmed yet — listing service
-                regions instead.
+                Our clinic is located in Kothrud, Pune. We serve families
+                across the city and surrounding neighbourhoods.
               </p>
-              <ul className="areas-list">
-                <li>
-                  <Icon name="i-map" /> [City / Region 1]
-                </li>
-                <li>
-                  <Icon name="i-map" /> [City / Region 2]
-                </li>
-                <li>
-                  <Icon name="i-map" /> [City / Region 3]
-                </li>
-                <li>
-                  <Icon name="i-map" /> [Expanding soon]
-                </li>
-              </ul>
+              <div className="areas-card">
+                <Icon name="i-map" /> Pune
+              </div>
             </aside>
           </MarketingReveal>
         </div>

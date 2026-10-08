@@ -378,6 +378,15 @@ html:has(.protected-shell) {
   scrollbar-gutter: auto;
 }
 
+/*
+ * Public website (marketing, legal, auth, IASP) — reinforce root gutter so
+ * fixed chrome and full-width sections don’t shift when scrollbars appear.
+ */
+html:has(.marketing-site),
+html:has(.auth-light-mode) {
+  scrollbar-gutter: stable;
+}
+
 /* Sidebar nav — thin scrollbar, visible only while hovering the sidebar */
 .sidebar-nav-scroll {
   scrollbar-width: thin;

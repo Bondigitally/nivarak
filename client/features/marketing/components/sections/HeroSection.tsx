@@ -53,9 +53,9 @@ export function HeroSection() {
             <div className="hero-ctas">
               <Link
                 className={cn(btnPrimary, "min-h-[var(--density-control-h-cta)]")}
-                href="/contact#book"
+                href="/iasp-assessment"
               >
-                Take an assessment{" "}
+                Take free assessment{" "}
                 <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
               </Link>
               <a

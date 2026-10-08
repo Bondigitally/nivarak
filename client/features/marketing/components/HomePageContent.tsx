@@ -1,5 +1,4 @@
 import { ChallengeSection } from "@/features/marketing/components/sections/ChallengeSection";
-import { CheckScoreSection } from "@/features/marketing/components/ScoreCheckForm";
 import { ExpertsSection } from "@/features/marketing/components/sections/ExpertsSection";
 import { FinalCtaSection } from "@/features/marketing/components/sections/FinalCtaSection";
 import { HeroSection } from "@/features/marketing/components/sections/HeroSection";
@@ -16,7 +15,6 @@ export function HomePageContent() {
       <ChallengeSection />
       <WhatIsSection />
       <ScoreSection />
-      <CheckScoreSection />
       <HowItWorksSection />
       <ExpertsSection />
       <TestimonialsSection />

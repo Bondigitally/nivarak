@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import {
+  newsletterFormSchema,
+  validateWithSchema,
+} from "@/features/marketing/lib/form-validation";
 import { btn } from "@/features/marketing/lib/marketing-classes";
 import "@/features/marketing/components/BlogFilters.blog.css";
 
@@ -73,17 +77,25 @@ const POSTS = [
 export function BlogFilters() {
   const [filter, setFilter] = useState<string>("all");
   const [subscribed, setSubscribed] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
 
   function onNewsletter(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const input = e.currentTarget.querySelector<HTMLInputElement>(
-      'input[type="email"]',
-    );
-    if (!input?.value.trim()) {
-      input?.focus();
+
+    const result = validateWithSchema(newsletterFormSchema, {
+      email: newsletterEmail,
+    });
+    if (!result.success) {
+      setNewsletterError(
+        result.errors.email ?? "Please enter a valid email address.",
+      );
+      e.currentTarget.querySelector<HTMLInputElement>("#newsletter-email")?.focus();
       return;
     }
-    e.currentTarget.reset();
+
+    setNewsletterError("");
+    setNewsletterEmail("");
     setSubscribed(true);
   }
 
@@ -158,6 +170,7 @@ export function BlogFilters() {
         <form
           id="newsletter-form"
           className="newsletter-form"
+          noValidate
           onSubmit={onNewsletter}
         >
           <label className="visually-hidden" htmlFor="newsletter-email">
@@ -168,6 +181,13 @@ export function BlogFilters() {
             type="email"
             name="email"
             placeholder="Your email"
+            maxLength={254}
+            value={newsletterEmail}
+            onChange={(event) => {
+              setNewsletterEmail(event.target.value);
+              if (newsletterError) setNewsletterError("");
+            }}
+            aria-invalid={!!newsletterError}
             required
             autoComplete="email"
           />
@@ -175,6 +195,9 @@ export function BlogFilters() {
             Subscribe
           </button>
         </form>
+        {newsletterError ? (
+          <p className="newsletter-error" role="alert">{newsletterError}</p>
+        ) : null}
         <p
           id="newsletter-success"
           className={`newsletter-success${subscribed ? " is-visible" : ""}`}

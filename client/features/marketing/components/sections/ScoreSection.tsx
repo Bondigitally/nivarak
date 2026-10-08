@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AgingDomainTabs } from "@/features/marketing/components/AgingDomainTabs";
 import {
   AiMagicIcon,
@@ -132,9 +133,9 @@ export function ScoreSection() {
                   ready for the family to review.
                 </p>
               </div>
-              <a className={cn(btnPrimary, "aging-view-btn")} href="#check-score">
+              <Link className={cn(btnPrimary, "aging-view-btn")} href="/iasp-assessment">
                 View
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -149,9 +150,9 @@ export function ScoreSection() {
             catching decline while it&apos;s still reversible.
           </p>
           <div className="score-cta-wrap">
-            <a className={btnPrimary} href="#check-score">
-              Want to check your score?
-            </a>
+            <Link className={btnPrimary} href="/iasp-assessment">
+              Check your score
+            </Link>
           </div>
         </MarketingReveal>
       </div>

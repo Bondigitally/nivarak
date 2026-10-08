@@ -9,9 +9,26 @@ import { cn } from "@/lib/utils";
 
 export { BRAND_LOGO };
 
-/** Same mark + wordmark sizing as the marketing site header. */
-export const brandLogoNavClassName =
-  "[&>div]:!h-8 [&>span]:!text-xl [&>span]:!leading-7";
+export type BrandLogoSize = "default" | "compact";
+
+const BRAND_LOGO_MARK: Record<
+  BrandLogoSize,
+  { className: string; sizes: string }
+> = {
+  default: {
+    className: "h-10 w-auto",
+    sizes: "5.5rem",
+  },
+  compact: {
+    className: "h-8 w-[4.375rem]",
+    sizes: "4.375rem",
+  },
+};
+
+const BRAND_LOGO_WORDMARK: Record<BrandLogoSize, string> = {
+  default: "text-2xl leading-8",
+  compact: "text-xl leading-7",
+};
 
 /**
  * Nivarak mark + wordmark. Optional `onReady` for auth preload gating;
@@ -20,11 +37,14 @@ export const brandLogoNavClassName =
 export function BrandLogo({
   onReady,
   className,
+  size = "default",
 }: {
   onReady?: () => void;
   className?: string;
+  size?: BrandLogoSize;
 }) {
   const marked = useRef(false);
+  const mark = BRAND_LOGO_MARK[size];
 
   function markReady() {
     if (marked.current) return;
@@ -34,29 +54,39 @@ export function BrandLogo({
 
   return (
     <div
-      className={cn("flex shrink-0 flex-col items-start gap-0", className)}
+      className={cn(
+        "brand-logo flex shrink-0 flex-col items-start gap-0",
+        className,
+      )}
       role="img"
       aria-label={BRAND_LOGO.alt}
     >
-      <div className="relative h-10 w-auto shrink-0 aspect-1380/803">
+      <div
+        className={cn(
+          "brand-logo__mark relative shrink-0 aspect-1380/803",
+          mark.className,
+        )}
+      >
         <Image
           src={BRAND_LOGO.src}
           alt=""
           width={BRAND_LOGO.width}
           height={BRAND_LOGO.height}
-          sizes="(max-width: 1024px) 28vw, 5.5rem"
+          sizes={mark.sizes}
           quality={BRAND_LOGO.quality}
           preload
-          className="size-full object-contain object-left"
+          className="brand-logo__img size-full max-w-none object-contain object-left"
           onLoad={markReady}
           onError={markReady}
         />
       </div>
       <span
         className={cn(
+          "brand-logo__wordmark",
           roundedElegance.className,
           typo.logo,
-          "text-2xl leading-8 tracking-[0.08em]",
+          "tracking-[0.08em]",
+          BRAND_LOGO_WORDMARK[size],
         )}
         aria-hidden
       >

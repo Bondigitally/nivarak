@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Call02Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
-import { BrandLogo, brandLogoNavClassName } from "@/components/shared/BrandLogo";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { marketingHomeHash } from "@/features/marketing/lib/home-hash";
 import { MARKETING_SECTION_SCROLL_MARGIN_PX } from "@/features/marketing/lib/header-layout";
 import {
@@ -36,13 +36,16 @@ export function SiteHeader() {
   const isBlog = pathname === "/blog" || pathname.startsWith("/blog/");
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [navPathname, setNavPathname] = useState(pathname);
   const [activeSection, setActiveSection] = useState<MarketingSectionId | null>(
     null,
   );
 
-  useEffect(() => {
+  // Reset mobile nav when the route changes (React-allowed render-time adjust).
+  if (pathname !== navPathname) {
+    setNavPathname(pathname);
     setNavOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     const syncChrome = () => {
@@ -115,7 +118,7 @@ export function SiteHeader() {
                 href="/"
                 aria-label="Nivarak home"
               >
-                <BrandLogo className={brandLogoNavClassName} />
+                <BrandLogo size="compact" />
               </Link>
 
               <button

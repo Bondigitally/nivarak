@@ -22,21 +22,24 @@ import "@/features/marketing/components/sections/testimonials.css";
 
 const TESTIMONIALS = [
   {
+    name: "Priya Deshpande",
     quote:
       "We finally have one clear picture of my mother’s health instead of five different opinions. The Aging Score made it easy to see what needed attention.",
-    avatar: "[A]",
+    avatar: "PD",
     rel: "Daughter of a Nivarak member",
   },
   {
+    name: "Vikram Patil",
     quote:
       "My father was flagged for a nutrition and mobility risk before it turned into a fall. That early call from the care team meant everything.",
-    avatar: "[S]",
+    avatar: "VP",
     rel: "Son of a Nivarak member",
   },
   {
+    name: "Sanjay Nair",
     quote:
       "I live abroad, so knowing someone medically qualified is checking in on my parents regularly has given our whole family real peace of mind.",
-    avatar: "[R]",
+    avatar: "SN",
     rel: "Family member, based overseas",
   },
 ] as const;
@@ -62,7 +65,7 @@ export function TestimonialsSection() {
         <MarketingStagger className="testi-grid" stagger={0.12}>
           {TESTIMONIALS.map((t) => (
             <MarketingStaggerItem
-              key={t.avatar}
+              key={t.name}
               as="article"
               className="testi-card"
             >
@@ -82,7 +85,7 @@ export function TestimonialsSection() {
                   {t.avatar}
                 </div>
                 <div>
-                  <div className="tw-name">[Name]</div>
+                  <div className="tw-name">{t.name}</div>
                   <div className="tw-rel">{t.rel}</div>
                 </div>
               </div>

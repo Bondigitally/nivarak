@@ -81,9 +81,9 @@ import {
 import {
   INITIAL_IASP_FLOW_STATE,
   clearIaspDraft,
-  createIaspResultsPreviewState,
+  // createIaspResultsPreviewState,
   hasIaspProgress,
-  isIaspResultsPreviewEnabled,
+  // isIaspResultsPreviewEnabled,
   saveIaspDraft,
   type IaspAnswersMap,
   type IaspFlowState,
@@ -313,10 +313,10 @@ function IaspAutoSavedBadge({ status }: { status: SaveIndicatorStatus }) {
 
 function IntroStep({
   onStart,
-  onPreviewResults,
+  // onPreviewResults,
 }: {
   onStart: () => void;
-  onPreviewResults?: () => void;
+  // onPreviewResults?: () => void;
 }) {
   return (
     <IaspModalShell>
@@ -428,7 +428,7 @@ function IntroStep({
           Start Free Assessment
           <AppIcon icon={ArrowRight02Icon} />
         </Button>
-        {onPreviewResults ? (
+        {/* {onPreviewResults ? (
           <Button
             type="button"
             variant="ghost"
@@ -437,7 +437,7 @@ function IntroStep({
           >
             Preview results (dev)
           </Button>
-        ) : null}
+        ) : null} */}
       </DialogFooter>
     </IaspModalShell>
   );
@@ -1400,15 +1400,11 @@ function IaspAssessmentFlow({
   }
 
   if (step === "intro") {
+    // Preview results (dev): onPreviewResults={() => setState(createIaspResultsPreviewState())}
     return (
       <IntroStep
         onStart={() =>
           setState((current) => ({ ...current, step: "about" }))
-        }
-        onPreviewResults={
-          isIaspResultsPreviewEnabled()
-            ? () => setState(createIaspResultsPreviewState())
-            : undefined
         }
       />
     );
