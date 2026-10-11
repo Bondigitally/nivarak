@@ -234,7 +234,7 @@ export function IaspAssessmentLanding() {
               "text-[clamp(0.875rem,3.6vw,1rem)] leading-[1.45]",
             )}
           >
-            Just a few warm, easy questions about your loved one. In about
+            Just a few simple questions about your loved one. In about
             3 minutes, you’ll see how they’re doing and where a little help
             could go a long way.
           </motion.p>
@@ -285,7 +285,7 @@ export function IaspAssessmentLanding() {
               variants={itemVariants}
               className={cn(typo.bodyL, "max-w-lg text-pretty")}
             >
-              Just a few warm, easy questions about your loved one. In about
+              Just a few simple questions about your loved one. In about
               3 minutes, you’ll see how they’re doing and where a little help
               could go a long way.
             </motion.p>

@@ -158,7 +158,7 @@ const questionPageVariants = {
 };
 
 const INTRO_HIGHLIGHTS = [
-  "Warm, everyday questions. No medical know-how needed.",
+  "Simple, everyday questions. No medical know-how needed.",
   "Great for families checking in from near or far.",
   "Helps you spot where a little support could help.",
 ] as const;
