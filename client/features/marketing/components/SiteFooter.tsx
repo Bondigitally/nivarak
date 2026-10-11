@@ -51,10 +51,7 @@ export function SiteFooter() {
               aria-label="Nivarak home"
               className="inline-flex shrink-0 !text-white no-underline"
             >
-              <BrandLogo
-                size="compact"
-                className="!text-white [&_.brand-logo__wordmark]:!text-white"
-              />
+              <BrandLogo size="compact" />
             </Link>
             <p
               className={cn(
@@ -62,7 +59,7 @@ export function SiteFooter() {
                 footerMuted,
               )}
             >
-              Your partner in independent aging — medical expertise,
+              Your partner in independent aging: medical expertise,
               personalized care, and continuous monitoring for older adults
               and the families who love them.
             </p>
@@ -98,7 +95,7 @@ export function SiteFooter() {
 
           <div
             className={cn(
-              "grid grid-cols-2 gap-x-16 gap-y-10",
+              "grid grid-cols-2 gap-x-8 gap-y-10 min-[744px]:gap-x-16",
               "min-[744px]:grid-cols-4 min-[744px]:gap-x-20",
               "min-[1440px]:flex min-[1440px]:flex-nowrap min-[1440px]:gap-x-20",
             )}
@@ -169,8 +166,8 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li className={footerItem}>
-                  <a className={footerLink} href="tel:+910000000000">
-                    Helpline: [Insert Number]
+                  <a className={footerLink} href="tel:+919371090980">
+                    Helpline: +91 93710 90980
                   </a>
                 </li>
                 <li className={footerItem}>
@@ -187,22 +184,16 @@ export function SiteFooter() {
         </div>
         <div
           className={cn(
-            "flex flex-wrap items-center justify-between gap-3 border-t border-white/15 pt-6",
+            "flex flex-col items-center justify-center gap-3 border-t border-white/15 pt-6 text-center",
             "text-[length:var(--type-caption-size)] !text-white/65",
           )}
         >
           <p className="!text-white/65">&copy; 2026 Nivarak. All rights reserved.</p>
-          <p>
-            <Link
-              className="ml-4 !text-white/75 hover:!text-white"
-              href="/privacy"
-            >
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link className="!text-white/75 hover:!text-white" href="/privacy">
               Privacy Policy
             </Link>
-            <Link
-              className="ml-4 text-white/75! hover:text-white!"
-              href="/terms"
-            >
+            <Link className="!text-white/75 hover:!text-white" href="/terms">
               Terms of Use
             </Link>
           </p>

@@ -161,6 +161,8 @@ export function SiteHeader() {
                 aria-label="Primary"
                 className={cn(
                   "max-[1439px]:absolute max-[1439px]:inset-x-0 max-[1439px]:top-full max-[1439px]:m-0",
+                  /* Horizontal padding on nav — marketing base.css zeros ul padding */
+                  "max-[1439px]:px-6 max-[1439px]:py-2 min-[1440px]:px-0 min-[1440px]:py-0",
                   floating
                     ? "max-[1439px]:mt-2 max-[1439px]:rounded-[var(--radius-squircle)] max-[1439px]:[corner-shape:squircle] max-[1439px]:border max-[1439px]:border-[var(--color-border-divider)] max-[1439px]:bg-[var(--color-surface-raised)]/95 max-[1439px]:shadow-[var(--shadow-m)] max-[1439px]:backdrop-blur-md"
                     : "max-[1439px]:border-b max-[1439px]:border-[var(--color-border-divider)] max-[1439px]:bg-[var(--color-surface-raised)] max-[1439px]:shadow-[var(--shadow-m)]",
@@ -171,7 +173,6 @@ export function SiteHeader() {
                 <ul
                   className={cn(
                     "flex flex-col items-stretch gap-0 py-2 pb-4",
-                    floating ? "px-4" : "px-[var(--gutter-mobile)]",
                     "min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-6 min-[1440px]:p-0",
                   )}
                 >
@@ -231,10 +232,10 @@ export function SiteHeader() {
                     "!text-[var(--color-text-link)]",
                     "min-[1440px]:inline-flex",
                   )}
-                  href="tel:+910000000000"
+                  href="tel:+919371090980"
                 >
                   <AppIcon icon={Call02Icon} size={ICON_SIZE} />
-                  <span>[+91 Helpline]</span>
+                  <span>+91 93710 90980</span>
                 </a>
                 <Link
                   className={cn(btnOutline, "hidden min-[1440px]:inline-flex")}

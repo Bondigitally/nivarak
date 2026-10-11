@@ -32,9 +32,9 @@ const CONTACT_OPTIONS = [
     body: (
       <>
         <p>
-          <a href="tel:+910000000000">[+91 Helpline Number]</a>
+          <a href="tel:+919371090980">+91 93710 90980</a>
         </p>
-        <p>[Hours of operation]</p>
+        <p>Mon–Sat, 9:00 AM – 6:00 PM IST</p>
       </>
     ),
   },
@@ -71,7 +71,7 @@ export default function ContactPage() {
         eyebrowText="Contact Us"
         titleId="contact-hero"
         title="We're Here to Help."
-        body="Whether you're ready to book an assessment or just have a question about a parent's care — reach out. We'll respond with clarity and care."
+        body="Whether you're ready to book an assessment or just have a question about a parent's care, reach out. We'll respond with clarity and care."
       />
 
       <section className={cn(section, "what-is")} aria-labelledby="options-title">

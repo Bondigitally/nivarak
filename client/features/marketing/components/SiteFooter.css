@@ -7,6 +7,7 @@
 .site-footer .brand-logo__wordmark {
   font-size: 1.25rem;
   line-height: 1.75rem;
+  color: var(--color-text-inverse);
 }
 
 .site-footer .brand-logo__img {
