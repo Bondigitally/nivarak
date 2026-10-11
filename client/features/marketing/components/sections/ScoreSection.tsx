@@ -34,7 +34,7 @@ export function ScoreSection() {
         <MarketingReveal className={sectionHead}>
           <p className={cn(eyebrow, eyebrowCenter)}>Independent Aging Score™</p>
           <h2 id="score-title" className={sectionHeadTitle}>
-            Know How Well You&apos;re Aging — Not Just How Old You Are
+            Know How Well You&apos;re Aging, Not Just How Old You Are
           </h2>
           <p className={sectionHeadBody}>
             One clear number that reflects how well someone is aging across the
@@ -129,7 +129,7 @@ export function ScoreSection() {
               <div className="aging-next-copy">
                 <h4>[Sample Member]&apos;s Care Plan is ready</h4>
                 <p>
-                  Personalized actions across mobility, nutrition, and sleep —
+                  Personalized actions across mobility, nutrition, and sleep,
                   ready for the family to review.
                 </p>
               </div>
@@ -143,10 +143,10 @@ export function ScoreSection() {
           </div>
         </MarketingReveal>
 
-        <MarketingReveal delay={0.15}>
+        <MarketingReveal className="score-closing" delay={0.15}>
           <p className="score-tagline">One score. Complete understanding.</p>
           <p className="score-sub">
-            Reassessed regularly so families see the trend, not just a snapshot —
+            Reassessed regularly so families see the trend, not just a snapshot,
             catching decline while it&apos;s still reversible.
           </p>
           <div className="score-cta-wrap">

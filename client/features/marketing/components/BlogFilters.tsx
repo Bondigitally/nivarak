@@ -24,7 +24,7 @@ const POSTS = [
     thumb: "01",
     title: "[Post] Small changes that matter before a fall",
     excerpt:
-      "[Placeholder] How mobility, nutrition, and sleep quietly shape fall risk — and what to notice early.",
+      "[Placeholder] How mobility, nutrition, and sleep quietly shape fall risk, and what to notice early.",
     href: "/blog/aging-well-at-home",
   },
   {
@@ -33,7 +33,7 @@ const POSTS = [
     thumb: "02",
     title: "[Post] How to talk to parents about getting assessed",
     excerpt:
-      "[Placeholder] Language that feels respectful — and opens the door to proactive care.",
+      "[Placeholder] Language that feels respectful and opens the door to proactive care.",
     href: "/blog/aging-well-at-home",
   },
   {
@@ -60,7 +60,7 @@ const POSTS = [
     thumb: "05",
     title: "[Post] Nutrition signals families often miss",
     excerpt:
-      "[Placeholder] Appetite, weight, and hydration — quiet markers that deserve attention.",
+      "[Placeholder] Appetite, weight, and hydration: quiet markers that deserve attention.",
     href: "/blog/aging-well-at-home",
   },
   {
@@ -114,7 +114,7 @@ export function BlogFilters() {
           </h2>
           <p className="excerpt">
             [Placeholder excerpt] A clear look at the everyday signals families
-            can watch — and how a structured score helps turn worry into a plan.
+            can watch, and how a structured score helps turn worry into a plan.
           </p>
           <p className="post-meta">By [Author] · [Month Day, Year]</p>
         </div>
@@ -164,7 +164,7 @@ export function BlogFilters() {
       <div className="newsletter" aria-labelledby="newsletter-title">
         <h2 id="newsletter-title">Stay informed</h2>
         <p>
-          Occasional insights on independent aging — no spam. Front-end capture
+          Occasional insights on independent aging. No spam. Front-end capture
           only for now.
         </p>
         <form
@@ -203,7 +203,7 @@ export function BlogFilters() {
           className={`newsletter-success${subscribed ? " is-visible" : ""}`}
           role="status"
         >
-          Thanks — you&apos;re on the list (demo only).
+          Thanks! You&apos;re on the list (demo only).
         </p>
       </div>
     </>

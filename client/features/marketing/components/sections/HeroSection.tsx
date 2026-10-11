@@ -46,7 +46,7 @@ export function HeroSection() {
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <p className="lede">
-              Nivarak helps older adults stay independent at home with proactive health assessments, personalized care plans, and continuous support—while giving families greater confidence in their loved one’s well-being.
+              Nivarak helps older adults stay independent at home with proactive health assessments, personalized care plans, and continuous support, while giving families greater confidence in their loved one’s well-being.
             </p>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">

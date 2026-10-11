@@ -95,7 +95,7 @@ export function ScoreCheckForm() {
         tabIndex={-1}
         role="status"
       >
-        <strong>Thank you — your request was received.</strong>
+        <strong>Thank you. Your request was received.</strong>
         <p>
           This is a front-end confirmation only. Connect the form to your real
           endpoint before launch.

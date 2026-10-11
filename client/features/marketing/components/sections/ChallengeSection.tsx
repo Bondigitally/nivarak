@@ -60,7 +60,7 @@ export function ChallengeSection() {
           </h2>
           <p>
             A slower walk. A skipped meal. A missed dose. On their own, these
-            changes look ordinary — the kind families explain away as &ldquo;just
+            changes look ordinary, the kind families explain away as &ldquo;just
             age.&rdquo; Left unnoticed, they quietly compound until a fall, a
             hospital admission, or a health crisis forces the issue.
           </p>
@@ -79,7 +79,7 @@ export function ChallengeSection() {
             <div className="cstat">
               <strong>80%</strong>
               <span>
-                Of health decline is gradual — and detectable early with the
+                Of health decline is gradual and detectable early with the
                 right assessment
               </span>
             </div>

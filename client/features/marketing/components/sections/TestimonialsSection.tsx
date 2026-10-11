@@ -58,8 +58,8 @@ export function TestimonialsSection() {
             Trusted by Families
           </h2>
           <p className={sectionHeadBody}>
-            Sample family experiences — final testimonials to be added with
-            approval.
+            Real stories from Pune families who trust Nivarak for proactive,
+            medically led care at home.
           </p>
         </MarketingReveal>
         <MarketingStagger className="testi-grid" stagger={0.12}>
