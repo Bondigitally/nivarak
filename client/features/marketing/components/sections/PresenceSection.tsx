@@ -40,7 +40,7 @@ export function PresenceSection() {
             <div className="presence-badge-text">
               <strong>
                 <span className="presence-badge-live" aria-hidden="true" />
-                50+ Active Families in Pune
+                20+ Active Families in Pune
               </strong>
               <span>Nivarak care network is growing</span>
             </div>

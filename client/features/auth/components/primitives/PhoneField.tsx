@@ -14,10 +14,7 @@ import {
   getNationalLength,
   type CountryDialCode,
 } from '@/features/auth/lib/country-codes';
-import {
-  AuthFieldError,
-  authInputClassName,
-} from '@/features/auth/components/primitives/AuthField';
+import { AuthFieldError } from '@/features/auth/components/primitives/AuthField';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +44,15 @@ function clampNational(digits: string, country: CountryDialCode): string {
   const { max } = getNationalLength(country);
   return digits.replace(/\D/g, '').slice(0, max);
 }
+
+/** Composite shell — box-shadow halo (not ring) so focus stays rounded on flex containers. */
+const phoneFieldShellClassName = cn(
+  'h-11 w-full rounded-md border border-border bg-card',
+  typo.input,
+  'transition-[border-color,box-shadow] duration-150 ease-in-out',
+  'focus-within:border-border-focus focus-within:outline-none focus-within:ring-0',
+  'focus-within:shadow-[0_0_0_2px_color-mix(in_oklab,var(--ring)_40%,transparent)]',
+);
 
 interface PhoneFieldProps {
   id?: string;
@@ -115,7 +121,7 @@ export function PhoneField({
   }
 
   return (
-    <div className={cn('flex w-full flex-col gap-auth-field', className)}>
+    <div className={cn('phone-field flex w-full flex-col gap-auth-field', className)}>
       <label htmlFor={id} className={typo.label}>
         {label}
       </label>
@@ -123,10 +129,11 @@ export function PhoneField({
       <div
         ref={inputShellRef}
         className={cn(
-          authInputClassName,
+          'phone-field__shell',
+          phoneFieldShellClassName,
           'flex items-center gap-3 px-3',
-          'focus-within:border-border-focus focus-within:ring-2 focus-within:ring-ring/40',
-          error && 'border-destructive focus-within:ring-destructive/30',
+          error &&
+            'border-destructive focus-within:border-destructive focus-within:shadow-[0_0_0_2px_color-mix(in_oklab,var(--destructive)_30%,transparent)]',
           disabled && 'cursor-not-allowed opacity-50',
         )}
       >
@@ -138,7 +145,8 @@ export function PhoneField({
                   'inline-flex h-full shrink-0 items-center gap-1 rounded-sm px-1.5',
                   typo.input,
                   'outline-none transition-colors hover:bg-background',
-                  'focus-visible:bg-background disabled:pointer-events-none',
+                  'focus:outline-none focus-visible:bg-background focus-visible:outline-none focus-visible:ring-0',
+                  'disabled:pointer-events-none',
                 )}
                 aria-label="Select country code"
               >
@@ -204,8 +212,9 @@ export function PhoneField({
             placeholder={placeholder}
             aria-invalid={!!error}
             className={cn(
-              'h-full min-w-0 flex-1 bg-transparent outline-none',
+              'phone-field__input h-full min-w-0 flex-1 border-0 bg-transparent p-0 shadow-none',
               typo.input,
+              'outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0',
               'placeholder:text-placeholder',
               'disabled:cursor-not-allowed',
             )}

@@ -36,7 +36,7 @@ const PILLARS = [
   {
     icon: "i-hand-heart",
     title: "Whole-person",
-    body: "Mobility, mind, mood, nutrition, sleep — not just a single symptom.",
+    body: "Mobility, mind, mood, nutrition, sleep: not just a single symptom.",
   },
   {
     icon: "i-family",
@@ -59,12 +59,12 @@ const USPS = [
   {
     icon: "i-clipboard",
     title: "Built on the CGA standard",
-    body: "Grounded in Comprehensive Geriatric Assessment principles — adapted for continuous care.",
+    body: "Grounded in Comprehensive Geriatric Assessment principles, adapted for continuous care.",
   },
   {
     icon: "i-monitor",
     title: "Continuous monitoring",
-    body: "Not a one-time checkup — ongoing visibility so trends don't go unnoticed.",
+    body: "Not a one-time checkup: ongoing visibility so trends don't go unnoticed.",
   },
   {
     icon: "i-users",
@@ -74,14 +74,14 @@ const USPS = [
   {
     icon: "i-leaf",
     title: "Preventive, not just responsive",
-    body: "Focused on staying well and independent — not only reacting after a crisis.",
+    body: "Focused on staying well and independent, not only reacting after a crisis.",
   },
 ] as const;
 
 const VALUES = [
   {
     title: "Clarity",
-    body: "We translate complex health into language families can use — and act on.",
+    body: "We translate complex health into language families can use and act on.",
   },
   {
     title: "Dignity",
@@ -93,7 +93,7 @@ const VALUES = [
   },
   {
     title: "Clinical integrity",
-    body: "Medical standards guide our tools — including the Independent Aging Score™.",
+    body: "Medical standards guide our tools, including the Independent Aging Score™.",
   },
 ] as const;
 
@@ -111,7 +111,7 @@ export default function AboutPage() {
       <MarketingPageHero
         eyebrowText="About Us"
         titleId="about-hero"
-        title="Built so families can stop guessing — and start knowing."
+        title="Built so families can stop guessing and start knowing."
         body="Nivarak was founded on a simple belief: growing older should not mean losing independence. We exist to catch the quiet changes early, and to walk alongside families with clear, medically-led care."
       />
 
@@ -132,7 +132,7 @@ export default function AboutPage() {
             <p>
               Drawing on clinical experience in [specialty / practice context],
               our founders set out to create a care model that sits between
-              routine doctor visits and hospital care — proactive, continuous,
+              routine doctor visits and hospital care: proactive, continuous,
               and built around independence at home.
             </p>
             <p>
@@ -152,8 +152,8 @@ export default function AboutPage() {
               <p className={eyebrow}>Our Mission &amp; Approach</p>
               <h2 id="mission-title">Independence, protected by clarity</h2>
               <p>
-                Our mission is to help older adults age independently — with
-                confidence — by making whole-person health visible, actionable,
+                Our mission is to help older adults age independently, with
+                confidence, by making whole-person health visible, actionable,
                 and continuously supported for families.
               </p>
             </MarketingReveal>
