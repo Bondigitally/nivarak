@@ -15,6 +15,12 @@ import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
+const LANDING_HEADLINE =
+  "Your Parents Say They’re Fine. Understand How They’re Really Doing.";
+
+const LANDING_SUBHEADLINE =
+  "Explore our free Independent Ageing Assessment to understand your parents’ health and independence, and where they may need more attention.";
+
 const LANDING_IMAGES = {
   back: {
     src: "/images/landing-1.jpg",
@@ -223,7 +229,7 @@ export function IaspAssessmentLanding() {
               "text-[clamp(1.75rem,7.2vw,2.375rem)] leading-[1.15]",
             )}
           >
-            Start your quick IAS Assessment
+            {LANDING_HEADLINE}
           </motion.h1>
 
           <motion.p
@@ -234,9 +240,7 @@ export function IaspAssessmentLanding() {
               "text-[clamp(0.875rem,3.6vw,1rem)] leading-[1.45]",
             )}
           >
-            Just a few simple questions about your loved one. In about
-            3 minutes, you’ll see how they’re doing and where a little help
-            could go a long way.
+            {LANDING_SUBHEADLINE}
           </motion.p>
 
           <motion.div variants={itemVariants} className="pt-1">
@@ -275,19 +279,17 @@ export function IaspAssessmentLanding() {
               variants={itemVariants}
               className={cn(
                 typo.displayL,
-                "max-w-xl text-balance text-foreground text-[56px] leading-17 tracking-[-0.02em]",
+                "max-w-xl text-balance text-foreground text-[clamp(2.25rem,3.2vw,3rem)] leading-[1.12] tracking-[-0.02em]",
               )}
             >
-              Start your quick IAS Assessment
+              {LANDING_HEADLINE}
             </motion.h1>
 
             <motion.p
               variants={itemVariants}
               className={cn(typo.bodyL, "max-w-lg text-pretty")}
             >
-              Just a few simple questions about your loved one. In about
-              3 minutes, you’ll see how they’re doing and where a little help
-              could go a long way.
+              {LANDING_SUBHEADLINE}
             </motion.p>
 
             <motion.div variants={itemVariants} className="pt-1">

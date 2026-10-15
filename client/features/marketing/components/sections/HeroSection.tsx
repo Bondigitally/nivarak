@@ -17,7 +17,6 @@ import {
 import { marketingHeroUnderHeaderClass } from "@/features/marketing/lib/header-layout";
 import { marketingHero } from "@/features/marketing/lib/motion";
 import {
-  btnOutline,
   btnPrimary,
   eyebrow,
   textAccent,
@@ -40,13 +39,17 @@ export function HeroSection() {
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <h1 id="hero-title">
-              Personalized Care for Older Adults to Live{" "} <span className={textAccent}>  Independently, Longer</span>{" "}
-
+              Your Parents Say They’re Fine.{" "}
+              <span className={textAccent}>
+                Understand How They’re Really Doing.
+              </span>
             </h1>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <p className="lede">
-              Nivarak helps older adults stay independent at home with proactive health assessments, personalized care plans, and continuous support, while giving families greater confidence in their loved one’s well-being.
+              Explore our free Independent Ageing Assessment to understand your
+              parents’ health and independence, and where they may need more
+              attention.
             </p>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
@@ -58,12 +61,6 @@ export function HeroSection() {
                 Take free assessment{" "}
                 <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
               </Link>
-              <a
-                className={cn(btnOutline, "min-h-[var(--density-control-h-cta)]")}
-                href="#how"
-              >
-                How It Works
-              </a>
             </div>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
