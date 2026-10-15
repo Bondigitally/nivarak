@@ -22,10 +22,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
      * otherwise produce a hydration mismatch warning.
      */
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body
         className={`${hanken.variable} ${roundedElegance.variable} ${hanken.className} min-h-screen font-sans antialiased`}
       >
-        <GoogleAnalytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
