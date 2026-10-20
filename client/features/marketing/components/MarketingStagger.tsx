@@ -62,26 +62,6 @@ const reducedItemVariants: Variants = {
   show: { opacity: 1, y: 0, filter: "blur(0px)" },
 };
 
-const motionTags = {
-  div: motion.div,
-  span: motion.span,
-  ol: motion.ol,
-  ul: motion.ul,
-  li: motion.li,
-  article: motion.article,
-  section: motion.section,
-  aside: motion.aside,
-} as const;
-
-type MotionTagName = keyof typeof motionTags;
-
-function resolveMotionTag(as: ElementType) {
-  if (typeof as === "string" && as in motionTags) {
-    return motionTags[as as MotionTagName];
-  }
-  return motion.div;
-}
-
 export function MarketingStagger({
   children,
   className,
@@ -92,7 +72,6 @@ export function MarketingStagger({
   mode = "default",
 }: MarketingStaggerProps) {
   const reduceMotion = useReducedMotion();
-  const MotionTag = resolveMotionTag(Tag);
   const isLite = mode === "lite";
   const resolvedStagger =
     stagger ??
@@ -103,33 +82,37 @@ export function MarketingStagger({
     delayChildren ??
     (isLite ? marketingHero.delayChildren : marketingStagger.delayChildren);
 
-  return (
-    <MotionTag
-      className={cn(
-        !reduceMotion && "transform-gpu will-change-[transform,opacity]",
-        className,
-      )}
-      variants={{
-        hidden: {},
-        show: {
-          transition: {
-            staggerChildren: resolvedStagger,
-            delayChildren: resolvedDelay,
-          },
+  const motionProps = {
+    className: cn(
+      !reduceMotion && "transform-gpu will-change-[transform,opacity]",
+      className,
+    ),
+    variants: {
+      hidden: {},
+      show: {
+        transition: {
+          staggerChildren: resolvedStagger,
+          delayChildren: resolvedDelay,
         },
-      }}
-      initial="hidden"
-      animate={eager ? "show" : undefined}
-      whileInView={eager || reduceMotion ? undefined : "show"}
-      viewport={
-        eager || reduceMotion
-          ? undefined
-          : { once: true, margin: marketingReveal.inViewMargin }
-      }
-    >
-      {children}
-    </MotionTag>
-  );
+      },
+    },
+    initial: "hidden" as const,
+    animate: eager ? "show" : undefined,
+    whileInView: eager || reduceMotion ? undefined : "show",
+    viewport:
+      eager || reduceMotion
+        ? undefined
+        : { once: true, margin: marketingReveal.inViewMargin },
+  };
+
+  if (Tag === "ol") return <motion.ol {...motionProps}>{children}</motion.ol>;
+  if (Tag === "ul") return <motion.ul {...motionProps}>{children}</motion.ul>;
+  if (Tag === "li") return <motion.li {...motionProps}>{children}</motion.li>;
+  if (Tag === "article") return <motion.article {...motionProps}>{children}</motion.article>;
+  if (Tag === "section") return <motion.section {...motionProps}>{children}</motion.section>;
+  if (Tag === "span") return <motion.span {...motionProps}>{children}</motion.span>;
+  if (Tag === "aside") return <motion.aside {...motionProps}>{children}</motion.aside>;
+  return <motion.div {...motionProps}>{children}</motion.div>;
 }
 
 /** Direct child of MarketingStagger — keeps element semantics (li, article). */
@@ -145,22 +128,26 @@ export function MarketingStaggerItem({
   mode?: "default" | "lite";
 }) {
   const reduceMotion = useReducedMotion();
-  const MotionTag = resolveMotionTag(Tag);
   const variants = reduceMotion
     ? reducedItemVariants
     : mode === "lite"
       ? liteItemVariants
       : defaultItemVariants;
 
-  return (
-    <MotionTag
-      className={cn(
-        !reduceMotion && "transform-gpu will-change-[transform,opacity]",
-        className,
-      )}
-      variants={variants}
-    >
-      {children}
-    </MotionTag>
-  );
+  const motionProps = {
+    className: cn(
+      !reduceMotion && "transform-gpu will-change-[transform,opacity]",
+      className,
+    ),
+    variants,
+  };
+
+  if (Tag === "li") return <motion.li {...motionProps}>{children}</motion.li>;
+  if (Tag === "article") return <motion.article {...motionProps}>{children}</motion.article>;
+  if (Tag === "ol") return <motion.ol {...motionProps}>{children}</motion.ol>;
+  if (Tag === "ul") return <motion.ul {...motionProps}>{children}</motion.ul>;
+  if (Tag === "section") return <motion.section {...motionProps}>{children}</motion.section>;
+  if (Tag === "span") return <motion.span {...motionProps}>{children}</motion.span>;
+  if (Tag === "aside") return <motion.aside {...motionProps}>{children}</motion.aside>;
+  return <motion.div {...motionProps}>{children}</motion.div>;
 }
