@@ -28,6 +28,7 @@ import { dashboardRoutes } from './modules/dashboard/dashboard.routes.js';
 import { notificationRoutes } from './modules/notifications/notification.routes.js';
 import { auditRoutes } from './modules/audit/audit.routes.js';
 import { paymentRoutes } from './modules/payments/payment.routes.js';
+import { iaspSessionRoutes } from './modules/iasp-sessions/iasp-session.routes.js';
 
 registerDomainEvents();
 
@@ -115,6 +116,7 @@ api.route('/dashboard', dashboardRoutes);
 api.route('/notifications', notificationRoutes);
 api.route('/audit-logs', auditRoutes);
 api.route('/payments', paymentRoutes);
+api.route('/iasp/sessions', iaspSessionRoutes);
 
 app.route(`/api/${config.apiVersion}`, api);
 

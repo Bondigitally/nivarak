@@ -241,6 +241,34 @@ export function getIaspReviewSections(
   });
 }
 
+/** Per-section independence % for the paid detailed report. */
+export function getIaspSectionBreakdown(
+  answers: Record<string, IaspAnswerId | undefined>,
+) {
+  return IASP_SECTIONS.map((section) => {
+    const scoredQuestions = section.questions.filter(isIaspQuestionScored);
+    let raw = 0;
+    const max = scoredQuestions.length * 2;
+    for (const question of scoredQuestions) {
+      raw += getIaspAnswerPoints(question.id, answers[question.id]);
+    }
+    const percentage = max > 0 ? Math.round((raw / max) * 100) : 0;
+    return {
+      id: section.id,
+      title: section.title,
+      raw,
+      max,
+      percentage,
+      questions: section.questions.map((question) => ({
+        id: question.id,
+        prompt: question.prompt,
+        answer: answers[question.id],
+        scored: isIaspQuestionScored(question),
+      })),
+    };
+  });
+}
+
 export function getSelectedRedFlagOptions(selected: readonly IaspRedFlagId[]) {
   const selectedSet = new Set(selected);
   return IASP_RED_FLAG_OPTIONS.filter((option) => selectedSet.has(option.id));
