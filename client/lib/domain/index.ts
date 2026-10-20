@@ -40,6 +40,21 @@ export type {
   CoordinatorStats,
 } from "./staff";
 
+export type {
+  DoctorStats,
+  DoctorAttentionKind,
+  DoctorAttentionItem,
+  DoctorAssessmentType,
+  DoctorAssessmentStatus,
+  DoctorAssessmentRow,
+  DoctorPatientRow,
+  DoctorVitalMonitorRow,
+  DoctorCarePlanRow,
+  DoctorNoteRow,
+  DoctorAlertRow,
+  DoctorScheduleSlot,
+} from "./doctor";
+
 // Legacy aliases for gradual migration
 export type CareTask = import("./task").Task;
 export type CareTaskGroup = import("./task").TaskGroup;

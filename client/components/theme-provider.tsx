@@ -6,8 +6,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 /**
  * Thin wrapper that forwards all props to `next-themes` ThemeProvider.
  *
- * Lives here so `attribute="class"`, `defaultTheme`, and `enableSystem`
- * are configured once in `layout.tsx` rather than inline at each callsite.
+ * Mounted only in the protected (dashboard) shell — public routes stay light.
  */
 export function ThemeProvider({
   children,

@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { ChevronIcon } from '@/components/shared/ChevronIcon';
 import { cn } from '@/lib/utils';
 import { typo } from '@/lib/tokens/typography';
-import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import {
   COUNTRY_DIAL_CODES,
   COUNTRY_DIAL_CODES_ORDERED,
@@ -143,12 +141,10 @@ export function PhoneField({
                 aria-label="Select country code"
               >
                 <span className="tabular-nums">{country.dialCode}</span>
-                <HugeiconsIcon
-                  icon={ArrowDown01Icon}
-                  size={ICON_SIZE}
-                  strokeWidth={ICON_STROKE}
+                <ChevronIcon
+                  direction="down"
                   className="text-muted-foreground"
-                absoluteStrokeWidth />
+                />
               </button>
             </DropdownMenuTrigger>
 

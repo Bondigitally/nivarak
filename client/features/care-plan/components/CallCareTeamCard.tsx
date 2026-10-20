@@ -5,8 +5,8 @@ import {
   cardTitleClass,
   dashboardCardClass,
 } from "@/features/dashboard/data/dashboard-styles";
-import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
@@ -17,9 +17,9 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
         "flex h-full flex-1 flex-col gap-5 self-stretch p-6",
       )}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-start gap-2.5">
         <span
-          className="inline-flex size-5 shrink-0 items-center justify-center text-destructive"
+          className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center text-destructive"
           aria-hidden
         >
           <HugeiconsIcon
@@ -31,10 +31,12 @@ export function CallCareTeamCard({ triggers }: { triggers: string[] }) {
             className="block size-5"
           />
         </span>
-        <h2 className={cardTitleClass}>
-          When to call care team
-        </h2>
-        <SectionInfoButton info="Warning signs that mean you should contact your care team right away. Use Call Care Team for urgent help." />
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h2 className={cardTitleClass}>When to call care team</h2>
+          <p className={typo.bodyM}>
+            Warning signs that mean you should contact your care team right away.
+          </p>
+        </div>
       </div>
 
       <div className="rounded-md bg-destructive-muted px-4 py-3">

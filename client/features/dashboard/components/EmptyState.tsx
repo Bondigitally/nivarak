@@ -94,6 +94,14 @@ export function SectionTitle({
   className,
 }: {
   children: ReactNode;
+  /**
+   * Optional ⓘ tooltip for genuinely hidden/secondary detail.
+   *
+   * Pattern:
+   * - Full pages: prefer a short description under the title to orient the user.
+   * - Dashboard cards: use descriptions selectively; ⓘ is fine for compact chrome.
+   * - Never use ⓘ as a replacement for a description the user should see up front.
+   */
   info?: string;
   className?: string;
 }) {

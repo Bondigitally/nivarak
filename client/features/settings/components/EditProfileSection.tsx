@@ -4,12 +4,16 @@ import { useEffect, useId, useState, type FormEvent, type ReactNode } from "reac
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ArrowDown01Icon,
   Calendar03Icon,
   UserIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
-import { fieldInputClassName } from "@/components/ui/input";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
+import {
+  fieldInputClassName,
+  fieldSelectTriggerClassName,
+  fieldTextareaClassName,
+} from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -184,21 +188,15 @@ export function EditProfileSection({
                 <button
                   id={`${baseId}-language`}
                   type="button"
-                  className={cn(
-                    fieldInputClassName,
-                    "inline-flex items-center justify-between gap-2 text-left shadow-[0_2px_4px_rgba(17,24,39,0.05)]",
-                  )}
+                  className={fieldSelectTriggerClassName}
                 >
                   <span className={cn(typo.input, "truncate")}>
                     {draft.preferredLanguage}
                   </span>
-                  <HugeiconsIcon
-                    icon={ArrowDown01Icon}
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE}
-                    color="currentColor"
-                    className="size-5 shrink-0 text-muted-foreground"
-                  absoluteStrokeWidth />
+                  <ChevronIcon
+                    direction="down"
+                    className="text-muted-foreground"
+                  />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -251,10 +249,7 @@ export function EditProfileSection({
               onChange={(event) =>
                 updateDraft("residentialAddress", event.target.value)
               }
-              className={cn(
-                fieldInputClassName,
-                "h-auto min-h-11 resize-none py-3 leading-6 shadow-[0_2px_8px_rgba(17,24,39,0.05)]",
-              )}
+              className={cn(fieldTextareaClassName, "resize-none")}
             />
           </Field>
         </div>

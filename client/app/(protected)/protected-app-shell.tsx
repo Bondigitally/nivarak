@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppSidebar } from "@/components/layout/sidebar";
 import {
@@ -40,14 +41,38 @@ function useShellNavBadges(role: UserRole): Record<string, number> {
 }
 
 function RoleAwareSidebar() {
-  const { role } = useUserRole();
+  const { role, isLoading } = useUserRole();
   const navBadges = useShellNavBadges(role);
+  if (isLoading) return null;
   return <AppSidebar role={role} navBadges={navBadges} />;
 }
 
 function RoleAwareContent({ children }: { children: ReactNode }) {
   useSyncTaskGroups();
   return children;
+}
+
+/**
+ * Theme switching is dashboard-only. Clear `html.dark` on leave so public
+ * routes (IASP, auth, legal) never inherit a leftover dark class.
+ */
+function DashboardThemeProvider({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    return () => {
+      document.documentElement.classList.remove("dark");
+    };
+  }, []);
+
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
 }
 
 /**
@@ -65,10 +90,12 @@ export function ProtectedAppShell({
   children: ReactNode;
 }) {
   return (
-    <UserRoleProvider>
-      <AppShell sidebar={<RoleAwareSidebar />} dialogs={dialogs}>
-        <RoleAwareContent>{children}</RoleAwareContent>
-      </AppShell>
-    </UserRoleProvider>
+    <DashboardThemeProvider>
+      <UserRoleProvider>
+        <AppShell sidebar={<RoleAwareSidebar />} dialogs={dialogs}>
+          <RoleAwareContent>{children}</RoleAwareContent>
+        </AppShell>
+      </UserRoleProvider>
+    </DashboardThemeProvider>
   );
 }
