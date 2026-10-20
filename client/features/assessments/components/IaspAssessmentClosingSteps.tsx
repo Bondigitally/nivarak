@@ -481,7 +481,10 @@ export function ResultsStep({
   const reducedMotion = useReducedMotion();
   const [unlockLoading, setUnlockLoading] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionReady, setSessionReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !getStoredIaspSessionId();
+  });
   const rawScore = calculateIaspRawScore(answers);
   const percentage = calculateIaspPercentage(rawScore);
   const band = getIaspBand(percentage);
@@ -495,7 +498,6 @@ export function ResultsStep({
   useEffect(() => {
     const sessionId = getStoredIaspSessionId();
     if (!sessionId) {
-      setSessionReady(true);
       return;
     }
 

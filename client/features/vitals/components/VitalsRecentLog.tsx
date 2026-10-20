@@ -316,6 +316,7 @@ function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
 }
 
 export function VitalsRecentLog() {
+  "use no memo"; // useReactTable returns functions that can't be safely memoized by React Compiler
   const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([
     { id: "datetime", desc: true },
