@@ -22,7 +22,7 @@ import { EmptyState, SectionTitle } from "./EmptyState";
 import type { RiskAxis, RiskStatus } from "../data/home-data";
 import { cssVar } from "@/lib/tokens/colors";
 
-const RADAR_FILL = "#9DD5CD";
+const RADAR_FILL = "#3B82F6";
 
 const chartConfig = {
   score: {
@@ -239,7 +239,7 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <Radar
             dataKey="score"
             fill={RADAR_FILL}
-            fillOpacity={0.55}
+            fillOpacity={0.45}
             stroke="none"
             shape={RoundedRadarShape}
             dot={false}

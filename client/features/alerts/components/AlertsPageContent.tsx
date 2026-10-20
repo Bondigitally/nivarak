@@ -7,6 +7,7 @@ import { AlertsList } from "@/features/alerts/components/AlertsList";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { dashboardPageShellClass } from "@/features/dashboard/data/dashboard-styles";
 import { CoordinatorAlertsView } from "@/features/alerts/views/coordinator";
+import { DoctorAlertsView } from "@/features/alerts/views/doctor";
 import { cn } from "@/lib/utils";
 
 function PatientAlertsView() {
@@ -28,6 +29,10 @@ export function AlertsPageContent() {
 
   if (role === "coordinator" || role === "admin") {
     return <CoordinatorAlertsView />;
+  }
+
+  if (role === "doctor") {
+    return <DoctorAlertsView />;
   }
 
   return <PatientAlertsView />;

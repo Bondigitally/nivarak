@@ -6,6 +6,7 @@ export const ROUTE_ROLE_ACCESS: Record<string, UserRole[]> = {
   "/patients": ["coordinator", "admin", "doctor", "nurse"],
   "/schedule": ["coordinator", "admin", "doctor", "nurse"],
   "/staff": ["coordinator", "admin"],
+  "/clinical/notes": ["doctor", "nurse", "admin"],
 };
 
 export function getAllowedRolesForPath(pathname: string): UserRole[] | null {
@@ -15,6 +16,14 @@ export function getAllowedRolesForPath(pathname: string): UserRole[] | null {
 
   if (pathname.startsWith("/patients/")) {
     return ROUTE_ROLE_ACCESS["/patients"];
+  }
+
+  if (pathname.startsWith("/clinical/")) {
+    return ROUTE_ROLE_ACCESS["/clinical/notes"];
+  }
+
+  if (pathname.startsWith("/notifications/")) {
+    return null;
   }
 
   return null;

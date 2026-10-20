@@ -13,14 +13,22 @@ export const dashboardCardClass = `min-w-0 ${radius.lg} bg-card ${cardShadowClas
 export const cardTitleClass = `${typo.headingS} text-[18px] leading-6`;
 
 /**
+ * Centered content column shared by page shells and the top bar.
+ * From `lg` up, capped at `--max-width-dash-page` (1440px) and centered in
+ * `main` — sidebar collapse returns space until that cap is reached.
+ */
+export const dashboardContentWidthClass =
+  "mx-auto w-full min-w-0 px-dash-pad-x lg:max-w-dash-page";
+
+/**
  * Standard page shell under AppPageFrame.
  * Pad-x 24px · section gap 16px.
- * From `lg` up, capped at `--max-width-dash-page` (1320px) and centered in
- * `main` — sidebar collapse returns space until that cap is reached.
  * Do not nest another horizontal page pad inside this shell.
  */
-export const dashboardPageShellClass =
-  "mx-auto flex w-full min-w-0 flex-col gap-dash-gap px-dash-pad-x pt-dash-pad-y pb-5 lg:max-w-dash-page";
+export const dashboardPageShellClass = cn(
+  dashboardContentWidthClass,
+  "flex flex-col gap-dash-gap pt-dash-pad-y pb-5",
+);
 
 /**
  * Standard fluid 4 / 8 / 12 column grid.
@@ -91,7 +99,7 @@ export const dashboardSearchBarPlaceholderClass = "text-placeholder";
 
 /** Vitals summary card grid — shared by VitalsSummaryCards and VitalsPageSkeleton */
 export const vitalsSummaryGridClass =
-  "grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5 xl:gap-3 2xl:gap-4";
+  "grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:gap-4";
 
 export const vitalsCardMetricsRowClass =
-  "mt-4 flex min-w-0 w-full flex-row items-center justify-between gap-2 @max-[15.5rem]:flex-col @max-[15.5rem]:items-start @max-[15.5rem]:gap-0";
+  "flex min-w-0 w-full flex-col items-start gap-0";

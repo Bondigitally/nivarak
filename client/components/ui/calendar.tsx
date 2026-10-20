@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Button as AriaButton,
   Calendar as AriaCalendar,
@@ -27,8 +26,10 @@ import {
   useLocale,
 } from "react-aria-components";
 
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { cn } from "@/lib/utils";
 import { ariaButtonVariants } from "@/components/ui/aria-button";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
 
 const Calendar = AriaCalendar;
 const RangeCalendar = AriaRangeCalendar;
@@ -46,11 +47,10 @@ function CalendarHeading(props: React.HTMLAttributes<HTMLElement>) {
           "data-[hovered]:opacity-100",
         )}
       >
-        {direction === "rtl" ? (
-          <ChevronRight aria-hidden className="size-4" />
-        ) : (
-          <ChevronLeft aria-hidden className="size-4" />
-        )}
+        <ChevronIcon
+          direction={direction === "rtl" ? "right" : "left"}
+          size={BADGE_ICON_SIZE}
+        />
       </AriaButton>
       <AriaHeading className="grow text-center text-sm font-medium" />
       <AriaButton
@@ -61,11 +61,10 @@ function CalendarHeading(props: React.HTMLAttributes<HTMLElement>) {
           "data-[hovered]:opacity-100",
         )}
       >
-        {direction === "rtl" ? (
-          <ChevronLeft aria-hidden className="size-4" />
-        ) : (
-          <ChevronRight aria-hidden className="size-4" />
-        )}
+        <ChevronIcon
+          direction={direction === "rtl" ? "left" : "right"}
+          size={BADGE_ICON_SIZE}
+        />
       </AriaButton>
     </header>
   );

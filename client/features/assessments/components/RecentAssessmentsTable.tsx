@@ -5,21 +5,19 @@ import {
   DataTable,
   DataTableAvatar,
   DataTableIdentity,
-  DataTableLoadMore,
   type DataTableColumn,
-  type DataTableCustomRange,
   type DataTableFilterGroup,
-  type DataTableSortChoice,
 } from "@/components/shared/data-table";
+import { createDateRangeFilterGroup } from "@/components/shared/data-table-date-filter";
 import { TableSearch } from "@/components/shared/table-search";
 import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { AssessmentActionsMenu } from "@/features/assessments/components/AssessmentActionsMenu";
-import { SectionInfoButton } from "@/features/dashboard/components/EmptyState";
 import { cardTitleClass } from "@/features/dashboard/data/dashboard-styles";
 import type {
   AssessmentRow,
   AssessmentStatusType,
 } from "@/features/assessments/data/assessments-data";
+import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 export function assessmentResultClass(statusType: AssessmentStatusType) {
@@ -60,47 +58,6 @@ function rowDateMs(row: AssessmentRow) {
   return Date.parse(row.date);
 }
 
-function startOfDay(ms: number) {
-  const date = new Date(ms);
-  date.setHours(0, 0, 0, 0);
-  return date.getTime();
-}
-
-function matchesDateCompleted(
-  row: AssessmentRow,
-  selected: string[],
-  custom?: DataTableCustomRange,
-) {
-  const preset = selected[0];
-  if (!preset) return true;
-
-  const rowDay = startOfDay(rowDateMs(row));
-  const today = startOfDay(Date.now());
-  const day = 24 * 60 * 60 * 1000;
-
-  if (preset === "custom") {
-    const from = custom?.from ? startOfDay(Date.parse(custom.from)) : null;
-    const to = custom?.to ? startOfDay(Date.parse(custom.to)) : null;
-    if (from != null && !Number.isNaN(from) && rowDay < from) return false;
-    if (to != null && !Number.isNaN(to) && rowDay > to) return false;
-    return true;
-  }
-
-  const lookback =
-    preset === "7d"
-      ? 7 * day
-      : preset === "30d"
-        ? 30 * day
-        : preset === "3m"
-          ? 90 * day
-          : preset === "6m"
-            ? 180 * day
-            : null;
-
-  if (lookback == null) return true;
-  return rowDay >= today - lookback && rowDay <= today;
-}
-
 const FILTER_GROUPS: DataTableFilterGroup<AssessmentRow>[] = [
   {
     id: "assessment",
@@ -121,58 +78,19 @@ const FILTER_GROUPS: DataTableFilterGroup<AssessmentRow>[] = [
     ],
     matches: (row, selected) => selected.includes(riskLevel(row)),
   },
-  {
-    id: "dateCompleted",
-    label: "Date Completed",
-    mode: "single",
-    options: [
-      { value: "7d", label: "Last 7 days" },
-      { value: "30d", label: "Last 30 days" },
-      { value: "3m", label: "Last 3 months" },
-      { value: "6m", label: "Last 6 months" },
-      { value: "custom", label: "Custom" },
-    ],
-    matches: matchesDateCompleted,
-  },
+  createDateRangeFilterGroup<AssessmentRow>({
+    label: "Date completed",
+    getDateMs: rowDateMs,
+  }),
 ];
 
-const SORT_CHOICES: DataTableSortChoice<AssessmentRow>[] = [
-  {
-    id: "date-newest",
-    group: "Date Completed",
-    label: "Newest first",
-    compare: (a, b) => rowDateMs(b) - rowDateMs(a),
-  },
-  {
-    id: "date-oldest",
-    group: "Date Completed",
-    label: "Oldest first",
-    compare: (a, b) => rowDateMs(a) - rowDateMs(b),
-  },
-  {
-    id: "risk-high-low",
-    group: "Risk Level",
-    label: "High to Low",
-    compare: (a, b) => riskRank(b) - riskRank(a) || rowDateMs(b) - rowDateMs(a),
-  },
-  {
-    id: "risk-low-high",
-    group: "Risk Level",
-    label: "Low to High",
-    compare: (a, b) => riskRank(a) - riskRank(b) || rowDateMs(b) - rowDateMs(a),
-  },
-];
-
-export function RecentAssessmentsHeading({ count }: { count: number }) {
+export function RecentAssessmentsHeading() {
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <h2 className={cardTitleClass}>
-        Recent Assessments
-      </h2>
-      <span className={cn(statusBadgeClass, "bg-muted text-primary")}>
-        {count}
-      </span>
-      <SectionInfoButton info="Completed health assessments and their results over time. Open a row to view or download the report." />
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <h2 className={cardTitleClass}>Recent Assessments</h2>
+      <p className={typo.bodyM}>
+        Browse completed assessments and their results over time.
+      </p>
     </div>
   );
 }
@@ -195,6 +113,7 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
       {
         id: "name",
         header: "Assessment",
+        sortValue: (row) => row.name,
         cell: (row) => (
           <DataTableIdentity
             leading={
@@ -210,6 +129,8 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
         id: "result",
         header: "Result",
         className: "w-40",
+        sortValue: (row) => riskRank(row),
+        sortKind: "number",
         cell: (row) => (
           <span className={assessmentResultClass(row.statusType)}>{row.result}</span>
         ),
@@ -219,6 +140,8 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
         header: "Date completed",
         className: "w-44",
         cellClassName: "whitespace-nowrap",
+        sortValue: (row) => rowDateMs(row),
+        sortKind: "date",
         cell: (row) => row.date,
       },
       {
@@ -234,7 +157,7 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
 
   return (
     <DataTable
-      leading={<RecentAssessmentsHeading count={filtered.length} />}
+      leading={<RecentAssessmentsHeading />}
       tools={
         <TableSearch
           value={query}
@@ -247,8 +170,7 @@ export function RecentAssessmentsTable({ data }: { data: AssessmentRow[] }) {
       data={filtered}
       getRowId={(row, index) => `${row.name}-${row.date}-${index}`}
       filterGroups={FILTER_GROUPS}
-      sortChoices={SORT_CHOICES}
-      footer={<DataTableLoadMore />}
+      defaultPageSize={15}
     />
   );
 }

@@ -16,34 +16,56 @@ export function CategoryCard({
   count,
   updated,
   iconSrc,
+  selected = false,
+  onSelect,
 }: {
   label: string;
   count: string;
   updated: string;
   iconSrc: string;
+  selected?: boolean;
+  onSelect?: () => void;
 }) {
   return (
     <button
       type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
       className={cn(
         "group relative isolate overflow-hidden",
         "@container flex min-w-0 w-full flex-col items-start gap-3 bg-card p-5 text-left",
         radius.lg,
         cardShadowClass,
         cardLiftTransitionClass,
-        cardLiftHoverClass,
-        cardLiftActiveClass,
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         "@min-[304px]:flex-row @min-[304px]:items-center @min-[304px]:gap-2 @min-[304px]:p-6",
+        selected
+          ? "border border-primary"
+          : cn(cardLiftHoverClass, cardLiftActiveClass),
       )}
     >
-      <span aria-hidden className={cardLiftHoverWashClass} />
+      {selected ? (
+        <span
+          aria-hidden
+          className={cn(cardLiftHoverWashClass, "opacity-100")}
+        />
+      ) : (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-0 z-0 opacity-0",
+            "bg-linear-to-br from-muted via-muted/40 to-transparent",
+            "motion-safe:transition-opacity motion-safe:duration-220 motion-safe:ease-out",
+            "motion-safe:group-hover:opacity-100",
+          )}
+        />
+      )}
       <div
         className={cn(
           "relative z-1 flex size-12 shrink-0 items-center justify-center border border-border bg-table-header p-2",
           radius.md,
           "motion-safe:transition-transform motion-safe:duration-220 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]",
-          "motion-safe:group-hover:scale-[1.04]",
+          !selected && "motion-safe:group-hover:scale-[1.04]",
         )}
       >
         <div className="relative size-8">
@@ -67,7 +89,9 @@ export function CategoryCard({
             {count}
           </span>
         </div>
-        <p className="w-full font-sans text-sm font-normal leading-5 text-tertiary-foreground">{updated}</p>
+        <p className="w-full font-sans text-sm font-normal leading-5 text-tertiary-foreground">
+          {updated}
+        </p>
       </div>
     </button>
   );
