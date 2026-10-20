@@ -1,0 +1,14 @@
+{
+  "name": "nivarak",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix server run build",
+    "start": "npm --prefix server start",
+    "neon:deploy": "neon deploy",
+    "neon:env:server": "neon env pull --file server/.env --services postgres"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.1",
+    "@neon/env": "^1.6.2"
+  }
+}

@@ -30,17 +30,19 @@ async function main() {
     }
   }
 
-  // Start HTTP server
+  // Start HTTP server (bind to 0.0.0.0 for Railway / cloud deployments)
+  const host = process.env.HOST || '0.0.0.0';
   const server = serve(
     {
       fetch: app.fetch,
       port: config.port,
+      hostname: host,
     },
     (info) => {
-      logger.info(`Server running at http://localhost:${info.port}`);
-      logger.info(`Health:  http://localhost:${info.port}/health`);
-      logger.info(`Ready:   http://localhost:${info.port}/health/ready`);
-      logger.info(`API:     http://localhost:${info.port}/api/${config.apiVersion}/`);
+      logger.info(`Server running at http://${host}:${info.port}`);
+      logger.info(`Health:  http://${host}:${info.port}/health`);
+      logger.info(`Ready:   http://${host}:${info.port}/health/ready`);
+      logger.info(`API:     http://${host}:${info.port}/api/${config.apiVersion}/`);
     }
   );
 

@@ -92,11 +92,23 @@ import {
   type IaspFlowState,
 } from "../data/iasp-assessment-draft";
 import {
+  clearStoredIaspSessionId,
+  ensureIaspSession,
+  syncIaspSession,
+  completeIaspSession,
+} from "../lib/iasp-session-api";
+import {
   RedFlagsStep,
   ResultsStep,
   ReviewStep,
 } from "./IaspAssessmentClosingSteps";
-import { findFirstPageIndexForSection } from "../data/iasp-scoring";
+import {
+  IASP_MAX_SCORE,
+  calculateIaspPercentage,
+  calculateIaspRawScore,
+  findFirstPageIndexForSection,
+} from "../data/iasp-scoring";
+import { toast } from "sonner";
 import {
   iaspAutoSavedBadgeClass,
   iaspCalloutClass,
@@ -428,7 +440,7 @@ function IntroStep({
         )}
       >
         <Button type="button" size="cta" className="w-full" onClick={onStart}>
-          Start Free Assessment
+          Start Assessment
           <AppIcon icon={ArrowRight02Icon} />
         </Button>
         {onPreviewResults ? (
@@ -836,13 +848,15 @@ function AnswerOptionCard({
   shortcutKey: number;
   compact?: boolean;
 }) {
+  const hasDescription = Boolean(option.description);
+
   return (
     <label
       className={cn(
         iaspOptionCardClass,
-        compact
-          ? "min-h-16 items-center gap-3 p-3"
-          : "min-h-18 items-center gap-3 p-4",
+        "items-start gap-3",
+        "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2",
+        compact ? "min-h-14 p-3" : "min-h-16 p-4",
         selected && ANSWER_SELECTED_CLASS[option.id],
       )}
     >
@@ -858,7 +872,7 @@ function AnswerOptionCard({
         data-radio
         className={cn(
           radius.full,
-          "relative flex size-5 shrink-0 items-center justify-center border border-border",
+          "relative mt-0.5 flex size-5 shrink-0 items-center justify-center border border-border",
         )}
         aria-hidden
       >
@@ -881,25 +895,23 @@ function AnswerOptionCard({
         >
           {option.label}
         </span>
-        <span
-          className={cn(
-            compact ? typo.caption : typo.bodyS,
-            "text-muted-foreground",
-            !option.description && "invisible",
-          )}
-        >
-          {option.description || "\u00A0"}
-        </span>
+        {hasDescription ? (
+          <span
+            className={cn(
+              compact ? typo.caption : typo.bodyS,
+              "text-muted-foreground",
+            )}
+          >
+            {option.description}
+          </span>
+        ) : null}
       </span>
-      <span className={iaspKeyHintClass}>Press {shortcutKey}</span>
+      <span className={cn(iaspKeyHintClass, "mt-0.5")}>
+        Press {shortcutKey}
+      </span>
     </label>
   );
 }
-
-/** Number of visible option slots per question.
- *  Invisible spacer divs fill unused slots to keep card heights stable
- *  when a question has fewer than 3 choices — prevents layout jump on auto-advance. */
-const IASP_OPTION_SLOT_COUNT = 3;
 
 function QuestionOptions({
   question,
@@ -913,13 +925,12 @@ function QuestionOptions({
   compact?: boolean;
 }) {
   const options = getIaspQuestionOptions(question);
-  const spacerCount = Math.max(0, IASP_OPTION_SLOT_COUNT - options.length);
 
   return (
     <div
       role="radiogroup"
       aria-label={question.prompt}
-      className="flex w-full min-w-0 flex-col items-stretch gap-3"
+      className="flex w-full min-w-0 flex-col items-stretch gap-2.5"
     >
       {options.map((option, index) => (
         <AnswerOptionCard
@@ -930,16 +941,6 @@ function QuestionOptions({
           onSelect={(id) => onChange(question.id, id)}
           shortcutKey={index + 1}
           compact={compact}
-        />
-      ))}
-      {Array.from({ length: spacerCount }, (_, index) => (
-        <div
-          key={`option-spacer-${index}`}
-          aria-hidden
-          className={cn(
-            "pointer-events-none invisible",
-            compact ? "min-h-16" : "min-h-18",
-          )}
         />
       ))}
     </div>
@@ -1247,7 +1248,7 @@ function QuestionsStep({
         ref={bodyRef}
         className={cn(
           iaspModalScrollBodyClass,
-          "w-full min-w-0 gap-0 p-0 sm:gap-0 sm:overflow-y-hidden",
+          "w-full min-w-0 gap-0 overflow-x-hidden p-0 sm:gap-0",
         )}
       >
         <AnimatePresence mode="wait" custom={pageDirection} initial={false}>
@@ -1341,6 +1342,29 @@ function IaspAssessmentFlow({
     autoAdvance,
   } = state;
 
+  function answersRecord(
+    answers: IaspAnswersMap,
+  ): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const [questionId, answer] of Object.entries(answers)) {
+      if (answer) out[questionId] = answer;
+    }
+    return out;
+  }
+
+  function persistDraft(current: IaspFlowState) {
+    saveIaspDraft(current);
+    void syncIaspSession({
+      aboutYou: current.aboutYou,
+      answers: answersRecord(current.answers),
+      redFlags: [...current.redFlags],
+      flowStep: current.step,
+      pageIndex: current.pageIndex,
+    }).catch(() => {
+      // Draft remains in sessionStorage if the API is unavailable.
+    });
+  }
+
   function handleAnswer(questionId: string, answer: IaspAnswerId) {
     setState((current) => ({
       ...current,
@@ -1370,7 +1394,7 @@ function IaspAssessmentFlow({
     if (pageIndex >= IASP_QUESTION_PAGES.length - 1) {
       setState((current) => {
         if (isLastPageInSection(current.pageIndex)) {
-          saveIaspDraft(current);
+          persistDraft({ ...current, step: "redFlags" });
         }
         return {
           ...current,
@@ -1382,10 +1406,7 @@ function IaspAssessmentFlow({
     }
 
     setState((current) => {
-      if (isLastPageInSection(current.pageIndex)) {
-        saveIaspDraft(current);
-      }
-      return {
+      const next = {
         ...current,
         pageDirection: 1,
         pageIndex: Math.min(
@@ -1393,15 +1414,29 @@ function IaspAssessmentFlow({
           current.pageIndex + 1,
         ),
       };
+      if (isLastPageInSection(current.pageIndex)) {
+        persistDraft(next);
+      }
+      return next;
     });
   }
 
   if (step === "intro") {
     return (
       <IntroStep
-        onStart={() =>
-          setState((current) => ({ ...current, step: "about" }))
-        }
+        onStart={() => {
+          void ensureIaspSession()
+            .then(() => {
+              setState((current) => ({ ...current, step: "about" }));
+            })
+            .catch((error: unknown) => {
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "Could not start assessment session";
+              toast.error(message);
+            });
+        }}
         onPreviewResults={
           isIaspResultsPreviewEnabled()
             ? () => setState(createIaspResultsPreviewState())
@@ -1459,9 +1494,28 @@ function IaspAssessmentFlow({
         onBack={() =>
           setState((current) => ({ ...current, step: "redFlags" }))
         }
-        onSubmit={() =>
-          setState((current) => ({ ...current, step: "results" }))
-        }
+        onSubmit={() => {
+          const rawScore = calculateIaspRawScore(answers);
+          const iasPercentage = calculateIaspPercentage(rawScore);
+          void completeIaspSession({
+            aboutYou,
+            answers: answersRecord(answers),
+            redFlags: [...redFlags],
+            rawScore,
+            maxScore: IASP_MAX_SCORE,
+            iasPercentage,
+          })
+            .then(() => {
+              setState((current) => ({ ...current, step: "results" }));
+            })
+            .catch((error: unknown) => {
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "Could not submit assessment";
+              toast.error(message);
+            });
+        }}
         onEditSection={(sectionId) =>
           setState((current) => ({
             ...current,
@@ -1475,7 +1529,13 @@ function IaspAssessmentFlow({
   }
 
   if (step === "results") {
-    return <ResultsStep answers={answers} onRetake={onReset} />;
+    return (
+      <ResultsStep
+        answers={answers}
+        redFlags={redFlags}
+        onRetake={onReset}
+      />
+    );
   }
 
   return (
@@ -1511,12 +1571,14 @@ export function IaspAssessmentModal({
 
   function resetFlow() {
     clearIaspDraft();
+    clearStoredIaspSessionId();
     setFlowState(INITIAL_IASP_FLOW_STATE);
   }
 
   function closeAssessment() {
     if (flowState.step === "results") {
       clearIaspDraft();
+      // Keep session id so a later visit can still see unlock status after pay.
       setFlowState(INITIAL_IASP_FLOW_STATE);
       onOpenChange(false);
       return;
@@ -1524,6 +1586,17 @@ export function IaspAssessmentModal({
 
     if (hasIaspProgress(flowState)) {
       saveIaspDraft(flowState);
+      const syncedAnswers: Record<string, string> = {};
+      for (const [questionId, answer] of Object.entries(flowState.answers)) {
+        if (answer) syncedAnswers[questionId] = answer;
+      }
+      void syncIaspSession({
+        aboutYou: flowState.aboutYou,
+        answers: syncedAnswers,
+        redFlags: [...flowState.redFlags],
+        flowStep: flowState.step,
+        pageIndex: flowState.pageIndex,
+      }).catch(() => {});
     } else {
       clearIaspDraft();
       setFlowState(INITIAL_IASP_FLOW_STATE);

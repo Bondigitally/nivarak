@@ -4,6 +4,7 @@ import { config } from '../config/index.js';
 import { logger } from '../shared/logger.js';
 import * as schema from './schema/index.js';
 
+/** Long-running Node API: pooled Neon `DATABASE_URL` + postgres.js (see neon-postgres skill). */
 const queryClient = postgres(config.db.url, {
   max: 20,
   idle_timeout: 20,

@@ -5,6 +5,13 @@ type IaspReportOrder = {
   amount: number;
   currency: string;
   keyId: string;
+  sessionId: string;
+};
+
+type RazorpayPaymentSuccess = {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 };
 
 type RazorpayCheckoutInstance = {
@@ -18,7 +25,7 @@ type RazorpayCheckoutOptions = {
   order_id: string;
   name: string;
   description: string;
-  handler: () => void;
+  handler: (response: RazorpayPaymentSuccess) => void;
   modal: {
     ondismiss: () => void;
   };
@@ -79,14 +86,14 @@ function loadRazorpayScript(): Promise<void> {
  *
  * Flow:
  *  1. Load the Razorpay SDK (cached after first call).
- *  2. POST to the backend to create an order — amount, currency, and keyId
- *     come from the server so they are never hardcoded client-side.
- *  3. Open the checkout modal. Resolves on payment success; rejects on dismiss.
+ *  2. POST to the backend to create an order for this guest session.
+ *  3. Open checkout; on success, verify the payment signature on the server.
+ *  4. Resolve only after the session is unlocked server-side.
  *
  * Callers should swallow "Payment cancelled" rejections (expected user action)
  * and surface all other errors as toast messages.
  */
-export async function openIaspReportCheckout(): Promise<void> {
+export async function openIaspReportCheckout(sessionId: string): Promise<void> {
   await loadRazorpayScript();
 
   if (!window.Razorpay) {
@@ -95,10 +102,17 @@ export async function openIaspReportCheckout(): Promise<void> {
 
   const order = await apiFetch<IaspReportOrder>(
     "/payments/razorpay/iasp-report-order",
-    { method: "POST" },
+    {
+      method: "POST",
+      body: JSON.stringify({ sessionId }),
+    },
   );
 
   return new Promise((resolve, reject) => {
+    // Razorpay often fires `ondismiss` after a successful payment when the
+    // checkout modal closes. Ignore dismiss once payment handling has started.
+    let paymentStarted = false;
+
     const checkout = new window.Razorpay!({
       key: order.keyId,
       amount: order.amount,
@@ -106,9 +120,31 @@ export async function openIaspReportCheckout(): Promise<void> {
       order_id: order.orderId,
       name: "Nivarak",
       description: "IAS Detailed Report",
-      handler: () => resolve(),
+      handler: (response) => {
+        paymentStarted = true;
+        void apiFetch("/payments/razorpay/iasp-report-verify", {
+          method: "POST",
+          body: JSON.stringify({
+            sessionId,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          }),
+        })
+          .then(() => resolve())
+          .catch((error: unknown) => {
+            const message =
+              error instanceof Error
+                ? error.message
+                : "Could not verify payment";
+            reject(new Error(message));
+          });
+      },
       modal: {
-        ondismiss: () => reject(new Error("Payment cancelled")),
+        ondismiss: () => {
+          if (paymentStarted) return;
+          reject(new Error("Payment cancelled"));
+        },
       },
     });
 
