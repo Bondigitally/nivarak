@@ -72,13 +72,21 @@ export function RecordsPageContent() {
   );
   const safeMobilePage = Math.min(Math.max(1, mobilePage), mobilePageCount);
 
-  useEffect(() => {
-    setMobilePage(1);
-  }, [activeCategory, query, mobilePageSize]);
-
-  useEffect(() => {
-    if (mobilePage !== safeMobilePage) setMobilePage(safeMobilePage);
-  }, [mobilePage, safeMobilePage]);
+  const [prevCategory, setPrevCategory] = useState(activeCategory);
+  const [prevQuery, setPrevQuery] = useState(query);
+  const [prevMobilePageSize, setPrevMobilePageSize] = useState(mobilePageSize);
+  if (
+    prevCategory !== activeCategory ||
+    prevQuery !== query ||
+    prevMobilePageSize !== mobilePageSize
+  ) {
+    setPrevCategory(activeCategory);
+    setPrevQuery(query);
+    setPrevMobilePageSize(mobilePageSize);
+    if (mobilePage !== 1) setMobilePage(1);
+  } else if (mobilePage !== safeMobilePage) {
+    setMobilePage(safeMobilePage);
+  }
 
   const pagedMobileDocuments = useMemo(() => {
     const start = (safeMobilePage - 1) * mobilePageSize;

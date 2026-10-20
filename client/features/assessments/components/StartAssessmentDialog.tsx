@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Cancel01Icon, Search01Icon } from "@hugeicons/core-free-icons";
@@ -54,10 +54,13 @@ export function StartAssessmentDialog({
   const patients = useMemo(() => getDoctorPatients(), []);
   const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    if (!open) return;
-    setQuery("");
-  }, [open]);
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (open) {
+      setQuery("");
+    }
+  }
 
   const results = useMemo(() => {
     return patients.filter((p) => matchesPatient(p, query)).slice(0, 8);
@@ -127,6 +130,7 @@ export function StartAssessmentDialog({
                   aria-label="Search by patient name or ID"
                   aria-autocomplete="list"
                   aria-controls="cga-patient-results"
+                  role="combobox"
                   aria-expanded={showResults}
                   className={cn(
                     fieldInputClassName,

@@ -5,7 +5,7 @@
  * Layout mirrors the Figma vital KPI card; styling uses shared design-system tokens.
  */
 
-import { useCallback, useEffect, useRef, useState, createElement } from "react";
+import { useCallback, useRef, useState, createElement } from "react";
 import type { PointerEvent } from "react";
 import {
   ArrowDown02Icon,
@@ -235,10 +235,12 @@ function OverviewSparkline({
   const [endpointVisible, setEndpointVisible] = useState(!shouldAnimate);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  useEffect(() => {
+  const [prevResetKey, setPrevResetKey] = useState({ id, shouldAnimate });
+  if (prevResetKey.id !== id || prevResetKey.shouldAnimate !== shouldAnimate) {
+    setPrevResetKey({ id, shouldAnimate });
     setEndpointVisible(!shouldAnimate);
     setActiveIndex(null);
-  }, [id, shouldAnimate]);
+  }
 
   const resolveIndex = useCallback(
     (clientX: number) => {

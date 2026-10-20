@@ -1242,22 +1242,16 @@ function GenericSectionForm({
 export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
   const router = useRouter();
   const patient = getDoctorPatientById(patientId);
-  const [draft, setDraft] = useState<CgaDraftState>(() =>
-    createEmptyCgaDraft(patientId),
-  );
-  const [hydrated, setHydrated] = useState(false);
+  const [draft, setDraft] = useState<CgaDraftState>(() => {
+    // Load from localStorage synchronously on the client (safe — this component is "use client")
+    const existing = typeof window !== "undefined" ? loadCgaDraft(patientId) : null;
+    return existing ?? createEmptyCgaDraft(patientId);
+  });
   const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
-    const existing = loadCgaDraft(patientId);
-    setDraft(existing ?? createEmptyCgaDraft(patientId));
-    setHydrated(true);
-  }, [patientId]);
-
-  useEffect(() => {
-    if (!hydrated) return;
     saveCgaDraft(draft);
-  }, [draft, hydrated]);
+  }, [draft]);
 
   const sectionIndex = useMemo(
     () => CGA_SECTIONS.findIndex((s) => s.id === draft.activeSectionId),

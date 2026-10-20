@@ -50,6 +50,7 @@ export function HeroCarousel() {
   const widthRef = useRef(0);
   const indexRef = useRef(0);
 
+  // eslint-disable-next-line react-hooks/no-ref-mutations-in-render
   indexRef.current = index;
 
   const goTo = useCallback((nextIndex: number) => {

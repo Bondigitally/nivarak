@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   DataTable,
@@ -82,13 +82,15 @@ export function ActionPlanCard({ actions }: { actions: CarePlanAction[] }) {
   const pageCount = Math.max(1, Math.ceil(actions.length / pageSize) || 1);
   const safePage = Math.min(Math.max(1, page), pageCount);
 
-  useEffect(() => {
-    setPage(1);
-  }, [actions, pageSize]);
-
-  useEffect(() => {
-    if (page !== safePage) setPage(safePage);
-  }, [page, safePage]);
+  const [prevActions, setPrevActions] = useState(actions);
+  const [prevPageSize, setPrevPageSize] = useState(pageSize);
+  if (prevActions !== actions || prevPageSize !== pageSize) {
+    setPrevActions(actions);
+    setPrevPageSize(pageSize);
+    if (page !== 1) setPage(1);
+  } else if (page !== safePage) {
+    setPage(safePage);
+  }
 
   const pagedActions = useMemo(() => {
     const start = (safePage - 1) * pageSize;

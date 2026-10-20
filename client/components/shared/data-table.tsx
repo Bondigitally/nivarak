@@ -692,15 +692,34 @@ export function DataTable<T>({
   const pageCount = Math.max(1, Math.ceil(visibleRows.length / pageSize) || 1);
   const safePage = Math.min(Math.max(1, page), pageCount);
 
-  useEffect(() => {
-    if (!paginate) return;
-    if (page !== safePage) setPage(safePage);
-  }, [paginate, page, safePage]);
-
-  useEffect(() => {
-    if (!paginate) return;
-    setPage(1);
-  }, [paginate, filters, sort, sortChoiceId, customRange, data, pageSize]);
+  const [prevFilterKey, setPrevFilterKey] = useState({
+    data,
+    pageSize,
+    filters,
+    sort,
+    sortChoiceId,
+    customRange,
+  });
+  if (
+    prevFilterKey.data !== data ||
+    prevFilterKey.pageSize !== pageSize ||
+    prevFilterKey.filters !== filters ||
+    prevFilterKey.sort !== sort ||
+    prevFilterKey.sortChoiceId !== sortChoiceId ||
+    prevFilterKey.customRange !== customRange
+  ) {
+    setPrevFilterKey({
+      data,
+      pageSize,
+      filters,
+      sort,
+      sortChoiceId,
+      customRange,
+    });
+    if (page !== 1) setPage(1);
+  } else if (paginate && page !== safePage) {
+    setPage(safePage);
+  }
 
   const pagedRows = useMemo(() => {
     if (!paginate) return visibleRows;

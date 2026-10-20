@@ -263,8 +263,9 @@ export function AppSidebar({
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {},
   );
-
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     const next: Record<string, boolean> = {};
     for (const section of sections) {
       for (const item of section.items) {
@@ -273,11 +274,10 @@ export function AppSidebar({
         }
       }
     }
-    if (Object.keys(next).length === 0) return;
-    setExpandedGroups((prev) => ({ ...prev, ...next }));
-    // pathname-driven expand only
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, sections]);
+    if (Object.keys(next).length > 0) {
+      setExpandedGroups((prev) => ({ ...prev, ...next }));
+    }
+  }
 
   useEffect(() => {
     if (skipAnimRef.current) {

@@ -316,14 +316,11 @@ export function VitalsTrendCard({
     });
   };
 
-  useEffect(() => {
-    setMountedTabs((prev) => {
-      if (prev.has(activeTab)) return prev;
-      const next = new Set(prev);
-      next.add(activeTab);
-      return next;
-    });
-  }, [activeTab]);
+  if (!mountedTabs.has(activeTab)) {
+    const next = new Set(mountedTabs);
+    next.add(activeTab);
+    setMountedTabs(next);
+  }
 
   return (
     <div className={cn(dashboardCardClass, "flex h-full w-full flex-col items-stretch gap-5 p-5")}>

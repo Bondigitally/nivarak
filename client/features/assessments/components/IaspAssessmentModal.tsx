@@ -1021,14 +1021,14 @@ function QuestionsStep({
     }
   }
 
-  function triggerSaveIndicator() {
+  const triggerSaveIndicator = useCallback(() => {
     clearSaveIndicatorTimer();
     setSaveStatus("saving");
     saveIndicatorTimerRef.current = setTimeout(() => {
       saveIndicatorTimerRef.current = undefined;
       setSaveStatus("saved");
     }, AUTO_SAVE_INDICATOR_MS);
-  }
+  }, []);
 
   const handleSelect = useCallback(
     (questionId: string, answer: IaspAnswerId) => {
@@ -1045,7 +1045,7 @@ function QuestionsStep({
         onNext();
       }, AUTO_ADVANCE_DELAY_MS);
     },
-    [autoAdvance, onAnswer, onNext, pageIndex],
+    [autoAdvance, onAnswer, onNext, pageIndex, triggerSaveIndicator],
   );
 
   const handleNextClick = useCallback(() => {
@@ -1054,7 +1054,7 @@ function QuestionsStep({
       triggerSaveIndicator();
     }
     onNext();
-  }, [onNext, pageIndex]);
+  }, [onNext, pageIndex, triggerSaveIndicator]);
 
   const handlePreviousQuestion = useCallback(() => {
     clearAdvanceTimer();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { TablePaginationBar } from "@/components/shared/data-table";
 import { TableSearch } from "@/components/shared/table-search";
@@ -103,13 +103,15 @@ function PatientAssessmentsView() {
   const pageCount = Math.max(1, Math.ceil(mobileRows.length / pageSize) || 1);
   const safePage = Math.min(Math.max(1, page), pageCount);
 
-  useEffect(() => {
-    setPage(1);
-  }, [mobileQuery, pageSize]);
-
-  useEffect(() => {
-    if (page !== safePage) setPage(safePage);
-  }, [page, safePage]);
+  const [prevMobileQuery, setPrevMobileQuery] = useState(mobileQuery);
+  const [prevPageSize, setPrevPageSize] = useState(pageSize);
+  if (prevMobileQuery !== mobileQuery || prevPageSize !== pageSize) {
+    setPrevMobileQuery(mobileQuery);
+    setPrevPageSize(pageSize);
+    if (page !== 1) setPage(1);
+  } else if (page !== safePage) {
+    setPage(safePage);
+  }
 
   const pagedMobileRows = useMemo(() => {
     const start = (safePage - 1) * pageSize;
