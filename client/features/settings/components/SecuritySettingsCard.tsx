@@ -62,7 +62,7 @@ export function SecuritySettingsCard({
             <Button
               type="button"
               variant="link"
-              className="h-11 shrink-0 self-end px-5 text-destructive hover:text-destructive sm:self-auto"
+              className="shrink-0 self-end px-5 text-destructive hover:text-destructive sm:self-auto"
             >
               Log out
             </Button>

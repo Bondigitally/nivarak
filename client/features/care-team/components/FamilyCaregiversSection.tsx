@@ -110,12 +110,14 @@ export function FamilyCaregiversSection({
         "flex flex-col gap-4 overflow-hidden p-6",
       )}
     >
-      <SectionTitle
-        info="Family members and friends who help with your care. Invite new caregivers or manage existing ones."
-        className="flex-none pr-0 text-foreground"
-      >
-        Family caregivers
-      </SectionTitle>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <SectionTitle className="flex-none pr-0 text-foreground">
+          Family caregivers
+        </SectionTitle>
+        <p className={typo.bodyM}>
+          Family and friends who help with your care.
+        </p>
+      </div>
       <div className={dashboardTwoColGridClass}>
         {caregivers.map((caregiver) => (
           <FamilyCaregiverCard key={caregiver.id} caregiver={caregiver} />

@@ -8,8 +8,6 @@
  * TanStack Table (`useReactTable`) is used on the mobile path because mobile
  * needs programmatic date-sort state that mirrors the desktop column sorts,
  * while desktop delegates sorting entirely to the `DataTable` toolbar.
- *
- * "Load more" buttons are UI stubs — no pagination is wired yet (mock data only).
  */
 
 import {
@@ -19,16 +17,16 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
-import { AppIcon } from "@/components/shared/AppIcon";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import {
   DataTable,
   DataTableAvatar,
   DataTableIdentity,
-  DataTableLoadMore,
+  TablePaginationBar,
   type DataTableColumn,
 } from "@/components/shared/data-table";
+import { createDateRangeFilterGroup } from "@/components/shared/data-table-date-filter";
 import { TableSearch } from "@/components/shared/table-search";
 import { Button } from "@/components/ui/button";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
@@ -36,6 +34,8 @@ import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+
+const PAGE_SIZES = [10, 15, 25, 50];
 
 interface Recorder {
   initials: string;
@@ -55,74 +55,146 @@ interface VitalLogRow {
   recorder: Recorder;
 }
 
-const LOG_DATA: VitalLogRow[] = [
-  {
-    id: "r1",
-    date: "May 24, 2024",
-    time: "09:15 AM",
-    bp: "118/78",
-    spo2: "99%",
-    temp: "98.4°F",
-    weight: "78.5 kg",
-    heartRate: "72 bpm",
-    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-primary/10 text-primary" },
-  },
-  {
-    id: "r2",
-    date: "May 23, 2024",
-    time: "08:00 PM",
-    bp: "122/82",
-    spo2: "98%",
-    temp: "98.6°F",
-    weight: "78.7 kg",
-    heartRate: "78 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
-  },
-  {
-    id: "r3",
-    date: "May 23, 2024",
-    time: "08:00 PM",
-    bp: "122/82",
-    spo2: "98%",
-    temp: "98.6°F",
-    weight: "78.7 kg",
-    heartRate: "82 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
-  },
-  {
-    id: "r4",
-    date: "May 23, 2024",
-    time: "08:00 PM",
-    bp: "122/82",
-    spo2: "98%",
-    temp: "98.6°F",
-    weight: "78.7 kg",
-    heartRate: "76 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
-  },
-  {
-    id: "r5",
-    date: "May 23, 2024",
-    time: "08:00 PM",
-    bp: "122/82",
-    spo2: "98%",
-    temp: "98.6°F",
-    weight: "78.7 kg",
-    heartRate: "72 bpm",
-    recorder: { initials: "RP", name: "Dr. Rahul P.", avatarClass: "bg-info-muted text-info" },
-  },
-  {
-    id: "r6",
-    date: "May 23, 2024",
-    time: "10:30 AM",
-    bp: "120/80",
-    spo2: "98%",
-    temp: "98.8°F",
-    weight: "78.8 kg",
-    heartRate: "78 bpm",
-    recorder: { initials: "NS", name: "Nurse Sneha", avatarClass: "bg-primary/10 text-primary" },
-  },
-];
+const LOG_DATA: VitalLogRow[] = (() => {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  const formatDate = (daysAgo: number) => {
+    const date = new Date(now - daysAgo * day);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const base = [
+    {
+      id: "r1",
+      daysAgo: 0,
+      time: "09:15 AM",
+      bp: "118/78",
+      spo2: "99%",
+      temp: "98.4°F",
+      weight: "78.5 kg",
+      heartRate: "72 bpm",
+      recorder: {
+        initials: "NS",
+        name: "Nurse Sneha",
+        avatarClass: "bg-primary/10 text-primary",
+      },
+    },
+    {
+      id: "r2",
+      daysAgo: 1,
+      time: "08:00 PM",
+      bp: "122/82",
+      spo2: "98%",
+      temp: "98.6°F",
+      weight: "78.7 kg",
+      heartRate: "78 bpm",
+      recorder: {
+        initials: "RP",
+        name: "Dr. Rahul P.",
+        avatarClass: "bg-info-muted text-info",
+      },
+    },
+    {
+      id: "r3",
+      daysAgo: 3,
+      time: "08:00 PM",
+      bp: "122/82",
+      spo2: "98%",
+      temp: "98.6°F",
+      weight: "78.7 kg",
+      heartRate: "82 bpm",
+      recorder: {
+        initials: "RP",
+        name: "Dr. Rahul P.",
+        avatarClass: "bg-info-muted text-info",
+      },
+    },
+    {
+      id: "r4",
+      daysAgo: 12,
+      time: "08:00 PM",
+      bp: "122/82",
+      spo2: "98%",
+      temp: "98.6°F",
+      weight: "78.7 kg",
+      heartRate: "76 bpm",
+      recorder: {
+        initials: "RP",
+        name: "Dr. Rahul P.",
+        avatarClass: "bg-info-muted text-info",
+      },
+    },
+    {
+      id: "r5",
+      daysAgo: 28,
+      time: "08:00 PM",
+      bp: "122/82",
+      spo2: "98%",
+      temp: "98.6°F",
+      weight: "78.7 kg",
+      heartRate: "72 bpm",
+      recorder: {
+        initials: "RP",
+        name: "Dr. Rahul P.",
+        avatarClass: "bg-info-muted text-info",
+      },
+    },
+    {
+      id: "r6",
+      daysAgo: 45,
+      time: "10:30 AM",
+      bp: "120/80",
+      spo2: "98%",
+      temp: "98.8°F",
+      weight: "78.8 kg",
+      heartRate: "78 bpm",
+      recorder: {
+        initials: "NS",
+        name: "Nurse Sneha",
+        avatarClass: "bg-primary/10 text-primary",
+      },
+    },
+    {
+      id: "r7",
+      daysAgo: 90,
+      time: "09:00 AM",
+      bp: "119/79",
+      spo2: "99%",
+      temp: "98.5°F",
+      weight: "78.6 kg",
+      heartRate: "74 bpm",
+      recorder: {
+        initials: "NS",
+        name: "Nurse Sneha",
+        avatarClass: "bg-primary/10 text-primary",
+      },
+    },
+    {
+      id: "r8",
+      daysAgo: 180,
+      time: "11:20 AM",
+      bp: "121/80",
+      spo2: "97%",
+      temp: "98.7°F",
+      weight: "79.0 kg",
+      heartRate: "80 bpm",
+      recorder: {
+        initials: "RP",
+        name: "Dr. Rahul P.",
+        avatarClass: "bg-info-muted text-info",
+      },
+    },
+  ] as const;
+
+  return base.map(({ daysAgo, ...row }) => ({
+    ...row,
+    date: formatDate(daysAgo),
+  }));
+})();
 
 const COLUMNS: ColumnDef<VitalLogRow>[] = [
   {
@@ -139,14 +211,17 @@ const COLUMNS: ColumnDef<VitalLogRow>[] = [
   },
 ];
 
-const RECENT_LOG_INFO =
-  "A chronological list of recorded vitals from you and your care team, including who logged each entry.";
+const RECENT_LOG_DESCRIPTION =
+  "Review recorded vitals from you and your care team.";
 
 function RecentLogTitle() {
   return (
-    <SectionTitle info={RECENT_LOG_INFO} className="flex-none pr-0 text-foreground">
-      Recent Log
-    </SectionTitle>
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <SectionTitle className="flex-none pr-0 text-foreground">
+        Recent Log
+      </SectionTitle>
+      <p className={typo.bodyM}>{RECENT_LOG_DESCRIPTION}</p>
+    </div>
   );
 }
 
@@ -189,6 +264,7 @@ const TABLE_COLUMNS: DataTableColumn<VitalLogRow>[] = [
     header: "Date & time",
     className: "w-44",
     sortValue: (row) => Date.parse(`${row.date} ${row.time}`),
+    sortKind: "date",
     cell: (row) => <DataTableIdentity title={row.date} subtitle={row.time} />,
   },
   {
@@ -196,7 +272,6 @@ const TABLE_COLUMNS: DataTableColumn<VitalLogRow>[] = [
     header: "Recorder",
     className: "w-52",
     sortValue: (row) => row.recorder.name,
-    filterValue: (row) => row.recorder.name,
     cell: (row) => (
       <DataTableIdentity
         leading={
@@ -255,6 +330,13 @@ const TABLE_COLUMNS: DataTableColumn<VitalLogRow>[] = [
   },
 ];
 
+const FILTER_GROUPS = [
+  createDateRangeFilterGroup<VitalLogRow>({
+    label: "Date recorded",
+    getDateMs: (row) => Date.parse(row.date),
+  }),
+];
+
 function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
   const { initials, name, avatarClass } = row.recorder;
 
@@ -299,7 +381,7 @@ function VitalLogMobileCard({ row }: { row: VitalLogRow }) {
             key={metric.key}
             className={cn(
               "flex items-center justify-between gap-3 px-3 py-2",
-              index > 0 && "border-t border-border",
+              index > 0 && "border-t border-divider",
             )}
           >
             <dt className={cn(typo.caption, "text-muted-foreground")}>
@@ -320,6 +402,8 @@ export function VitalsRecentLog() {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "datetime", desc: true },
   ]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
 
   const filteredData = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -337,6 +421,23 @@ export function VitalsRecentLog() {
     getRowId: (row) => row.id,
   });
 
+  const sortedRows = table.getRowModel().rows;
+  const pageCount = Math.max(1, Math.ceil(sortedRows.length / pageSize) || 1);
+  const safePage = Math.min(Math.max(1, page), pageCount);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, pageSize, sorting]);
+
+  useEffect(() => {
+    if (page !== safePage) setPage(safePage);
+  }, [page, safePage]);
+
+  const pagedRows = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return sortedRows.slice(start, start + pageSize);
+  }, [pageSize, safePage, sortedRows]);
+
   const dateSorted = table.getColumn("datetime")?.getIsSorted() ?? false;
   const sortLabel =
     dateSorted === "asc" ? "Oldest" : dateSorted === "desc" ? "Newest" : "Date";
@@ -350,6 +451,22 @@ export function VitalsRecentLog() {
     />
   );
 
+  const pagination = sortedRows.length > 0 ? (
+    <div className="rounded-lg border border-border bg-card py-3 lg:border-0 lg:bg-transparent lg:py-0">
+      <TablePaginationBar
+        total={sortedRows.length}
+        page={safePage}
+        pageSize={pageSize}
+        pageSizes={PAGE_SIZES}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
+      />
+    </div>
+  ) : null;
+
   return (
     <div className="flex w-full flex-col self-stretch">
       <section className="flex w-full flex-col gap-3 lg:hidden">
@@ -359,12 +476,13 @@ export function VitalsRecentLog() {
             <Button
               type="button"
               variant="secondary"
-              className="h-9 shrink-0 px-3"
+              size="sm"
+              className="shrink-0 border border-border bg-transparent px-3 hover:bg-accent"
               aria-label={`Sort by date, ${sortLabel}`}
               onClick={() => table.getColumn("datetime")?.toggleSorting()}
             >
-              <AppIcon
-                icon={ArrowDown01Icon}
+              <ChevronIcon
+                direction="down"
                 className={cn(
                   "transition-transform",
                   dateSorted === "asc" && "rotate-180",
@@ -377,16 +495,14 @@ export function VitalsRecentLog() {
         </div>
 
         <ul className="flex flex-col gap-3">
-          {table.getRowModel().rows.map((row) => (
+          {pagedRows.map((row) => (
             <li key={row.id}>
               <VitalLogMobileCard row={row.original} />
             </li>
           ))}
         </ul>
 
-        <Button type="button" variant="secondary" className="w-full">
-          Load more
-        </Button>
+        {pagination}
       </section>
 
       <div className="hidden w-full lg:block">
@@ -396,7 +512,8 @@ export function VitalsRecentLog() {
           columns={TABLE_COLUMNS}
           data={filteredData}
           getRowId={(row) => row.id}
-          footer={<DataTableLoadMore />}
+          filterGroups={FILTER_GROUPS}
+          defaultPageSize={15}
         />
       </div>
     </div>

@@ -49,32 +49,22 @@ export const vitalIconGradient = {
   bp: {
     from: chartHex.bpSystolic,
     to: "#F43F5E",
-    glowFrom: "#FCA5A5",
-    glowTo: "#FDA4AF",
   },
   heartRate: {
     from: "#5A67D8",
     to: chartHex.heartRate,
-    glowFrom: "#A5B4FC",
-    glowTo: "#C7D2FE",
   },
   spo2: {
     from: "#0D9488",
     to: chartHex.spo2,
-    glowFrom: "#6EE7B7",
-    glowTo: "#5EEAD4",
   },
   bloodGlucose: {
     from: chartHex.bpDiastolic,
     to: chartHex.bloodGlucose,
-    glowFrom: "#7DD3FC",
-    glowTo: "#67E8F9",
   },
   temperature: {
     from: chartHex.temperature,
     to: "#F59E0B",
-    glowFrom: "#FDBA74",
-    glowTo: "#FDE68A",
   },
 } as const;
 

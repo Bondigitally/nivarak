@@ -6,8 +6,8 @@ import {
   MedicineSyrupIcon,
 } from "@hugeicons/core-free-icons";
 
-export type TabId = "all" | "recent" | "favorites" | "shared";
 export type DocType = "lab" | "imaging" | "notes" | "medication";
+export type CategoryId = "all" | DocType;
 
 export type DocumentRow = {
   id: string;
@@ -20,16 +20,15 @@ export type DocumentRow = {
   recent?: boolean;
 };
 
-export const TABS: { id: TabId; label: string }[] = [
-  { id: "all", label: "All Files" },
-  { id: "recent", label: "Recent" },
-  { id: "favorites", label: "Favorites" },
-  { id: "shared", label: "Shared" },
-];
+export type DocumentCategory = {
+  id: CategoryId;
+  label: string;
+  updated: string;
+  iconSrc: string;
+};
 
-export const DOCUMENTS: DocumentRow[] = [
+const DOC_SEEDS: Omit<DocumentRow, "id">[] = [
   {
-    id: "d1",
     name: "Comprehensive Blood Panel",
     date: "Oct 24, 2023",
     size: "2.4 MB",
@@ -38,7 +37,6 @@ export const DOCUMENTS: DocumentRow[] = [
     favorite: true,
   },
   {
-    id: "d2",
     name: "MRI Scan - Lumbar Spine",
     date: "Oct 20, 2023",
     size: "18.7 MB",
@@ -47,7 +45,6 @@ export const DOCUMENTS: DocumentRow[] = [
     shared: true,
   },
   {
-    id: "d3",
     name: "Cardiology Consultation Notes",
     date: "Oct 15, 2023",
     size: "1.1 MB",
@@ -57,44 +54,136 @@ export const DOCUMENTS: DocumentRow[] = [
     shared: true,
   },
   {
-    id: "d4",
     name: "Active Medication List",
     date: "Sep 28, 2023",
     size: "0.8 MB",
     type: "medication",
   },
+  {
+    name: "Lipid Profile",
+    date: "Sep 12, 2023",
+    size: "1.6 MB",
+    type: "lab",
+  },
+  {
+    name: "Chest X-Ray",
+    date: "Aug 30, 2023",
+    size: "9.2 MB",
+    type: "imaging",
+  },
+  {
+    name: "Discharge Summary",
+    date: "Aug 18, 2023",
+    size: "0.9 MB",
+    type: "notes",
+  },
+  {
+    name: "Insulin Prescription",
+    date: "Aug 02, 2023",
+    size: "0.4 MB",
+    type: "medication",
+  },
 ];
 
-export const CATEGORIES = [
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+function formatDocDate(date: Date) {
+  const month = MONTHS[date.getMonth()]!;
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${month} ${day}, ${date.getFullYear()}`;
+}
+
+function buildDocuments(total: number): DocumentRow[] {
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  return Array.from({ length: total }, (_, index) => {
+    const seed = DOC_SEEDS[index % DOC_SEEDS.length]!;
+    // Spread across ~18 months so date-range filters have matching rows
+    const daysAgo = Math.floor((index * 3.4) % 540);
+    const date = new Date(now - daysAgo * dayMs);
+    const sizeMb = ((index % 20) + 0.3).toFixed(1);
+
+    return {
+      ...seed,
+      id: `d${index + 1}`,
+      name: index < DOC_SEEDS.length ? seed.name : `${seed.name} #${index + 1}`,
+      date: formatDocDate(date),
+      size: `${sizeMb} MB`,
+      recent: daysAgo <= 14,
+      favorite: index % 7 === 0,
+      shared: index % 5 === 0,
+    };
+  });
+}
+
+export const DOCUMENTS: DocumentRow[] = buildDocuments(157);
+
+export const CATEGORIES: DocumentCategory[] = [
   {
+    id: "all",
+    label: "All Documents",
+    updated: "Updated 2d ago",
+    iconSrc: "/images/health-records/all-documents.png",
+  },
+  {
+    id: "lab",
     label: "Lab Results",
-    count: "24 files",
     updated: "Updated 2d ago",
     iconSrc: "/images/health-records/lab-results.png",
   },
   {
+    id: "medication",
     label: "Prescriptions",
-    count: "12 files",
     updated: "Updated 1w ago",
     iconSrc: "/images/health-records/prescriptions.png",
   },
   {
+    id: "imaging",
     label: "Imaging",
-    count: "48 files",
     updated: "Updated 1m ago",
     iconSrc: "/images/health-records/imaging.png",
   },
   {
+    id: "notes",
     label: "Other",
-    count: "8 files",
     updated: "Updated 1m ago",
     iconSrc: "/images/health-records/other.png",
   },
 ];
 
-export const DOC_ICON_MAP: Record<DocType, { icon: IconSvgElement; bg: string; color: string }> = {
+export function categoryDocumentCount(categoryId: CategoryId) {
+  if (categoryId === "all") return DOCUMENTS.length;
+  return DOCUMENTS.filter((doc) => doc.type === categoryId).length;
+}
+
+export const DOC_ICON_MAP: Record<
+  DocType,
+  { icon: IconSvgElement; bg: string; color: string }
+> = {
   lab: { icon: ActivityIcon, bg: "bg-info-muted", color: "var(--info)" },
-  imaging: { icon: Image01Icon, bg: "bg-warning-muted", color: "var(--chart-7)" },
+  imaging: {
+    icon: Image01Icon,
+    bg: "bg-warning-muted",
+    color: "var(--chart-7)",
+  },
   notes: { icon: FileEditIcon, bg: "bg-muted", color: "var(--primary)" },
-  medication: { icon: MedicineSyrupIcon, bg: "bg-success-muted", color: "var(--success)" },
+  medication: {
+    icon: MedicineSyrupIcon,
+    bg: "bg-success-muted",
+    color: "var(--success)",
+  },
 };

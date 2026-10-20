@@ -2,8 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
-import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,9 +119,9 @@ export function SegmentedControl<T extends string>({
               )}
             >
               <span className="min-w-0 truncate">{selected?.label}</span>
-              <AppIcon
-                icon={ArrowDown01Icon}
-                className="shrink-0 text-muted-foreground"
+              <ChevronIcon
+                direction="down"
+                className="text-muted-foreground"
               />
             </button>
           </DropdownMenuTrigger>

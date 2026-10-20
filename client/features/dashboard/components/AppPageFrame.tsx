@@ -10,6 +10,7 @@ import { useUserRole } from "@/components/layout/user-role-context";
 import { DashboardIconButton } from "@/components/shared/DashboardIconButton";
 import { NotificationPanel } from "@/features/alerts/components/NotificationPanel";
 import { useNotificationStore } from "@/features/alerts/store/notification-store";
+import { StartAssessmentDialog } from "@/features/assessments/components/StartAssessmentDialog";
 import {
   SearchShortcutHint,
   SpotlightSearch,
@@ -31,13 +32,14 @@ export function AppPageFrame({
   const { openBookVisit } = useSidebar();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [startCgaOpen, setStartCgaOpen] = useState(false);
 
   const patientUnread = useNotificationStore((s) => s.unreadCount());
   const coordinatorUnread = useNotificationStore((s) =>
     s.coordinatorUnreadCount(),
   );
   const unreadCount =
-    role === "coordinator" || role === "admin"
+    role === "coordinator" || role === "admin" || role === "doctor"
       ? coordinatorUnread
       : patientUnread;
 
@@ -72,11 +74,17 @@ export function AppPageFrame({
           icon: frameConfig.primaryAction.icon,
           onClick: onAddPatient,
         }
-      : {
-          label: frameConfig.primaryAction.label,
-          icon: frameConfig.primaryAction.icon,
-          onClick: openBookVisit,
-        };
+      : frameConfig.primaryAction.action === "startCga"
+        ? {
+            label: frameConfig.primaryAction.label,
+            icon: frameConfig.primaryAction.icon,
+            onClick: () => setStartCgaOpen(true),
+          }
+        : {
+            label: frameConfig.primaryAction.label,
+            icon: frameConfig.primaryAction.icon,
+            onClick: openBookVisit,
+          };
 
   return (
     <div className="font-sans">
@@ -95,7 +103,9 @@ export function AppPageFrame({
               }
             : undefined
         }
-        searchHint={<SearchShortcutHint />}
+        searchHint={
+          frameConfig.enableSpotlight ? <SearchShortcutHint /> : undefined
+        }
         primaryAction={primaryAction}
         endSlot={
           <NotificationPanel
@@ -138,9 +148,16 @@ export function AppPageFrame({
             onOpenChange={setOpen}
             query={query}
             onQueryChange={setQuery}
+            placeholder={frameConfig.searchPlaceholder}
           />
         ) : null}
       </AppTopBar>
+      {frameConfig.primaryAction.action === "startCga" ? (
+        <StartAssessmentDialog
+          open={startCgaOpen}
+          onOpenChange={setStartCgaOpen}
+        />
+      ) : null}
       {children}
     </div>
   );

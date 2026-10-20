@@ -12,7 +12,6 @@ import {
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowRight02Icon,
@@ -24,6 +23,7 @@ import {
   SquareLock02Icon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { Button } from "@/components/ui/button";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import {
@@ -47,7 +47,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FieldErrorMessage } from "@/components/ui/field-error-message";
-import { fieldInputClassName } from "@/components/ui/input";
+import {
+  fieldInputClassName,
+  fieldSelectTriggerClassName,
+} from "@/components/ui/input";
 import { typo } from "@/lib/tokens/typography";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { radius } from "@/lib/tokens/radius";
@@ -511,10 +514,7 @@ function SelectField({
           <button
             id={id}
             type="button"
-            className={cn(
-              fieldInputClassName,
-              "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
-            )}
+            className={fieldSelectTriggerClassName}
           >
             <span
               className={cn(
@@ -525,9 +525,9 @@ function SelectField({
             >
               {value ?? placeholder}
             </span>
-            <AppIcon
-              icon={ArrowDown01Icon}
-              className="shrink-0 text-muted-foreground"
+            <ChevronIcon
+              direction="down"
+              className="text-muted-foreground"
             />
           </button>
         </DropdownMenuTrigger>
@@ -609,10 +609,7 @@ function LivingSituationField({
           <button
             id={id}
             type="button"
-            className={cn(
-              fieldInputClassName,
-              "flex h-12 items-center justify-between gap-3 text-left shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
-            )}
+            className={fieldSelectTriggerClassName}
           >
             <span
               className={cn(
@@ -623,9 +620,9 @@ function LivingSituationField({
             >
               {display ?? "Select situation"}
             </span>
-            <AppIcon
-              icon={ArrowDown01Icon}
-              className="shrink-0 text-muted-foreground"
+            <ChevronIcon
+              direction="down"
+              className="text-muted-foreground"
             />
           </button>
         </DropdownMenuTrigger>
@@ -681,7 +678,6 @@ function LivingSituationField({
           }
           className={cn(
             fieldInputClassName,
-            "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
           )}
         />
       ) : null}
@@ -764,7 +760,6 @@ function AboutYouStep({
               }
               className={cn(
                 fieldInputClassName,
-                "h-12 shadow-[0_1px_1px_rgba(17,24,39,0.04)]",
                 showAgeError &&
                   "border-destructive focus-visible:ring-destructive/30",
               )}
@@ -809,6 +804,7 @@ function AboutYouStep({
           </Button>
           <Button
             type="button"
+            size="cta"
             disabled={!complete}
             onClick={onContinue}
             className="min-w-35"
@@ -1026,14 +1022,14 @@ function QuestionsStep({
     }
   }
 
-  function triggerSaveIndicator() {
+  const triggerSaveIndicator = useCallback(() => {
     clearSaveIndicatorTimer();
     setSaveStatus("saving");
     saveIndicatorTimerRef.current = setTimeout(() => {
       saveIndicatorTimerRef.current = undefined;
       setSaveStatus("saved");
     }, AUTO_SAVE_INDICATOR_MS);
-  }
+  }, []);
 
   const handleSelect = useCallback(
     (questionId: string, answer: IaspAnswerId) => {
@@ -1050,7 +1046,7 @@ function QuestionsStep({
         onNext();
       }, AUTO_ADVANCE_DELAY_MS);
     },
-    [autoAdvance, onAnswer, onNext, pageIndex],
+    [autoAdvance, onAnswer, onNext, pageIndex, triggerSaveIndicator],
   );
 
   const handleNextClick = useCallback(() => {
@@ -1059,7 +1055,7 @@ function QuestionsStep({
       triggerSaveIndicator();
     }
     onNext();
-  }, [onNext, pageIndex]);
+  }, [onNext, pageIndex, triggerSaveIndicator]);
 
   const handlePreviousQuestion = useCallback(() => {
     clearAdvanceTimer();
@@ -1183,7 +1179,7 @@ function QuestionsStep({
             </p>
           </div>
           <IaspProgressBar value={progressPct} label="Assessment progress" />
-          <div aria-hidden className="border-t border-border" />
+          <div aria-hidden className="border-t border-divider" />
           <div className="flex flex-col items-start gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-3 sm:gap-y-0">
             <p
               className={cn(
@@ -1312,6 +1308,7 @@ function QuestionsStep({
             <IaspAutoSavedBadge status={saveStatus} />
             <Button
               type="button"
+              size="cta"
               disabled={!pageComplete}
               onClick={handleNextClick}
               className="min-w-28 shrink-0"

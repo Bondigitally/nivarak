@@ -3,12 +3,12 @@
 import { useState, type ReactNode } from "react";
 import { LayoutGroup } from "framer-motion";
 import {
-  ArrowDown01Icon,
   BellRingIcon,
   TaskDaily01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { cardTitleClass, dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
@@ -88,8 +88,8 @@ function TasksSectionCollapsible({
             {label} ({count})
           </span>
         </span>
-        <AppIcon
-          icon={ArrowDown01Icon}
+        <ChevronIcon
+          direction="down"
           className={cn(
             "text-muted-foreground transition-transform duration-200",
             expanded && "rotate-180",

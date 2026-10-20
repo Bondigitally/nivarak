@@ -144,7 +144,8 @@ export function AppointmentRow({
           <Button
             type="button"
             variant="primary-outline"
-            className="h-9 shrink-0 px-4"
+            size="sm"
+            className="shrink-0 px-4"
             onClick={() => onDetailsClick(appointment)}
           >
             Details

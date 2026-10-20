@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
@@ -336,6 +337,34 @@ export function AppointmentDetailsDrawer({
                       {appointment.reason}
                     </p>
                   </DetailField>
+
+                  {appointment.patientId ? (
+                    <DetailField
+                      label="Patient"
+                      icon={
+                        <IconChip>
+                          <HugeiconsIcon
+                            icon={Stethoscope02Icon}
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE}
+                            color="currentColor"
+                            absoluteStrokeWidth
+                          />
+                        </IconChip>
+                      }
+                    >
+                      <div className="flex flex-col items-start gap-2">
+                        <p className={cn(typo.bodyL, "text-foreground")}>
+                          {appointment.patientName ?? "Patient chart"}
+                        </p>
+                        <Button asChild variant="primary-outline" size="sm">
+                          <Link href={`/patients/${appointment.patientId}/vitals`}>
+                            Open patient chart
+                          </Link>
+                        </Button>
+                      </div>
+                    </DetailField>
+                  ) : null}
                 </div>
 
                 {appointment.showMap ? (
@@ -431,6 +460,7 @@ export function AppointmentDetailsDrawer({
             <Button
               type="button"
               variant="secondary"
+              size="cta"
               className="w-full sm:w-auto"
               onClick={() => setConfirmCancelOpen(false)}
             >
@@ -439,6 +469,7 @@ export function AppointmentDetailsDrawer({
             <Button
               type="button"
               variant="destructive"
+              size="cta"
               className="w-full sm:w-auto"
               onClick={handleConfirmCancel}
             >
