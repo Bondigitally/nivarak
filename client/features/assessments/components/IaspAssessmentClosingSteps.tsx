@@ -24,6 +24,12 @@ import { Button } from "@/components/ui/button";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { openIaspReportCheckout } from "@/features/assessments/lib/razorpay-checkout";
 import {
+  fetchIaspSession,
+  getStoredIaspSessionId,
+} from "@/features/assessments/lib/iasp-session-api";
+import { getIaspDetailedReportPath } from "@/features/assessments/lib/iasp-report-url";
+
+import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -467,27 +473,74 @@ export function ResultsStep({
   onRetake,
 }: {
   answers: IaspAnswersMap;
+  redFlags: readonly IaspRedFlagId[];
   onRetake: () => void;
 }) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const [unlockLoading, setUnlockLoading] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [sessionReady, setSessionReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return getStoredIaspSessionId() == null;
+  });
   const rawScore = calculateIaspRawScore(answers);
   const percentage = calculateIaspPercentage(rawScore);
   const band = getIaspBand(percentage);
   const assessmentDate = formatIaspAssessmentDate();
 
+  /** Same-tab navigation — never blocked by pop-up filters. */
+  function goToDetailedReportPdf(sessionId: string) {
+    window.location.assign(getIaspDetailedReportPath(sessionId));
+  }
+
+  useEffect(() => {
+    const sessionId = getStoredIaspSessionId();
+    if (!sessionId) return;
+
+    let cancelled = false;
+    void fetchIaspSession(sessionId)
+      .then((session) => {
+        if (!cancelled && session.unlocked) {
+          setUnlocked(true);
+        }
+      })
+      .catch(() => {
+        // Keep paywall if session lookup fails.
+      })
+      .finally(() => {
+        if (!cancelled) setSessionReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   /**
-   * "Payment cancelled" is swallowed silently — the user deliberately
-   * dismissed the checkout modal, which is an expected action.
-   * All other errors (network failure, API error, etc.) are surfaced as
-   * a toast so the user knows something went wrong.
+   * Flow: Unlock Detailed Report → Razorpay → on success navigate this page
+   * to the PDF viewer (same tab, no pop-up).
+   *
+   * "Payment cancelled" is swallowed silently — expected user dismiss.
    */
   async function handleUnlockReport() {
+    const sessionId = getStoredIaspSessionId();
+    if (!sessionId) {
+      toast.error("Assessment session not found. Please retake the assessment.");
+      return;
+    }
+
     setUnlockLoading(true);
+
     try {
-      await openIaspReportCheckout();
-      toast.success("Payment successful. Your detailed report will be unlocked shortly.");
+      await openIaspReportCheckout(sessionId);
+      const session = await fetchIaspSession(sessionId).catch(() => null);
+      if (!session || session.unlocked === false) {
+        throw new Error("Payment succeeded but report unlock is still pending.");
+      }
+
+      toast.success("Payment successful. Opening your detailed report…");
+      goToDetailedReportPdf(sessionId);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not open payment";
@@ -552,63 +605,109 @@ export function ResultsStep({
           </p>
         </motion.div>
 
-        <div className={cn(iaspPanelCardClass, "relative w-full shrink-0 overflow-hidden")}>
-          {/* Blurred skeleton preview — paywall UX affordance to show the
-              shape of the detailed report without revealing real data.
-              Replace with actual section breakdown once unlocked. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 space-y-4 p-6 opacity-40 blur-[2px]"
+        {unlocked ? (
+          <motion.div
+            className={cn(
+              iaspPanelCardClass,
+              "flex w-full flex-col items-center gap-3 p-6 text-center",
+            )}
+            initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: iaspMotionEase }}
           >
-            <div className={cn(radius.sm, "h-6 w-44 bg-border")} />
-            <div className="mt-4 space-y-3">
-              <div className="flex justify-between gap-4">
-                <div className={cn(radius.sm, "h-4 w-32 bg-border")} />
-                <div className={cn(radius.sm, "h-4 w-11 bg-border")} />
-              </div>
-              <div className={cn(iaspProgressTrackClass, "bg-primary/15")}>
-                <div className={cn(iaspProgressFillClass, "w-4/5")} />
-              </div>
-              <div className="flex justify-between gap-4">
-                <div className={cn(radius.sm, "h-4 w-44 bg-border")} />
-                <div className={cn(radius.sm, "h-4 w-11 bg-border")} />
-              </div>
-              <div className={cn(iaspProgressTrackClass, "bg-primary/15")}>
-                <div className={cn(iaspProgressFillClass, "w-3/5 bg-warning")} />
+            <h3 className={cn(typo.headingXl, "text-foreground")}>
+              Detailed Report Ready
+            </h3>
+            <p className={cn(typo.bodyM, "max-w-sm text-muted-foreground")}>
+              Your IASP Assessment Report PDF includes domain scores, red-flag
+              analysis, and the recommended care pathway.
+            </p>
+            <Button
+              type="button"
+              size="cta"
+              className="mt-1"
+              onClick={() => {
+                const sessionId = getStoredIaspSessionId();
+                if (!sessionId) {
+                  toast.error(
+                    "Assessment session not found. Please retake the assessment.",
+                  );
+                  return;
+                }
+                goToDetailedReportPdf(sessionId);
+              }}
+            >
+              Open PDF Report
+            </Button>
+          </motion.div>
+        ) : (
+          <div
+            className={cn(
+              iaspPanelCardClass,
+              "relative w-full shrink-0 overflow-hidden",
+            )}
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 space-y-4 p-6 opacity-40 blur-[2px]"
+            >
+              <div className={cn(radius.sm, "h-6 w-44 bg-border")} />
+              <div className="mt-4 space-y-3">
+                <div className="flex justify-between gap-4">
+                  <div className={cn(radius.sm, "h-4 w-32 bg-border")} />
+                  <div className={cn(radius.sm, "h-4 w-11 bg-border")} />
+                </div>
+                <div className={cn(iaspProgressTrackClass, "bg-primary/15")}>
+                  <div className={cn(iaspProgressFillClass, "w-4/5")} />
+                </div>
+                <div className="flex justify-between gap-4">
+                  <div className={cn(radius.sm, "h-4 w-44 bg-border")} />
+                  <div className={cn(radius.sm, "h-4 w-11 bg-border")} />
+                </div>
+                <div className={cn(iaspProgressTrackClass, "bg-primary/15")}>
+                  <div
+                    className={cn(iaspProgressFillClass, "w-3/5 bg-warning")}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="relative px-dash-pad-x py-3 text-center bg-card/80 backdrop-blur-[1px] sm:py-4">
-            <div className="mx-auto flex flex-col items-center">
-              <span
-                className={cn(
-                  radius.full,
-                  "flex size-12 items-center justify-center text-primary",
-                )}
-              >
-                <AppIcon icon={SquareLock02Icon} />
-              </span>
-              <h3 className={cn(typo.headingXl, "mt-2.5 text-foreground")}>
-                Detailed Report
-              </h3>
-              <p className={cn(typo.bodyM, "mt-3 max-w-sm text-muted-foreground")}>
-                Section-by-section breakdown, red-flag analysis, and a
-                personalised care pathway.
-              </p>
-              <Button
-                type="button"
-                size="cta"
-                className="mt-4"
-                loading={unlockLoading}
-                disabled={unlockLoading}
-                onClick={handleUnlockReport}
-              >
-                Unlock Detailed Report
-              </Button>
+            <div className="relative px-dash-pad-x py-3 text-center bg-card/80 backdrop-blur-[1px] sm:py-4">
+              <div className="mx-auto flex flex-col items-center">
+                <span
+                  className={cn(
+                    radius.full,
+                    "flex size-12 items-center justify-center text-primary",
+                  )}
+                >
+                  <AppIcon icon={SquareLock02Icon} />
+                </span>
+                <h3 className={cn(typo.headingXl, "mt-2.5 text-foreground")}>
+                  Detailed Report
+                </h3>
+                <p
+                  className={cn(
+                    typo.bodyM,
+                    "mt-3 max-w-sm text-muted-foreground",
+                  )}
+                >
+                  Section-by-section breakdown, red-flag analysis, and a
+                  personalised care pathway.
+                </p>
+                <Button
+                  type="button"
+                  size="cta"
+                  className="mt-4"
+                  loading={unlockLoading || !sessionReady}
+                  disabled={unlockLoading || !sessionReady}
+                  onClick={handleUnlockReport}
+                >
+                  Unlock Detailed Report
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <DialogFooter
