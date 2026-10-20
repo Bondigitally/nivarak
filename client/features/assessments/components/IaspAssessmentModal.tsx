@@ -1438,11 +1438,6 @@ function IaspAssessmentFlow({
               toast.error(message);
             });
         }}
-        onPreviewResults={
-          isIaspResultsPreviewEnabled()
-            ? () => setState(createIaspResultsPreviewState())
-            : undefined
-        }
       />
     );
   }
