@@ -7,3 +7,5 @@ H:/npm-cache
 H:/npm-tmp
 coverage/
 .vscode
+.neon
+.cursor

@@ -20,6 +20,7 @@ export { alerts, alertRules } from './alerts.js';
 export { documents } from './documents.js';
 export { notifications } from './notifications.js';
 export { auditLogs } from './audit.js';
+export { iaspGuestSessions } from './iasp_guest_sessions.js';
 
 import { relations } from 'drizzle-orm';
 import { users, userRoles } from './users.js';
@@ -41,7 +42,8 @@ import { documents } from './documents.js';
 export const usersRelations = relations(users, ({ many }) => ({
   userRoles: many(userRoles),
   caregiverLinks: many(caregiverLinks),
-  encounters: many(encounters),
+  clinicianEncounters: many(encounters, { relationName: 'encounterClinician' }),
+  completedEncounters: many(encounters, { relationName: 'encounterCompletedBy' }),
 }));
 
 export const patientsRelations = relations(patients, ({ one, many }) => ({
@@ -57,7 +59,16 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
 
 export const encountersRelations = relations(encounters, ({ one, many }) => ({
   patient: one(patients, { fields: [encounters.patientId], references: [patients.id] }),
-  clinician: one(users, { fields: [encounters.clinicianId], references: [users.id] }),
+  clinician: one(users, {
+    fields: [encounters.clinicianId],
+    references: [users.id],
+    relationName: 'encounterClinician',
+  }),
+  completedByUser: one(users, {
+    fields: [encounters.completedBy],
+    references: [users.id],
+    relationName: 'encounterCompletedBy',
+  }),
   medical: one(encounterMedical),
   mobility: one(encounterMobility),
   social: one(encounterSocial),
@@ -91,6 +102,21 @@ export const vitalsRelations = relations(vitals, ({ one }) => ({
   patient: one(patients, { fields: [vitals.patientId], references: [patients.id] }),
   encounter: one(encounters, { fields: [vitals.encounterId], references: [encounters.id] }),
   recordedByUser: one(users, { fields: [vitals.recordedBy], references: [users.id] }),
+}));
+
+export const agingScoresRelations = relations(agingScores, ({ one }) => ({
+  patient: one(patients, {
+    fields: [agingScores.patientId],
+    references: [patients.id],
+  }),
+  assessedByUser: one(users, {
+    fields: [agingScores.assessedBy],
+    references: [users.id],
+  }),
+  encounter: one(encounters, {
+    fields: [agingScores.encounterId],
+    references: [encounters.id],
+  }),
 }));
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
