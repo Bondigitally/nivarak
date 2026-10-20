@@ -40,9 +40,11 @@ export function SiteHeader() {
     null,
   );
 
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setNavOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     const syncChrome = () => {
