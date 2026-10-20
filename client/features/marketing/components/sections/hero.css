@@ -63,29 +63,34 @@
 .trust-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-12);
+  align-items: center;
+  gap: var(--space-16) var(--space-24);
 }
 
 .trust-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-8);
-  padding: var(--space-8) var(--space-16) var(--space-8) var(--space-8);
-  background: var(--color-surface-raised);
+  padding: 0;
+  background: transparent;
   border: none;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-xs);
-  font-size: var(--type-caption-size);
-  font-weight: 600;
-  color: var(--color-brand-900);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: var(--type-body-s-size);
+  font-weight: 500;
+  line-height: var(--type-body-s-line);
+  color: var(--color-text-secondary);
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
 }
 
 .trust-badge .tb-icon {
   display: grid;
   place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius-full);
+  width: auto;
+  height: auto;
+  border-radius: 0;
   background: transparent;
   color: var(--color-primary);
 }

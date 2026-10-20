@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { hanken, roundedElegance } from '@/lib/fonts';
 import './globals.css';
 import { ConfigureAmplify } from '@/features/auth/lib/amplify';
+
 import { GoogleAnalytics } from '@/components/google-analytics';
 
 export const metadata: Metadata = {

@@ -55,7 +55,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
       <main className="flex h-dvh flex-col bg-[#F7F7F8]">
         <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border/80 bg-card px-dash-pad-x py-3">
           <div className="flex min-w-0 flex-col gap-0.5">
-            <BrandLogo />
+            <BrandLogo size="compact" />
             <p className={cn(typo.bodyS, "truncate text-muted-foreground")}>
               IASP Assessment Report
             </p>
@@ -85,7 +85,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-dash-pad-x py-8 sm:px-8 sm:py-10">
-        <BrandLogo />
+        <BrandLogo size="compact" />
 
         {state.status === "loading" ? (
           <div className="space-y-2">

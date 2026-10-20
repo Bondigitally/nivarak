@@ -75,7 +75,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               connected with people who matter.
             </p>
             <p>
-              Families often notice changes one at a time — and explain them away
+              Families often notice changes one at a time and explain them away
               as &ldquo;just age.&rdquo; On their own, each change can look
               ordinary. Together, they can signal that independence needs support
               before a crisis forces the issue.
@@ -85,12 +85,12 @@ export default async function BlogPostPage({ params }: PageProps) {
             <p>
               [Placeholder body] Look for shifts in mobility and balance,
               appetite, mood, sleep, and social engagement. None of these require
-              a clinical vocabulary — only attentive care and a place to bring
+              a clinical vocabulary, only attentive care and a place to bring
               concerns.
             </p>
             <p>
-              [Placeholder body] When those signals are gathered into one view —
-              like an Independent Aging Score™ — families and clinicians can act
+              [Placeholder body] When those signals are gathered into one view,
+              like an Independent Aging Score™, families and clinicians can act
               earlier, with less guesswork.
             </p>
 
@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </p>
             <p>
               If you&apos;re unsure whether it&apos;s &ldquo;time,&rdquo; start
-              with a conversation — and an assessment designed for independence,
+              with a conversation and an assessment designed for independence,
               not just illness.
             </p>
 

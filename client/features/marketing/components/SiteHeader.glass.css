@@ -86,3 +86,8 @@
 body:has(.marketing-site) {
   overflow-x: visible;
 }
+
+.site-header-shell {
+  box-sizing: border-box;
+  max-width: 100vw;
+}

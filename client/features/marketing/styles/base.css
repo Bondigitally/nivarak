@@ -11,6 +11,9 @@
 }
 
 .marketing-site {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   margin: 0;
   color-scheme: light;
   font-family: var(--font-family);
@@ -26,6 +29,12 @@
 html:has(.marketing-site) {
   scroll-behavior: smooth;
   color-scheme: light;
+  overflow-x: clip;
+  /*
+   * Reserve classic-scrollbar width so short/long pages and open overlays
+   * don’t shift the fixed header or full-width sections horizontally.
+   */
+  scrollbar-gutter: stable;
 }
 
 /* Clear fixed / floating header when jumping to a section. */
@@ -50,7 +59,7 @@ html:has(.marketing-site) {
   }
 }
 
-.marketing-site img {
+.marketing-site img:not(.brand-logo__img) {
   max-width: 100%;
   height: auto;
   display: block;

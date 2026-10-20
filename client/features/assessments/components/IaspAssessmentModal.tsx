@@ -84,9 +84,9 @@ import {
 import {
   INITIAL_IASP_FLOW_STATE,
   clearIaspDraft,
-  createIaspResultsPreviewState,
+  // createIaspResultsPreviewState,
   hasIaspProgress,
-  isIaspResultsPreviewEnabled,
+  // isIaspResultsPreviewEnabled,
   saveIaspDraft,
   type IaspAnswersMap,
   type IaspFlowState,
@@ -173,7 +173,7 @@ const questionPageVariants = {
 };
 
 const INTRO_HIGHLIGHTS = [
-  "Warm, everyday questions. No medical know-how needed.",
+  "Simple, everyday questions. No medical know-how needed.",
   "Great for families checking in from near or far.",
   "Helps you spot where a little support could help.",
 ] as const;
@@ -328,10 +328,10 @@ function IaspAutoSavedBadge({ status }: { status: SaveIndicatorStatus }) {
 
 function IntroStep({
   onStart,
-  onPreviewResults,
+  // onPreviewResults,
 }: {
   onStart: () => void;
-  onPreviewResults?: () => void;
+  // onPreviewResults?: () => void;
 }) {
   return (
     <IaspModalShell>
@@ -443,7 +443,7 @@ function IntroStep({
           Start Assessment
           <AppIcon icon={ArrowRight02Icon} />
         </Button>
-        {onPreviewResults ? (
+        {/* {onPreviewResults ? (
           <Button
             type="button"
             variant="ghost"
@@ -452,7 +452,7 @@ function IntroStep({
           >
             Preview results (dev)
           </Button>
-        ) : null}
+        ) : null} */}
       </DialogFooter>
     </IaspModalShell>
   );
@@ -1422,6 +1422,7 @@ function IaspAssessmentFlow({
   }
 
   if (step === "intro") {
+    // Preview results (dev): onPreviewResults={() => setState(createIaspResultsPreviewState())}
     return (
       <IntroStep
         onStart={() => {
@@ -1437,11 +1438,6 @@ function IaspAssessmentFlow({
               toast.error(message);
             });
         }}
-        onPreviewResults={
-          isIaspResultsPreviewEnabled()
-            ? () => setState(createIaspResultsPreviewState())
-            : undefined
-        }
       />
     );
   }

@@ -34,19 +34,30 @@ export function FinalCtaSection() {
           </h2>
         </MarketingStaggerItem>
         <MarketingStaggerItem>
-          <p>Start with an assessment and a clear Independent Aging Score.</p>
+          <p>Start with a free assessment and a clear Independent Aging Score.</p>
         </MarketingStaggerItem>
         <MarketingStaggerItem>
-          <Link
-            className={cn(
-              btnOutlineInverse,
-              "min-h-[var(--density-control-h-cta)]",
-            )}
-            href="/contact#book"
-          >
-            Take an assessment{" "}
-            <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
-          </Link>
+          <div className="final-cta-actions">
+            <Link
+              className={cn(
+                btnOutlineInverse,
+                "min-h-[var(--density-control-h-cta)]",
+              )}
+              href="/iasp-assessment"
+            >
+              Take free assessment{" "}
+              <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
+            </Link>
+            <Link
+              className={cn(
+                btnOutlineInverse,
+                "min-h-[var(--density-control-h-cta)] final-cta-secondary",
+              )}
+              href="/contact#book"
+            >
+              Book a visit
+            </Link>
+          </div>
         </MarketingStaggerItem>
       </MarketingStagger>
     </section>

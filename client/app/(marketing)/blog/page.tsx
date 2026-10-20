@@ -12,7 +12,7 @@ import "@/features/marketing/components/sections/what-is.css";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Blog — Nivarak Insights on Independent Aging",
+    absolute: "Blog | Nivarak Insights on Independent Aging",
   },
   description:
     "Insights on healthy aging, caregiving, and medically-led independent aging from the Nivarak team.",
@@ -25,7 +25,7 @@ export default function BlogPage() {
         eyebrowText="Blog"
         titleId="blog-hero"
         title="Insights on Independent Aging."
-        body="Practical guidance for families and caregivers — from early signs to everyday support."
+        body="Practical guidance for families and caregivers, from early signs to everyday support."
       />
 
       <section className={cn(section, "what-is")} aria-labelledby="featured-title">
