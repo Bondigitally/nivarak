@@ -27,6 +27,8 @@
 }
 
 .expert-card {
+  position: relative;
+  overflow: hidden;
   background: var(--color-surface-raised);
   border: none;
   border-radius: var(--radius-l);
