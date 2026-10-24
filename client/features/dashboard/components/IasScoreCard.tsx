@@ -317,14 +317,26 @@ function ViewReportButton() {
   );
 }
 
-export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment: IasAssessment | null; variant?: "dashboard" | "plain" }) {
+export function IasScoreCard({
+  assessment,
+  variant = "dashboard",
+  layout = "responsive",
+}: {
+  assessment: IasAssessment | null;
+  variant?: "dashboard" | "plain";
+  /** Use `desktop` inside scaled marketing previews so viewport breakpoints don't flip the card. */
+  layout?: "responsive" | "desktop";
+}) {
   const isFilled = assessment != null;
+  const desktop = layout === "desktop";
 
   return (
     <section className={cn(
       dashboardCardClass,
       "flex flex-col items-stretch gap-5 overflow-hidden px-5 py-4",
-      "sm:flex-row sm:items-center sm:justify-between",
+      desktop
+        ? "flex-row items-center justify-between"
+        : "sm:flex-row sm:items-center sm:justify-between",
       variant === "dashboard" && dashboardHeroCardSurfaceClass,
     )}>
       <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -348,11 +360,13 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
           </h2>
         </div>
 
-        <div className="flex justify-center sm:hidden">
-          <ScoreRing
-            score={isFilled ? assessment.score : null}
-          />
-        </div>
+        {desktop ? null : (
+          <div className="flex justify-center sm:hidden">
+            <ScoreRing
+              score={isFilled ? assessment.score : null}
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           {isFilled ? (
@@ -391,7 +405,14 @@ export function IasScoreCard({ assessment, variant = "dashboard" }: { assessment
         ) : null}
       </div>
 
-      <div className="hidden shrink-0 sm:flex sm:items-center sm:justify-end">
+      <div
+        className={cn(
+          "shrink-0",
+          desktop
+            ? "flex items-center justify-end"
+            : "hidden sm:flex sm:items-center sm:justify-end",
+        )}
+      >
         <ScoreRing
           score={isFilled ? assessment.score : null}
         />

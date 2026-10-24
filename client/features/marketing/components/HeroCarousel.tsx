@@ -1,74 +1,123 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft02Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
+import { useReducedMotion } from "motion/react";
+import { AppIcon } from "@/components/shared/AppIcon";
+import {
+  HERO_PREVIEW_SLIDE_MS,
+  HeroAppPreview,
+  type HeroAppScreen,
+} from "@/features/marketing/components/HeroAppPreview";
+import { useMarketingHomePreload } from "@/features/marketing/components/MarketingHomePreload";
+import { BADGE_ICON_SIZE } from "@/lib/icons";
+import { radius } from "@/lib/tokens/radius";
 import { cn } from "@/lib/utils";
 
-const SLIDES = [
+const SLIDES: { id: string; screen: HeroAppScreen; label: string }[] = [
+  { id: "dashboard", screen: "dashboard", label: "Patient dashboard" },
+  { id: "assessment", screen: "assessments", label: "Patient assessment" },
   {
-    src: "/marketing/images/screenshots/figma-01-assessments.png",
-    alt: "Nivarak Assessments screen with Independent Ageing Score",
-    width: 1440,
-    height: 1024,
+    id: "appointments",
+    screen: "appointments",
+    label: "Patient appointments",
   },
-  {
-    src: "/marketing/images/screenshots/figma-02-assessment-report-v2.png",
-    alt: "Nivarak IAS-P Assessment Report with risk status and care pathway",
-    width: 1440,
-    height: 1051,
-  },
-  {
-    src: "/marketing/images/screenshots/figma-04-clinician-dashboard.png",
-    alt: "Nivarak clinician dashboard with reviews, alerts, and schedule",
-    width: 1440,
-    height: 1024,
-  },
-  {
-    src: "/marketing/images/screenshots/figma-05-appointments.png",
-    alt: "Nivarak appointments screen for caregiver care plans",
-    width: 1440,
-    height: 1024,
-  },
-] as const;
+];
 
 const navBtn = cn(
-  "inline-flex size-7 cursor-pointer items-center justify-center rounded-full border-0 p-0",
-  "bg-[var(--color-surface-raised)] text-[var(--color-primary)] shadow-[var(--shadow-s)]",
-  "transition-[background,color,opacity,transform] duration-[var(--duration-fast)] ease-[var(--ease-out)]",
-  "hover:enabled:bg-[var(--color-brand-50)]",
-  "active:enabled:scale-96",
+  radius.full,
+  "inline-flex size-8 shrink-0 cursor-pointer items-center justify-center border-0",
+  "bg-muted text-muted-foreground transition-colors",
+  "hover:enabled:bg-muted/80 hover:enabled:text-foreground",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
   "disabled:cursor-default disabled:opacity-35",
 );
 
+/** Stack layers alternate insert pulses: near → far → near → … */
+const STACK = [
+  {
+    rest: "translate(8px, 10px) rotate(1.5deg)",
+    up: "translate(6px, -10px) rotate(0.6deg)",
+    opacity: 0.55,
+  },
+  {
+    rest: "translate(14px, 16px) rotate(2.8deg)",
+    up: "translate(10px, -8px) rotate(1.2deg)",
+    opacity: 0.32,
+  },
+] as const;
+const STACK_HALF_MS = Math.round(HERO_PREVIEW_SLIDE_MS / 2);
+const stackTransition = `transform ${STACK_HALF_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+
 export function HeroCarousel() {
+  const preload = useMarketingHomePreload();
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [dragPercent, setDragPercent] = useState(0);
+  const [previewReady, setPreviewReady] = useState(false);
+  /** Which stack layer is mid-pulse (`null` = all at rest). */
+  const [pulseLayer, setPulseLayer] = useState<0 | 1 | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
   const dragOffset = useRef(0);
   const widthRef = useRef(0);
   const indexRef = useRef(0);
+  const transitioningRef = useRef(false);
+  const stackTimerRef = useRef<number | null>(null);
+  const nextPulseLayerRef = useRef<0 | 1>(0);
+
+  const markHeroReady = preload?.markHeroReady;
+  const handlePreviewReady = useCallback(() => {
+    setPreviewReady(true);
+    markHeroReady?.();
+  }, [markHeroReady]);
 
   useEffect(() => {
     indexRef.current = index;
   }, [index]);
 
   const goTo = useCallback((nextIndex: number) => {
-    setIndex(Math.max(0, Math.min(SLIDES.length - 1, nextIndex)));
+    const clamped = Math.max(0, Math.min(SLIDES.length - 1, nextIndex));
+    if (clamped === indexRef.current) {
+      setDragging(false);
+      dragOffset.current = 0;
+      return;
+    }
+    // Ignore input while a slide is in progress — prevents stacked janky jumps.
+    if (transitioningRef.current) return;
+    transitioningRef.current = true;
+    setIndex(clamped);
     setDragging(false);
-    setDragPercent(0);
     dragOffset.current = 0;
+
+    // Alternate insert pulse: layer 0, then 1, then 0, …
+    if (stackTimerRef.current != null) window.clearTimeout(stackTimerRef.current);
+    const layer = nextPulseLayerRef.current;
+    nextPulseLayerRef.current = layer === 0 ? 1 : 0;
+    setPulseLayer(layer);
+    stackTimerRef.current = window.setTimeout(() => {
+      setPulseLayer(null);
+      stackTimerRef.current = null;
+    }, STACK_HALF_MS);
+
+    window.setTimeout(() => {
+      transitioningRef.current = false;
+    }, HERO_PREVIEW_SLIDE_MS);
   }, []);
 
   useEffect(() => {
-    const onMove = (clientX: number) => {
-      if (!widthRef.current) return;
-      dragOffset.current = clientX - startX.current;
-      setDragPercent((dragOffset.current / widthRef.current) * 100);
+    return () => {
+      if (stackTimerRef.current != null) window.clearTimeout(stackTimerRef.current);
     };
+  }, []);
 
-    const onUp = () => {
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragging) return;
+      dragOffset.current = e.clientX - startX.current;
+    };
+    const onMouseUp = () => {
+      if (!dragging) return;
       if (!widthRef.current) {
         setDragging(false);
         return;
@@ -77,15 +126,6 @@ export function HeroCarousel() {
       if (dragOffset.current <= -threshold) goTo(indexRef.current + 1);
       else if (dragOffset.current >= threshold) goTo(indexRef.current - 1);
       else goTo(indexRef.current);
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!dragging) return;
-      onMove(e.clientX);
-    };
-    const onMouseUp = () => {
-      if (!dragging) return;
-      onUp();
     };
 
     window.addEventListener("mousemove", onMouseMove);
@@ -97,46 +137,65 @@ export function HeroCarousel() {
   }, [dragging, goTo]);
 
   const onPointerDown = (clientX: number) => {
+    if (!previewReady) return;
     widthRef.current = viewportRef.current?.clientWidth ?? 0;
     startX.current = clientX;
     dragOffset.current = 0;
     setDragging(true);
-    setDragPercent(0);
   };
 
-  const transform = `translateX(${-index * 100 + (dragging ? dragPercent : 0)}%)`;
+  const screen = SLIDES[index].screen;
 
   return (
-    <div className="relative w-full max-w-[34rem] pt-3" data-hero-carousel>
+    <div className="relative w-full pt-2 sm:pt-3" data-hero-carousel>
       <div
-        className="pointer-events-none absolute inset-x-4 inset-y-6 bottom-14 z-0"
+        className="pointer-events-none absolute inset-x-3 inset-y-5 bottom-12 z-0 sm:inset-x-4 sm:inset-y-6 sm:bottom-14"
         aria-hidden
       >
-        <span className="absolute inset-0 rounded-[var(--radius-xl)] bg-[var(--color-surface-raised)] opacity-55 shadow-[var(--shadow-s)] translate-x-2.5 translate-y-3 rotate-[1.5deg]" />
-        <span className="absolute inset-0 rounded-[var(--radius-xl)] bg-[var(--color-surface-raised)] opacity-32 shadow-[var(--shadow-s)] translate-x-[18px] translate-y-[22px] rotate-[2.8deg]" />
+        {/* Far layer first so the near layer paints on top. */}
+        {[1, 0].map((layerIndex) => {
+          const layer = STACK[layerIndex];
+          const up = pulseLayer === layerIndex;
+          return (
+            <span
+              key={layerIndex}
+              className="absolute inset-0 rounded-[var(--radius-xl)] bg-[var(--color-surface-raised)] shadow-[var(--shadow-s)]"
+              style={{
+                opacity: layer.opacity,
+                transform: up ? layer.up : layer.rest,
+                transition: reduceMotion ? undefined : stackTransition,
+              }}
+            />
+          );
+        })}
       </div>
       <div
         className={cn(
-          "relative z-[1] w-full overflow-hidden rounded-[calc(var(--radius-xl)+2px)] p-3",
+          "relative z-[1] w-full overflow-hidden rounded-[calc(var(--radius-xl)+1px)] p-1 sm:p-1.5",
           "border border-white/8 bg-gradient-to-b from-[#2a2433] to-[var(--color-neutral-900)]",
           "shadow-[var(--shadow-xl),0_0_0_1px_rgba(108,48,144,0.08)]",
         )}
         aria-roledescription="carousel"
         aria-label="Nivarak platform product screens"
+        aria-busy={!previewReady}
       >
-        <div className="flex items-center gap-2 px-2 pb-3 pt-1" aria-hidden>
-          <span className="size-2 rounded-full bg-[#ff5f57]" />
-          <span className="size-2 rounded-full bg-[#febc2e]" />
-          <span className="size-2 rounded-full bg-[#28c840]" />
-          <span className="ml-2 flex-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full bg-white/[0.06] px-3 py-1 text-[length:var(--type-badge-size)] text-[var(--color-neutral-400)]">
+        <div className="flex items-center gap-2 px-1.5 pb-1.5 pt-0.5" aria-hidden>
+          <span className="size-2 shrink-0 rounded-full bg-[#ff5f57]" />
+          <span className="size-2 shrink-0 rounded-full bg-[#febc2e]" />
+          <span className="size-2 shrink-0 rounded-full bg-[#28c840]" />
+          <span className="ml-2 min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full bg-white/[0.06] px-3 py-1 text-[length:var(--type-badge-size)] text-[var(--color-neutral-400)]">
             app.nivarak.com
           </span>
         </div>
         <div
           className={cn(
-            "relative aspect-[1440/1024] touch-pan-y select-none overflow-hidden rounded-[var(--radius-l)]",
-            "bg-[var(--color-surface-raised)]",
-            dragging ? "cursor-grabbing" : "cursor-grab",
+            "relative aspect-[1440/1024] touch-manipulation select-none overflow-hidden rounded-[var(--radius-l)]",
+            "bg-background",
+            previewReady
+              ? dragging
+                ? "cursor-grabbing"
+                : "cursor-grab"
+              : "cursor-default",
           )}
           ref={viewportRef}
           onMouseDown={(e) => {
@@ -148,9 +207,8 @@ export function HeroCarousel() {
             onPointerDown(e.touches[0].clientX);
           }}
           onTouchMove={(e) => {
-            if (!dragging || !e.touches.length || !widthRef.current) return;
+            if (!dragging || !e.touches.length) return;
             dragOffset.current = e.touches[0].clientX - startX.current;
-            setDragPercent((dragOffset.current / widthRef.current) * 100);
           }}
           onTouchEnd={() => {
             if (!dragging) return;
@@ -161,90 +219,69 @@ export function HeroCarousel() {
           }}
           onTouchCancel={() => goTo(index)}
         >
-          <div
-            className={cn(
-              "flex h-full w-full will-change-transform",
-              dragging
-                ? "transition-none"
-                : "transition-transform duration-[420ms] ease-[var(--ease-out)] motion-reduce:transition-none",
-            )}
-            style={{ transform }}
-          >
-            {SLIDES.map((slide) => (
-              <figure
-                key={slide.src}
-                className="m-0 h-full w-full shrink-0 grow-0 basis-full"
-              >
-                <Image
-                  src={slide.src}
-                  alt={slide.alt}
-                  width={slide.width}
-                  height={slide.height}
-                  draggable={false}
-                  priority={slide === SLIDES[0]}
-                  className="pointer-events-none block size-full object-cover object-top"
-                />
-              </figure>
-            ))}
+          {/* Site loader covers until ready; keep preview mounted at full opacity behind it. */}
+          <div className="absolute inset-0">
+            <HeroAppPreview
+              screen={screen}
+              onReady={handlePreviewReady}
+            />
           </div>
         </div>
       </div>
-      <div className="relative z-[1] mt-4 flex items-center justify-center gap-3">
+      <div
+        className={cn(
+          "relative z-[1] mt-4 flex items-center justify-center gap-2 pt-1 transition-opacity duration-300",
+          previewReady ? "opacity-100" : "opacity-40",
+        )}
+      >
         <button
           type="button"
           className={navBtn}
           aria-label="Previous screen"
-          disabled={index <= 0}
+          disabled={!previewReady || index <= 0}
           onClick={() => goTo(index - 1)}
         >
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden focusable="false">
-            <path
-              d="M10.5 3.5 6 8l4.5 4.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <AppIcon icon={ArrowLeft02Icon} size={BADGE_ICON_SIZE} aria-hidden />
         </button>
-        <div className="flex items-center justify-center gap-2" role="tablist" aria-label="Product screens">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={cn(
-                "relative size-2 cursor-pointer rounded-full border-0 p-0",
-                "bg-[var(--color-brand-300)] transition-[transform,opacity,background] duration-[var(--duration-fast)] ease-[var(--ease-out)]",
-                "before:absolute before:inset-[-0.55rem] before:content-['']",
-                i === index
-                  ? "scale-125 bg-[var(--color-primary)] opacity-100"
-                  : "opacity-45 hover:opacity-75",
-              )}
-              role="tab"
-              aria-selected={i === index}
-              aria-label={`Show screen ${i + 1}`}
-              onClick={() => goTo(i)}
-            />
-          ))}
+        <div
+          className="flex items-center gap-0"
+          role="tablist"
+          aria-label="Product screens"
+        >
+          {SLIDES.map((slide, i) => {
+            const active = i === index;
+            return (
+              <button
+                key={slide.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={`Show ${slide.label}`}
+                disabled={!previewReady}
+                onClick={() => goTo(i)}
+                className="relative flex size-3 cursor-pointer items-center justify-center border-0 bg-transparent p-0 disabled:cursor-default"
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "block rounded-full transition-colors duration-200",
+                    active
+                      ? "size-1 bg-foreground"
+                      : "size-1 bg-foreground/25 hover:bg-foreground/50",
+                  )}
+                />
+              </button>
+            );
+          })}
         </div>
         <button
           type="button"
           className={navBtn}
           aria-label="Next screen"
-          disabled={index >= SLIDES.length - 1}
+          disabled={!previewReady || index >= SLIDES.length - 1}
           onClick={() => goTo(index + 1)}
         >
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden focusable="false">
-            <path
-              d="M5.5 3.5 10 8l-4.5 4.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <AppIcon icon={ArrowRight02Icon} size={BADGE_ICON_SIZE} aria-hidden />
         </button>
       </div>
     </div>
