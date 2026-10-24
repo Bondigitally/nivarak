@@ -1,22 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { IaspAssessmentModal } from "@/features/assessments/components/IaspAssessmentModal";
 import { IaspResumeConfirmDialog } from "@/features/assessments/components/IaspResumeConfirmDialog";
 import {
   INITIAL_IASP_FLOW_STATE,
   clearIaspDraft,
-  // createIaspResultsPreviewState,
-  // isIaspResultsPreviewEnabled,
   loadIaspDraft,
   type IaspFlowState,
 } from "@/features/assessments/data/iasp-assessment-draft";
+import { clearStoredIaspSessionId } from "@/features/assessments/lib/iasp-session-api";
 
-/** Assessment entry — surface page with intro modal on load. */
-export function IaspAssessmentStartPage() {
-  const router = useRouter();
-  const allowExitRef = useRef(false);
+type IaspAssessmentLauncherProps = {
+  /** Called when the user closes the assessment modal. */
+  onDismiss?: () => void;
+};
+
+/** Boots resume-draft confirm + assessment modal (used by marketing host). */
+export function IaspAssessmentLauncher({
+  onDismiss,
+}: IaspAssessmentLauncherProps) {
   const [bootstrapped, setBootstrapped] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -25,37 +28,27 @@ export function IaspAssessmentStartPage() {
   );
   const [flowKey, setFlowKey] = useState(0);
 
-  useEffect(() => {
-    allowExitRef.current = true;
-    queueMicrotask(() => {
-      // const previewResults =
-      //   isIaspResultsPreviewEnabled() &&
-      //   new URLSearchParams(window.location.search).get("preview") === "results";
-      const draft = loadIaspDraft();
-
-      // if (previewResults) {
-      //   setFlowState(createIaspResultsPreviewState());
-      //   setConfirmOpen(false);
-      //   setOpen(true);
-      // } else
-      if (draft) {
-        setFlowState(draft);
-        setConfirmOpen(true);
-        setOpen(false);
-      } else {
-        setFlowState(INITIAL_IASP_FLOW_STATE);
-        setConfirmOpen(false);
-        setOpen(true);
-      }
-      setBootstrapped(true);
-    });
+  const launch = useCallback(() => {
+    const draft = loadIaspDraft();
+    if (draft) {
+      setFlowState(draft);
+      setConfirmOpen(true);
+      setOpen(false);
+    } else {
+      setFlowState(INITIAL_IASP_FLOW_STATE);
+      setConfirmOpen(false);
+      setOpen(true);
+    }
+    setBootstrapped(true);
   }, []);
+
+  useEffect(() => {
+    void Promise.resolve().then(launch);
+  }, [launch]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (!next && allowExitRef.current) {
-      router.replace("/iasp-assessment");
-    }
+    if (!next) onDismiss?.();
   }
 
   function handleContinuePrevious() {
@@ -66,6 +59,7 @@ export function IaspAssessmentStartPage() {
 
   function handleStartNew() {
     clearIaspDraft();
+    clearStoredIaspSessionId();
     setFlowState(INITIAL_IASP_FLOW_STATE);
     setFlowKey((key) => key + 1);
     setConfirmOpen(false);
@@ -73,11 +67,11 @@ export function IaspAssessmentStartPage() {
   }
 
   if (!bootstrapped) {
-    return <main className="relative min-h-screen bg-background" />;
+    return null;
   }
 
   return (
-    <main className="relative min-h-screen bg-background">
+    <>
       <IaspResumeConfirmDialog
         open={confirmOpen}
         onContinue={handleContinuePrevious}
@@ -89,6 +83,6 @@ export function IaspAssessmentStartPage() {
         onOpenChange={handleOpenChange}
         initialState={flowState}
       />
-    </main>
+    </>
   );
 }

@@ -6,7 +6,12 @@ import { BrandLogo } from "@/components/shared/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+import { iaspReportDisplayHeadingClass } from "../data/iasp-assessment-styles";
 import { loadIaspReportPdfObjectUrl } from "../lib/open-iasp-report-pdf";
+import {
+  getIaspReportPdfDownloadName,
+  IASP_ASSESSMENT_OPEN_HREF,
+} from "../lib/iasp-report-url";
 
 type LoadState =
   | { status: "loading" }
@@ -14,10 +19,12 @@ type LoadState =
   | { status: "error"; message: string };
 
 /**
- * Same-tab PDF viewer page — used after payment so pop-ups are never required.
+ * Same-tab PDF viewer — opened after unlock/payment so pop-ups are never required.
+ * Generates the finalized @react-pdf report from the unlocked session.
  */
 export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +55,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [sessionId]);
+  }, [sessionId, reloadKey]);
 
   if (state.status === "ready") {
     return (
@@ -62,12 +69,15 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild type="button" variant="secondary" size="sm">
-              <a href={state.url} download="iasp-assessment-report.pdf">
+              <a
+                href={state.url}
+                download={getIaspReportPdfDownloadName(sessionId)}
+              >
                 Download PDF
               </a>
             </Button>
             <Button asChild type="button" variant="secondary" size="sm">
-              <Link href="/iasp-assessment/start">Back</Link>
+              <Link href="/">Back</Link>
             </Button>
           </div>
         </header>
@@ -75,7 +85,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
           <iframe
             title="IASP Assessment Report"
             src={state.url}
-            className="h-full min-h-0 w-full border-0 bg-white shadow-none sm:rounded-lg sm:border sm:border-border/60 sm:shadow-sm"
+            className="h-full min-h-0 min-w-0 w-full border-0 bg-white shadow-none sm:rounded-lg sm:border sm:border-border/60 sm:shadow-sm"
           />
         </div>
       </main>
@@ -89,7 +99,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
 
         {state.status === "loading" ? (
           <div className="space-y-2">
-            <h1 className={cn(typo.headingXl, "text-foreground")}>
+            <h1 className={iaspReportDisplayHeadingClass}>
               Opening your PDF report
             </h1>
             <p className={cn(typo.bodyM, "text-muted-foreground")}>
@@ -100,15 +110,26 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
 
         {state.status === "error" ? (
           <div className="space-y-4">
-            <h1 className={cn(typo.headingXl, "text-foreground")}>
+            <h1 className={iaspReportDisplayHeadingClass}>
               Report unavailable
             </h1>
             <p className={cn(typo.bodyM, "text-muted-foreground")}>
               {state.message}
             </p>
-            <Button asChild type="button">
-              <Link href="/iasp-assessment/start">Back to assessment</Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                onClick={() => {
+                  setState({ status: "loading" });
+                  setReloadKey((k) => k + 1);
+                }}
+              >
+                Retry Generating Report
+              </Button>
+              <Button asChild type="button" variant="outline">
+                <Link href={IASP_ASSESSMENT_OPEN_HREF}>Back to assessment</Link>
+              </Button>
+            </div>
           </div>
         ) : null}
       </div>

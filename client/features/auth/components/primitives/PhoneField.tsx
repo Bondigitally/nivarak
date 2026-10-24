@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronIcon } from '@/components/shared/ChevronIcon';
 import { cn } from '@/lib/utils';
 import { typo } from '@/lib/tokens/typography';
@@ -13,6 +13,7 @@ import {
   type CountryDialCode,
 } from '@/features/auth/lib/country-codes';
 import { AuthFieldError } from '@/features/auth/components/primitives/AuthField';
+import { fieldInputAutofillClassName } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +63,17 @@ interface PhoneFieldProps {
   /** National-number placeholder only — no country name */
   placeholder?: string;
   className?: string;
+  /** When false, omit the built-in label (e.g. modal supplies its own). */
+  showLabel?: boolean;
+  /** When false, omit the built-in error slot (e.g. parent field wrapper shows errors). */
+  showError?: boolean;
+  /**
+   * Nested dialog: non-modal menu, portal + z-index, and wheel scroll under scroll lock.
+   */
+  countryMenuInDialog?: {
+    portalContainer: HTMLElement | null;
+    contentClassName?: string;
+  };
 }
 
 export function PhoneField({
@@ -73,12 +85,52 @@ export function PhoneField({
   error,
   placeholder = '9876543210',
   className,
+  showLabel = true,
+  showError = true,
+  countryMenuInDialog,
 }: PhoneFieldProps) {
+  const menuPortalContainer = countryMenuInDialog?.portalContainer ?? null;
+  const menuContentClassName = countryMenuInDialog?.contentClassName;
   const [countryIso, setCountryIso] = useState(
     () => parseInitialCountry(value).iso,
   );
   const inputShellRef = useRef<HTMLDivElement>(null);
+  const countryListWheelCleanupRef = useRef<(() => void) | null>(null);
   const [menuWidth, setMenuWidth] = useState<number>();
+
+  const countryListRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      countryListWheelCleanupRef.current?.();
+      countryListWheelCleanupRef.current = null;
+
+      if (!node || !menuPortalContainer) return;
+
+      const onWheel = (event: WheelEvent) => {
+        event.stopPropagation();
+        const maxScroll = node.scrollHeight - node.clientHeight;
+        if (maxScroll <= 0) return;
+
+        node.scrollTop = Math.min(
+          maxScroll,
+          Math.max(0, node.scrollTop + event.deltaY),
+        );
+        event.preventDefault();
+      };
+
+      node.addEventListener('wheel', onWheel, { passive: false });
+      countryListWheelCleanupRef.current = () => {
+        node.removeEventListener('wheel', onWheel);
+      };
+    },
+    [menuPortalContainer],
+  );
+
+  useEffect(
+    () => () => {
+      countryListWheelCleanupRef.current?.();
+    },
+    [],
+  );
 
   // Track the input shell width so the country dropdown aligns to the full
   // field width, not just the trigger button — per auth layout spec.
@@ -120,9 +172,11 @@ export function PhoneField({
 
   return (
     <div className={cn('phone-field flex w-full flex-col gap-auth-field', className)}>
-      <label htmlFor={id} className={typo.label}>
-        {label}
-      </label>
+      {showLabel ? (
+        <label htmlFor={id} className={typo.label}>
+          {label}
+        </label>
+      ) : null}
 
       <div
         ref={inputShellRef}
@@ -135,7 +189,7 @@ export function PhoneField({
           disabled && 'cursor-not-allowed opacity-50',
         )}
       >
-          <DropdownMenu>
+          <DropdownMenu modal={countryMenuInDialog ? false : undefined}>
             <DropdownMenuTrigger asChild disabled={disabled}>
               <button
                 type="button"
@@ -162,14 +216,20 @@ export function PhoneField({
               alignOffset={-12}
               sideOffset={8}
               avoidCollisions={false}
+              container={menuPortalContainer ?? undefined}
               style={menuWidth ? { width: menuWidth } : undefined}
               className={cn(
-                'max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border-border bg-card p-0 shadow-md',
+                'group/thin-scroll max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border-border bg-card p-0 shadow-md',
                 !menuWidth && 'w-[min(20rem,calc(100vw-2.5rem))]',
                 typo.input,
+                menuContentClassName,
               )}
             >
-              <div className="max-h-64 overflow-y-auto overscroll-contain p-1.5">
+              <div
+                ref={countryListRef}
+                className="thin-hover-scroll max-h-64 overflow-y-auto overscroll-contain p-1.5"
+                onWheel={(event) => event.stopPropagation()}
+              >
                 {COUNTRY_DIAL_CODES_ORDERED.map((item) => {
                   const selected = item.iso === country.iso;
 
@@ -210,13 +270,14 @@ export function PhoneField({
             className={cn(
               'phone-field__input h-full min-w-0 flex-1 border-0 bg-transparent p-0 shadow-none',
               typo.input,
+              fieldInputAutofillClassName,
               'outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0',
               'placeholder:text-placeholder',
               'disabled:cursor-not-allowed',
             )}
           />
       </div>
-      <AuthFieldError error={error} />
+      {showError ? <AuthFieldError error={error} /> : null}
     </div>
   );
 }

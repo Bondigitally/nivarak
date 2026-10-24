@@ -2,8 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
@@ -27,6 +29,7 @@ import {
   iaspModalShellWidthClass,
   iaspProgressFillClass,
   iaspProgressTrackClass,
+  iaspRazorpayCheckoutShellClass,
   iaspStepNavFooterClass,
 } from "@/features/assessments/data/iasp-assessment-styles";
 import { cn } from "@/lib/utils";
@@ -48,10 +51,25 @@ function useIaspMobileDrawer() {
   return !useSyncExternalStore(subscribeDesktop, getDesktopSnapshot, () => false);
 }
 
-const IaspShellContext = createContext({ useDrawer: false });
+type IaspShellContextValue = {
+  useDrawer: boolean;
+  razorpayCheckoutActive: boolean;
+  setRazorpayCheckoutActive: (active: boolean) => void;
+};
+
+const IaspShellContext = createContext<IaspShellContextValue>({
+  useDrawer: false,
+  razorpayCheckoutActive: false,
+  setRazorpayCheckoutActive: () => {},
+});
 
 function useIaspShell() {
   return useContext(IaspShellContext);
+}
+
+/** Lets payment flow release Radix modal pointer guards before Razorpay opens. */
+export function useIaspRazorpayCheckoutSuspend() {
+  return useIaspShell().setRazorpayCheckoutActive;
 }
 
 function handleShellOpenAutoFocus(event: Event) {
@@ -70,19 +88,33 @@ export function IaspAssessmentRoot({
   children: ReactNode;
 }) {
   const useDrawer = useIaspMobileDrawer();
-  const shell = useMemo(() => ({ useDrawer }), [useDrawer]);
+  const [razorpayCheckoutActive, setRazorpayCheckoutActive] = useState(false);
+  const setCheckoutActive = useCallback((active: boolean) => {
+    setRazorpayCheckoutActive(active);
+  }, []);
+  const shell = useMemo(
+    () => ({
+      useDrawer,
+      razorpayCheckoutActive,
+      setRazorpayCheckoutActive: setCheckoutActive,
+    }),
+    [useDrawer, razorpayCheckoutActive, setCheckoutActive],
+  );
+  const modal = !razorpayCheckoutActive;
 
   if (useDrawer) {
     return (
       <IaspShellContext.Provider value={shell}>
-        <Sheet open={open} onOpenChange={onOpenChange}>{children}</Sheet>
+        <Sheet open={open} onOpenChange={onOpenChange} modal={modal}>
+          {children}
+        </Sheet>
       </IaspShellContext.Provider>
     );
   }
 
   return (
     <IaspShellContext.Provider value={shell}>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={onOpenChange} modal={modal}>
         <DialogPortal>{children}</DialogPortal>
       </Dialog>
     </IaspShellContext.Provider>
@@ -124,14 +156,22 @@ export function IaspModalShell({
   className?: string;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
 }) {
-  const { useDrawer } = useIaspShell();
+  const { useDrawer, razorpayCheckoutActive } = useIaspShell();
+  const checkoutShellClass = razorpayCheckoutActive
+    ? iaspRazorpayCheckoutShellClass
+    : undefined;
 
   if (useDrawer) {
     return (
       <SheetContent
         side="bottom"
         showCloseButton={false}
-        className={cn(iaspDrawerShellLayoutClass, className)}
+        overlayClassName={checkoutShellClass}
+        className={cn(
+          iaspDrawerShellLayoutClass,
+          checkoutShellClass,
+          className,
+        )}
         onOpenAutoFocus={handleShellOpenAutoFocus}
         onEscapeKeyDown={onEscapeKeyDown}
       >
@@ -142,11 +182,16 @@ export function IaspModalShell({
 
   return (
     <>
-      <DialogOverlay />
+      <DialogOverlay
+        data-iasp-assessment-shell=""
+        className={checkoutShellClass}
+      />
       <DialogPrimitive.Content
+        data-iasp-assessment-shell=""
         className={cn(
           dialogPrimitiveContentClass(iaspModalShellWidthClass),
           iaspModalShellLayoutClass,
+          checkoutShellClass,
           className,
         )}
         onOpenAutoFocus={handleShellOpenAutoFocus}

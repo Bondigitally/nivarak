@@ -20,6 +20,9 @@ export type IaspGuestSession = {
   redFlagUrgency: string | null;
   unlocked: boolean;
   detailedReportUnlockedAt: string | null;
+  fullName?: string | null;
+  phoneNumber?: string | null;
+  email?: string | null;
   completedAt: string | null;
   expiresAt: string | null;
   createdAt: string;
@@ -83,7 +86,7 @@ export async function syncIaspSession(input: {
   return apiFetch<IaspGuestSession>(`/iasp/sessions/${sessionId}`, {
     method: "PATCH",
     body: JSON.stringify(input),
-  });
+  }).catch(() => null);
 }
 
 export async function completeIaspSession(input: {
@@ -94,14 +97,46 @@ export async function completeIaspSession(input: {
   maxScore: number;
   iasPercentage: number;
 }): Promise<IaspGuestSession> {
-  const session = await ensureIaspSession();
-  return apiFetch<IaspGuestSession>(
-    `/iasp/sessions/${session.sessionId}/complete`,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-    },
-  );
+  const existingId = getStoredIaspSessionId();
+  if (existingId) {
+    try {
+      const completed = await apiFetch<IaspGuestSession>(
+        `/iasp/sessions/${existingId}/complete`,
+        {
+          method: "POST",
+          body: JSON.stringify(input),
+        },
+      );
+      setStoredIaspSessionId(completed.sessionId);
+      return completed;
+    } catch {
+      clearStoredIaspSessionId();
+    }
+  }
+
+  try {
+    const session = await apiFetch<IaspGuestSession>(
+      "/iasp/sessions/complete",
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    );
+    setStoredIaspSessionId(session.sessionId);
+    return session;
+  } catch {
+    // Resilient fallback if atomic route is unavailable
+    const fallback = await ensureIaspSession();
+    const completed = await apiFetch<IaspGuestSession>(
+      `/iasp/sessions/${fallback.sessionId}/complete`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    );
+    setStoredIaspSessionId(completed.sessionId);
+    return completed;
+  }
 }
 
 export async function fetchIaspSession(

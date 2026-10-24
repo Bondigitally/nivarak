@@ -1,9 +1,5 @@
 import { EMPTY_IASP_ABOUT_YOU, type IaspAboutYouValues } from "./iasp-about-you-data";
-import {
-  IASP_SECTIONS,
-  getIaspQuestionOptions,
-  type IaspAnswerId,
-} from "./iasp-questionnaire-data";
+import type { IaspAnswerId } from "./iasp-questionnaire-data";
 import type { IaspRedFlagId } from "./iasp-red-flags-data";
 
 /**
@@ -27,7 +23,7 @@ export type IaspFlowState = {
   pageIndex: number;
   /**
    * Slide animation direction: +1 = forward (next question), -1 = back.
-   * Drives the `x` offset in questionPageVariants inside IaspAssessmentModal.
+   * Drives the `x` offset in questionPageVariants inside IaspQuestionsStep.
    */
   pageDirection: number;
   answers: IaspAnswersMap;
@@ -45,39 +41,15 @@ export const INITIAL_IASP_FLOW_STATE: IaspFlowState = {
   autoAdvance: true,
 };
 
-/** Pre-filled state for dev/testing the results step without answering every question. */
-export function createIaspResultsPreviewState(): IaspFlowState {
-  const answers: IaspAnswersMap = {};
-  let index = 0;
-
-  for (const section of IASP_SECTIONS) {
-    for (const question of section.questions) {
-      const options = getIaspQuestionOptions(question);
-      answers[question.id] = options[index % options.length].id;
-      index += 1;
-    }
+/** Compact answered map for session sync / complete payloads. */
+export function toIaspAnswersPayload(
+  answers: IaspAnswersMap,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [questionId, answer] of Object.entries(answers)) {
+    if (answer) out[questionId] = answer;
   }
-
-  return {
-    step: "results",
-    aboutYou: {
-      relationship: "Son / Daughter",
-      age: "72",
-      location: "Same city",
-      visitFrequency: "Weekly",
-      livingSituation: "With family",
-      livingSituationOther: "",
-    },
-    pageIndex: 0,
-    pageDirection: 1,
-    answers,
-    redFlags: ["two_or_more_falls"],
-    autoAdvance: true,
-  };
-}
-
-export function isIaspResultsPreviewEnabled(): boolean {
-  return process.env.NODE_ENV === "development";
+  return out;
 }
 
 /**

@@ -10,6 +10,7 @@ export const IASP_RELATIONSHIP_OPTIONS = [
 export const IASP_LOCATION_OPTIONS = [
   "Same household",
   "Same city",
+  "Different city",
   "Same state",
   "Different state",
   "Different country",
