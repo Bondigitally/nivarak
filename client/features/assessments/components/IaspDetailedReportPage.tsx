@@ -7,10 +7,7 @@ import { Button } from "@/components/ui/button";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import { iaspReportDisplayHeadingClass } from "../data/iasp-assessment-styles";
-import {
-  loadIaspReportPdfObjectUrl,
-  triggerIaspReportPdfDownload,
-} from "../lib/open-iasp-report-pdf";
+import { loadIaspReportPdfObjectUrl } from "../lib/open-iasp-report-pdf";
 import {
   getIaspReportPdfDownloadName,
   IASP_ASSESSMENT_OPEN_HREF,
@@ -32,7 +29,6 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
-    setState({ status: "loading" });
 
     void loadIaspReportPdfObjectUrl(sessionId).then((result) => {
       if (cancelled) {
@@ -42,7 +38,6 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
       if (result.status === "ready") {
         objectUrl = result.url;
         setState({ status: "ready", url: result.url });
-        triggerIaspReportPdfDownload(result.url, sessionId);
         return;
       }
       if (result.status === "locked") {
@@ -124,7 +119,10 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 type="button"
-                onClick={() => setReloadKey((k) => k + 1)}
+                onClick={() => {
+                  setState({ status: "loading" });
+                  setReloadKey((k) => k + 1);
+                }}
               >
                 Retry Generating Report
               </Button>
