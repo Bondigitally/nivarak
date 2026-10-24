@@ -1,166 +1,140 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { btnPrimary, section, wrap } from "@/features/marketing/lib/marketing-classes";
+import {
+  BLOG_POSTS,
+  getPostBySlug,
+  getRelatedPosts,
+  type BlogPostBodyBlock,
+} from "@/features/marketing/lib/blog-posts";
+import { BlogMetaBadges } from "@/features/marketing/components/BlogMetaBadges";
+import { BlogPostCard } from "@/features/marketing/components/BlogPostCard";
+import { section, wrap } from "@/features/marketing/lib/marketing-classes";
 import { cn } from "@/lib/utils";
 import "@/features/marketing/components/BlogFilters.blog.css";
-import "@/features/marketing/components/sections/what-is.css";
-
-const POSTS: Record<
-  string,
-  {
-    title: string;
-    description: string;
-    category: string;
-    meta: string;
-  }
-> = {
-  "aging-well-at-home": {
-    title: 'What "aging well" really looks like at home',
-    description:
-      "Sample blog post template for Nivarak insights on independent aging.",
-    category: "Healthy Aging",
-    meta: "By [Author Name] · [Month Day, Year] · [X] min read",
-  },
-};
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+function renderBlock(block: BlogPostBodyBlock, index: number) {
+  switch (block.type) {
+    case "p":
+      return <p key={index}>{block.text}</p>;
+    case "h2":
+      return <h2 key={index}>{block.text}</h2>;
+    case "ul":
+      return (
+        <ul key={index} className="article-list">
+          {block.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+    case "ol":
+      return (
+        <ol key={index} className="article-list article-list--numbered">
+          {block.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      );
+    case "numbered":
+      return (
+        <ol key={index} className="article-list article-list--steps">
+          {block.items.map((item, stepIndex) => (
+            <li key={item.title}>
+              <p className="article-step-title">
+                <span className="article-step-num" aria-hidden="true">
+                  {stepIndex + 1}.
+                </span>{" "}
+                {item.title}
+              </p>
+              <p>{item.text}</p>
+            </li>
+          ))}
+        </ol>
+      );
+    case "author":
+      return (
+        <footer key={index} className="article-byline">
+          <p className="article-byline-name">{block.name}</p>
+          {block.lines.map((line) => (
+            <p key={line} className="article-byline-meta">
+              {line}
+            </p>
+          ))}
+        </footer>
+      );
+    default:
+      return null;
+  }
+}
+
 export async function generateStaticParams() {
-  return Object.keys(POSTS).map((slug) => ({ slug }));
+  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = POSTS[slug];
+  const post = getPostBySlug(slug);
   if (!post) return { title: "Blog post" };
   return {
-    title: `[Sample Post] ${post.title}`,
-    description: post.description,
+    title: post.title,
+    description: post.excerpt,
   };
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = POSTS[slug];
+  const post = getPostBySlug(slug);
   if (!post) notFound();
+
+  const related = getRelatedPosts(post.category, post.slug);
 
   return (
     <main id="main">
-      <article className={cn(section, "what-is")}>
+      <article className={cn(section, "blog")}>
         <div className={wrap}>
-          <div
-            className="post-hero-img"
-            role="img"
-            aria-label="Decorative placeholder for post hero image"
-          >
-            Article
+          <div className="post-hero-media">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.image} alt="" className="post-media-img" />
           </div>
 
           <header className="article-header">
-            <span className="category-tag">{post.category}</span>
+            <BlogMetaBadges
+              category={post.tag}
+              date={post.date}
+              readTime={post.readTime}
+            />
             <h1>{post.title}</h1>
-            <p className="post-meta">{post.meta}</p>
+            <p className="post-meta">
+              By {post.author.name}
+              {post.author.credentials
+                ? ` · ${post.author.credentials}`
+                : ""}
+            </p>
           </header>
 
           <div className="article-body">
-            <p>
-              Aging well is rarely a dramatic milestone. It&apos;s quieter:
-              walking to the kitchen without hesitation, remembering a medication
-              routine, finishing a meal, sleeping through the night, staying
-              connected with people who matter.
-            </p>
-            <p>
-              Families often notice changes one at a time and explain them away
-              as &ldquo;just age.&rdquo; On their own, each change can look
-              ordinary. Together, they can signal that independence needs support
-              before a crisis forces the issue.
-            </p>
-
-            <h2>What families can watch for</h2>
-            <p>
-              [Placeholder body] Look for shifts in mobility and balance,
-              appetite, mood, sleep, and social engagement. None of these require
-              a clinical vocabulary, only attentive care and a place to bring
-              concerns.
-            </p>
-            <p>
-              [Placeholder body] When those signals are gathered into one view,
-              like an Independent Aging Score™, families and clinicians can act
-              earlier, with less guesswork.
-            </p>
-
-            <h2>From worry to a plan</h2>
-            <p>
-              [Placeholder body] A structured assessment doesn&apos;t replace your
-              parent&apos;s doctor. It adds the continuous layer between visits:
-              clarity, a personalized plan, and monitoring that catches trends
-              while they&apos;re still reversible.
-            </p>
-            <p>
-              If you&apos;re unsure whether it&apos;s &ldquo;time,&rdquo; start
-              with a conversation and an assessment designed for independence,
-              not just illness.
-            </p>
-
-            <p>
-              <Link className={btnPrimary} href="/contact#book">
-                Book an Assessment
-              </Link>
-            </p>
+            {post.body.map(renderBlock)}
           </div>
 
-          <aside className="related-posts" aria-labelledby="related-title">
-            <h2 id="related-title">Related posts</h2>
-            <div className="post-grid">
-              <article className="post-card" data-category="caregiving">
-                <div className="post-thumb" aria-hidden="true">
-                  02
-                </div>
-                <div className="post-body-pad">
-                  <span className="category-tag">Caregiving Tips</span>
-                  <h3>
-                    <Link href="/blog">
-                      [Post] How to talk to parents about getting assessed
-                    </Link>
-                  </h3>
-                  <p className="post-meta">By [Author] · [Date]</p>
-                </div>
-              </article>
-              <article className="post-card" data-category="medical">
-                <div className="post-thumb" aria-hidden="true">
-                  03
-                </div>
-                <div className="post-body-pad">
-                  <span className="category-tag">Medical Insights</span>
-                  <h3>
-                    <Link href="/blog">
-                      [Post] Why one score can clarify ten domains
-                    </Link>
-                  </h3>
-                  <p className="post-meta">By [Author] · [Date]</p>
-                </div>
-              </article>
-              <article className="post-card" data-category="stories">
-                <div className="post-thumb" aria-hidden="true">
-                  04
-                </div>
-                <div className="post-body-pad">
-                  <span className="category-tag">Family Stories</span>
-                  <h3>
-                    <Link href="/blog">
-                      [Post] Supporting parents from another city
-                    </Link>
-                  </h3>
-                  <p className="post-meta">By [Author] · [Date]</p>
-                </div>
-              </article>
-            </div>
-          </aside>
+          {related.length > 0 ? (
+            <aside className="related-posts" aria-labelledby="related-title">
+              <h2 id="related-title">Related posts</h2>
+              <div className="post-grid">
+                {related.map((relatedPost) => (
+                  <BlogPostCard
+                    key={relatedPost.slug}
+                    post={relatedPost}
+                    showExcerpt={false}
+                  />
+                ))}
+              </div>
+            </aside>
+          ) : null}
         </div>
       </article>
     </main>

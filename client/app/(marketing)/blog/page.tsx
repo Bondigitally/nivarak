@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
 import { BlogFilters } from "@/features/marketing/components/BlogFilters";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
-import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
 import {
   section,
   visuallyHidden,
   wrap,
 } from "@/features/marketing/lib/marketing-classes";
 import { cn } from "@/lib/utils";
-import "@/features/marketing/components/sections/what-is.css";
+import "@/features/marketing/components/BlogFilters.blog.css";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Blog | Nivarak Insights on Independent Aging",
+    absolute: "Blog | Nivarak",
   },
   description:
-    "Insights on healthy aging, caregiving, and medically-led independent aging from the Nivarak team.",
+    "Articles from the Nivarak team on fall risk, caregiving conversations, and keeping older adults independent longer.",
 };
 
 export default function BlogPage() {
@@ -24,18 +23,16 @@ export default function BlogPage() {
       <MarketingPageHero
         eyebrowText="Blog"
         titleId="blog-hero"
-        title="Insights on Independent Aging."
-        body="Practical guidance for families and caregivers, from early signs to everyday support."
+        title="From the Nivarak desk."
+        body="Short reads from our clinicians on fall risk, hard conversations at home, and what families can do before a crisis."
       />
 
-      <section className={cn(section, "what-is")} aria-labelledby="featured-title">
+      <section className={cn(section, "blog")} aria-labelledby="featured-title">
         <div className={wrap}>
           <h2 id="featured-title" className={visuallyHidden}>
             Featured post
           </h2>
-          <MarketingReveal>
-            <BlogFilters />
-          </MarketingReveal>
+          <BlogFilters />
         </div>
       </section>
     </main>
