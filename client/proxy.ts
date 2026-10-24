@@ -71,7 +71,7 @@ const COORDINATOR_PATH_REDIRECTS: Record<string, string> = {
   "/alerts": "/notifications",
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const redirectPath = COORDINATOR_PATH_REDIRECTS[pathname];
@@ -108,6 +108,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|fonts|images|marketing|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|woff2?)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|fonts|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|otf|woff2?)).*)",
   ],
 };

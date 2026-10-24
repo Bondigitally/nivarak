@@ -4,7 +4,7 @@ type JwtPayload = Record<string, unknown>;
 /**
  * Decodes a JWT payload without verifying the signature.
  * Uses `atob` in the browser and `Buffer` on the server (Node) so the same
- * code path works for both client components and middleware.
+ * code path works for both client components and the Next.js proxy.
  * Returns null for malformed tokens instead of throwing.
  */
 export function decodeJwtPayload(token: string): JwtPayload | null {
