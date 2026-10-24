@@ -3,18 +3,69 @@
   background: var(--color-surface-raised);
 }
 
-.testi-grid {
-  display: grid;
-  gap: var(--space-24);
+.testi-marquee-shell {
+  position: relative;
+  container-type: inline-size;
+  overflow: hidden;
 }
 
-@media (min-width: 744px) {
-  .testi-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.testi-marquee {
+  padding-block: var(--space-24);
+  padding-inline: 0;
 }
 
+/* Soft blur + color fade at the centered container edges */
+.testi-marquee-fade {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  width: min(5.5rem, 16cqi);
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.testi-marquee-fade-left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--color-surface-raised) 0%,
+    color-mix(in srgb, var(--color-surface-raised) 55%, transparent) 45%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 35%,
+    transparent 100%
+  );
+}
+
+.testi-marquee-fade-right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--color-surface-raised) 0%,
+    color-mix(in srgb, var(--color-surface-raised) 55%, transparent) 45%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to left,
+    #000 0%,
+    #000 35%,
+    transparent 100%
+  );
+}
+
+/*
+ * Match the previous 3-col grid card width inside `.wrap`
+ * (gap = --space-24). Below tablet, use a readable single-card width.
+ */
 .testi-card {
+  width: min(20.5rem, 88cqi);
+  flex-shrink: 0;
   background: var(--color-surface-raised);
   border: none;
   border-radius: var(--radius-l);
@@ -23,12 +74,32 @@
   flex-direction: column;
   gap: var(--space-16);
   box-shadow: var(--shadow-xs);
+  transform-origin: center center;
+}
+
+@media (min-width: 744px) {
+  .testi-card {
+    width: calc((100cqi - 2 * var(--space-24)) / 3);
+  }
+}
+
+/* Keep cards tilted while they travel in the marquee */
+.testi-card-tilt-a {
+  transform: rotate(-2.25deg);
+}
+
+.testi-card-tilt-b {
+  transform: rotate(1.75deg);
+}
+
+.testi-card-tilt-c {
+  transform: rotate(-1.25deg);
 }
 
 .testi-stars {
   display: flex;
   gap: var(--space-4);
-  color: var(--color-brand-500);
+  color: #e6b422;
 }
 
 .testi-stars svg {
@@ -54,8 +125,8 @@
   width: 2.625rem;
   height: 2.625rem;
   border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
+  background: var(--color-neutral-400);
+  color: var(--color-neutral-700);
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -71,4 +142,16 @@
 .tw-rel {
   font-size: var(--type-badge-size);
   color: var(--color-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testi-marquee [class*="animate-marquee"] {
+    animation: none !important;
+  }
+
+  .testi-card-tilt-a,
+  .testi-card-tilt-b,
+  .testi-card-tilt-c {
+    transform: none;
+  }
 }
