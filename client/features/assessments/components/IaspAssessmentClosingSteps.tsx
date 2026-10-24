@@ -482,11 +482,9 @@ function ResultsGauge({ percentage }: { percentage: number }) {
 
 export function ResultsStep({
   answers,
-  redFlags,
   onRetake,
 }: {
   answers: IaspAnswersMap;
-  redFlags: readonly IaspRedFlagId[];
   onRetake: () => void;
 }) {
   const router = useRouter();

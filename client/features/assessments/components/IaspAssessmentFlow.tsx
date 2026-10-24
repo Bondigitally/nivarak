@@ -224,7 +224,6 @@ export function IaspAssessmentFlow({
     return (
       <ResultsStep
         answers={answers}
-        redFlags={redFlags}
         onRetake={onReset}
       />
     );
