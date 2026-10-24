@@ -21,8 +21,6 @@ import {
   type Variants,
 } from "motion/react";
 
-import { cn } from "@/lib/utils";
-
 type MarginType = UseInViewOptions["margin"];
 
 interface BlurFadeProps extends Omit<MotionProps, "transition" | "ease"> {
@@ -77,7 +75,8 @@ export function BlurFade({
     visible: {
       [axis]: 0,
       opacity: 1,
-      filter: "blur(0px)",
+      // Clear filter after reveal so Chrome doesn't keep a soft compositor layer.
+      filter: "none",
     },
   };
   const combinedVariants = variant ?? defaultVariants;
@@ -115,7 +114,7 @@ export function BlurFade({
             }
           : {}),
       }}
-      className={cn("transform-gpu will-change-[transform,opacity,filter]", className)}
+      className={className}
       {...props}
     >
       {children}

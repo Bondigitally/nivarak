@@ -93,11 +93,15 @@ function PlaceLabel({ appointment }: { appointment: AppointmentItem }) {
 export function AppointmentRow({
   appointment,
   onDetailsClick,
+  layout = "responsive",
 }: {
   appointment: AppointmentItem;
   onDetailsClick: (appointment: AppointmentItem) => void;
+  /** Use `desktop` inside scaled marketing previews so viewport breakpoints don't flip the row. */
+  layout?: "responsive" | "desktop";
 }) {
   const isCancelled = appointment.status === "Cancelled";
+  const desktop = layout === "desktop";
 
   return (
     <article
@@ -109,7 +113,12 @@ export function AppointmentRow({
       )}
     >
       {/* Mobile */}
-      <div className="flex flex-col items-stretch p-3 md:hidden">
+      <div
+        className={cn(
+          "flex flex-col items-stretch p-3",
+          desktop ? "hidden" : "md:hidden",
+        )}
+      >
         <div className="flex items-center justify-between gap-4 self-stretch">
           <div className="flex shrink-0 flex-col items-start gap-0.5">
             <p
@@ -154,7 +163,12 @@ export function AppointmentRow({
       </div>
 
       {/* Tablet & Desktop */}
-      <div className="hidden items-center justify-between gap-6 p-6 md:flex">
+      <div
+        className={cn(
+          "items-center justify-between gap-6 p-6",
+          desktop ? "flex" : "hidden md:flex",
+        )}
+      >
         <div className="flex min-w-0 items-center gap-6">
           <div className="flex min-w-30 shrink-0 flex-col items-start">
             <p

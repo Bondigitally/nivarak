@@ -122,6 +122,9 @@
   --spacing-dash-gap: 1rem;
   --spacing-dash-topbar-gap: 1rem;
   --spacing-dash-control: 2.75rem;
+
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
 }
 
 :root {
@@ -487,6 +490,24 @@ body[data-scroll-locked] {
 .horizontal-scroll-stable {
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
 }
 
 /* Hero indicator progress — transform-only so it stays on the compositor */

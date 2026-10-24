@@ -50,6 +50,19 @@ export function dialogPrimitiveContentClass(maxWidthClass = "max-w-lg") {
   );
 }
 
+/**
+ * Ref for {@link DialogPrimitive.Content} plus a portal container for nested
+ * dropdowns (Radix menus must portal into the dialog to scroll under scroll lock).
+ */
+export function useDialogPortalContainer() {
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null);
+  const contentRef = React.useCallback((node: HTMLDivElement | null) => {
+    setPortalContainer(node);
+  }, []);
+  return { contentRef, portalContainer };
+}
+
 const DialogOverlay = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>

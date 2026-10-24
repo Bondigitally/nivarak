@@ -6,13 +6,10 @@ import { useEffect, useState } from "react";
 import { Call02Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { FlowButton } from "@/features/marketing/components/FlowButton";
 import { marketingHomeHash } from "@/features/marketing/lib/home-hash";
 import { MARKETING_SECTION_SCROLL_MARGIN_PX } from "@/features/marketing/lib/header-layout";
-import {
-  btnOutline,
-  btnPrimary,
-  wrap,
-} from "@/features/marketing/lib/marketing-classes";
+import { wrap } from "@/features/marketing/lib/marketing-classes";
 import {
   MARKETING_SECTION_NAV,
   type MarketingSectionId,
@@ -201,20 +198,12 @@ export function SiteHeader() {
                     </Link>
                   </li>
                   <li className="flex flex-col gap-2 pt-2 min-[1440px]:hidden">
-                    <Link
-                      className={cn(btnOutline, "w-full")}
+                    <FlowButton
+                      className="w-full justify-center"
                       href="/login"
                       onClick={closeNav}
-                    >
-                      Log in
-                    </Link>
-                    <Link
-                      className={cn(btnPrimary, "w-full")}
-                      href="/contact#book"
-                      onClick={closeNav}
-                    >
-                      Book an Assessment
-                    </Link>
+                      text="Log in"
+                    />
                   </li>
                 </ul>
               </nav>
@@ -237,21 +226,11 @@ export function SiteHeader() {
                   <AppIcon icon={Call02Icon} size={ICON_SIZE} />
                   <span>+91 93710 90980</span>
                 </a>
-                <Link
-                  className={cn(btnOutline, "hidden min-[1440px]:inline-flex")}
+                <FlowButton
+                  className="hidden min-[1440px]:inline-flex"
                   href="/login"
-                >
-                  Log in
-                </Link>
-                <Link
-                  className={cn(
-                    btnPrimary,
-                    "max-[1439px]:min-h-10 max-[1439px]:px-4 max-[1439px]:text-[length:var(--type-caption-size)]",
-                  )}
-                  href="/contact#book"
-                >
-                  Book an Assessment
-                </Link>
+                  text="Log in"
+                />
               </div>
             </div>
           </header>
