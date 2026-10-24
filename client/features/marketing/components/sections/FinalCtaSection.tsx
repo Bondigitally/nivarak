@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { IASP_ASSESSMENT_OPEN_HREF } from "@/features/assessments/lib/iasp-report-url";
 import {
   MarketingStagger,
   MarketingStaggerItem,
@@ -43,9 +44,9 @@ export function FinalCtaSection() {
                 btnOutlineInverse,
                 "min-h-[var(--density-control-h-cta)]",
               )}
-              href="/iasp-assessment"
+              href={IASP_ASSESSMENT_OPEN_HREF}
             >
-              Take free assessment{" "}
+              Take a Free 3-Minute Assessment{" "}
               <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
             </Link>
             <Link
