@@ -112,8 +112,10 @@ const PREVIEW_APPOINTMENTS = getAppointmentsByTab("upcoming").slice(0, 3);
 
 /** Initials-only — skips decoding large care-team PNGs in the hero. */
 const PREVIEW_CARE_TEAM =
-  HOME_DATA.careTeam?.map(({ imageSrc: _imageSrc, ...member }) => member) ??
-  null;
+  HOME_DATA.careTeam?.map(({ imageSrc, ...member }) => {
+    void imageSrc;
+    return member;
+  }) ?? null;
 
 markAnimatedOnce(`ias-score-ring:${HOME_DATA.assessment?.score ?? 79}`);
 markAnimatedOnce("dashboard-vitals-bp");
@@ -411,11 +413,14 @@ export function HeroAppPreview({
 }) {
   const shellRef = useRef<HTMLDivElement>(null);
   const onReadyRef = useRef(onReady);
-  onReadyRef.current = onReady;
   const readySentRef = useRef(false);
   const [scale, setScale] = useState(0.5);
   const [scaled, setScaled] = useState(false);
   const activeIdx = SCREEN_ORDER.indexOf(screen);
+
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
 
   useLayoutEffect(() => {
     const shell = shellRef.current;
