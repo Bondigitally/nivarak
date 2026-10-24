@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { AgingDomainTabs } from "@/features/marketing/components/AgingDomainTabs";
+import { useRef } from "react";
 import {
   AiMagicIcon,
   ArrowLeft02Icon,
   Download01Icon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
+import { IASP_ASSESSMENT_OPEN_HREF } from "@/features/assessments/lib/iasp-report-url";
+import { AgingDomainTabs } from "@/features/marketing/components/AgingDomainTabs";
+import { AgingScoreRing } from "@/features/marketing/components/AgingScoreRing";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
+import {
+  AGING_SCORE_SAMPLE,
+  getAgingDomainsNeedingAttention,
+} from "@/features/marketing/data/aging-score-sample";
 import {
   btnPrimary,
   eyebrow,
@@ -24,6 +31,16 @@ import { cn } from "@/lib/utils";
 import "@/features/marketing/components/sections/score.css";
 
 export function ScoreSection() {
+  const agingReportRef = useRef<HTMLDivElement>(null);
+  const attentionDomains = getAgingDomainsNeedingAttention();
+  const attentionNames = attentionDomains.map((d) => d.tabLabel.toLowerCase());
+  const attentionLabels =
+    attentionNames.length <= 1
+      ? (attentionNames[0] ?? "key domains")
+      : attentionNames.length === 2
+        ? `${attentionNames[0]} and ${attentionNames[1]}`
+        : `${attentionNames.slice(0, -1).join(", ")}, and ${attentionNames.at(-1)}`;
+
   return (
     <section
       className={cn(section, "score-section")}
@@ -44,6 +61,7 @@ export function ScoreSection() {
 
         <MarketingReveal delay={0.1} offset={36} duration={0.65}>
           <div
+            ref={agingReportRef}
             className="aging-report"
             aria-label="Sample Independent Aging Score report"
           >
@@ -58,7 +76,9 @@ export function ScoreSection() {
           </div>
 
           <header className="aging-report-header">
-            <p className="aging-report-kicker">[Sample Member]&apos;s</p>
+            <p className="aging-report-kicker">
+              {AGING_SCORE_SAMPLE.memberLabel}&apos;s
+            </p>
             <div className="aging-report-heading">
               <h3 className="aging-report-title">Aging Score Report</h3>
               <span className="aging-summarise" aria-hidden="true">
@@ -68,57 +88,7 @@ export function ScoreSection() {
             </div>
           </header>
 
-          <div className="aging-donut-block">
-            <div
-              className="aging-donut"
-              role="img"
-              aria-label="Aging Score 86. 7 domains on track, 2 watch, 1 needs focus."
-            >
-              <svg
-                className="aging-donut-svg"
-                viewBox="0 0 240 240"
-                aria-hidden="true"
-              >
-                <circle
-                  className="aging-donut-track"
-                  cx="120"
-                  cy="120"
-                  r="85"
-                />
-                <circle
-                  className="aging-donut-seg aging-donut-seg-ok"
-                  cx="120"
-                  cy="120"
-                  r="85"
-                  strokeDasharray="350 184"
-                  strokeDashoffset="0"
-                />
-                <circle
-                  className="aging-donut-seg aging-donut-seg-watch"
-                  cx="120"
-                  cy="120"
-                  r="85"
-                  strokeDasharray="90 444"
-                  strokeDashoffset="-360"
-                />
-                <circle
-                  className="aging-donut-seg aging-donut-seg-alert"
-                  cx="120"
-                  cy="120"
-                  r="85"
-                  strokeDasharray="45 489"
-                  strokeDashoffset="-460"
-                />
-              </svg>
-              <div className="aging-donut-center">
-                <p className="aging-donut-num">86</p>
-                <p className="aging-donut-lbl">Aging Score</p>
-              </div>
-              <p className="aging-callout aging-callout-ok">7 on track</p>
-              <p className="aging-callout aging-callout-watch">2 watch</p>
-              <p className="aging-callout aging-callout-alert">1 needs focus</p>
-            </div>
-          </div>
+          <AgingScoreRing tooltipConstraintRef={agingReportRef} />
 
           <div className="aging-next">
             <p className="aging-next-label">
@@ -127,13 +97,13 @@ export function ScoreSection() {
             </p>
             <div className="aging-next-card">
               <div className="aging-next-copy">
-                <h4>[Sample Member]&apos;s Care Plan is ready</h4>
+                <h4>{AGING_SCORE_SAMPLE.memberLabel}&apos;s Care Plan is ready</h4>
                 <p>
-                  Personalized actions across mobility, nutrition, and sleep,
-                  ready for the family to review.
+                  Personalized actions across {attentionLabels}, ready for the
+                  family to review.
                 </p>
               </div>
-              <Link className={cn(btnPrimary, "aging-view-btn")} href="/iasp-assessment">
+              <Link className={cn(btnPrimary, "aging-view-btn")} href={IASP_ASSESSMENT_OPEN_HREF}>
                 View
               </Link>
             </div>
@@ -150,7 +120,7 @@ export function ScoreSection() {
             catching decline while it&apos;s still reversible.
           </p>
           <div className="score-cta-wrap">
-            <Link className={btnPrimary} href="/iasp-assessment">
+            <Link className={btnPrimary} href={IASP_ASSESSMENT_OPEN_HREF}>
               Check your score
             </Link>
           </div>
