@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { BorderBeam } from "@/components/ui/border-beam";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
 import {
   eyebrow,
@@ -40,8 +41,8 @@ export function ExpertsSection() {
                 width={538}
                 height={736}
                 className="avatar-photo"
-                priority
-                unoptimized
+                sizes="(max-width: 744px) 200px, 240px"
+                loading="lazy"
               />
             </div>
             <h3>Dr. Meetali</h3>
@@ -49,6 +50,13 @@ export function ExpertsSection() {
             <p className="bio">
               Nephrologist · 15+ Years in Healthcare · Trained in the UK
             </p>
+            <BorderBeam
+              size={120}
+              duration={8}
+              borderWidth={2}
+              colorFrom="#ffffff"
+              colorTo="rgba(255, 255, 255, 0.35)"
+            />
           </article>
         </MarketingReveal>
       </div>
