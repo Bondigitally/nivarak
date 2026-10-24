@@ -38,6 +38,109 @@
   box-shadow: var(--shadow-xs);
 }
 
+/* Partial brand rings clipped at the bottom-right edge */
+.what-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.what-card-ring-lavender {
+  --what-ring: #ebd9fa;
+}
+
+.what-card-ring-blush {
+  --what-ring: #fbe3da;
+}
+
+.what-card-ring-periwinkle {
+  --what-ring: #dce7ff;
+}
+
+.what-card::before,
+.what-card::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: var(--radius-full);
+  border: var(--stroke-thin) solid var(--what-ring, var(--color-primary));
+  pointer-events: none;
+  transform-origin: bottom right;
+  transition:
+    border-color var(--duration-normal) var(--ease-out),
+    opacity var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out);
+}
+
+/* Soft pastel strokes (#EBD9FA / #FBE3DA / #DCE7FF) — already ~25–35% tint weight */
+.what-card::before {
+  width: 9.5rem;
+  height: 9.5rem;
+  bottom: -4.25rem;
+  right: -3.75rem;
+  opacity: 0.85;
+}
+
+.what-card::after {
+  width: 6.25rem;
+  height: 6.25rem;
+  bottom: -2.75rem;
+  right: -2.25rem;
+  opacity: 1;
+}
+
+.what-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.what-card-icon {
+  transform-origin: center;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    background-color var(--duration-normal) var(--ease-out),
+    color var(--duration-normal) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .what-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-m);
+  }
+
+  .what-card:hover::before,
+  .what-card:hover::after {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  .what-card:hover .what-card-icon {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .what-card,
+  .what-card::before,
+  .what-card::after,
+  .what-card-icon {
+    transition: none;
+  }
+
+  .what-card:hover {
+    transform: none;
+  }
+
+  .what-card:hover::before,
+  .what-card:hover::after,
+  .what-card:hover .what-card-icon {
+    transform: none;
+  }
+}
+
 .faq-item {
   background: var(--color-surface-raised);
   border: none;
