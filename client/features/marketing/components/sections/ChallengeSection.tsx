@@ -1,6 +1,15 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import type { IconSvgElement } from "@hugeicons/react";
+import {
+  Alert02Icon,
+  BlocksIcon,
+  ScanHeartIcon,
+  Shield01Icon,
+  ViewIcon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/shared/AppIcon";
+import { DotArrow } from "@/features/marketing/components/DotArrow";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
 import {
   MarketingStagger,
@@ -11,37 +20,76 @@ import {
   section,
   wrap,
 } from "@/features/marketing/lib/marketing-classes";
+import { ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import "@/features/marketing/components/sections/challenge.css";
 
-const PATH_ARROW_LOTTIE = "/images/neon-right-arrow.lottie";
+type PathTone = "neutral" | "crisis" | "success";
 
-const DotLottieReact = dynamic(
-  () =>
-    import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
-  { ssr: false },
-);
+type PathStage = {
+  label: string;
+  icon: IconSvgElement;
+  tone: PathTone;
+};
 
-function PathDots() {
+const WITHOUT_EARLY_DETECTION: readonly PathStage[] = [
+  { label: "Small changes", icon: BlocksIcon, tone: "neutral" },
+  { label: "Go unnoticed", icon: ViewIcon, tone: "neutral" },
+  { label: "Health crisis", icon: Alert02Icon, tone: "crisis" },
+];
+
+const NIVARAK_WAY: readonly PathStage[] = [
+  { label: "Small changes", icon: BlocksIcon, tone: "neutral" },
+  { label: "Detected early", icon: ScanHeartIcon, tone: "neutral" },
+  { label: "Independence maintained", icon: Shield01Icon, tone: "success" },
+];
+
+function PathConnector({ variant }: { variant: "bad" | "good" }) {
   return (
-    <span className="path-dots" aria-hidden="true">
-      <span className="path-dot" />
-      <span className="path-dot" />
-      <span className="path-dot" />
+    <span
+      className={cn("path-connector", `path-connector-${variant}`)}
+      aria-hidden="true"
+    >
+      <span className="path-connector-track path-connector-track-h">
+        <DotArrow direction="right" />
+      </span>
+      <span className="path-connector-track path-connector-track-v">
+        <DotArrow direction="down" />
+      </span>
     </span>
   );
 }
 
-function PathArrow() {
+function PathStageCard({ stage }: { stage: PathStage }) {
   return (
-    <span className="path-arrow" aria-hidden="true">
-      <DotLottieReact
-        src={PATH_ARROW_LOTTIE}
-        autoplay
-        loop
-        className="path-arrow-lottie"
-      />
+    <span className={cn("path-stage", `path-stage-${stage.tone}`)}>
+      <AppIcon icon={stage.icon} size={ICON_SIZE} className="path-stage-icon" />
+      <span className="path-stage-label">{stage.label}</span>
     </span>
+  );
+}
+
+function PathRow({
+  label,
+  stages,
+  variant,
+}: {
+  label: string;
+  stages: readonly PathStage[];
+  variant: "bad" | "good";
+}) {
+  return (
+    <div className={cn("path-row", `path-row-${variant}`)}>
+      <p className="path-label">{label}</p>
+      <div className="path-steps">
+        {stages.map((stage, index) => (
+          <div key={stage.label} className="path-step-group">
+            {index > 0 ? <PathConnector variant={variant} /> : null}
+            <PathStageCard stage={stage} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -54,7 +102,7 @@ export function ChallengeSection() {
     >
       <div className={cn(wrap, "challenge-inner")}>
         <MarketingReveal className="challenge-text" direction="left" offset={32}>
-          <p className={eyebrow}>The Challenge</p>
+          <p className={cn(eyebrow, "challenge-eyebrow")}>The Challenge</p>
           <h2 id="challenge-title">
             Growing Older Shouldn&apos;t Mean Losing Independence
           </h2>
@@ -85,32 +133,31 @@ export function ChallengeSection() {
             </div>
           </div>
         </MarketingReveal>
-        <MarketingStagger
-          className="challenge-visual"
-          stagger={0.14}
-          delayChildren={0.12}
-        >
-          <MarketingStaggerItem className="path-card path-card-bad">
-            <p className="path-label">Without Early Detection</p>
-            <div className="path-steps">
-              <span className="path-step">Small changes</span>
-              <PathDots />
-              <span className="path-step">Go unnoticed</span>
-              <PathDots />
-              <span className="path-step path-step-crisis">Health crisis</span>
-            </div>
-          </MarketingStaggerItem>
-          <MarketingStaggerItem className="path-card path-card-good">
-            <p className="path-label">The Nivarak Way</p>
-            <div className="path-steps">
-              <span className="path-step">Small changes</span>
-              <PathArrow />
-              <span className="path-step">Detected early</span>
-              <PathArrow />
-              <span className="path-step">Independence maintained</span>
-            </div>
-          </MarketingStaggerItem>
-        </MarketingStagger>
+
+        <MarketingReveal className="challenge-visual" delay={0.12} offset={28}>
+          <div className="challenge-diagram" aria-label="Early detection pathways">
+            <MarketingStagger
+              className="challenge-pathways"
+              stagger={0.14}
+              delayChildren={0.08}
+            >
+              <MarketingStaggerItem className="path-pathway">
+                <PathRow
+                  label="Without Early Detection"
+                  stages={WITHOUT_EARLY_DETECTION}
+                  variant="bad"
+                />
+              </MarketingStaggerItem>
+              <MarketingStaggerItem className="path-pathway">
+                <PathRow
+                  label="The Nivarak Way"
+                  stages={NIVARAK_WAY}
+                  variant="good"
+                />
+              </MarketingStaggerItem>
+            </MarketingStagger>
+          </div>
+        </MarketingReveal>
       </div>
     </section>
   );
