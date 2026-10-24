@@ -5,7 +5,6 @@ import {
   marketingEase,
   marketingReveal,
 } from "@/features/marketing/lib/motion";
-import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "motion/react";
 
 type MarketingRevealProps = {
