@@ -94,10 +94,6 @@ export const scoreCheckFormSchema = z.object({
   message: optionalMessageSchema,
 });
 
-export const newsletterFormSchema = z.object({
-  email: emailSchema,
-});
-
 export type FieldErrors = Record<string, string>;
 
 export function validateWithSchema<T extends z.ZodTypeAny>(

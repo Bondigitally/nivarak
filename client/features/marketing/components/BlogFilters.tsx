@@ -1,211 +1,135 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { BlogMetaBadges } from "@/features/marketing/components/BlogMetaBadges";
 import {
-  newsletterFormSchema,
-  validateWithSchema,
-} from "@/features/marketing/lib/form-validation";
-import { btn } from "@/features/marketing/lib/marketing-classes";
-import "@/features/marketing/components/BlogFilters.blog.css";
+  BlogAuthorByline,
+  BlogPostCard,
+  BlogReadArticleLink,
+} from "@/features/marketing/components/BlogPostCard";
+import {
+  BLOG_POSTS,
+  FEATURED_POST,
+} from "@/features/marketing/lib/blog-posts";
+import { marketingEase } from "@/features/marketing/lib/motion";
 
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "healthy-aging", label: "Healthy Aging" },
   { id: "caregiving", label: "Caregiving Tips" },
-  { id: "medical", label: "Medical Insights" },
-  { id: "stories", label: "Family Stories" },
 ] as const;
 
-const POSTS = [
-  {
-    category: "healthy-aging",
-    tag: "Healthy Aging",
-    thumb: "01",
-    title: "[Post] Small changes that matter before a fall",
-    excerpt:
-      "[Placeholder] How mobility, nutrition, and sleep quietly shape fall risk, and what to notice early.",
-    href: "/blog/aging-well-at-home",
-  },
-  {
-    category: "caregiving",
-    tag: "Caregiving Tips",
-    thumb: "02",
-    title: "[Post] How to talk to parents about getting assessed",
-    excerpt:
-      "[Placeholder] Language that feels respectful and opens the door to proactive care.",
-    href: "/blog/aging-well-at-home",
-  },
-  {
-    category: "medical",
-    tag: "Medical Insights",
-    thumb: "03",
-    title: "[Post] Why one score can clarify ten domains of health",
-    excerpt:
-      "[Placeholder] A plain-language introduction to whole-person assessment for families.",
-    href: "/blog/aging-well-at-home",
-  },
-  {
-    category: "stories",
-    tag: "Family Stories",
-    thumb: "04",
-    title: "[Post] Supporting parents from another city",
-    excerpt:
-      "[Placeholder] How remote families stay involved when care is continuous and clear.",
-    href: "/blog/aging-well-at-home",
-  },
-  {
-    category: "healthy-aging",
-    tag: "Healthy Aging",
-    thumb: "05",
-    title: "[Post] Nutrition signals families often miss",
-    excerpt:
-      "[Placeholder] Appetite, weight, and hydration: quiet markers that deserve attention.",
-    href: "/blog/aging-well-at-home",
-  },
-  {
-    category: "caregiving",
-    tag: "Caregiving Tips",
-    thumb: "06",
-    title: "[Post] Building a simple family care rhythm",
-    excerpt:
-      "[Placeholder] Check-ins, shared notes, and when to involve a clinical partner.",
-    href: "/blog/aging-well-at-home",
-  },
-] as const;
+type BlogFilterId = (typeof FILTERS)[number]["id"];
 
-export function BlogFilters() {
-  const [filter, setFilter] = useState<string>("all");
-  const [subscribed, setSubscribed] = useState(false);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [newsletterError, setNewsletterError] = useState("");
+function BlogFadeIn({
+  children,
+  className,
+  delay = 0,
+  as: Tag = "div",
+  hidden,
+  "data-category": dataCategory,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  as?: "div" | "article";
+  hidden?: boolean;
+  "data-category"?: string;
+}) {
+  const reduceMotion = useReducedMotion();
+  const MotionTag = Tag === "article" ? motion.article : motion.div;
 
-  function onNewsletter(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const result = validateWithSchema(newsletterFormSchema, {
-      email: newsletterEmail,
-    });
-    if (!result.success) {
-      setNewsletterError(
-        result.errors.email ?? "Please enter a valid email address.",
-      );
-      e.currentTarget.querySelector<HTMLInputElement>("#newsletter-email")?.focus();
-      return;
-    }
-
-    setNewsletterError("");
-    setNewsletterEmail("");
-    setSubscribed(true);
+  if (reduceMotion) {
+    const StaticTag = Tag === "article" ? "article" : "div";
+    return (
+      <StaticTag
+        className={className}
+        hidden={hidden}
+        data-category={dataCategory}
+      >
+        {children}
+      </StaticTag>
+    );
   }
 
   return (
-    <>
-      <article className="featured-post">
-        <div className="featured-thumb" aria-hidden="true">
-          Featured
-        </div>
-        <div className="post-body-pad">
-          <span className="category-tag">Healthy Aging</span>
-          <h2>
-            <Link href="/blog/aging-well-at-home">
-              [Featured] What &ldquo;aging well&rdquo; really looks like at home
-            </Link>
-          </h2>
-          <p className="excerpt">
-            [Placeholder excerpt] A clear look at the everyday signals families
-            can watch, and how a structured score helps turn worry into a plan.
-          </p>
-          <p className="post-meta">By [Author] · [Month Day, Year]</p>
-        </div>
-      </article>
+    <MotionTag
+      className={className}
+      hidden={hidden}
+      data-category={dataCategory}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay, ease: marketingEase }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
 
-      <div className="filter-bar" role="toolbar" aria-label="Filter posts by category">
-        {FILTERS.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            className="filter-btn"
-            data-filter={f.id}
-            aria-pressed={filter === f.id}
-            onClick={() => setFilter(f.id)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+export function BlogFilters() {
+  const [filter, setFilter] = useState<BlogFilterId>("all");
+
+  return (
+    <div>
+      <BlogFadeIn as="article" className="featured-post" delay={0.1}>
+        <div className="featured-media">
+          <Link
+            href={FEATURED_POST.href}
+            className="post-media-link"
+            aria-label={FEATURED_POST.title}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={FEATURED_POST.image}
+            alt=""
+            className="post-media-img"
+          />
+          <span className="read-time-chip read-time-chip--featured">
+            {FEATURED_POST.readTime}
+          </span>
+        </div>
+        <div className="featured-body">
+          <BlogMetaBadges category={FEATURED_POST.tag} />
+          <h2 className="featured-title">
+            <Link href={FEATURED_POST.href}>{FEATURED_POST.title}</Link>
+          </h2>
+          <p className="featured-excerpt">{FEATURED_POST.excerpt}</p>
+          <BlogAuthorByline
+            name={FEATURED_POST.author.name}
+            initials={FEATURED_POST.author.initials}
+            date={FEATURED_POST.date}
+          />
+          <BlogReadArticleLink href={FEATURED_POST.href} />
+        </div>
+      </BlogFadeIn>
+
+      <BlogFadeIn className="filter-bar" delay={0.22}>
+        <SegmentedControl
+          value={filter}
+          onChange={setFilter}
+          options={FILTERS}
+          ariaLabel="Filter posts by category"
+          layoutId="blogCategoryFilter"
+        />
+      </BlogFadeIn>
 
       <div className="post-grid">
-        {POSTS.map((post) => {
+        {BLOG_POSTS.map((post, index) => {
           const hidden = filter !== "all" && post.category !== filter;
           return (
-            <article
-              key={post.thumb}
-              className="post-card"
-              data-category={post.category}
+            <BlogFadeIn
+              key={post.slug}
+              delay={0.32 + index * 0.14}
               hidden={hidden}
             >
-              <div className="post-thumb" aria-hidden="true">
-                {post.thumb}
-              </div>
-              <div className="post-body-pad">
-                <span className="category-tag">{post.tag}</span>
-                <h3>
-                  <Link href={post.href}>{post.title}</Link>
-                </h3>
-                <p className="excerpt">{post.excerpt}</p>
-                <p className="post-meta">By [Author] · [Date]</p>
-              </div>
-            </article>
+              <BlogPostCard post={post} />
+            </BlogFadeIn>
           );
         })}
       </div>
-
-      <div className="newsletter" aria-labelledby="newsletter-title">
-        <h2 id="newsletter-title">Stay informed</h2>
-        <p>
-          Occasional insights on independent aging. No spam. Front-end capture
-          only for now.
-        </p>
-        <form
-          id="newsletter-form"
-          className="newsletter-form"
-          noValidate
-          onSubmit={onNewsletter}
-        >
-          <label className="visually-hidden" htmlFor="newsletter-email">
-            Email
-          </label>
-          <input
-            id="newsletter-email"
-            type="email"
-            name="email"
-            placeholder="Your email"
-            maxLength={254}
-            value={newsletterEmail}
-            onChange={(event) => {
-              setNewsletterEmail(event.target.value);
-              if (newsletterError) setNewsletterError("");
-            }}
-            aria-invalid={!!newsletterError}
-            required
-            autoComplete="email"
-          />
-          <button type="submit" className={btn}>
-            Subscribe
-          </button>
-        </form>
-        {newsletterError ? (
-          <p className="newsletter-error" role="alert">{newsletterError}</p>
-        ) : null}
-        <p
-          id="newsletter-success"
-          className={`newsletter-success${subscribed ? " is-visible" : ""}`}
-          role="status"
-        >
-          Thanks! You&apos;re on the list (demo only).
-        </p>
-      </div>
-    </>
+    </div>
   );
 }
