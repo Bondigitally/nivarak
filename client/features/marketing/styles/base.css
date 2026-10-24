@@ -25,6 +25,33 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Home preload: keep chrome + main invisible until the hero preview is ready,
+ * then fade the whole site in as the loader exits.
+ */
+.marketing-site[data-home-reveal="pending"] > .site-header-shell,
+.marketing-site[data-home-reveal="pending"] > main,
+.marketing-site[data-home-reveal="pending"] > .site-footer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.marketing-site[data-home-reveal="ready"] > .site-header-shell,
+.marketing-site[data-home-reveal="ready"] > main,
+.marketing-site[data-home-reveal="ready"] > .site-footer {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-site[data-home-reveal="ready"] > .site-header-shell,
+  .marketing-site[data-home-reveal="ready"] > main,
+  .marketing-site[data-home-reveal="ready"] > .site-footer {
+    transition: none;
+  }
+}
+
 /* Window scroll (hash nav) — must be on html, not .marketing-site. */
 html:has(.marketing-site) {
   scroll-behavior: smooth;

@@ -42,19 +42,14 @@ export function MarketingReveal({
   }
 
   if (mode === "lite") {
-    const axis = direction === "left" || direction === "right" ? "x" : "y";
-    const hiddenOffset =
-      direction === "right" || direction === "down" ? -offset : offset;
-
+    // Opacity-only — avoid transform/will-change on image-heavy blocks.
+    // Chrome softens screenshots that sit inside a persistent compositor layer.
     return (
       <motion.div
-        className={cn(
-          "transform-gpu will-change-[transform,opacity]",
-          className,
-        )}
-        initial={{ opacity: 0, [axis]: hiddenOffset }}
-        animate={eager ? { opacity: 1, [axis]: 0 } : undefined}
-        whileInView={eager ? undefined : { opacity: 1, [axis]: 0 }}
+        className={className}
+        initial={{ opacity: 0 }}
+        animate={eager ? { opacity: 1 } : undefined}
+        whileInView={eager ? undefined : { opacity: 1 }}
         viewport={
           eager ? undefined : { once: true, margin: marketingReveal.inViewMargin }
         }

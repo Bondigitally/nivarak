@@ -15,6 +15,11 @@ type MarketingStaggerProps = {
   className?: string;
   /** Eager on mount (hero). Default: scroll-triggered. */
   eager?: boolean;
+  /**
+   * When false with `eager`, stay hidden (e.g. wait for site preload).
+   * Default true.
+   */
+  active?: boolean;
   as?: ElementType;
   stagger?: number;
   delayChildren?: number;
@@ -66,6 +71,7 @@ export function MarketingStagger({
   children,
   className,
   eager = false,
+  active = true,
   as: Tag = "div",
   stagger,
   delayChildren,
@@ -97,10 +103,10 @@ export function MarketingStagger({
       },
     },
     initial: "hidden" as const,
-    animate: eager ? "show" : undefined,
-    whileInView: eager || reduceMotion ? undefined : "show",
+    animate: eager ? (active ? "show" : "hidden") : undefined,
+    whileInView: eager || reduceMotion || !active ? undefined : "show",
     viewport:
-      eager || reduceMotion
+      eager || reduceMotion || !active
         ? undefined
         : { once: true, margin: marketingReveal.inViewMargin },
   };
