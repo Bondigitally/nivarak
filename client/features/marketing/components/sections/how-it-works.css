@@ -27,13 +27,29 @@
     top: 2.125rem;
     left: 10%;
     right: 10%;
-    height: 2px;
-    background: repeating-linear-gradient(
+    height: 1px;
+    /* 5px dash + 6px gap = 11px period — animate one cycle for a traveling line */
+    background-image: repeating-linear-gradient(
       90deg,
-      var(--color-brand-300) 0 10px,
-      transparent 10px 18px
+      var(--color-brand-300) 0 5px,
+      transparent 5px 11px
     );
+    background-size: 11px 1px;
+    background-repeat: repeat-x;
     z-index: 0;
+    animation: how-steps-dash 0.75s linear infinite;
+  }
+}
+
+@keyframes how-steps-dash {
+  to {
+    background-position: 11px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps-row::before {
+    animation: none;
   }
 }
 
@@ -54,11 +70,28 @@
   place-items: center;
   margin: 0 auto var(--space-16);
   box-shadow: var(--shadow-m);
+  transition: transform var(--duration-normal) var(--ease-out);
 }
 
 .step-num .icon {
   width: var(--icon-xl);
   height: var(--icon-xl);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .step-item:hover .step-num {
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-num {
+    transition: none;
+  }
+
+  .step-item:hover .step-num {
+    transform: none;
+  }
 }
 
 .step-item h3 {

@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  ClipboardListIcon,
   InfinitySquareIcon,
   QuillWrite01Icon,
   Route01Icon,
+  Task01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { AppIcon } from "@/components/shared/AppIcon";
@@ -32,7 +32,7 @@ const STEPS: {
   body: string;
 }[] = [
   {
-    icon: ClipboardListIcon,
+    icon: Task01Icon,
     title: "Assessment",
     body: "A thorough, whole-person evaluation across the domains that shape daily independence.",
   },
