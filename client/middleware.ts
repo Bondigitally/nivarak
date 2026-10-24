@@ -23,8 +23,7 @@ function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/blog/") ||
     pathname.startsWith("/iasp-assessment") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/marketing/")
+    pathname.startsWith("/api")
   );
 }
 
