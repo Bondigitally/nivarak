@@ -25,10 +25,21 @@ type RazorpayCheckoutOptions = {
   order_id: string;
   name: string;
   description: string;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
   handler: (response: RazorpayPaymentSuccess) => void;
   modal: {
     ondismiss: () => void;
   };
+};
+
+export type IaspReportUserDetails = {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
 };
 
 declare global {
@@ -93,7 +104,16 @@ function loadRazorpayScript(): Promise<void> {
  * Callers should swallow "Payment cancelled" rejections (expected user action)
  * and surface all other errors as toast messages.
  */
-export async function openIaspReportCheckout(sessionId: string): Promise<void> {
+export type IaspReportCheckoutOptions = {
+  /** Run after the order is created and immediately before Razorpay opens. */
+  onBeforeOpen?: () => void | Promise<void>;
+};
+
+export async function openIaspReportCheckout(
+  sessionId: string,
+  userDetails: IaspReportUserDetails,
+  options?: IaspReportCheckoutOptions,
+): Promise<void> {
   await loadRazorpayScript();
 
   if (!window.Razorpay) {
@@ -104,7 +124,12 @@ export async function openIaspReportCheckout(sessionId: string): Promise<void> {
     "/payments/razorpay/iasp-report-order",
     {
       method: "POST",
-      body: JSON.stringify({ sessionId }),
+      body: JSON.stringify({
+        sessionId,
+        fullName: userDetails.fullName,
+        phoneNumber: userDetails.phoneNumber,
+        email: userDetails.email,
+      }),
     },
   );
 
@@ -120,6 +145,11 @@ export async function openIaspReportCheckout(sessionId: string): Promise<void> {
       order_id: order.orderId,
       name: "Nivarak",
       description: "IAS Detailed Report",
+      prefill: {
+        name: userDetails.fullName,
+        email: userDetails.email,
+        contact: userDetails.phoneNumber,
+      },
       handler: (response) => {
         paymentStarted = true;
         void apiFetch("/payments/razorpay/iasp-report-verify", {
@@ -148,6 +178,8 @@ export async function openIaspReportCheckout(sessionId: string): Promise<void> {
       },
     });
 
-    checkout.open();
+    void Promise.resolve(options?.onBeforeOpen?.()).then(() => {
+      checkout.open();
+    });
   });
 }

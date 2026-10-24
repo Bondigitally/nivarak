@@ -14,14 +14,14 @@ export const iaspModalShellWidthClass = "max-w-2xl";
 
 /** Desktop modal shell — matches previous PR (max-height only, content-sized). */
 export const iaspModalShellLayoutClass =
-  "flex w-full max-h-[min(92vh,880px)] flex-col items-stretch";
+  "group/thin-scroll flex w-full max-h-[min(92vh,880px)] flex-col items-stretch overflow-hidden";
 
 /**
  * Mobile drawer shell — near full-bleed with a 20px top radius
  * (small top inset so the curve reads against the overlay).
  */
 export const iaspDrawerShellLayoutClass = cn(
-  "inset-x-0 top-auto bottom-0 flex h-[calc(100dvh-0.75rem)] max-h-[calc(100dvh-0.75rem)] w-full max-w-none flex-col items-stretch gap-0",
+  "group/thin-scroll inset-x-0 top-auto bottom-0 flex h-[calc(100dvh-0.75rem)] max-h-[calc(100dvh-0.75rem)] w-full max-w-none flex-col items-stretch gap-0",
   "overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-card p-0 shadow-none",
 );
 
@@ -31,7 +31,7 @@ export const iaspDrawerShellLayoutClass = cn(
  */
 export const iaspModalScrollBodyClass = cn(
   dialogBodyShellClass,
-  "iasp-modal-scroll max-sm:h-0 max-sm:overflow-y-scroll max-sm:touch-pan-y",
+  "thin-hover-scroll iasp-modal-scroll max-sm:h-0 max-sm:overflow-y-scroll max-sm:touch-pan-y",
 );
 
 /** Standard stacked header for questionnaire / review steps. */
@@ -144,6 +144,28 @@ export const iaspDropdownContentClass = cn(
   "z-110 w-(--radix-dropdown-menu-trigger-width) border-border bg-card p-1.5 shadow-md",
 );
 
+/** Stacked dialogs above the main IASP modal (`z-100`) — unlock, resume, exit confirm. */
+export const iaspStackedDialogOverlayClass = "z-110";
+
+export const iaspStackedDialogContentClass = "z-110 overflow-visible";
+
+/** Menus portaled inside stacked dialogs (country picker, etc.). */
+export const iaspStackedDropdownZClass = "z-120";
+
+/** Assessment shell while Razorpay checkout is open — must not intercept clicks. */
+export const iaspRazorpayCheckoutShellClass = "pointer-events-none";
+
+/** Stacked unlock-report dialog — roomier than default `max-w-md` confirm dialogs. */
+export const iaspUnlockReportModalShellClass = cn(
+  "group/thin-scroll flex max-h-[min(92vh,720px)] w-full max-w-lg flex-col overflow-hidden p-0",
+);
+
+/** Scrollable unlock form body (fields + pricing summary). */
+export const iaspUnlockReportModalBodyClass = cn(
+  dialogBodyShellClass,
+  "thin-hover-scroll gap-4 py-5 sm:py-6",
+);
+
 /** Consistent spacing for the IAS questionnaire step. */
 export const iaspQuestionStepGapClass = "gap-3";
 
@@ -169,4 +191,19 @@ export const iaspDropdownItemClass = cn(
   radius.sm,
   "cursor-pointer px-3 py-2.5",
   typo.input,
+);
+
+/**
+ * Report / editorial headings — wrap at word boundaries only.
+ * No soft hyphenation; never break mid-word.
+ */
+const iaspReportHeadingClass = cn(
+  "hyphens-none break-normal [overflow-wrap:normal] [word-break:normal]",
+);
+
+/** Primary overall-assessment headline (web report surfaces). */
+export const iaspReportDisplayHeadingClass = cn(
+  iaspReportHeadingClass,
+  "text-balance font-semibold tracking-[-0.02em] text-foreground",
+  "text-[clamp(1.25rem,4.2vw,1.75rem)] leading-[1.2]",
 );
