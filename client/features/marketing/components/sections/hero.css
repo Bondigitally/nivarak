@@ -17,19 +17,27 @@
 .hero-inner {
   position: relative;
   display: grid;
-  gap: var(--space-48);
+  gap: var(--space-40);
   align-items: center;
+  /* Stacked on mobile + tablet so the device frame keeps the same proportions */
+  grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 744px) {
+@media (min-width: 1100px) {
   .hero-inner {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--space-64);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 42rem);
+    gap: var(--space-48);
   }
 }
 
-.hero h1 {
-  font-size: clamp(2rem, 4.5vw, var(--type-display-xl-size));
+/* Scope to marketing copy only — do not style dashboard preview headings inside .hero-visual */
+.hero-text {
+  min-width: 0;
+  max-width: 40rem;
+}
+
+.hero-text h1 {
+  font-size: clamp(1.875rem, 5vw + 0.5rem, var(--type-display-xl-size));
   line-height: 1.15;
   font-weight: var(--type-display-xl-weight);
   letter-spacing: var(--type-display-xl-tracking);
@@ -39,7 +47,7 @@
 }
 
 @media (min-width: 744px) {
-  .hero h1 {
+  .hero-text h1 {
     line-height: var(--type-display-xl-line);
   }
 }
@@ -58,6 +66,11 @@
   flex-wrap: wrap;
   gap: var(--space-16);
   margin-bottom: var(--space-32);
+  max-width: 100%;
+}
+
+.hero-ctas > * {
+  max-width: 100%;
 }
 
 .trust-badges {
@@ -102,8 +115,29 @@
 
 .hero-visual {
   position: relative;
-  min-height: 22rem;
   display: grid;
   place-items: center;
   width: 100%;
+  min-width: 0;
+  /* Match device aspect — avoid a short empty min-height that fights the frame */
+  min-height: 0;
+}
+
+@media (min-width: 1100px) {
+  .hero-visual {
+    place-items: stretch;
+  }
+}
+
+/* Device frame — same max width and centering at every stacked breakpoint */
+.hero-visual [data-hero-carousel] {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 1100px) {
+  .hero-visual [data-hero-carousel] {
+    margin-inline: 0;
+  }
 }

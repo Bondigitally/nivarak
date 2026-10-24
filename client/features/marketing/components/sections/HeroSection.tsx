@@ -1,39 +1,56 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
-  ArrowRight02Icon,
   HealthIcon,
   InfinitySquareIcon,
   QuillWrite01Icon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
-import { HeroCarousel } from "@/features/marketing/components/HeroCarousel";
-import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
+import { ArrowFillButton } from "@/features/marketing/components/ArrowFillButton";
+import { useMarketingHomePreload } from "@/features/marketing/components/MarketingHomePreload";
 import {
   MarketingStagger,
   MarketingStaggerItem,
 } from "@/features/marketing/components/MarketingStagger";
 import { marketingHeroUnderHeaderClass } from "@/features/marketing/lib/header-layout";
-import { marketingHero } from "@/features/marketing/lib/motion";
-import {
-  btnPrimary,
-  eyebrow,
-  textAccent,
-  wrap,
-} from "@/features/marketing/lib/marketing-classes";
+import { eyebrow, textAccent, wrap } from "@/features/marketing/lib/marketing-classes";
 import { ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import "@/features/marketing/components/sections/hero.css";
 
+const heroCarouselImport = () =>
+  import("@/features/marketing/components/HeroCarousel").then((m) => ({
+    default: m.HeroCarousel,
+  }));
+
+/** Dashboard preview is a separate chunk — prefetch while hero copy paints.
+ *  No loading UI: MarketingHomePreload covers the chunk wait. */
+const HeroCarousel = dynamic(heroCarouselImport, {
+  ssr: false,
+});
+
 export function HeroSection() {
+  const preload = useMarketingHomePreload();
+  const revealed = preload?.ready ?? true;
+
+  useEffect(() => {
+    void heroCarouselImport();
+  }, []);
+
   return (
     <section
       className={cn("hero", marketingHeroUnderHeaderClass)}
       aria-labelledby="hero-title"
     >
       <div className={cn(wrap, "hero-inner")}>
-        <MarketingStagger className="hero-text" eager mode="lite">
+        <MarketingStagger
+          className="hero-text"
+          eager
+          active={revealed}
+          mode="lite"
+        >
           <MarketingStaggerItem mode="lite">
             <p className={eyebrow}>Independent Aging, Reimagined</p>
           </MarketingStaggerItem>
@@ -54,13 +71,7 @@ export function HeroSection() {
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
             <div className="hero-ctas">
-              <Link
-                className={cn(btnPrimary, "min-h-[var(--density-control-h-cta)]")}
-                href="/iasp-assessment"
-              >
-                Take free assessment{" "}
-                <AppIcon icon={ArrowRight02Icon} size={ICON_SIZE} />
-              </Link>
+              <ArrowFillButton text="Take a Free 3-Minute Assessment" />
             </div>
           </MarketingStaggerItem>
           <MarketingStaggerItem mode="lite">
@@ -86,17 +97,13 @@ export function HeroSection() {
             </div>
           </MarketingStaggerItem>
         </MarketingStagger>
-        <MarketingReveal
-          className="hero-visual"
-          eager
-          mode="lite"
-          delay={marketingHero.visualDelay}
-          direction="right"
-          offset={marketingHero.visualOffset}
-          duration={marketingHero.visualDuration}
-        >
+        {/*
+          No MarketingReveal here — stacking an entrance animation on top of
+          the dynamic chunk mount caused visible stutter in the preview.
+        */}
+        <div className="hero-visual">
           <HeroCarousel />
-        </MarketingReveal>
+        </div>
       </div>
     </section>
   );
