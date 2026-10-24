@@ -2,8 +2,8 @@
 
 import {
   CaduceusIcon,
-  ElderIcon,
   HouseHeartIcon,
+  PatientIcon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
@@ -26,6 +26,9 @@ import {
 import { EMPTY_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import "@/features/marketing/components/sections/what-is.css";
+
+/** ElderIcon is not in the free pack pinned by package-lock; PatientIcon matches. */
+const ElderIcon = PatientIcon;
 
 const CARDS = [
   {
