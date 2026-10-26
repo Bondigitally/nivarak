@@ -104,6 +104,7 @@
 
 .step-item p {
   font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
   line-height: var(--type-body-m-line);
   color: var(--color-text-secondary);
 }

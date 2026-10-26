@@ -132,6 +132,7 @@
 
 .featured-excerpt {
   font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
   line-height: var(--type-body-m-line);
   color: var(--color-text-secondary);
 }
@@ -431,7 +432,8 @@
 .article-body p {
   color: var(--color-text-secondary);
   font-size: var(--type-body-l-size);
-  line-height: 1.7;
+  font-weight: var(--type-body-l-weight);
+  line-height: var(--type-body-l-line);
   margin-bottom: var(--space-20);
 }
 
@@ -453,7 +455,8 @@
   padding-left: 1.35rem;
   color: var(--color-text-secondary);
   font-size: var(--type-body-l-size);
-  line-height: 1.7;
+  font-weight: var(--type-body-l-weight);
+  line-height: var(--type-body-l-line);
 }
 
 .article-list li {

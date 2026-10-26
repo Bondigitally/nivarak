@@ -456,6 +456,7 @@
   text-align: center;
   color: var(--color-text-secondary);
   font-size: var(--type-body-l-size);
+  font-weight: var(--type-body-l-weight);
   line-height: var(--type-body-l-line);
   max-width: 36rem;
   width: 100%;

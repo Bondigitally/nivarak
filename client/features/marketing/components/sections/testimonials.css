@@ -66,7 +66,7 @@
 .testi-card {
   width: min(20.5rem, 88cqi);
   flex-shrink: 0;
-  background: var(--color-surface-raised);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-l);
   padding: var(--space-32) var(--space-24);
@@ -75,6 +75,11 @@
   gap: var(--space-16);
   box-shadow: var(--shadow-xs);
   transform-origin: center center;
+}
+
+.testi-quote-mark {
+  color: var(--color-primary);
+  line-height: 0;
 }
 
 @media (min-width: 744px) {
@@ -96,22 +101,18 @@
   transform: rotate(-1.25deg);
 }
 
-.testi-stars {
-  display: flex;
-  gap: var(--space-4);
-  color: #e6b422;
-}
-
-.testi-stars svg {
-  color: inherit;
-}
-
 .testi-card .quote {
+  margin: 0;
+  flex: 1;
+}
+
+.testi-card .quote p {
+  margin: 0;
   font-size: var(--type-body-l-size);
+  font-weight: var(--type-body-l-weight);
   line-height: var(--type-body-l-line);
   font-style: italic;
   color: var(--color-text-secondary);
-  flex: 1;
 }
 
 .testi-who {
