@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MarketingHashScroll } from "@/features/marketing/components/MarketingHashScroll";
+import { ScrollToTopButton } from "@/features/marketing/components/ScrollToTopButton";
 import { SiteFooter } from "@/features/marketing/components/SiteFooter";
 import { SiteHeader } from "@/features/marketing/components/SiteHeader";
 import { skipLink } from "@/features/marketing/lib/marketing-classes";
@@ -30,6 +31,7 @@ export default function MarketingLayout({
       <SiteHeader />
       {children}
       <SiteFooter />
+      <ScrollToTopButton />
     </div>
   );
 }
