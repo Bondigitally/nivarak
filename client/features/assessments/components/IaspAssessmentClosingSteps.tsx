@@ -729,7 +729,7 @@ export function ResultsStep({
         <Button
           type="button"
           size="cta"
-          onClick={() => router.push("/contact#book")}
+          onClick={() => router.push("/contact#contact")}
         >
           Book a Free Consultation
         </Button>

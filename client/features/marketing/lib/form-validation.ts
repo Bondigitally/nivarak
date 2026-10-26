@@ -1,13 +1,6 @@
 import { isValidPhoneNumber } from "@/features/auth/components/primitives/PhoneField";
 import { z } from "zod";
 
-export const RELATIONSHIP_VALUES = [
-  "son-daughter",
-  "spouse",
-  "self",
-  "other",
-] as const;
-
 export const SCORE_FOR_VALUES = ["self", "parent", "spouse", "other"] as const;
 
 const personNameSchema = z
@@ -32,8 +25,13 @@ const phoneSchema = z
 const requiredMessageSchema = z
   .string()
   .trim()
-  .min(10, "Please add a short message or preferred time (at least 10 characters)")
+  .min(10, "Please add a short message (at least 10 characters)")
   .max(1000, "Message is too long");
+
+const optionalSubjectSchema = z
+  .string()
+  .trim()
+  .max(120, "Subject is too long");
 
 const optionalMessageSchema = z
   .string()
@@ -80,7 +78,7 @@ export const contactFormSchema = z.object({
   name: personNameSchema,
   phone: phoneSchema,
   email: emailSchema,
-  relationship: oneOf(RELATIONSHIP_VALUES, "Please select a relationship"),
+  subject: optionalSubjectSchema,
   message: requiredMessageSchema,
 });
 

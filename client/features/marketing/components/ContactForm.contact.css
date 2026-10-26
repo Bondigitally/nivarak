@@ -2,17 +2,65 @@
 .contact-options {
   display: grid;
   gap: var(--space-16);
+  align-items: stretch;
 }
 
 @media (min-width: 744px) {
   .contact-options {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1440px) {
   .contact-options {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.contact-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  height: 100%;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.contact-option-icon {
+  transform-origin: center;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    background-color var(--duration-normal) var(--ease-out),
+    color var(--duration-normal) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-option:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-m);
+  }
+
+  .contact-option:hover .contact-option-icon {
+    transform: scale(1.08);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-option,
+  .contact-option-icon {
+    transition: none;
+  }
+
+  .contact-option:hover {
+    transform: none;
+  }
+
+  .contact-option:hover .contact-option-icon {
+    transform: none;
   }
 }
 
@@ -20,10 +68,11 @@
   font-size: var(--type-heading-s-size);
   margin-bottom: var(--space-8);
 }
-
 .contact-option p,
 .contact-option a {
-  font-size: var(--type-body-s-size);
+  font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
+  line-height: var(--type-body-m-line);
   color: var(--color-text-secondary);
 }
 
@@ -51,6 +100,17 @@
   box-shadow: var(--shadow-s);
 }
 
+@media (min-width: 744px) {
+  .form-card {
+    padding: var(--space-40);
+  }
+}
+
+.form-card-head {
+  margin-bottom: var(--space-32);
+}
+
+.form-card-head h2,
 .form-card h2,
 .form-card h3 {
   font-size: var(--type-heading-l-size);
@@ -60,15 +120,48 @@
   color: var(--color-text-primary);
 }
 
-.form-card > p {
+.form-card-head > p:not([class]) {
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-24);
+  margin: 0;
   font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
   line-height: var(--type-body-m-line);
 }
 
+.form-card > p {
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-24);
+  font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
+  line-height: var(--type-body-m-line);
+}
+
+.form-row {
+  display: grid;
+  gap: var(--space-16);
+  align-items: start;
+}
+
+@media (min-width: 744px) {
+  .form-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-20);
+  }
+}
+
 .form-group {
-  margin-bottom: var(--space-16);
+  margin-bottom: var(--space-20);
+  min-width: 0;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.form-row + .form-group,
+.form-row + .form-row {
+  margin-top: var(--space-20);
 }
 
 /* Direct-child selectors only — avoid restyling nested controls (e.g. PhoneField shell). */
@@ -87,21 +180,30 @@
 
 .form-group > input,
 .form-group > textarea {
+  box-sizing: border-box;
   width: 100%;
-  min-height: var(--density-control-h);
-  padding: var(--space-12) var(--space-16);
   border: var(--stroke-thin) solid var(--color-border);
   border-radius: var(--radius-m);
-  background: var(--color-surface-raised);
+  background: transparent;
   color: var(--color-text-primary);
   font-size: var(--type-body-m-size);
-  line-height: var(--type-body-m-line);
-  transition: border-color var(--duration-fast) var(--ease-out),
+  font-weight: var(--type-body-m-weight);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
 }
 
+.form-group > input {
+  height: var(--density-control-h);
+  min-height: var(--density-control-h);
+  padding: 0 var(--space-16);
+  line-height: calc(var(--density-control-h) - 2px);
+}
+
 .form-group > textarea {
-  min-height: 8rem;
+  min-height: 9.5rem;
+  padding: var(--space-12) var(--space-16);
+  line-height: var(--type-body-m-line);
   resize: vertical;
 }
 
@@ -123,7 +225,13 @@
   border-color: var(--color-error-500);
 }
 
-/* PhoneField — single shell, aligned with marketing form controls */
+/* PhoneField — match marketing label/control rhythm and column width */
+.contact-form .phone-field {
+  width: 100%;
+  min-width: 0;
+  gap: 0 !important;
+}
+
 .contact-form .phone-field > label {
   display: block;
   margin-bottom: var(--space-8);
@@ -134,13 +242,27 @@
 }
 
 .contact-form .phone-field__shell {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--density-control-h) !important;
   min-height: var(--density-control-h);
   border-radius: var(--radius-m);
   border-color: var(--color-border);
-  background: var(--color-surface-raised);
+  background: transparent;
   box-shadow: none;
+  padding-inline: var(--space-16);
 }
 
+.contact-form .phone-field__input {
+  min-width: 0;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.form-group.has-error .phone-field + .field-error {
+  display: block;
+}
 .contact-form .phone-field__shell:focus-within {
   border-color: var(--color-border-focus);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-border-focus) 35%, transparent);
@@ -173,8 +295,21 @@
   display: block;
 }
 
+.form-actions {
+  margin-top: var(--space-8);
+}
+
+.form-actions .btn,
+.form-actions button {
+  width: 100%;
+  min-height: var(--density-control-h-cta, var(--density-control-h));
+}
+
 .form-success {
   display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
   padding: var(--space-24);
   border-radius: var(--radius-m);
   background: var(--color-success-50);
@@ -183,9 +318,40 @@
 }
 
 .form-success.is-visible {
-  display: block;
+  display: flex;
 }
 
+.form-success-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-success-600) 12%, white);
+  color: var(--color-success-600);
+}
+
+.form-success-icon .icon {
+  width: var(--icon-m);
+  height: var(--icon-m);
+}
+
+.form-success strong {
+  font-size: var(--type-heading-s-size);
+  line-height: var(--type-heading-s-line);
+  color: var(--color-text-primary);
+}
+
+.form-success p {
+  margin: 0;
+  font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
+  line-height: var(--type-body-m-line);
+  color: var(--color-text-secondary);
+}
+
+.form-card.is-success .form-card-head,
 .form-card.is-success .contact-form {
   display: none;
 }
@@ -199,7 +365,9 @@
 .areas-aside .areas-intro {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: var(--type-body-s-size);
+  font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
+  line-height: var(--type-body-m-line);
 }
 
 .areas-aside .areas-heading {
@@ -225,56 +393,4 @@
   width: var(--icon-m);
   height: var(--icon-m);
   color: var(--color-primary);
-}
-
-/* FAQ accordion */
-.faq-list {
-  display: grid;
-  gap: var(--space-8);
-}
-
-.faq-item {
-  padding: 0;
-  overflow: hidden;
-  border-radius: var(--radius-m);
-}
-
-.faq-trigger {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-12);
-  padding: var(--space-12) var(--space-16);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  font-size: var(--type-body-l-size);
-  font-weight: 600;
-  line-height: var(--type-body-l-line);
-  color: var(--color-brand-900);
-}
-
-.faq-trigger .icon {
-  flex-shrink: 0;
-  width: var(--icon-s);
-  height: var(--icon-s);
-  transition: transform var(--duration-normal) var(--ease-out);
-}
-
-.faq-item[data-open="true"] .faq-trigger .icon {
-  transform: rotate(180deg);
-}
-
-.faq-panel {
-  display: none;
-  padding: 0 var(--space-16) var(--space-12);
-  color: var(--color-text-secondary);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-}
-
-.faq-item[data-open="true"] .faq-panel {
-  display: block;
 }

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { PhoneField } from "@/features/auth/components/primitives/PhoneField";
-import { FormSelect } from "@/components/ui/form-select";
+import { Icon } from "@/features/marketing/components/Icon";
 import {
   contactFormSchema,
   focusFirstField,
@@ -12,18 +12,11 @@ import {
 import { btnPrimary } from "@/features/marketing/lib/marketing-classes";
 import "@/features/marketing/components/ContactForm.contact.css";
 
-const RELATIONSHIP_OPTIONS = [
-  { value: "son-daughter", label: "Son / Daughter" },
-  { value: "spouse", label: "Spouse / Partner" },
-  { value: "self", label: "I'm the person seeking care" },
-  { value: "other", label: "Other family / caregiver" },
-] as const;
-
 const FIELD_IDS: Record<string, string> = {
   name: "name",
   phone: "phone",
   email: "email",
-  relationship: "relationship",
+  subject: "subject",
   message: "message",
 };
 
@@ -33,7 +26,7 @@ export function ContactForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [relationship, setRelationship] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
   function clearError(field: string) {
@@ -53,7 +46,7 @@ export function ContactForm() {
       name,
       phone,
       email,
-      relationship,
+      subject,
       message,
     });
 
@@ -70,11 +63,13 @@ export function ContactForm() {
 
   return (
     <div className={`form-card${success ? " is-success" : ""}`}>
-      <h2 id="form-title">Book an assessment</h2>
-      <p>
-        Tell us a little about your situation. We&apos;ll call you back to
-        schedule a clinical assessment at a time that works for you.
-      </p>
+      <header className="form-card-head">
+        <h2 id="form-title">Send us a message</h2>
+        <p>
+          Have a question or want to learn more about Nivarak? Fill out the form
+          and we&apos;ll get back to you soon.
+        </p>
+      </header>
 
       <div
         id="form-success"
@@ -82,97 +77,114 @@ export function ContactForm() {
         tabIndex={-1}
         role="status"
       >
-        <strong>Thank you. Your request was received.</strong>
-        <p>
-          This is a front-end confirmation only. Wire the form submit handler to
-          your real endpoint before launch.
-        </p>
+        <div className="form-success-icon" aria-hidden="true">
+          <Icon name="i-check-circle" />
+        </div>
+        <strong>Thank you. Your message was received.</strong>
+        <p>We&apos;ll review it and get back to you shortly.</p>
       </div>
 
-      <form id="contact-form" className="contact-form" noValidate onSubmit={onSubmit}>
-        <div className={`form-group${errors.name ? " has-error" : ""}`}>
-          <label htmlFor="name">
-            Name <span className="req" aria-hidden="true">*</span>
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            maxLength={80}
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              clearError("name");
-            }}
-            aria-invalid={!!errors.name}
-            required
-          />
-          <p className="field-error">{errors.name ?? "Please enter your name."}</p>
+      <form
+        id="contact-form"
+        className="contact-form"
+        noValidate
+        onSubmit={onSubmit}
+      >
+        <div className="form-row">
+          <div className={`form-group${errors.name ? " has-error" : ""}`}>
+            <label htmlFor="name">
+              Name <span className="req" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              maxLength={80}
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+                clearError("name");
+              }}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              required
+              placeholder="Your full name"
+            />
+            <p id="name-error" className="field-error">
+              {errors.name ?? "Please enter your name."}
+            </p>
+          </div>
+
+          <div className={`form-group${errors.email ? " has-error" : ""}`}>
+            <label htmlFor="email">
+              Email <span className="req" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                clearError("email");
+              }}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              required
+              placeholder="you@example.com"
+            />
+            <p id="email-error" className="field-error">
+              {errors.email ?? "Please enter a valid email address."}
+            </p>
+          </div>
         </div>
 
-        <div className={`form-group${errors.phone ? " has-error" : ""}`}>
-          <PhoneField
-            id="phone"
-            label="Phone *"
-            value={phone}
-            onChange={(value) => {
-              setPhone(value);
-              clearError("phone");
-            }}
-            error={errors.phone}
-          />
-        </div>
+        <div className="form-row">
+          <div className={`form-group${errors.phone ? " has-error" : ""}`}>
+            <PhoneField
+              id="phone"
+              label="Phone *"
+              value={phone}
+              onChange={(value) => {
+                setPhone(value);
+                clearError("phone");
+              }}
+              error={errors.phone}
+              showError={false}
+            />
+            <p id="phone-error" className="field-error">
+              {errors.phone ?? "Please enter a valid phone number."}
+            </p>
+          </div>
 
-        <div className={`form-group${errors.email ? " has-error" : ""}`}>
-          <label htmlFor="email">
-            Email <span className="req" aria-hidden="true">*</span>
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            maxLength={254}
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              clearError("email");
-            }}
-            aria-invalid={!!errors.email}
-            required
-          />
-          <p className="field-error">
-            {errors.email ?? "Please enter a valid email address."}
-          </p>
-        </div>
-
-        <div className={`form-group${errors.relationship ? " has-error" : ""}`}>
-          <label htmlFor="relationship">
-            Relationship to the person needing care{" "}
-            <span className="req" aria-hidden="true">*</span>
-          </label>
-          <FormSelect
-            id="relationship"
-            name="relationship"
-            value={relationship}
-            options={RELATIONSHIP_OPTIONS}
-            onChange={(value) => {
-              setRelationship(value);
-              clearError("relationship");
-            }}
-            error={!!errors.relationship}
-            aria-label="Relationship to the person needing care"
-          />
-          <p className="field-error">
-            {errors.relationship ?? "Please select a relationship."}
-          </p>
+          <div className={`form-group${errors.subject ? " has-error" : ""}`}>
+            <label htmlFor="subject">Subject</label>
+            <input
+              id="subject"
+              name="subject"
+              type="text"
+              maxLength={120}
+              value={subject}
+              onChange={(event) => {
+                setSubject(event.target.value);
+                clearError("subject");
+              }}
+              aria-invalid={!!errors.subject}
+              aria-describedby={errors.subject ? "subject-error" : undefined}
+              placeholder="What is this about?"
+            />
+            <p id="subject-error" className="field-error">
+              {errors.subject ?? "Please enter a shorter subject."}
+            </p>
+          </div>
         </div>
 
         <div className={`form-group${errors.message ? " has-error" : ""}`}>
           <label htmlFor="message">
-            Message / preferred callback time{" "}
-            <span className="req" aria-hidden="true">*</span>
+            Message <span className="req" aria-hidden="true">*</span>
           </label>
           <textarea
             id="message"
@@ -184,17 +196,21 @@ export function ContactForm() {
               clearError("message");
             }}
             aria-invalid={!!errors.message}
+            aria-describedby={errors.message ? "message-error" : undefined}
             required
-            placeholder="Share a brief note and when it's best to call you."
+            placeholder="How can we help?"
+            rows={5}
           />
-          <p className="field-error">
-            {errors.message ?? "Please add a short message or preferred time."}
+          <p id="message-error" className="field-error">
+            {errors.message ?? "Please add a short message."}
           </p>
         </div>
 
-        <button type="submit" className={btnPrimary}>
-          Request a callback
-        </button>
+        <div className="form-actions">
+          <button type="submit" className={btnPrimary}>
+            Send message
+          </button>
+        </div>
       </form>
     </div>
   );
