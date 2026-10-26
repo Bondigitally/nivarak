@@ -21,15 +21,15 @@
   max-width: 40rem;
   margin-inline: auto;
   font-size: var(--type-body-l-size);
+  font-weight: var(--type-body-l-weight);
+  line-height: var(--type-body-l-line);
   color: var(--color-text-secondary);
-  font-weight: 500;
 }
 
 .what-card,
 .value-card,
 .usp-card,
-.contact-option,
-.pillar-card {
+.contact-option {
   background: var(--color-surface-raised);
   border: none;
   border-radius: var(--radius-l);
@@ -140,12 +140,6 @@
   }
 }
 
-.faq-item {
-  background: var(--color-surface-raised);
-  border: none;
-  box-shadow: var(--shadow-xs);
-}
-
 .card-icon {
   display: grid;
   place-items: center;
@@ -164,8 +158,7 @@
 
 .what-card h3,
 .value-card h3,
-.usp-card h3,
-.pillar-card h3 {
+.usp-card h3 {
   font-size: var(--type-heading-m-size);
   line-height: 1.5rem;
   font-weight: var(--type-heading-m-weight);
@@ -175,9 +168,9 @@
 
 .what-card p,
 .value-card p,
-.usp-card p,
-.pillar-card p {
+.usp-card p {
   font-size: var(--type-body-m-size);
+  font-weight: var(--type-body-m-weight);
   line-height: var(--type-body-m-line);
   color: var(--color-text-secondary);
 }
