@@ -25,11 +25,17 @@ type LoadState =
 export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [reloadKey, setReloadKey] = useState(0);
+  const [loadFor, setLoadFor] = useState(sessionId);
+
+  // Reset to loading when the session id changes (avoid setState inside the effect).
+  if (loadFor !== sessionId) {
+    setLoadFor(sessionId);
+    setState({ status: "loading" });
+  }
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
-    setState({ status: "loading" });
 
     void loadIaspReportPdfObjectUrl(sessionId).then((result) => {
       if (cancelled) {
@@ -120,7 +126,10 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 type="button"
-                onClick={() => setReloadKey((k) => k + 1)}
+                onClick={() => {
+                  setState({ status: "loading" });
+                  setReloadKey((k) => k + 1);
+                }}
               >
                 Retry Generating Report
               </Button>
