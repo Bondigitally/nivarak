@@ -251,7 +251,7 @@ export function IaspUnlockReportModal({
                   </div>
                   <div className="shrink-0 text-right">
                     <span className={cn(typo.headingXl, "font-bold text-primary")}>
-                      ₹499
+                      ₹1
                     </span>
                   </div>
                 </div>
