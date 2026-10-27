@@ -42,6 +42,7 @@
   opacity: 0.92;
   margin-bottom: var(--space-32);
   font-size: var(--type-body-l-size);
+  font-weight: var(--type-body-l-weight);
   line-height: var(--type-body-l-line);
 }
 

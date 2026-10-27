@@ -34,8 +34,21 @@ const footerItem =
   "text-[length:var(--type-body-m-size)] leading-[var(--type-body-m-line)] !text-white/75";
 const footerCol = "flex min-w-0 flex-col gap-4 text-left";
 
+const COMPANY_LINKS = [
+  { href: "/about", label: "About Us" },
+  { href: "/blog", label: "Blog" },
+  { href: "/faq", label: "FAQs" },
+  { href: "/contact", label: "Contact Us" },
+] as const;
+
+const LEGAL_LINKS = [
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Use" },
+] as const;
+
 export function SiteFooter() {
   const isHome = usePathname() === "/";
+
   return (
     <footer className="site-footer bg-[var(--color-neutral-950)] pb-6 pt-16 !text-white">
       <div className={wrap}>
@@ -68,13 +81,27 @@ export function SiteFooter() {
               aria-label="Social links"
             >
               {[
-                { href: "#", label: "Facebook", icon: Facebook02Icon },
-                { href: "#", label: "Instagram", icon: InstagramIcon },
-                { href: "#", label: "LinkedIn", icon: Linkedin02Icon },
+                {
+                  href: "https://www.facebook.com/people/Nivarak-Eldercare/pfbid032B2FMHfvPkdccn65d2VMCVsTvCmw9rrYCKSFLKqExWQnZGvrVVNYc3bMmfbx7kggl/",
+                  label: "Facebook",
+                  icon: Facebook02Icon,
+                },
+                {
+                  href: "https://www.instagram.com/drmeetali",
+                  label: "Instagram",
+                  icon: InstagramIcon,
+                },
+                {
+                  href: "https://www.linkedin.com/in/meetali-kolhatkar-bidaye-89800733",
+                  label: "LinkedIn",
+                  icon: Linkedin02Icon,
+                },
               ].map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={item.label}
                   className={cn(
                     "grid size-[2.125rem] shrink-0 place-items-center rounded-full",
@@ -95,13 +122,13 @@ export function SiteFooter() {
 
           <div
             className={cn(
-              "grid grid-cols-2 gap-x-8 gap-y-10 min-[744px]:gap-x-16",
-              "min-[744px]:grid-cols-4 min-[744px]:gap-x-20",
+              "grid grid-cols-2 gap-x-8 gap-y-10",
+              "min-[744px]:grid-cols-3 min-[744px]:gap-x-16",
               "min-[1440px]:flex min-[1440px]:flex-nowrap min-[1440px]:gap-x-20",
             )}
           >
             <div className={footerCol}>
-              <h2 className={footerColTitle}>Nivarak</h2>
+              <h2 className={footerColTitle}>Explore</h2>
               <ul className={footerList}>
                 {MARKETING_SECTION_NAV.map((item) => (
                   <li key={item.id} className={footerItem}>
@@ -113,42 +140,13 @@ export function SiteFooter() {
                     </Link>
                   </li>
                 ))}
-                <li className={footerItem}>
-                  <Link className={footerLink} href="/about">
-                    About Us
-                  </Link>
-                </li>
               </ul>
             </div>
+
             <div className={footerCol}>
-              <h2 className={footerColTitle}>Care</h2>
+              <h2 className={footerColTitle}>Company</h2>
               <ul className={footerList}>
-                {[
-                  "Health Assessment",
-                  "Medical Monitoring",
-                  "Care Coordination",
-                  "Digital Records",
-                ].map((label) => (
-                  <li key={label} className={footerItem}>
-                    <Link
-                      className={footerLink}
-                      href={marketingHomeHash("#care-ecosystem", isHome)}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className={footerCol}>
-              <h2 className={footerColTitle}>Resources</h2>
-              <ul className={footerList}>
-                {[
-                  { href: "/blog", label: "Blog" },
-                  { href: "/contact#faq", label: "FAQs" },
-                  { href: "/about#team", label: "Our Experts" },
-                  { href: "/contact", label: "Contact" },
-                ].map((item) => (
+                {COMPANY_LINKS.map((item) => (
                   <li key={item.label} className={footerItem}>
                     <Link className={footerLink} href={item.href}>
                       {item.label}
@@ -157,17 +155,18 @@ export function SiteFooter() {
                 ))}
               </ul>
             </div>
+
             <div className={footerCol}>
               <h2 className={footerColTitle}>Get in Touch</h2>
               <ul className={footerList}>
                 <li className={footerItem}>
-                  <Link className={footerLink} href="/contact#book">
-                    Book an Assessment
+                  <Link className={footerLink} href="/contact#contact">
+                    Send a Message
                   </Link>
                 </li>
                 <li className={footerItem}>
                   <a className={footerLink} href="tel:+919371090980">
-                    Helpline: +91 93710 90980
+                    +91 93710 90980
                   </a>
                 </li>
                 <li className={footerItem}>
@@ -182,20 +181,26 @@ export function SiteFooter() {
             </div>
           </div>
         </div>
+
         <div
           className={cn(
             "flex flex-col items-center justify-center gap-3 border-t border-white/15 pt-6 text-center",
             "text-[length:var(--type-caption-size)] !text-white/65",
           )}
         >
-          <p className="!text-white/65">&copy; 2026 Nivarak. All rights reserved.</p>
+          <p className="!text-white/65">
+            &copy; 2026 Nivarak. All rights reserved.
+          </p>
           <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            <Link className="!text-white/75 hover:!text-white" href="/privacy">
-              Privacy Policy
-            </Link>
-            <Link className="!text-white/75 hover:!text-white" href="/terms">
-              Terms of Use
-            </Link>
+            {LEGAL_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                className="!text-white/75 hover:!text-white"
+                href={item.href}
+              >
+                {item.label}
+              </Link>
+            ))}
           </p>
         </div>
       </div>

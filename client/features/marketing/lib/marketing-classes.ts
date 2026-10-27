@@ -88,8 +88,8 @@ export const cardTitle = cn(
 );
 
 export const cardBody = cn(
-  "text-[length:var(--type-body-m-size)] leading-[var(--type-body-m-line)]",
-  "text-[var(--color-text-secondary)]",
+  "text-[length:var(--type-body-m-size)] font-[number:var(--type-body-m-weight)]",
+  "leading-[var(--type-body-m-line)] text-[var(--color-text-secondary)]",
 );
 
 export const pageHero = cn(
@@ -106,8 +106,8 @@ export const pageHeroTitle = cn(
 );
 
 export const pageHeroBody = cn(
-  "text-[length:var(--type-body-l-size)] leading-[var(--type-body-l-line)]",
-  "text-[var(--color-text-secondary)]",
+  "text-[length:var(--type-body-l-size)] font-[number:var(--type-body-l-weight)]",
+  "leading-[var(--type-body-l-line)] text-[var(--color-text-secondary)]",
 );
 
 export const skipLink = cn(
