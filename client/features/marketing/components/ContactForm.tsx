@@ -1,16 +1,26 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import dynamic from "next/dynamic";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PhoneField } from "@/features/auth/components/primitives/PhoneField";
-import { Icon } from "@/features/marketing/components/Icon";
 import {
   contactFormSchema,
   focusFirstField,
   validateWithSchema,
   type FieldErrors,
 } from "@/features/marketing/lib/form-validation";
+import { marketingEase } from "@/features/marketing/lib/motion";
 import { btnPrimary } from "@/features/marketing/lib/marketing-classes";
 import "@/features/marketing/components/ContactForm.contact.css";
+
+const DotLottieReact = dynamic(
+  () => import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
+  { ssr: false },
+);
+
+/** Branded plane send animation — soft purple / primary from marketing tokens. */
+const CONTACT_SUCCESS_LOTTIE = "/images/message-sent.lottie";
 
 const FIELD_IDS: Record<string, string> = {
   name: "name",
@@ -20,14 +30,50 @@ const FIELD_IDS: Record<string, string> = {
   message: "message",
 };
 
+const COPY_TRANSITION = {
+  duration: 0.35,
+  ease: marketingEase,
+};
+
+const COPY_ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: COPY_TRANSITION },
+};
+
 export function ContactForm() {
+  const reducedMotion = useReducedMotion();
   const [success, setSuccess] = useState(false);
+  const [playCheck, setPlayCheck] = useState(false);
+  const [showCopy, setShowCopy] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!success) {
+      setPlayCheck(false);
+      setShowCopy(false);
+      return;
+    }
+
+    if (reducedMotion) {
+      setPlayCheck(true);
+      setShowCopy(true);
+      return;
+    }
+
+    // Brief settle before Lottie mounts — same rhythm as auth success.
+    const playTimer = window.setTimeout(() => setPlayCheck(true), 120);
+    const fallbackTimer = window.setTimeout(() => setShowCopy(true), 3200);
+
+    return () => {
+      window.clearTimeout(playTimer);
+      window.clearTimeout(fallbackTimer);
+    };
+  }, [success, reducedMotion]);
 
   function clearError(field: string) {
     if (!errors[field]) return;
@@ -73,15 +119,79 @@ export function ContactForm() {
 
       <div
         id="form-success"
-        className={`form-success${success ? " is-visible" : ""}`}
+        className={`form-success contact-success${success ? " is-visible" : ""}`}
         tabIndex={-1}
         role="status"
       >
-        <div className="form-success-icon" aria-hidden="true">
-          <Icon name="i-check-circle" />
+        <div className="contact-success-body">
+          <div className="contact-success-check" aria-hidden="true">
+            {playCheck ? (
+              <DotLottieReact
+                src={CONTACT_SUCCESS_LOTTIE}
+                autoplay
+                loop={false}
+                speed={1.15}
+                useFrameInterpolation={!reducedMotion}
+                className="contact-success-lottie"
+                dotLottieRefCallback={(dotLottie) => {
+                  if (!dotLottie) return;
+                  dotLottie.addEventListener("complete", () => setShowCopy(true));
+                }}
+              />
+            ) : null}
+          </div>
+
+          <AnimatePresence initial={false}>
+            {showCopy ? (
+              <motion.div
+                key="contact-success-copy"
+                className="contact-success-copy-block"
+                initial={reducedMotion ? false : "hidden"}
+                animate="show"
+                variants={{
+                  hidden: {},
+                  show: {
+                    transition: { staggerChildren: 0.06 },
+                  },
+                }}
+              >
+                <motion.div
+                  className="contact-success-main"
+                  variants={{
+                    hidden: {},
+                    show: { transition: { staggerChildren: 0.04 } },
+                  }}
+                >
+                  <motion.h3
+                    className="contact-success-title"
+                    variants={COPY_ITEM_VARIANTS}
+                  >
+                    Your message is in good hands.
+                  </motion.h3>
+                  <motion.p
+                    className="contact-success-copy"
+                    variants={COPY_ITEM_VARIANTS}
+                  >
+                    Thank you for reaching out to Nivarak. Our team will review
+                    your message and get back to you shortly.
+                  </motion.p>
+                </motion.div>
+
+                <motion.div
+                  className="contact-success-next"
+                  variants={COPY_ITEM_VARIANTS}
+                >
+                  <strong className="contact-success-next-title">
+                    What&apos;s next
+                  </strong>
+                  <p className="contact-success-next-copy">
+                    We&apos;ll follow up using the contact details you provided.
+                  </p>
+                </motion.div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
-        <strong>Thank you. Your message was received.</strong>
-        <p>We&apos;ll review it and get back to you shortly.</p>
       </div>
 
       <form
