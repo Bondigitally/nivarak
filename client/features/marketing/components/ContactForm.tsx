@@ -10,8 +10,10 @@ import {
   validateWithSchema,
   type FieldErrors,
 } from "@/features/marketing/lib/form-validation";
+import { submitContactInquiry } from "@/features/marketing/lib/contact-api";
 import { marketingEase } from "@/features/marketing/lib/motion";
 import { btnPrimary } from "@/features/marketing/lib/marketing-classes";
+import { ApiError } from "@/lib/api";
 import "@/features/marketing/components/ContactForm.contact.css";
 
 const DotLottieReact = dynamic(
@@ -45,7 +47,9 @@ export function ContactForm() {
   const [success, setSuccess] = useState(false);
   const [timedPlay, setTimedPlay] = useState(false);
   const [timedShowCopy, setTimedShowCopy] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -78,8 +82,9 @@ export function ContactForm() {
     });
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting || success) return;
     const form = e.currentTarget;
 
     const result = validateWithSchema(contactFormSchema, {
@@ -91,14 +96,33 @@ export function ContactForm() {
     });
 
     if (!result.success) {
+      setFormError(null);
       setErrors(result.errors);
       focusFirstField(form, FIELD_IDS, Object.keys(result.errors));
       return;
     }
 
     setErrors({});
-    // PLACEHOLDER: POST to backend / CRM when ready
-    setSuccess(true);
+    setFormError(null);
+    setSubmitting(true);
+    try {
+      await submitContactInquiry({
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone,
+        subject: result.data.subject ?? "",
+        message: result.data.message,
+      });
+      setSuccess(true);
+    } catch (error) {
+      setFormError(
+        error instanceof ApiError
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -312,9 +336,15 @@ export function ContactForm() {
           </p>
         </div>
 
+        {formError ? (
+          <p className="field-error" role="alert" style={{ display: "block" }}>
+            {formError}
+          </p>
+        ) : null}
+
         <div className="form-actions">
-          <button type="submit" className={btnPrimary}>
-            Send message
+          <button type="submit" className={btnPrimary} disabled={submitting}>
+            {submitting ? "Sending…" : "Send message"}
           </button>
         </div>
       </form>

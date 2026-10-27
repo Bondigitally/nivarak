@@ -20,7 +20,7 @@ type LoadState =
 
 /**
  * Same-tab PDF viewer — opened after unlock/payment so pop-ups are never required.
- * Generates the finalized @react-pdf report from the unlocked session.
+ * Fetches the server-gated report for a paid session.
  */
 export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
@@ -29,6 +29,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
+    setState({ status: "loading" });
 
     void loadIaspReportPdfObjectUrl(sessionId).then((result) => {
       if (cancelled) {
@@ -119,10 +120,7 @@ export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 type="button"
-                onClick={() => {
-                  setState({ status: "loading" });
-                  setReloadKey((k) => k + 1);
-                }}
+                onClick={() => setReloadKey((k) => k + 1)}
               >
                 Retry Generating Report
               </Button>

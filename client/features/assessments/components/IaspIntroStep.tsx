@@ -61,7 +61,13 @@ const INTRO_STATS = [
   },
 ] as const;
 
-export function IntroStep({ onStart }: { onStart: () => void }) {
+export function IntroStep({
+  onStart,
+  starting = false,
+}: {
+  onStart: () => void;
+  starting?: boolean;
+}) {
   return (
     <IaspModalShell>
       <DialogHeader
@@ -168,7 +174,14 @@ export function IntroStep({ onStart }: { onStart: () => void }) {
           "flex-col sm:flex-col border-t-0 px-8 pt-3 pb-6 sm:px-10 sm:pt-4 sm:pb-7",
         )}
       >
-        <Button type="button" size="cta" className="w-full" onClick={onStart}>
+        <Button
+          type="button"
+          size="cta"
+          className="w-full"
+          loading={starting}
+          disabled={starting}
+          onClick={onStart}
+        >
           Start Assessment
           <AppIcon icon={ArrowRight02Icon} />
         </Button>
