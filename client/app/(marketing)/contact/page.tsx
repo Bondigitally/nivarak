@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/features/marketing/components/ContactForm";
-import { FaqAccordion } from "@/features/marketing/components/FaqAccordion";
 import { Icon } from "@/features/marketing/components/Icon";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
 import { MarketingReveal } from "@/features/marketing/components/MarketingReveal";
@@ -11,7 +10,6 @@ import {
 import {
   eyebrow,
   section,
-  sectionHead,
   visuallyHidden,
   wrap,
 } from "@/features/marketing/lib/marketing-classes";
@@ -22,7 +20,7 @@ import "@/features/marketing/components/sections/challenge.css";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Contact Nivarak to book an assessment, call the helpline, or ask a question about independent aging care.",
+    "Contact Nivarak by phone, email, or the form on this page with questions about independent aging care.",
 };
 
 const CONTACT_OPTIONS = [
@@ -30,21 +28,8 @@ const CONTACT_OPTIONS = [
     icon: "i-phone",
     title: "Call the Helpline",
     body: (
-      <>
-        <p>
-          <a href="tel:+919371090980">+91 93710 90980</a>
-        </p>
-        <p>Mon–Sat, 9:00 AM – 6:00 PM IST</p>
-      </>
-    ),
-  },
-  {
-    icon: "i-calendar",
-    title: "Book an Assessment",
-    body: (
       <p>
-        <a href="#book">Use the form below</a> and we&apos;ll call you back to
-        schedule a clinical assessment.
+        <a href="tel:+919371090980">+91 93710 90980</a>
       </p>
     ),
   },
@@ -56,6 +41,11 @@ const CONTACT_OPTIONS = [
         <a href="mailto:meetali@nivarak.com">meetali@nivarak.com</a>
       </p>
     ),
+  },
+  {
+    icon: "i-clock",
+    title: "Our Working Hours",
+    body: <p>Mon–Sat, 10:00 AM – 6:00 PM IST</p>,
   },
   {
     icon: "i-map",
@@ -71,7 +61,7 @@ export default function ContactPage() {
         eyebrowText="Contact Us"
         titleId="contact-hero"
         title="We're Here to Help."
-        body="Whether you're ready to book an assessment or just have a question about a parent's care, reach out. We'll respond with clarity and care."
+        body="Whether you have a question about a parent's care or want to learn more about Nivarak, reach out. We'll respond with clarity and care."
       />
 
       <section className={cn(section, "what-is")} aria-labelledby="options-title">
@@ -81,16 +71,21 @@ export default function ContactPage() {
           </h2>
           <MarketingStagger className="contact-options" stagger={0.1}>
             {CONTACT_OPTIONS.map((option) => (
-              <MarketingStaggerItem
-                key={option.title}
-                as="article"
-                className="contact-option"
-              >
-                <div className="card-icon card-icon-soft" aria-hidden="true">
-                  <Icon name={option.icon} />
+              <MarketingStaggerItem key={option.title} as="article">
+                {/*
+                  Hover lift lives on an inner shell so it doesn’t fight the
+                  stagger item’s motion transform.
+                */}
+                <div className="contact-option">
+                  <div
+                    className="card-icon card-icon-soft contact-option-icon"
+                    aria-hidden="true"
+                  >
+                    <Icon name={option.icon} />
+                  </div>
+                  <h3>{option.title}</h3>
+                  {option.body}
                 </div>
-                <h3>{option.title}</h3>
-                {option.body}
               </MarketingStaggerItem>
             ))}
           </MarketingStagger>
@@ -99,7 +94,7 @@ export default function ContactPage() {
 
       <section
         className={cn(section, "challenge")}
-        id="book"
+        id="contact"
         aria-labelledby="form-title"
       >
         <div className={cn(wrap, "contact-layout")}>
@@ -118,22 +113,6 @@ export default function ContactPage() {
                 <Icon name="i-map" /> Pune
               </div>
             </aside>
-          </MarketingReveal>
-        </div>
-      </section>
-
-      <section
-        className={cn(section, "what-is")}
-        id="faq"
-        aria-labelledby="faq-title"
-      >
-        <div className={wrap}>
-          <MarketingReveal className={sectionHead}>
-            <p className={eyebrow}>FAQ</p>
-            <h2 id="faq-title">Common questions</h2>
-          </MarketingReveal>
-          <MarketingReveal delay={0.1}>
-            <FaqAccordion />
           </MarketingReveal>
         </div>
       </section>

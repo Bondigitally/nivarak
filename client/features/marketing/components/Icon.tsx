@@ -2,10 +2,10 @@
 
 import {
   ArrowRight02Icon,
-  Calendar03Icon,
   Call02Icon,
   CheckmarkCircle02Icon,
   ClipboardIcon,
+  Clock01Icon,
   ComputerIcon,
   EyeIcon,
   Facebook02Icon,
@@ -40,7 +40,7 @@ const MARKETING_ICONS = {
   "i-phone": Call02Icon,
   "i-mail": Mail02Icon,
   "i-map": Location01Icon,
-  "i-calendar": Calendar03Icon,
+  "i-clock": Clock01Icon,
   "i-check-circle": CheckmarkCircle02Icon,
   "i-fb": Facebook02Icon,
   "i-insta": InstagramIcon,

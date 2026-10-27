@@ -54,9 +54,9 @@ export function FinalCtaSection() {
                 btnOutlineInverse,
                 "min-h-[var(--density-control-h-cta)] final-cta-secondary",
               )}
-              href="/contact#book"
+              href="/contact#contact"
             >
-              Book a visit
+              Contact us
             </Link>
           </div>
         </MarketingStaggerItem>

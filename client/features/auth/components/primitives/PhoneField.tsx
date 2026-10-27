@@ -189,7 +189,11 @@ export function PhoneField({
           disabled && 'cursor-not-allowed opacity-50',
         )}
       >
-          <DropdownMenu modal={countryMenuInDialog ? false : undefined}>
+          {/*
+            Non-modal: modal menus lock body scroll and remove the scrollbar,
+            which shifts the page (and form) when the country list opens.
+          */}
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild disabled={disabled}>
               <button
                 type="button"
