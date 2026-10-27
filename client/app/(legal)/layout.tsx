@@ -1,4 +1,5 @@
 import { MarketingHashScroll } from "@/features/marketing/components/MarketingHashScroll";
+import { ScrollToTopButton } from "@/features/marketing/components/ScrollToTopButton";
 import { SiteFooter } from "@/features/marketing/components/SiteFooter";
 import { SiteHeader } from "@/features/marketing/components/SiteHeader";
 import {
@@ -26,6 +27,7 @@ export default function LegalLayout({
         <div className={wrap}>{children}</div>
       </main>
       <SiteFooter />
+      <ScrollToTopButton />
     </div>
   );
 }
