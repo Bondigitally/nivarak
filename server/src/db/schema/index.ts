@@ -21,6 +21,12 @@ export { documents } from './documents.js';
 export { notifications } from './notifications.js';
 export { auditLogs } from './audit.js';
 export { iaspGuestSessions } from './iasp_guest_sessions.js';
+export {
+  iaspReportPayments,
+  iaspPaymentWebhookEvents,
+} from './iasp_report_payments.js';
+export { contactInquiries } from './contact_inquiries.js';
+export { bookingInquiries } from './booking_inquiries.js';
 
 import { relations } from 'drizzle-orm';
 import { users, userRoles } from './users.js';

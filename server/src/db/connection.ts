@@ -12,7 +12,16 @@ const queryClient = postgres(config.db.url, {
   onnotice: () => {},
 });
 
-export const db = drizzle(queryClient, { schema, logger: config.isDev });
+/**
+ * Drizzle prints every query with its parameters, which include health answers,
+ * names, phone numbers, emails, and access-token hashes. Query logging is
+ * therefore opt-in (`DB_QUERY_LOG=true`) and never follows `NODE_ENV` alone,
+ * because `isDev` is also true when `NODE_ENV` is unset.
+ */
+export const db = drizzle(queryClient, {
+  schema,
+  logger: process.env.DB_QUERY_LOG === 'true' && process.env.VITEST !== 'true',
+});
 
 export async function testConnection(): Promise<boolean> {
   try {

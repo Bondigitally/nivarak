@@ -17,7 +17,7 @@ export class AppError extends Error {
     this.statusCode = statusCode;
     this.code = code;
     this.details = details;
-    Object.setPrototypeOf(this, AppError.prototype);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
@@ -54,6 +54,16 @@ export class ConflictError extends AppError {
 export class BusinessRuleError extends AppError {
   constructor(message: string) {
     super(422, 'BUSINESS_RULE_VIOLATION', message);
+  }
+}
+
+export class AssessmentReplacedError extends AppError {
+  constructor() {
+    super(
+      409,
+      'ASSESSMENT_REPLACED',
+      'This assessment was replaced by a newer one',
+    );
   }
 }
 

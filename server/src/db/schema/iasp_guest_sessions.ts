@@ -63,8 +63,21 @@ export const iaspGuestSessions = pgTable(
     detailedReportUnlockedAt: timestamp('detailed_report_unlocked_at', {
       withTimezone: true,
     }),
+    /**
+     * Denormalized cache of the latest order / the payment that unlocked the
+     * report. Payment rows in `iasp_report_payments` are the source of truth.
+     */
     razorpayOrderId: varchar('razorpay_order_id', { length: 100 }),
     razorpayPaymentId: varchar('razorpay_payment_id', { length: 100 }),
+
+    /** One key per explicit Start / Start new action. Replay returns this row. */
+    idempotencyKey: varchar('idempotency_key', { length: 64 }),
+    /** SHA-256 hex of the client-held access token. Null on legacy rows. */
+    accessTokenHash: varchar('access_token_hash', { length: 64 }),
+    /** Report purchaser, collected at checkout. Not copied onto payment rows. */
+    fullName: varchar('full_name', { length: 255 }),
+    phoneNumber: varchar('phone_number', { length: 32 }),
+    email: varchar('email', { length: 255 }),
 
     privacyConsentAt: timestamp('privacy_consent_at', { withTimezone: true }),
     userId: uuid('user_id').references(() => users.id),
@@ -72,7 +85,7 @@ export const iaspGuestSessions = pgTable(
   (table) => [
     check(
       'iasp_guest_sessions_status_check',
-      sql`${table.status} IN ('in_progress', 'completed')`,
+      sql`${table.status} IN ('in_progress', 'completed', 'abandoned', 'superseded', 'expired')`,
     ),
     index('iasp_guest_sessions_expires_at_idx').on(table.expiresAt),
     index('iasp_guest_sessions_status_idx').on(table.status),
@@ -82,5 +95,7 @@ export const iaspGuestSessions = pgTable(
     uniqueIndex('iasp_guest_sessions_razorpay_payment_id_unique').on(
       table.razorpayPaymentId,
     ),
+    uniqueIndex('iasp_guest_sessions_idempotency_key_unique').on(table.idempotencyKey),
+    uniqueIndex('iasp_guest_sessions_access_token_hash_unique').on(table.accessTokenHash),
   ],
 );
