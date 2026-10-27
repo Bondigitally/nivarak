@@ -6,7 +6,9 @@
  */
 
 import type { Context, Next } from 'hono';
+import { config } from '../config/index.js';
 import { RateLimitError } from '../shared/errors.js';
+import { clientIpOf } from './client-ip.js';
 import { logger } from '../shared/logger.js';
 
 interface RateLimitEntry {
@@ -45,14 +47,8 @@ export function rateLimiter(opts: {
   const windowMs = opts.windowMs || 60_000;
   const max = opts.max || 20;
   const name = opts.name || 'default';
-  const keyGen = opts.keyGenerator || ((c: Context) => {
-    // Extract IP from common headers or connection
-    const forwarded = c.req.header('x-forwarded-for');
-    if (forwarded) return forwarded.split(',')[0].trim();
-    const realIp = c.req.header('x-real-ip');
-    if (realIp) return realIp;
-    return 'unknown';
-  });
+  // Forwarding headers are only trusted for the proxies we run (TRUST_PROXY_HOPS).
+  const keyGen = opts.keyGenerator || ((c: Context) => clientIpOf(c, config.trustProxyHops));
 
   // Get or create store for this limiter
   if (!stores.has(name)) {

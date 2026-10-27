@@ -29,6 +29,8 @@ import { notificationRoutes } from './modules/notifications/notification.routes.
 import { auditRoutes } from './modules/audit/audit.routes.js';
 import { paymentRoutes } from './modules/payments/payment.routes.js';
 import { iaspSessionRoutes } from './modules/iasp-sessions/iasp-session.routes.js';
+import { bookingRoutes } from './modules/bookings/booking.routes.js';
+import { contactRoutes } from './modules/contact/contact.routes.js';
 
 registerDomainEvents();
 
@@ -39,7 +41,12 @@ app.use(
   cors({
     origin: config.cors.origins,
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
+    allowHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Correlation-ID',
+      'X-Iasp-Access-Token',
+    ],
     credentials: true,
   })
 );
@@ -117,6 +124,8 @@ api.route('/notifications', notificationRoutes);
 api.route('/audit-logs', auditRoutes);
 api.route('/payments', paymentRoutes);
 api.route('/iasp/sessions', iaspSessionRoutes);
+api.route('/contact', contactRoutes);
+api.route('/bookings', bookingRoutes);
 
 app.route(`/api/${config.apiVersion}`, api);
 
