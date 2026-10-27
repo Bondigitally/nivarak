@@ -21,10 +21,14 @@ export function IaspExitConfirmDialog({
   open,
   onContinue,
   onCloseAssessment,
+  onDiscard,
+  discarding = false,
 }: {
   open: boolean;
   onContinue: () => void;
   onCloseAssessment: () => void;
+  onDiscard: () => void;
+  discarding?: boolean;
 }) {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
@@ -88,6 +92,19 @@ export function IaspExitConfirmDialog({
               }}
             >
               Close Assessment
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              disabled={discarding}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDiscard();
+              }}
+            >
+              Discard assessment
             </Button>
           </div>
         </DialogPrimitive.Content>

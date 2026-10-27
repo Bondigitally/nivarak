@@ -1,40 +1,13 @@
-import type { IaspAnswersMap } from "../data/iasp-assessment-draft";
-import type { IaspRedFlagId } from "../data/iasp-red-flags-data";
-import { buildIaspAssessmentReportPdf } from "./build-iasp-report-pdf";
+import { API_BASE } from "@/lib/api";
 import {
-  fetchIaspSession,
-  type IaspGuestSession,
+  forgetLegacyIaspAccessToken,
+  iaspAccessHeaders,
 } from "./iasp-session-api";
 
-function isIaspRedFlagId(value: string): value is IaspRedFlagId {
-  return (
-    value === "two_or_more_falls" ||
-    value === "missed_incorrect_medicines" ||
-    value === "unsafe_decisions" ||
-    value === "significant_weight_loss" ||
-    value === "social_isolation" ||
-    value === "recurrent_hospital_admissions" ||
-    value === "caregiver_struggling" ||
-    value === "no_emergency_response"
-  );
-}
-
-export async function buildIaspReportPdfFromSession(
-  session: IaspGuestSession,
-): Promise<Blob> {
-  return buildIaspAssessmentReportPdf({
-    answers: session.answers as IaspAnswersMap,
-    redFlags: session.redFlags.filter(isIaspRedFlagId),
-    aboutYou: session.aboutYou,
-    completedAt: session.completedAt,
-    rawScore: session.rawScore,
-    maxScore: session.maxScore,
-    iasPercentage: session.iasPercentage,
-  });
-}
-
 /**
- * Fetches an unlocked session and returns an object URL for the PDF blob.
+ * Downloads the detailed report PDF from the server. Unlock and generation
+ * happen only after a verified payment — this module never builds a PDF locally.
+ * Auth is the HttpOnly session cookie (credentials: include).
  * Caller must revoke the URL when done.
  */
 export async function loadIaspReportPdfObjectUrl(
@@ -45,9 +18,27 @@ export async function loadIaspReportPdfObjectUrl(
   | { status: "error"; message: string }
 > {
   try {
-    const session = await fetchIaspSession(sessionId);
-    if (!session.unlocked) return { status: "locked" };
-    const blob = await buildIaspReportPdfFromSession(session);
+    const response = await fetch(
+      `${API_BASE}/iasp/sessions/${encodeURIComponent(sessionId)}/report`,
+      {
+        credentials: "include",
+        headers: iaspAccessHeaders(sessionId),
+      },
+    );
+
+    if (response.status === 403) return { status: "locked" };
+    if (response.status === 404) {
+      return {
+        status: "error",
+        message: "Assessment session not found. Open the report from your results again.",
+      };
+    }
+    if (!response.ok) {
+      return { status: "error", message: "Could not prepare the PDF report." };
+    }
+
+    forgetLegacyIaspAccessToken(sessionId);
+    const blob = await response.blob();
     return { status: "ready", url: URL.createObjectURL(blob) };
   } catch (error: unknown) {
     const message =

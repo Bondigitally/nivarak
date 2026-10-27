@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   animate,
   motion,
@@ -25,11 +24,9 @@ import {
   openIaspReportCheckout,
   type IaspReportUserDetails,
 } from "@/features/assessments/lib/razorpay-checkout";
-import {
-  fetchIaspSession,
-  getStoredIaspSessionId,
-} from "@/features/assessments/lib/iasp-session-api";
+import { fetchIaspSession } from "@/features/assessments/lib/iasp-session-api";
 import { getIaspDetailedReportPath } from "@/features/assessments/lib/iasp-report-url";
+import { IaspBookConsultationModal } from "./IaspBookConsultationModal";
 import { IaspUnlockReportModal } from "./IaspUnlockReportModal";
 
 import {
@@ -482,21 +479,24 @@ function ResultsGauge({ percentage }: { percentage: number }) {
 
 export function ResultsStep({
   answers,
+  sessionId,
   onRetake,
 }: {
   answers: IaspAnswersMap;
+  sessionId: string | null;
   onRetake: () => void;
 }) {
-  const router = useRouter();
   const reducedMotion = useReducedMotion();
   const setRazorpayCheckoutActive = useIaspRazorpayCheckoutSuspend();
   const [unlockLoading, setUnlockLoading] = useState(false);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [consultationModalOpen, setConsultationModalOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  const [sessionReady, setSessionReady] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return getStoredIaspSessionId() == null;
-  });
+  const [paymentPhase, setPaymentPhase] = useState<
+    "idle" | "checking" | "pending" | "failed" | "amount_mismatch"
+  >("idle");
+  const [sessionReady, setSessionReady] = useState(!sessionId);
+  const payInFlight = useRef(false);
   const rawScore = calculateIaspRawScore(answers);
   const percentage = calculateIaspPercentage(rawScore);
   const band = getIaspBand(percentage);
@@ -508,18 +508,16 @@ export function ResultsStep({
   }
 
   useEffect(() => {
-    const sessionId = getStoredIaspSessionId();
     if (!sessionId) return;
 
     let cancelled = false;
     void fetchIaspSession(sessionId)
       .then((session) => {
-        if (!cancelled && session.unlocked) {
-          setUnlocked(true);
-        }
+        if (cancelled) return;
+        if (session.unlocked) setUnlocked(true);
       })
       .catch(() => {
-        // Keep paywall if session lookup fails.
+        // Keep the paywall if session lookup fails.
       })
       .finally(() => {
         if (!cancelled) setSessionReady(true);
@@ -528,25 +526,24 @@ export function ResultsStep({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [sessionId]);
 
   /**
-   * Flow: Unlock Detailed Report → Modal collects mandatory info → Razorpay
-   * → on verified success navigate this page to the PDF viewer.
-   *
-   * "Payment cancelled" is swallowed silently — expected user dismiss.
+   * Unlock collects contact details, then Razorpay. Checkout polls the server
+   * for entitlement — trust that outcome instead of a second confirmation fetch.
    */
   async function handleProceedPayment(details: IaspReportUserDetails) {
-    const sessionId = getStoredIaspSessionId();
     if (!sessionId) {
       toast.error("Assessment session not found. Please retake the assessment.");
       return;
     }
-
+    if (payInFlight.current) return;
+    payInFlight.current = true;
     setUnlockLoading(true);
+    setPaymentPhase("idle");
 
     try {
-      await openIaspReportCheckout(sessionId, details, {
+      const outcome = await openIaspReportCheckout(sessionId, details, {
         onBeforeOpen: async () => {
           setUnlockModalOpen(false);
           setRazorpayCheckoutActive(true);
@@ -554,25 +551,38 @@ export function ResultsStep({
             requestAnimationFrame(() => resolve());
           });
         },
+        onChecking: () => setPaymentPhase("checking"),
       });
-      const session = await fetchIaspSession(sessionId).catch(() => null);
-      if (!session || session.unlocked === false) {
-        throw new Error("Payment succeeded but report unlock is still pending.");
+
+      if (outcome === "paid") {
+        setUnlocked(true);
+        setPaymentPhase("idle");
+        setUnlockModalOpen(false);
+        toast.success("Payment successful. Opening your detailed report…");
+        goToDetailedReportPdf(sessionId);
+        return;
       }
 
-      setUnlocked(true);
-      setUnlockModalOpen(false);
-      toast.success("Payment successful. Opening your detailed report…");
-      goToDetailedReportPdf(sessionId);
+      if (outcome === "failed") {
+        setPaymentPhase("failed");
+        toast.error("Payment failed. You can try again.");
+        return;
+      }
+
+      if (outcome === "amount_mismatch") {
+        setPaymentPhase("amount_mismatch");
+        return;
+      }
+
+      setPaymentPhase("pending");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not open payment";
-      if (message !== "Payment cancelled") {
-        toast.error(message);
-      }
+      toast.error(message);
     } finally {
       setRazorpayCheckoutActive(false);
       setUnlockLoading(false);
+      payInFlight.current = false;
     }
   }
 
@@ -686,11 +696,11 @@ export function ResultsStep({
                 type="button"
                 size="cta"
                 className="mt-4"
-                loading={unlockLoading || !sessionReady}
-                disabled={unlockLoading || !sessionReady}
+                loading={unlockLoading || !sessionReady || paymentPhase === "checking"}
+                disabled={unlockLoading || !sessionReady || paymentPhase === "checking"}
                 onClick={() => {
+                  if (payInFlight.current) return;
                   if (unlocked) {
-                    const sessionId = getStoredIaspSessionId();
                     if (!sessionId) {
                       toast.error(
                         "Assessment session not found. Please retake the assessment.",
@@ -703,8 +713,29 @@ export function ResultsStep({
                   setUnlockModalOpen(true);
                 }}
               >
-                Unlock Detailed Report
+                {paymentPhase === "checking"
+                  ? "Checking payment status…"
+                  : unlocked
+                    ? "View Detailed Report"
+                    : "Unlock Detailed Report"}
               </Button>
+              {paymentPhase === "pending" ? (
+                <p className={cn(typo.bodyS, "mt-3 text-muted-foreground")}>
+                  Payment is still processing. Refresh this page in a moment to
+                  check again.
+                </p>
+              ) : null}
+              {paymentPhase === "failed" ? (
+                <p className={cn(typo.bodyS, "mt-3 text-muted-foreground")}>
+                  Payment failed. You can try again when you are ready.
+                </p>
+              ) : null}
+              {paymentPhase === "amount_mismatch" ? (
+                <p className={cn(typo.bodyS, "mt-3 text-muted-foreground")}>
+                  We could not confirm this payment. Please contact support
+                  before trying again.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
@@ -715,6 +746,11 @@ export function ResultsStep({
         onOpenChange={setUnlockModalOpen}
         loading={unlockLoading}
         onSubmit={handleProceedPayment}
+      />
+
+      <IaspBookConsultationModal
+        open={consultationModalOpen}
+        onOpenChange={setConsultationModalOpen}
       />
 
       <DialogFooter
@@ -729,9 +765,9 @@ export function ResultsStep({
         <Button
           type="button"
           size="cta"
-          onClick={() => router.push("/contact#contact")}
+          onClick={() => setConsultationModalOpen(true)}
         >
-          Book a Free Consultation
+          Book a Consultation
         </Button>
       </DialogFooter>
     </IaspModalShell>

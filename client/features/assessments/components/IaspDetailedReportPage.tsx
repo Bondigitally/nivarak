@@ -20,11 +20,18 @@ type LoadState =
 
 /**
  * Same-tab PDF viewer — opened after unlock/payment so pop-ups are never required.
- * Generates the finalized @react-pdf report from the unlocked session.
+ * Fetches the server-gated report for a paid session.
  */
 export function IaspDetailedReportPage({ sessionId }: { sessionId: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [reloadKey, setReloadKey] = useState(0);
+  const [loadFor, setLoadFor] = useState(sessionId);
+
+  // Reset to loading when the session id changes (avoid setState inside the effect).
+  if (loadFor !== sessionId) {
+    setLoadFor(sessionId);
+    setState({ status: "loading" });
+  }
 
   useEffect(() => {
     let cancelled = false;

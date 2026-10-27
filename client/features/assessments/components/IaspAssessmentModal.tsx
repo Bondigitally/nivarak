@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   INITIAL_IASP_FLOW_STATE,
   clearIaspDraft,
@@ -9,7 +10,12 @@ import {
   toIaspAnswersPayload,
   type IaspFlowState,
 } from "../data/iasp-assessment-draft";
-import { clearStoredIaspSessionId, syncIaspSession } from "../lib/iasp-session-api";
+import {
+  abandonIaspSession,
+  clearStoredIaspSessionId,
+  getBoundIaspSessionId,
+  syncIaspSession,
+} from "../lib/iasp-session-api";
 import { IaspAssessmentFlow } from "./IaspAssessmentFlow";
 import { IaspAssessmentRoot } from "./IaspAssessmentModalShell";
 import { IaspExitConfirmDialog } from "./IaspExitConfirmDialog";
@@ -31,7 +37,6 @@ export function IaspAssessmentModal({
 
   function resetFlow() {
     clearIaspDraft();
-    clearStoredIaspSessionId();
     setFlowState(INITIAL_IASP_FLOW_STATE);
   }
 
@@ -115,11 +120,35 @@ export function IaspAssessmentModal({
     <>
       <IaspExitConfirmDialog
         open={exitConfirmOpen}
+        discarding={false}
         onContinue={dismissExitConfirm}
         onCloseAssessment={() => {
           suppressExitConfirmUntilRef.current = Date.now() + 400;
           setExitConfirmOpen(false);
           closeAssessment();
+        }}
+        onDiscard={() => {
+          const sessionId = getBoundIaspSessionId();
+          suppressExitConfirmUntilRef.current = Date.now() + 400;
+          setExitConfirmOpen(false);
+          void (async () => {
+            if (sessionId) {
+              try {
+                await abandonIaspSession(sessionId);
+              } catch (error: unknown) {
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : "Could not discard the assessment";
+                toast.error(message);
+                return;
+              }
+            }
+            clearIaspDraft();
+            clearStoredIaspSessionId(sessionId);
+            setFlowState(INITIAL_IASP_FLOW_STATE);
+            onOpenChange(false);
+          })();
         }}
       />
       <IaspAssessmentRoot open={open} onOpenChange={handleOpenChange}>

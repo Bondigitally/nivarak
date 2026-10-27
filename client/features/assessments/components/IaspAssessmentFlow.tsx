@@ -1,7 +1,23 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { toast } from "sonner";
+import { ApiError } from "@/lib/api";
+import {
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  dialogHeaderShellClass,
+} from "@/components/ui/dialog";
+import { typo } from "@/lib/tokens/typography";
+import { cn } from "@/lib/utils";
 import {
   clearIaspDraft,
   saveIaspDraft,
@@ -21,6 +37,11 @@ import {
 } from "../data/iasp-scoring";
 import {
   completeIaspSession,
+  fetchIaspSession,
+  getActiveIaspSessionSnapshot,
+  getServerIaspSessionSnapshot,
+  startIaspSession,
+  subscribeActiveIaspSession,
   syncIaspSession,
 } from "../lib/iasp-session-api";
 import {
@@ -30,6 +51,7 @@ import {
 } from "./IaspAssessmentClosingSteps";
 import { AboutYouStep } from "./IaspAboutYouStep";
 import { IntroStep } from "./IaspIntroStep";
+import { IaspModalCloseButton, IaspModalShell } from "./IaspAssessmentModalShell";
 import { QuestionsStep } from "./IaspQuestionsStep";
 
 export function IaspAssessmentFlow({
@@ -51,6 +73,37 @@ export function IaspAssessmentFlow({
     autoAdvance,
   } = state;
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [replaced, setReplaced] = useState(false);
+  const sessionId = useSyncExternalStore(
+    subscribeActiveIaspSession,
+    getActiveIaspSessionSnapshot,
+    getServerIaspSessionSnapshot,
+  );
+  const startInFlight = useRef(false);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    const onFocus = () => {
+      void fetchIaspSession(sessionId)
+        .then((session) => {
+          if (session.status === "superseded") setReplaced(true);
+        })
+        .catch((error: unknown) => {
+          if (error instanceof ApiError && error.code === "ASSESSMENT_REPLACED") {
+            setReplaced(true);
+          }
+        });
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [sessionId]);
+
+  function noteSessionError(error: unknown) {
+    if (error instanceof ApiError && error.code === "ASSESSMENT_REPLACED") {
+      setReplaced(true);
+    }
+  }
 
   function persistDraft(current: IaspFlowState) {
     saveIaspDraft(current);
@@ -60,8 +113,8 @@ export function IaspAssessmentFlow({
       redFlags: [...current.redFlags],
       flowStep: current.step,
       pageIndex: current.pageIndex,
-    }).catch(() => {
-      // Draft remains in sessionStorage if the API is unavailable.
+    }).catch((error: unknown) => {
+      noteSessionError(error);
     });
   }
 
@@ -121,11 +174,61 @@ export function IaspAssessmentFlow({
     });
   }
 
+  if (replaced) {
+    return (
+      <IaspModalShell>
+        <DialogHeader className={dialogHeaderShellClass}>
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-6">
+            <IaspModalCloseButton />
+          </div>
+          <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
+            This assessment was replaced
+          </DialogTitle>
+          <DialogDescription className={cn(typo.bodyM, "mt-2 text-muted-foreground")}>
+            A newer assessment was started, so this one can no longer be continued.
+          </DialogDescription>
+        </DialogHeader>
+      </IaspModalShell>
+    );
+  }
+
   if (step === "intro") {
     return (
       <IntroStep
+        starting={starting}
         onStart={() => {
-          setState((current) => ({ ...current, step: "about" }));
+          if (startInFlight.current) return;
+          startInFlight.current = true;
+          setStarting(true);
+          void (async () => {
+            try {
+              if (sessionId) {
+                const existing = await fetchIaspSession(sessionId);
+                if (existing.status === "superseded") {
+                  setReplaced(true);
+                  return;
+                }
+                if (existing.status === "in_progress") {
+                  setState((current) => ({ ...current, step: "about" }));
+                  return;
+                }
+              }
+              await startIaspSession({
+                supersedeSessionId: sessionId,
+              });
+              setState((current) => ({ ...current, step: "about" }));
+            } catch (error: unknown) {
+              noteSessionError(error);
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "Could not start the assessment";
+              toast.error(message);
+            } finally {
+              startInFlight.current = false;
+              setStarting(false);
+            }
+          })();
         }}
       />
     );
@@ -198,6 +301,10 @@ export function IaspAssessmentFlow({
               setState((current) => ({ ...current, step: "results" }));
             })
             .catch((error: unknown) => {
+              noteSessionError(error);
+              if (error instanceof ApiError && error.code === "ASSESSMENT_REPLACED") {
+                return;
+              }
               const message =
                 error instanceof Error
                   ? error.message
@@ -223,6 +330,7 @@ export function IaspAssessmentFlow({
   if (step === "results") {
     return (
       <ResultsStep
+        sessionId={sessionId}
         answers={answers}
         onRetake={onReset}
       />

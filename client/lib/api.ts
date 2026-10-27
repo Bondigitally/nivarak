@@ -15,6 +15,7 @@ export class ApiError extends Error {
     public readonly status: number,
     message: string,
     public readonly data?: unknown,
+    public readonly code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -28,7 +29,7 @@ export class ApiError extends Error {
 interface ApiEnvelope<T> {
   success: boolean;
   data: T | null;
-  error?: { message?: string } | null;
+  error?: { code?: string; message?: string } | null;
 }
 
 /**
@@ -52,6 +53,8 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers,
+    // Needed for IAS-P HttpOnly access cookies (and harmless for other routes).
+    credentials: init?.credentials ?? 'include',
   });
   const json = (await res.json().catch(() => null)) as ApiEnvelope<T> | null;
   if (!res.ok || !json?.success) {
@@ -59,6 +62,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       res.status,
       json?.error?.message ?? 'Request failed',
       json,
+      json?.error?.code,
     );
   }
   return json.data as T;
