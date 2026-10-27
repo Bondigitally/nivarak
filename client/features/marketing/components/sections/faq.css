@@ -1,0 +1,71 @@
+/* ---------- FAQ page ---------- */
+.faq-page .faq-list {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.faq-page .faq-item {
+  background: var(--color-surface-raised);
+  border: none;
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-s);
+  padding: 0;
+  overflow: hidden;
+}
+
+.faq-page .faq-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-24) var(--space-24);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: clamp(1.0625rem, 1.5vw, var(--type-heading-m-size));
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.faq-page .faq-trigger:hover {
+  color: var(--color-primary);
+}
+
+.faq-page .faq-item[data-open="true"] .faq-trigger {
+  color: var(--color-primary);
+  padding-bottom: var(--space-12);
+}
+
+.faq-page .faq-trigger .icon {
+  flex-shrink: 0;
+  width: var(--icon-m);
+  height: var(--icon-m);
+  color: var(--color-primary);
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.faq-page .faq-item[data-open="true"] .faq-trigger .icon {
+  transform: rotate(180deg);
+}
+
+.faq-page .faq-panel {
+  display: none;
+  padding: 0 var(--space-24) var(--space-24);
+  color: var(--color-text-secondary);
+  font-size: var(--type-body-l-size);
+  font-weight: var(--type-body-l-weight);
+  line-height: var(--type-body-l-line);
+}
+
+.faq-page .faq-item[data-open="true"] .faq-panel {
+  display: block;
+}
+
+.faq-page .faq-panel p {
+  margin: 0;
+}

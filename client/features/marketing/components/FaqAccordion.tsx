@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Icon } from "@/features/marketing/components/Icon";
-import "@/features/marketing/components/ContactForm.contact.css";
 
 const FAQ_ITEMS = [
   {
@@ -16,10 +15,6 @@ const FAQ_ITEMS = [
   {
     q: "Who is Nivarak for?",
     a: "Older adults living independently or with family, and adult children who want a medically-led partner between doctor visits, especially when early changes feel hard to quantify.",
-  },
-  {
-    q: "How often is the Aging Score updated?",
-    a: "Scores are reassessed on a regular cadence as part of continuous monitoring. Your care team will share the schedule that fits your plan. [Confirm exact cadence with clinical team.]",
   },
   {
     q: "Can family members living abroad stay involved?",
