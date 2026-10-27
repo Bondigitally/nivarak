@@ -43,8 +43,8 @@ const COPY_ITEM_VARIANTS = {
 export function ContactForm() {
   const reducedMotion = useReducedMotion();
   const [success, setSuccess] = useState(false);
-  const [playCheck, setPlayCheck] = useState(false);
-  const [showCopy, setShowCopy] = useState(false);
+  const [timedPlay, setTimedPlay] = useState(false);
+  const [timedShowCopy, setTimedShowCopy] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -52,22 +52,16 @@ export function ContactForm() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (!success) {
-      setPlayCheck(false);
-      setShowCopy(false);
-      return;
-    }
+  // Prefer derived flags over syncing success/reducedMotion into state in an effect.
+  const playCheck = success && (Boolean(reducedMotion) || timedPlay);
+  const showCopy = success && (Boolean(reducedMotion) || timedShowCopy);
 
-    if (reducedMotion) {
-      setPlayCheck(true);
-      setShowCopy(true);
-      return;
-    }
+  useEffect(() => {
+    if (!success || reducedMotion) return;
 
     // Brief settle before Lottie mounts — same rhythm as auth success.
-    const playTimer = window.setTimeout(() => setPlayCheck(true), 120);
-    const fallbackTimer = window.setTimeout(() => setShowCopy(true), 3200);
+    const playTimer = window.setTimeout(() => setTimedPlay(true), 120);
+    const fallbackTimer = window.setTimeout(() => setTimedShowCopy(true), 3200);
 
     return () => {
       window.clearTimeout(playTimer);
@@ -135,7 +129,9 @@ export function ContactForm() {
                 className="contact-success-lottie"
                 dotLottieRefCallback={(dotLottie) => {
                   if (!dotLottie) return;
-                  dotLottie.addEventListener("complete", () => setShowCopy(true));
+                  dotLottie.addEventListener("complete", () =>
+                    setTimedShowCopy(true),
+                  );
                 }}
               />
             ) : null}
