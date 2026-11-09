@@ -105,17 +105,37 @@ function SidebarTooltipContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-const SIDEBAR_NAV_HOVER =
-  "hover:text-foreground hover:bg-accent dark:hover:bg-border active:bg-border active:text-foreground dark:active:bg-muted";
+/** Nav row motion — color, fill, and weight (idle hover keeps font-medium → no shift) */
+const SIDEBAR_NAV_MOTION =
+  "transition-[background-color,color,font-weight] duration-200 ease-out";
+
+const SIDEBAR_NAV_ICON_MOTION = "transition-colors duration-200 ease-out";
 
 const SIDEBAR_NAV_ACTIVE = cn(
+  "group/nav",
   sidebarNavActiveSurfaceClass,
   typo.sidebarItemActive,
-  "text-sidebar-active-text hover:text-sidebar-active-text",
-  "active:bg-muted dark:active:bg-border",
+  "text-sidebar-active-text hover:text-sidebar-active-text hover:font-semibold",
 );
 
 const SIDEBAR_NAV_INACTIVE = typo.sidebarItem;
+
+const SIDEBAR_NAV_IDLE = cn(
+  "group/nav",
+  SIDEBAR_NAV_INACTIVE,
+  "border-transparent",
+  "hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text hover:font-medium",
+  "active:bg-sidebar-hover-bg active:text-sidebar-hover-text active:font-medium",
+);
+
+function sidebarNavIconClass(active: boolean) {
+  return cn(
+    SIDEBAR_NAV_ICON_MOTION,
+    active
+      ? "text-sidebar-active-icon group-hover/nav:text-sidebar-active-icon group-active/nav:text-sidebar-active-icon"
+      : "text-muted-foreground group-hover/nav:text-sidebar-hover-icon group-active/nav:text-sidebar-hover-icon",
+  );
+}
 
 function SidebarLogo() {
   return (
@@ -214,10 +234,24 @@ function CollapsedTip({
   );
 }
 
-function Avatar({ initials }: { initials: string }) {
+function SidebarFooterAvatar({
+  src,
+  alt,
+}: {
+  src: string;
+  alt: string;
+}) {
   return (
-    <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold text-foreground">
-      {initials}
+    <span className="relative flex size-10 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
+      <Image
+        src={src}
+        alt={alt}
+        width={80}
+        height={80}
+        quality={90}
+        sizes="40px"
+        className="size-full object-cover"
+      />
     </span>
   );
 }
@@ -445,14 +479,9 @@ export function AppSidebar({
                         }))
                       }
                       className={cn(
-                        "flex h-11 w-full items-center gap-3 rounded-md border px-3 py-2.5 transition-colors duration-150",
-                        active
-                          ? cn(SIDEBAR_NAV_ACTIVE)
-                          : cn(
-                              SIDEBAR_NAV_INACTIVE,
-                              SIDEBAR_NAV_HOVER,
-                              "border-transparent",
-                            ),
+                        "flex h-11 w-full items-center gap-3 rounded-md border px-3 py-2.5",
+                        SIDEBAR_NAV_MOTION,
+                        active ? SIDEBAR_NAV_ACTIVE : SIDEBAR_NAV_IDLE,
                         FOCUS,
                       )}
                       data-sidebar-interactive=""
@@ -460,9 +489,7 @@ export function AppSidebar({
                       <span className="relative size-5 shrink-0">
                         <NavIcon
                           icon={item.icon}
-                          className={
-                            active ? "text-sidebar-active-icon" : undefined
-                          }
+                          className={sidebarNavIconClass(active)}
                         />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-left">
@@ -482,14 +509,11 @@ export function AppSidebar({
                             href={child.href}
                             aria-current={childIsActive ? "page" : undefined}
                             className={cn(
-                              "ml-4 flex h-10 items-center gap-3 rounded-md border px-3 py-2 transition-colors duration-150",
+                              "ml-4 flex h-10 items-center gap-3 rounded-md border px-3 py-2",
+                              SIDEBAR_NAV_MOTION,
                               childIsActive
                                 ? SIDEBAR_NAV_ACTIVE
-                                : cn(
-                                    SIDEBAR_NAV_INACTIVE,
-                                    SIDEBAR_NAV_HOVER,
-                                    "border-transparent",
-                                  ),
+                                : SIDEBAR_NAV_IDLE,
                               FOCUS,
                             )}
                             data-sidebar-interactive=""
@@ -530,14 +554,9 @@ export function AppSidebar({
                       railCollapsed
                         ? cn(COLLAPSED_BTN, "cursor-pointer")
                         : "flex h-11 w-full items-center gap-3 rounded-md px-3 py-2.5",
-                      "border transition-colors duration-150",
-                      active
-                        ? SIDEBAR_NAV_ACTIVE
-                        : cn(
-                            SIDEBAR_NAV_INACTIVE,
-                            SIDEBAR_NAV_HOVER,
-                            "border-transparent",
-                          ),
+                      "border",
+                      SIDEBAR_NAV_MOTION,
+                      active ? SIDEBAR_NAV_ACTIVE : SIDEBAR_NAV_IDLE,
                       FOCUS,
                     )}
                     data-sidebar-interactive=""
@@ -545,9 +564,7 @@ export function AppSidebar({
                     <span className="relative size-5 shrink-0">
                       <NavIcon
                         icon={item.icon}
-                        className={
-                          active ? "text-sidebar-active-icon" : undefined
-                        }
+                        className={sidebarNavIconClass(active)}
                       />
                       {showBadge && railCollapsed ? (
                         <span
@@ -592,12 +609,18 @@ export function AppSidebar({
                 onClick={() => setCollapsed(false)}
                 className={cn(COLLAPSED_BTN, FOCUS)}
               >
-                <Avatar initials={profile.initials} />
+                <SidebarFooterAvatar
+                  src={profile.avatarUrl}
+                  alt={`${profile.displayName} profile photo`}
+                />
               </button>
             </CollapsedTip>
           ) : (
             <div className="flex w-full min-w-0 items-center gap-2">
-              <Avatar initials={profile.initials} />
+              <SidebarFooterAvatar
+                src={profile.avatarUrl}
+                alt={`${profile.displayName} profile photo`}
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold leading-none text-foreground">
                   {profile.displayName}
@@ -611,7 +634,7 @@ export function AppSidebar({
                 aria-label="Sign out"
                 onClick={openSignOut}
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-md",
+                  "inline-flex size-10 shrink-0 items-center justify-center rounded-md",
                   "text-muted-foreground hover:text-destructive",
                   FOCUS,
                 )}
