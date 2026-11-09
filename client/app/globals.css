@@ -22,7 +22,10 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-hover: var(--sidebar-hover-bg);
+  --color-sidebar-hover-bg: var(--sidebar-hover-bg);
+  --color-sidebar-hover-icon: var(--sidebar-hover-icon);
+  --color-sidebar-hover-text: var(--sidebar-hover-text);
   --color-sidebar-active-bg: var(--sidebar-active-bg);
   --color-sidebar-active-border: var(--sidebar-active-border);
   --color-sidebar-active-icon: var(--sidebar-active-icon);
@@ -213,12 +216,15 @@
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  /* Prefer bg-accent / hover:bg-accent over bg-sidebar-hover in components */
-  --sidebar-hover: var(--accent);
+  /* Sidebar nav idle hover — full-row icon, label, and fill */
+  --sidebar-hover-bg: #F8F7F9;
+  --sidebar-hover-icon: #45404A;
+  --sidebar-hover-text: #1A1A1A;
+  --sidebar-hover: var(--sidebar-hover-bg);
   --sidebar-border: var(--border);
   --sidebar-divider: var(--divider);
   --sidebar-ring: var(--ring);
-  --sidebar-active-bg: var(--secondary);
+  --sidebar-active-bg: var(--table-header);
   --sidebar-active-border: var(--border);
   --sidebar-active-icon: var(--primary);
   --sidebar-active-text: var(--foreground);
@@ -305,13 +311,16 @@ html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
   --sidebar-foreground: #E4E4E7;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-hover: var(--accent);
+  --sidebar-hover-bg: var(--table-header);
+  --sidebar-hover-icon: #C8C8D0;
+  --sidebar-hover-text: var(--foreground);
+  --sidebar-hover: var(--sidebar-hover-bg);
   --sidebar-border: #292C33;
   --sidebar-divider: var(--divider);
   --sidebar-ring: var(--ring);
-  --sidebar-active-bg: #1C1A28;
+  --sidebar-active-bg: var(--accent);
   --sidebar-active-border: #282534;
-  --sidebar-active-icon: var(--ring);
+  --sidebar-active-icon: var(--primary);
   --sidebar-active-text: var(--foreground);
 
   --segmented-track: #1D2025;

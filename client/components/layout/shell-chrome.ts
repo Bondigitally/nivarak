@@ -6,7 +6,7 @@ export const heroPlumWashSurfaceClass =
 export const shellCanvasClass = "bg-background";
 
 export const sidebarNavActiveSurfaceClass =
-  "border-sidebar-active-border bg-sidebar-active-bg hover:bg-sidebar-active-bg";
+  "border-transparent bg-sidebar-active-bg hover:bg-sidebar-active-bg active:bg-sidebar-active-bg";
 
 /** Shared 64px row — sidebar header/footer + AppTopBar */
 export const shellChromeRowClass = "h-16 min-h-16 shrink-0";
