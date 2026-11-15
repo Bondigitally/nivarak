@@ -172,15 +172,14 @@ export function EditMedicationDialog({
   const { contentRef, portalContainer } = useDialogPortalContainer();
   const [draft, setDraft] = useState<MedicationDraft | null>(null);
   const medicationId = medication?.id ?? null;
-  const didFocusRef = useRef(false);
   const draftSourceKey =
     open && medication ? `${medication.id}:${mode}` : null;
   const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
+  const focusedSourceKeyRef = useRef<string | null>(null);
 
   // Reset draft when the dialog opens for a medication / mode — not on each keystroke.
   if (draftSourceKey !== activeSourceKey) {
     setActiveSourceKey(draftSourceKey);
-    didFocusRef.current = false;
     setDraft(
       open && medication && medication.id === medicationId
         ? toDraft(medication, mode)
@@ -191,8 +190,9 @@ export function EditMedicationDialog({
   // Focus the target field once after draft is ready — do NOT depend on
   // `draft` content or every keystroke will re-select and feel like 1-char input.
   useEffect(() => {
-    if (!open || !draft || didFocusRef.current) return;
-    didFocusRef.current = true;
+    if (!open || !draft || !draftSourceKey) return;
+    if (focusedSourceKeyRef.current === draftSourceKey) return;
+    focusedSourceKeyRef.current = draftSourceKey;
 
     const resolved: MedicationEditFocusField =
       focusField === "routeOther" && draft.route !== "other"
@@ -203,7 +203,7 @@ export function EditMedicationDialog({
       focusDialogField(FOCUS_FIELD_ELEMENT_ID[resolved]);
     }, 0);
     return () => window.clearTimeout(id);
-  }, [open, medicationId, focusField, draft]);
+  }, [open, draft, draftSourceKey, focusField]);
 
   function updateDraft<K extends keyof MedicationDraft>(
     key: K,
