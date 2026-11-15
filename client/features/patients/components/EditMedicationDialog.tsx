@@ -22,7 +22,6 @@ import {
   DialogTitle,
   dialogCloseButtonClass,
   dialogPrimitiveContentClass,
-  useDialogPortalContainer,
 } from "@/components/ui/dialog";
 import { FormSelect } from "@/components/ui/form-select";
 import { Input } from "@/components/ui/input";
@@ -195,6 +194,7 @@ function isPortaledOverlayTarget(target: EventTarget | null) {
         "[data-radix-popper-content-wrapper]",
         "[data-radix-menu-content]",
         ".react-aria-Popover",
+        ".react-aria-Calendar",
         "[data-trigger='DatePicker']",
       ].join(", "),
     ),
@@ -308,14 +308,11 @@ export function EditMedicationDialog({
 
   const title = mode === "add" ? "Add medicine" : "Edit medicine";
   const canSave = Boolean(draft?.name.trim());
-  const { contentRef, portalContainer } = useDialogPortalContainer();
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogOverlay />
         <DialogPrimitive.Content
-          ref={contentRef}
           className={cn(
             dialogPrimitiveContentClass("max-w-lg"),
             // Grid keeps header/footer sized to content and gives the body a
@@ -497,7 +494,6 @@ export function EditMedicationDialog({
                       )
                     }
                     className="w-full"
-                    portalContainer={portalContainer}
                     popoverClassName={cn(
                       dialogOverlayClass,
                       "pointer-events-auto",
