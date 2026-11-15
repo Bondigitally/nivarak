@@ -50,9 +50,9 @@ export const typo = {
   /** Logo wordmark — Rounded Elegance */
   logo: 'font-logo text-base font-normal leading-6 tracking-[0.08em] text-foreground',
   /** Sidebar nav item (idle) — Body M Medium + Text/Secondary */
-  sidebarItem: 'text-sm font-medium leading-5 text-muted-foreground',
+  sidebarItem: 'text-sm font-medium leading-5 text-sidebar-foreground',
   /** Sidebar nav item (active) — Body M Semibold + Text/Primary */
-  sidebarItemActive: 'text-sm font-semibold leading-5 text-foreground',
+  sidebarItemActive: 'text-sm font-semibold leading-5 text-sidebar-active-text',
 
   /**
    * Compositions (size token + color role from design.md)

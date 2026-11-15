@@ -75,8 +75,8 @@ export function riskConfig(level: RiskLevel) {
     case "high":
       return {
         label: "High Risk",
-        badge: "bg-warning-muted text-warning",
-        avatar: "bg-warning-muted text-warning",
+        badge: "bg-destructive-muted text-destructive",
+        avatar: "bg-destructive/10 text-destructive",
       };
     case "medium":
       return {

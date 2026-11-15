@@ -22,7 +22,7 @@ export const dashboardContentWidthClass =
 
 /**
  * Standard page shell under AppPageFrame.
- * Pad-x 24px · section gap 16px.
+ * Pad-x 24px · section gap via `--spacing-dash-gap`.
  * Do not nest another horizontal page pad inside this shell.
  */
 export const dashboardPageShellClass = cn(
@@ -32,7 +32,7 @@ export const dashboardPageShellClass = cn(
 
 /**
  * Standard fluid 4 / 8 / 12 column grid.
- * Flat 16px gutters (`gap-dash-gutter`) at all breakpoints. No max-width.
+ * Flat gutters (`gap-dash-gutter` → `--spacing-dash-gutter`) at all breakpoints. No max-width.
  */
 export const dashboardGridClass =
   "grid w-full min-w-0 grid-cols-4 items-stretch gap-dash-gutter md:grid-cols-8 xl:grid-cols-12";
@@ -51,13 +51,36 @@ export const dashboardGridThirdClass = "col-span-4 min-w-0";
 export const dashboardGridFullClass =
   "col-span-4 min-w-0 md:col-span-8 xl:col-span-12";
 
-/** Vertical stack inside a grid column — 16px, matches grid gutters. */
+/** Vertical stack inside a grid column — matches `--spacing-dash-gutter`. */
 export const dashboardGridStackClass =
   "flex h-full min-h-0 min-w-0 flex-col gap-dash-gutter";
 
+/** Stacked dashboard cards (appointments, medications, etc.). */
+export const dashboardCardStackClass = "flex flex-col gap-dash-gutter";
+
+/**
+ * Portrait member card shell — Care Team MedicalStaffCard / Clinical Notes.
+ * Fixed width (w-61.5 / 246px) · rounded-lg · tight outer pad · media + body stack.
+ * Pair with `memberPortraitCardMediaClass` + `memberPortraitCardBodyClass`.
+ * Shadow: use motion boxShadow (staff) or `cardShadowClass` (static cards).
+ */
+export const memberPortraitCardClass =
+  `flex w-61.5 shrink-0 flex-col gap-4 ${radius.lg} bg-card p-0.75`;
+
+/** Top media tile inside a member portrait card (photo / icon field). */
+export const memberPortraitCardMediaClass =
+  `relative h-48 w-full overflow-hidden ${radius.md}`;
+
+/** Text block under the media tile. */
+export const memberPortraitCardBodyClass = "flex flex-col gap-2 p-4";
+
+/** Wrap density for member portrait cards (Care Team staff / clinical notes). */
+export const memberPortraitCardGridClass =
+  "flex flex-wrap justify-center gap-dash-gutter lg:justify-start";
+
 /**
  * Standard two-up form / card grid (settings, caregivers).
- * Fluid, 16px gutters, no max-width.
+ * Fluid gutters (`gap-dash-gutter`), no max-width.
  */
 export const dashboardTwoColGridClass =
   "grid w-full min-w-0 grid-cols-1 gap-dash-gutter md:grid-cols-2";
@@ -67,13 +90,13 @@ export const dashboardTwoColSpanFullClass = "md:col-span-2";
 
 /** Soft border + shadow — shared by global search and header icon controls */
 export const dashboardChromeControlClass =
-  "border border-border bg-card shadow-[0px_1px_2px_rgba(17,24,39,0.04)] transition-[border-color,box-shadow] duration-200 ease-out hover:border-foreground/12 hover:shadow-[0_0_0_1px_rgba(17,24,39,0.08),0px_1px_2px_rgba(17,24,39,0.04)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.35)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0px_1px_2px_rgba(0,0,0,0.35)]";
+  "border border-border bg-card shadow-[0px_1px_2px_rgba(17,24,39,0.04)] transition-[border-color,box-shadow] duration-200 ease-out hover:border-foreground/12 hover:shadow-[0_0_0_1px_rgba(17,24,39,0.08),0px_1px_2px_rgba(17,24,39,0.04)]";
 
 export const dashboardChromeControlFocusWithinClass =
-  "focus-within:border-border-focus/80 focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)] dark:focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.45),0px_1px_2px_rgba(0,0,0,0.35)]";
+  "focus-within:border-border-focus/80 focus-within:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)]";
 
 export const dashboardChromeControlFocusVisibleClass =
-  "focus-visible:border-border-focus/80 focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)] dark:focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.45),0px_1px_2px_rgba(0,0,0,0.35)]";
+  "focus-visible:border-border-focus/80 focus-visible:shadow-[0_0_0_1px_rgba(185,139,208,0.35),0px_1px_2px_rgba(17,24,39,0.04)]";
 
 /** Header icon button — matches global search chrome on a circular control */
 export const dashboardHeaderIconButtonClass = cn(

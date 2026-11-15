@@ -58,8 +58,6 @@ export function AppTopBar({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // Listen on the app's fixed scroll container, not window, so the border
-    // indicator stays in sync regardless of OS scroll behaviour.
     const scrollRoot = document.querySelector<HTMLElement>(
       "[data-dashboard-scroll]",
     );
@@ -82,11 +80,12 @@ export function AppTopBar({
         className={cn(
           shellHeaderChromeClass,
           scrolled && shellHeaderScrolledClass,
-          "sticky top-0 z-20 flex w-full items-center gap-dash-topbar-gap px-dash-pad-x",
+          "relative z-20 flex w-full shrink-0 items-center gap-2 px-dash-pad-x md:gap-dash-topbar-gap",
         )}
       >
-        {/* Equal flex sides keep the search optically centered */}
-        <div className="flex min-w-0 flex-1 items-center justify-start">
+        {/* Below lg (drawer / tablet): chrome is content-sized so search takes
+            remaining width. lg+: equal flex rails center the search. */}
+        <div className="flex shrink-0 items-center justify-start lg:flex-1">
           {isDrawer ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -117,7 +116,7 @@ export function AppTopBar({
           onClick={onSearchClick}
           className={cn(
             dashboardSearchBarClass,
-            "w-full min-w-0 max-w-dash-search flex-none text-left",
+            "min-w-0 w-full max-w-dash-search flex-1 text-left",
           )}
           {...searchAriaProps}
         >
@@ -141,7 +140,7 @@ export function AppTopBar({
           {searchHint}
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-dash-topbar-gap">
+        <div className="flex shrink-0 items-center justify-end gap-2 md:gap-dash-topbar-gap lg:flex-1">
           <Button
             type="button"
             className={cn(typo.button, "max-sm:px-3")}
