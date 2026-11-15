@@ -22,6 +22,13 @@
       "when": 1793098200000,
       "tag": "0002_split_booking_inquiries",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794375000000,
+      "tag": "0003_patient_mrn_sequence",
+      "breakpoints": true
     }
   ]
 }
