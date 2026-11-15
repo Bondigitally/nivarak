@@ -11,10 +11,12 @@ import { eventBus } from '../../shared/event-bus.js';
 import { logger } from '../../shared/logger.js';
 import { NotFoundError, ConflictError, AuthorizationError } from '../../shared/errors.js';
 import type { AuthUser } from '../../middleware/auth.js';
+import { allocatePatientMrn } from './patient-mrn.js';
 
 export class PatientService {
   /**
    * Create a new patient record.
+   * Auto MRN uses Postgres sequence → `NVK-0000001` … `NVK-9999999` (≥1M).
    */
   async createPatient(
     data: {
@@ -30,9 +32,9 @@ export class PatientService {
     },
     createdBy: string
   ) {
-    const mrn = data.mrn || `NVK-${Date.now().toString(36).toUpperCase()}`;
+    const mrn = data.mrn?.trim() || (await allocatePatientMrn());
 
-    // Check MRN uniqueness
+    // Check MRN uniqueness (sequence is primary; UNIQUE is the final guard)
     const existing = await db.select().from(patients).where(eq(patients.mrn, mrn)).limit(1);
     if (existing.length > 0) {
       throw new ConflictError(`Patient with MRN ${mrn} already exists`);
