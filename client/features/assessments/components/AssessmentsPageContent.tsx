@@ -12,6 +12,8 @@ import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal
 import { IasScoreCard } from "@/features/dashboard/components/IasScoreCard";
 import {
   dashboardCardClass,
+  dashboardCardStackClass,
+  dashboardGridStackClass,
   dashboardPageShellClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { getHomeDashboardData } from "@/features/dashboard/data/home-data";
@@ -127,10 +129,10 @@ function PatientAssessmentsView() {
         />
 
         {hasAssessment && assessment ? (
-          <div className="flex flex-col gap-3">
+          <div className={dashboardGridStackClass}>
             <IasScoreCard assessment={assessment} variant="plain" />
 
-            <section className="flex flex-col gap-3 lg:hidden">
+            <section className={cn(dashboardGridStackClass, "lg:hidden")}>
               <RecentAssessmentsHeading />
               <TableSearch
                 value={mobileQuery}
@@ -138,7 +140,7 @@ function PatientAssessmentsView() {
                 placeholder="Search assessments…"
                 aria-label="Search assessments"
               />
-              <ul className="flex flex-col gap-3">
+              <ul className={dashboardCardStackClass}>
                 {pagedMobileRows.map((row, index) => (
                   <li key={`${row.name}-${row.date}-${index}`}>
                     <AssessmentMobileCard row={row} />

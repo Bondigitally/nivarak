@@ -130,7 +130,7 @@ export const iaspBandBadgeClass = cn(
 
 /** Dashboard hero — muted ping badge shell (`IaspBandPingBadge`). */
 export const iaspBandPingBadgeClass =
-  "inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md px-2.5 text-[13px] font-semibold leading-none";
+  "isolate inline-flex h-7 items-center gap-1.75 overflow-visible rounded-md px-2.5 text-[13px] font-semibold leading-none";
 
 /** Dashboard hero — score not yet available. */
 export const iaspBandPendingBadgeClass = cn(

@@ -217,7 +217,7 @@ function DomainRow({
           showDivider && "pt-[13px]",
         )}
       >
-        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f3eff6] text-primary sm:mt-0 sm:size-12 dark:bg-primary/10">
+        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f3eff6] text-primary sm:mt-0 sm:size-12">
           <AppIcon icon={icon} size={ICON_SIZE} />
         </span>
 
@@ -228,7 +228,7 @@ function DomainRow({
 
           {/* Mobile: bar + chevron inline */}
           <div className="flex items-center gap-2 sm:hidden">
-            <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#f1f5f9] dark:bg-muted">
+            <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#f1f5f9]">
               <DomainProgressFill
                 pct={pct}
                 barClassName={band.bar}
@@ -248,7 +248,7 @@ function DomainRow({
           </div>
 
           {/* Desktop: full-width bar */}
-          <div className="hidden h-2 w-full overflow-hidden rounded-full bg-[#f1f5f9] sm:block dark:bg-muted">
+          <div className="hidden h-2 w-full overflow-hidden rounded-full bg-[#f1f5f9] sm:block">
             <DomainProgressFill
               pct={pct}
               barClassName={band.bar}
@@ -341,8 +341,8 @@ export function PatientOverviewIaspPanel({ patientId }: { patientId: string }) {
   if (!patient) return null;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div className="flex flex-col gap-dash-gap">
+      <div className="grid gap-dash-gutter lg:grid-cols-[20rem_minmax(0,1fr)]">
         <section
           ref={iaspCardRef}
           className={cn(
@@ -401,7 +401,7 @@ export function PatientOverviewIaspPanel({ patientId }: { patientId: string }) {
                 <span
                   className={cn(
                     statusBadgeClass,
-                    "shrink-0 bg-[#f3eff6] text-primary dark:bg-primary/10",
+                    "shrink-0 bg-[#f3eff6] text-primary",
                   )}
                 >
                   {overview.nextAssessmentBadge}
@@ -430,7 +430,7 @@ export function PatientOverviewIaspPanel({ patientId }: { patientId: string }) {
               Performance across key functional domains
             </p>
           </div>
-          <div className="thin-hover-scroll min-h-0 flex-1 overflow-y-scroll overscroll-contain [scrollbar-gutter:stable]">
+          <div className="thin-hover-scroll min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
             <div className="flex flex-col pr-1">
               {overview.domains.map((domain, index) => (
                 <DomainRow
@@ -482,7 +482,7 @@ export function PatientOverviewConcernsCard({
             key={concern.id}
             className={cn(
               radius.md,
-              "flex gap-3 bg-[#fcecec] p-3 dark:bg-destructive/10",
+              "flex gap-3 bg-[#fcecec] p-3",
             )}
           >
             <AppIcon
@@ -516,19 +516,19 @@ export function PatientOverviewProxyCard({
     <section
       className={cn(
         dashboardCardClass,
-        "flex h-full flex-col justify-between gap-6 p-6",
+        "flex h-full flex-col justify-between gap-4 p-4",
       )}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <h3 className={typo.headingL}>Proxy Metadata</h3>
         <dl className="flex flex-col">
           {overview.proxy.map((field, index) => (
             <div
               key={field.id}
               className={cn(
-                "flex items-start justify-between gap-3 pb-2.5",
+                "flex items-start justify-between gap-2 pb-2",
                 index < overview.proxy.length - 1 &&
-                  "mb-2.5 border-b border-divider",
+                  "mb-2 border-b border-divider",
               )}
             >
               <dt className={cn(typo.bodyM, "text-muted-foreground")}>
@@ -541,7 +541,7 @@ export function PatientOverviewProxyCard({
           ))}
         </dl>
       </div>
-      <div className="border-t border-divider pt-4">
+      <div className="border-t border-divider pt-3">
         <Button
           type="button"
           variant="ghost"
