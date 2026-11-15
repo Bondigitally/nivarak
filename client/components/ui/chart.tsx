@@ -5,7 +5,7 @@ import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
 
-const THEMES = { light: "", dark: ".dark" } as const
+const CHART_COLOR_PREFIX = ""
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
 
@@ -60,7 +60,7 @@ export type ChartConfig = Record<
     icon?: React.ComponentType
   } & (
     | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+    | { color?: never; theme: Record<"light", string> }
   )
 >
 
@@ -149,22 +149,16 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   return (
     <style
       dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+        __html: `
+${CHART_COLOR_PREFIX} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
-      itemConfig.color
+    const color = itemConfig.theme?.light ?? itemConfig.color
     return color ? `  --color-${key}: ${color};` : null
   })
   .join("\n")}
 }
-`
-          )
-          .join("\n"),
+`,
       }}
     />
   )
