@@ -19,7 +19,6 @@ import {
   PanelRightOpenIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { roundedElegance } from "@/lib/fonts";
 import { typo } from "@/lib/tokens/typography";
 import type { UserRole } from "@/lib/auth/roles";
 import { getCurrentUserProfile } from "@/lib/auth/current-user-profile";
@@ -400,7 +399,6 @@ export function AppSidebar({
                   <span
                     className={cn(
                       "truncate",
-                      roundedElegance.className,
                       typo.logo,
                       "text-2xl leading-6 tracking-[0.08em] text-sidebar-active-text",
                     )}
