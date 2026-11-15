@@ -6,7 +6,6 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
-  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
@@ -15,12 +14,13 @@ import {
   getSystemSidebarTheme,
   readStoredSidebarThemePreference,
   resolveSidebarTheme,
-  resolveStoredSidebarTheme,
   SIDEBAR_THEME_PREFERENCE_DEFAULT,
   SIDEBAR_THEME_STORAGE_KEY,
   type SidebarTheme,
   type SidebarThemePreference,
 } from "@/lib/sidebar-theme";
+
+const SIDEBAR_THEME_CHANGE_EVENT = "nivarak-sidebar-theme";
 
 type SidebarThemeContextValue = {
   /** Resolved value for `data-sidebar-theme`. */
@@ -56,25 +56,45 @@ function useSystemSidebarTheme(): SidebarTheme {
   );
 }
 
+function subscribeSidebarThemePreference(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === SIDEBAR_THEME_STORAGE_KEY || event.key === null) {
+      onStoreChange();
+    }
+  };
+  const onLocalChange = () => onStoreChange();
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(SIDEBAR_THEME_CHANGE_EVENT, onLocalChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(SIDEBAR_THEME_CHANGE_EVENT, onLocalChange);
+  };
+}
+
+function getSidebarThemePreferenceSnapshot(): SidebarThemePreference {
+  return readStoredSidebarThemePreference();
+}
+
+function getSidebarThemePreferenceServerSnapshot(): SidebarThemePreference {
+  return SIDEBAR_THEME_PREFERENCE_DEFAULT;
+}
+
+function useSidebarThemePreference(): SidebarThemePreference {
+  return useSyncExternalStore(
+    subscribeSidebarThemePreference,
+    getSidebarThemePreferenceSnapshot,
+    getSidebarThemePreferenceServerSnapshot,
+  );
+}
+
 export function SidebarThemeProvider({ children }: { children: ReactNode }) {
-  const [sidebarThemePreference, setSidebarThemePreferenceState] =
-    useState<SidebarThemePreference>(SIDEBAR_THEME_PREFERENCE_DEFAULT);
-  const [preferenceReady, setPreferenceReady] = useState(false);
-
-  useLayoutEffect(() => {
-    setSidebarThemePreferenceState(readStoredSidebarThemePreference());
-    setPreferenceReady(true);
-  }, []);
-
+  const sidebarThemePreference = useSidebarThemePreference();
   const systemTheme = useSystemSidebarTheme();
 
   const sidebarTheme = useMemo((): SidebarTheme => {
-    if (typeof window !== "undefined" && !preferenceReady) {
-      return resolveStoredSidebarTheme();
-    }
     if (sidebarThemePreference === "system") return systemTheme;
     return resolveSidebarTheme(sidebarThemePreference);
-  }, [sidebarThemePreference, systemTheme, preferenceReady]);
+  }, [sidebarThemePreference, systemTheme]);
 
   useLayoutEffect(() => {
     applySidebarThemeToDocument(sidebarTheme);
@@ -82,14 +102,13 @@ export function SidebarThemeProvider({ children }: { children: ReactNode }) {
 
   const setSidebarThemePreference = useCallback(
     (theme: SidebarThemePreference) => {
-      setSidebarThemePreferenceState(theme);
       try {
         localStorage.setItem(SIDEBAR_THEME_STORAGE_KEY, theme);
       } catch {
         /* storage unavailable */
       }
-      const resolved = resolveSidebarTheme(theme);
-      applySidebarThemeToDocument(resolved);
+      window.dispatchEvent(new Event(SIDEBAR_THEME_CHANGE_EVENT));
+      applySidebarThemeToDocument(resolveSidebarTheme(theme));
     },
     [],
   );
