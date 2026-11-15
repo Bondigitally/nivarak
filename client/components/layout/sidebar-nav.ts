@@ -26,8 +26,6 @@ import {
 
   UserMultiple02Icon,
 
-  File01Icon,
-
 } from "@hugeicons/core-free-icons";
 
 import type { IconSvgElement } from "@hugeicons/react";
@@ -154,7 +152,7 @@ export const PATIENT_NAV: SidebarNavConfig = {
 
  * Doctor / clinician navigation matching Nivarak UI Figma.
 
- * Clinical expands to Assessments, Vitals, Care Plans, and Notes.
+ * Notes live on the patient chart only — not a top-level sidebar destination.
 
  */
 
@@ -174,7 +172,6 @@ export const DOCTOR_NAV: SidebarNavConfig = {
       label: "CARE MANAGEMENT",
       items: [
         { label: "Care Plans", icon: Plant01Icon, href: "/care/plan" },
-        { label: "Notes", icon: File01Icon, href: "/clinical/notes" },
         { label: "Schedule", icon: Calendar03Icon, href: "/schedule" },
       ],
     },

@@ -36,11 +36,7 @@ export function NoteDetailPage({
   if (!patient || !note || note.patientId !== patientId) notFound();
 
   return (
-    <PatientChartShell
-      patientId={patientId}
-      showKpis={false}
-      title="Clinical note"
-    >
+    <PatientChartShell patientId={patientId} showKpis={false}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
           title={note.title}
