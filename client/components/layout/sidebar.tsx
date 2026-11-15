@@ -19,7 +19,6 @@ import {
   PanelRightOpenIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { roundedElegance } from "@/lib/fonts";
 import { typo } from "@/lib/tokens/typography";
 import type { UserRole } from "@/lib/auth/roles";
 import { getCurrentUserProfile } from "@/lib/auth/current-user-profile";
@@ -44,7 +43,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getSidebarNavForRole, type NavItem } from "./sidebar-nav";
-import { sidebarFooterClass, sidebarHeaderClass, sidebarNavActiveSurfaceClass } from "./shell-chrome";
+import {
+  sidebarFooterClass,
+  sidebarHeaderClass,
+  sidebarNavActiveSurfaceClass,
+  sidebarRailHitClass,
+} from "./shell-chrome";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SIDEBAR_NAV_BADGE_CLASS = cn(
   "inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive px-1",
@@ -78,15 +88,14 @@ const NAV_BADGE_ARIA: Record<string, (count: string) => string> = {
 const FOCUS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
 
-/** Left pad so size-11 (44px) icons center in the 56px collapsed rail: (56-44)/2 = 6px */
-const COLLAPSED_ICON_INSET = "pl-1.5";
+/** 40×40px collapsed-rail controls — shared with `sidebarRailHitClass` */
+const COLLAPSED_RAIL_HIT = sidebarRailHitClass;
 
-/** size-11 matches expanded nav row height (44px) for consistent hit targets */
-const COLLAPSED_BTN =
-  "flex size-11 shrink-0 items-center justify-center rounded-md";
-
-/** size-10 (40px) logo image fits the 56px collapsed rail with even visual padding. */
+/** Logo mark in collapsed header (px) */
 const SIDEBAR_LOGO_PX = 40;
+
+/** Centered column layout for the icon rail (64px − 40px control = 12px per side) */
+const COLLAPSED_RAIL_STACK = "flex w-full flex-col items-center gap-0.5 px-3";
 
 /** Past default tooltip offset so labels clear the rail edge */
 const SIDEBAR_TOOLTIP_SIDE_OFFSET = 14;
@@ -133,7 +142,7 @@ function sidebarNavIconClass(active: boolean) {
     SIDEBAR_NAV_ICON_MOTION,
     active
       ? "text-sidebar-active-icon group-hover/nav:text-sidebar-active-icon group-active/nav:text-sidebar-active-icon"
-      : "text-muted-foreground group-hover/nav:text-sidebar-hover-icon group-active/nav:text-sidebar-hover-icon",
+      : "text-sidebar-foreground group-hover/nav:text-sidebar-hover-icon group-active/nav:text-sidebar-hover-icon",
   );
 }
 
@@ -161,7 +170,7 @@ function CollapsedSidebarBrand({
   tipsEnabled: boolean;
 }) {
   return (
-    <div className="group/logo relative size-11 shrink-0">
+    <div className="group/logo relative size-10 shrink-0">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -169,9 +178,9 @@ function CollapsedSidebarBrand({
             aria-label="Open sidebar"
             onClick={onExpand}
             className={cn(
-              COLLAPSED_BTN,
+              COLLAPSED_RAIL_HIT,
               "absolute inset-0 z-10 opacity-0 transition-opacity duration-150",
-              "pointer-events-none hover:bg-accent hover:text-foreground",
+              "pointer-events-none hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text",
               "group-hover/logo:pointer-events-auto group-hover/logo:opacity-100",
             )}
           >
@@ -185,7 +194,7 @@ function CollapsedSidebarBrand({
           href={homeHref}
           aria-label="Nivarak home"
           className={cn(
-            COLLAPSED_BTN,
+            COLLAPSED_RAIL_HIT,
             "relative transition-opacity duration-150 group-hover/logo:pointer-events-none group-hover/logo:opacity-0",
           )}
         >
@@ -350,16 +359,21 @@ export function AppSidebar({
   const chrome = (
     <div
       className={cn(
-        "group/sidebar flex h-full min-h-full flex-col bg-sidebar",
+        "group/sidebar flex h-full min-h-0 w-full flex-col bg-sidebar",
         railCollapsed && "[&_a]:cursor-pointer [&_button]:cursor-pointer",
       )}
-      style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
-      <div className={cn(sidebarHeaderClass, "flex items-center")}>
+      <div
+        className={cn(
+          sidebarHeaderClass,
+          "flex items-center",
+          railCollapsed && "justify-center",
+        )}
+      >
         <div
           className={cn(
-            "flex min-w-0 flex-1 items-center",
-            railCollapsed ? COLLAPSED_ICON_INSET : "gap-1 px-2",
+            "flex min-w-0 items-center",
+            railCollapsed ? "w-full justify-center px-0" : "min-w-0 flex-1 gap-1 px-2",
           )}
         >
           {railCollapsed ? (
@@ -385,14 +399,13 @@ export function AppSidebar({
                   <span
                     className={cn(
                       "truncate",
-                      roundedElegance.className,
                       typo.logo,
-                      "text-2xl leading-6 tracking-[0.08em]",
+                      "text-2xl leading-6 tracking-[0.08em] text-sidebar-active-text",
                     )}
                   >
                     nivarak
                   </span>
-                  <span className={cn("truncate", typo.caption, "text-muted-foreground")}>
+                  <span className={cn("truncate", typo.caption, "text-sidebar-foreground")}>
                     Unifying Eldercare
                   </span>
                 </span>
@@ -403,7 +416,7 @@ export function AppSidebar({
                   type="button"
                   aria-label="Close navigation"
                   onClick={() => setOpen(false)}
-                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground"
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text"
                 >
                   <NavIcon icon={Cancel01Icon} />
                 </button>
@@ -415,7 +428,7 @@ export function AppSidebar({
                       aria-label="Close sidebar"
                       aria-expanded
                       onClick={() => setCollapsed(true)}
-                      className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+                      className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text"
                     >
                       <NavIcon icon={PanelRightCloseIcon} />
                     </button>
@@ -426,12 +439,19 @@ export function AppSidebar({
             </>
           )}
         </div>
+        <span
+          className={cn(
+            "pointer-events-none absolute inset-x-2 bottom-0 h-px bg-sidebar-divider",
+            railCollapsed && "inset-x-3",
+          )}
+          aria-hidden
+        />
       </div>
 
       <nav
         className={cn(
           "sidebar-nav-scroll flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto py-2",
-          railCollapsed ? cn("gap-1", COLLAPSED_ICON_INSET) : "gap-2",
+          railCollapsed ? COLLAPSED_RAIL_STACK : "gap-2",
         )}
         aria-label="Main navigation"
       >
@@ -440,13 +460,20 @@ export function AppSidebar({
             key={section.label}
             className={cn(
               "flex flex-col gap-0.5",
-              railCollapsed ? undefined : "px-2",
+              railCollapsed ? "w-full items-center gap-0.5" : "px-2",
               idx > 0 && "mt-2",
             )}
           >
             {!railCollapsed && (
               <div className="px-3 py-2.5">
-                <span className={typo.overline}>{section.label}</span>
+                <span
+                  className={cn(
+                    "text-[11px] font-semibold uppercase leading-4 tracking-[0.08em]",
+                    "text-sidebar-section-foreground",
+                  )}
+                >
+                  {section.label}
+                </span>
               </div>
             )}
 
@@ -479,7 +506,7 @@ export function AppSidebar({
                         }))
                       }
                       className={cn(
-                        "flex h-11 w-full items-center gap-3 rounded-md border px-3 py-2.5",
+                        "flex h-11 w-full items-center gap-3 rounded-lg border px-3 py-2.5",
                         SIDEBAR_NAV_MOTION,
                         active ? SIDEBAR_NAV_ACTIVE : SIDEBAR_NAV_IDLE,
                         FOCUS,
@@ -497,7 +524,7 @@ export function AppSidebar({
                       </span>
                       <ChevronIcon
                         direction={expanded ? "down" : "right"}
-                        className="text-muted-foreground"
+                        className="text-sidebar-foreground"
                       />
                     </button>
                     {expanded &&
@@ -509,7 +536,7 @@ export function AppSidebar({
                             href={child.href}
                             aria-current={childIsActive ? "page" : undefined}
                             className={cn(
-                              "ml-4 flex h-10 items-center gap-3 rounded-md border px-3 py-2",
+                              "ml-4 flex h-10 items-center gap-3 rounded-lg border px-3 py-2",
                               SIDEBAR_NAV_MOTION,
                               childIsActive
                                 ? SIDEBAR_NAV_ACTIVE
@@ -552,8 +579,11 @@ export function AppSidebar({
                     }
                     className={cn(
                       railCollapsed
-                        ? cn(COLLAPSED_BTN, "cursor-pointer")
-                        : "flex h-11 w-full items-center gap-3 rounded-md px-3 py-2.5",
+                        ? cn(
+                            COLLAPSED_RAIL_HIT,
+                            "box-border cursor-pointer",
+                          )
+                        : "flex h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5",
                       "border",
                       SIDEBAR_NAV_MOTION,
                       active ? SIDEBAR_NAV_ACTIVE : SIDEBAR_NAV_IDLE,
@@ -561,7 +591,14 @@ export function AppSidebar({
                     )}
                     data-sidebar-interactive=""
                   >
-                    <span className="relative size-5 shrink-0">
+                    <span
+                      className={cn(
+                        "relative shrink-0",
+                        railCollapsed
+                          ? "flex size-full items-center justify-center"
+                          : "size-5",
+                      )}
+                    >
                       <NavIcon
                         icon={item.icon}
                         className={sidebarNavIconClass(active)}
@@ -570,7 +607,7 @@ export function AppSidebar({
                         <span
                           className={cn(
                             SIDEBAR_NAV_BADGE_CLASS,
-                            "pointer-events-none absolute right-0 top-0 z-10 -translate-y-1/2 translate-x-1/2",
+                            "pointer-events-none absolute -right-1 -top-1 z-10",
                             "ring-2 ring-sidebar",
                           )}
                           aria-hidden
@@ -597,24 +634,36 @@ export function AppSidebar({
       <div className={sidebarFooterClass}>
         <div
           className={cn(
-            "flex h-full min-h-0 items-center",
-            railCollapsed ? COLLAPSED_ICON_INSET : "px-2",
+            "flex h-full min-h-0 w-full items-center",
+            railCollapsed ? "justify-center" : "px-2",
           )}
         >
           {railCollapsed ? (
-            <CollapsedTip label={profile.displayName} enabled={tipsEnabled}>
-              <button
-                type="button"
-                aria-label={profile.displayName}
-                onClick={() => setCollapsed(false)}
-                className={cn(COLLAPSED_BTN, FOCUS)}
-              >
-                <SidebarFooterAvatar
-                  src={profile.avatarUrl}
-                  alt={`${profile.displayName} profile photo`}
-                />
-              </button>
-            </CollapsedTip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`${profile.displayName} account menu`}
+                  className={cn(COLLAPSED_RAIL_HIT, "box-border", FOCUS)}
+                >
+                  <SidebarFooterAvatar
+                    src={profile.avatarUrl}
+                    alt={`${profile.displayName} profile photo`}
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="end" sideOffset={8}>
+                <DropdownMenuItem onSelect={() => setCollapsed(false)}>
+                  Expand sidebar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => openSignOut()}
+                  className="text-destructive focus:text-destructive"
+                >
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div className="flex w-full min-w-0 items-center gap-2">
               <SidebarFooterAvatar
@@ -622,10 +671,10 @@ export function AppSidebar({
                 alt={`${profile.displayName} profile photo`}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold leading-none text-foreground">
+                <p className="truncate text-sm font-semibold leading-none text-sidebar-active-text">
                   {profile.displayName}
                 </p>
-                <p className="mt-0.5 truncate text-xs font-normal leading-4 text-muted-foreground">
+                <p className="mt-0.5 truncate text-xs font-normal leading-4 text-sidebar-foreground">
                   {profile.email}
                 </p>
               </div>
@@ -635,7 +684,7 @@ export function AppSidebar({
                 onClick={openSignOut}
                 className={cn(
                   "inline-flex size-10 shrink-0 items-center justify-center rounded-md",
-                  "text-muted-foreground hover:text-destructive",
+                  "text-sidebar-foreground hover:bg-sidebar-hover-bg hover:text-destructive",
                   FOCUS,
                 )}
               >
@@ -655,7 +704,7 @@ export function AppSidebar({
           <SheetContent
             side="left"
             showCloseButton={false}
-            className="w-(--sidebar-width) max-w-(--sidebar-width) gap-0 border-r border-sidebar-border bg-sidebar p-0 font-sans shadow-lg"
+            className="w-(--sidebar-width) max-w-(--sidebar-width) gap-0 bg-sidebar p-0 font-sans shadow-lg"
             style={
               {
                 "--sidebar-width": `${SIDEBAR_WIDTH_EXPANDED}px`,
@@ -677,7 +726,7 @@ export function AppSidebar({
     <TooltipProvider delayDuration={200}>
       <aside
         className={cn(
-          "relative z-10 flex h-full min-h-full shrink-0 flex-col self-stretch overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out",
+          "relative z-10 flex h-full min-h-0 shrink-0 flex-col self-stretch overflow-hidden bg-sidebar font-sans transition-[width] duration-300 ease-out",
           railCollapsed && "cursor-ew-resize",
         )}
         style={{ width, transitionDuration: `${SIDEBAR_TRANSITION_MS}ms` }}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { ThemeProvider } from "@/components/theme-provider";
+import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/app-shell";
+import { SidebarThemeProvider } from "@/components/layout/sidebar-theme-context";
 import { AppSidebar } from "@/components/layout/sidebar";
 import {
   UserRoleProvider,
@@ -53,29 +53,6 @@ function RoleAwareContent({ children }: { children: ReactNode }) {
 }
 
 /**
- * Theme switching is dashboard-only. Clear `html.dark` on leave so public
- * routes (IASP, auth, legal) never inherit a leftover dark class.
- */
-function DashboardThemeProvider({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    return () => {
-      document.documentElement.classList.remove("dark");
-    };
-  }, []);
-
-  return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
-  );
-}
-
-/**
  * Protected chrome bridge — connects feature stores to the app shell.
  *
  * Lives here rather than in layout.tsx so layout.tsx stays a React Server
@@ -90,12 +67,12 @@ export function ProtectedAppShell({
   children: ReactNode;
 }) {
   return (
-    <DashboardThemeProvider>
+    <SidebarThemeProvider>
       <UserRoleProvider>
         <AppShell sidebar={<RoleAwareSidebar />} dialogs={dialogs}>
           <RoleAwareContent>{children}</RoleAwareContent>
         </AppShell>
       </UserRoleProvider>
-    </DashboardThemeProvider>
+    </SidebarThemeProvider>
   );
 }

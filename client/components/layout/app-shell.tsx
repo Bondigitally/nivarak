@@ -1,6 +1,16 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { SidebarProvider } from "@/components/layout/sidebar-context";
-import { shellCanvasClass } from "@/components/layout/shell-chrome";
+import {
+  DASHBOARD_SHELL_DRAWER_OVERLAY_ROOT_ID,
+  DASHBOARD_WORKSPACE_DRAWER_PANEL_ROOT_ID,
+  dashboardShellDrawerOverlayHostClass,
+  dashboardWorkspaceDrawerPanelHostClass,
+  shellInnerFrameClass,
+  shellMainContentHostClass,
+  shellMainWorkspaceClass,
+} from "@/components/layout/shell-chrome";
 import { SignOutDialog } from "@/components/layout/sign-out-dialog";
 import { cn } from "@/lib/utils";
 
@@ -16,41 +26,34 @@ type AppShellProps = {
  * Fixed viewport frame for the protected app.
  *
  * Layout contract:
- * - The outer `protected-shell` div is a full-viewport flex row (sidebar + main).
- * - `main[data-dashboard-scroll]` is absolutely inset inside a non-scrolling flex item.
- *   This prevents double scrollbars: only the main pane scrolls; html/body do not.
- * - `shellCanvasClass` paints the cool-gray canvas on the non-scrolling frame so the
- *   fill stays viewport-fixed regardless of scroll position.
- * - The `border-x border-b` overlay adds the panel frame on lg without affecting layout.
+ * - `.protected-shell` applies a uniform outer gutter on all sides (`--shell-outer-gutter`).
+ * - `shellInnerFrameClass` holds sidebar + workspace at equal height (shared top/bottom).
+ * - Route chrome (`AppPageFrame`) pins the top bar; `[data-dashboard-scroll]` is the
+ *   only vertical scrollport for page body. html/body do not scroll.
+ * - `shellMainWorkspaceClass` is the rounded main pane (24px on lg).
  */
 export function AppShell({ sidebar, dialogs, children, className }: AppShellProps) {
   return (
     <SidebarProvider>
       <div
-        className={cn(
-          "protected-shell flex overflow-hidden bg-sidebar font-sans",
-          className,
-        )}
+        className={cn("protected-shell overflow-hidden bg-sidebar font-sans", className)}
       >
-        {sidebar}
-        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden bg-sidebar">
+        <div className={shellInnerFrameClass}>
           <div
-            className={cn(
-              "absolute inset-0 overflow-hidden",
-              shellCanvasClass,
-            )}
-          >
-            <main
-              data-dashboard-scroll
-              className="absolute inset-0 overflow-y-scroll overscroll-y-contain bg-transparent"
-            >
-              {children}
-            </main>
-            {/* Side + bottom frame */}
+            id={DASHBOARD_SHELL_DRAWER_OVERLAY_ROOT_ID}
+            className={dashboardShellDrawerOverlayHostClass}
+            aria-hidden
+          />
+          {sidebar}
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <div
+              id={DASHBOARD_WORKSPACE_DRAWER_PANEL_ROOT_ID}
+              className={dashboardWorkspaceDrawerPanelHostClass}
               aria-hidden
-              className="pointer-events-none absolute inset-0 z-10 hidden border-x border-b border-sidebar-border lg:block"
             />
+            <div className={shellMainWorkspaceClass}>
+              <main className={shellMainContentHostClass}>{children}</main>
+            </div>
           </div>
         </div>
       </div>

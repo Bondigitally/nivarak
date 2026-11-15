@@ -10,7 +10,6 @@ import {
   useReducedMotion,
   useTransform,
 } from "framer-motion";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   hasAnimatedOnce,
@@ -126,7 +125,6 @@ function ScoreRing({
 }: {
   score: number | null;
 }) {
-  const { resolvedTheme } = useTheme();
   const maskId = `ias-arc-mask-${useId().replace(/:/g, "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLSpanElement>(null);
@@ -136,9 +134,7 @@ function ScoreRing({
   const finalArcRatio = Math.max(0, targetRatio - GAP_RATIO);
   const animationId = `ias-score-ring:${score ?? "empty"}`;
   const skipEnter = reducedMotion || hasAnimatedOnce(animationId);
-
-  const tickColor =
-    resolvedTheme === "dark" ? "#514B57" : "var(--primary)";
+  const tickColor = "var(--primary)";
 
   const progress = useMotionValue(skipEnter || isEmpty ? finalArcRatio : 0);
   const strokeDasharray = useTransform(progress, (value) => {

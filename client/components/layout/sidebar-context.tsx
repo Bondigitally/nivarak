@@ -12,8 +12,8 @@ import {
 
 /** Expanded sidebar content width (px). Inner chrome is always this wide and clipped. */
 export const SIDEBAR_WIDTH_EXPANDED = 256;
-/** Collapsed icon-rail width (px). */
-export const SIDEBAR_WIDTH_COLLAPSED = 56;
+/** Collapsed icon-rail width (px) — fits 40px hit targets with even horizontal inset. */
+export const SIDEBAR_WIDTH_COLLAPSED = 64;
 /** Width transition duration (ms) — keep in sync with aside `transitionDuration`. Motion/Slow. */
 export const SIDEBAR_TRANSITION_MS = 320;
 /**

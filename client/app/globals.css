@@ -2,13 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Class-based dark mode — pairs with next-themes `attribute="class"` */
-@custom-variant dark (
-  &:where(.dark, .dark *):not(:where(.auth-light-mode, .auth-light-mode *)):not(
-      :where(.marketing-site, .marketing-site *)
-    )
-);
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -30,6 +23,7 @@
   --color-sidebar-active-border: var(--sidebar-active-border);
   --color-sidebar-active-icon: var(--sidebar-active-icon);
   --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-section-foreground: var(--sidebar-section-foreground);
   --color-segmented-track: var(--segmented-track);
   --color-segmented-track-on-card: var(--segmented-track-on-card);
   --color-chart-8: var(--chart-8);
@@ -118,11 +112,17 @@
    * `w-full` + `max-w-dash-page` + `mx-auto` fill `main` up to this limit.
    */
    --max-width-dash-page: 1440px;
-  /* Standard protected layout: page pad via --dash-pad-x · 16px gutters / section gaps */
+  /** Uniform viewport inset for the protected dashboard shell (sidebar + workspace). */
+  --shell-outer-gutter: 8px;
+  /** Shared row height — sidebar header/footer + AppTopBar */
+  --shell-chrome-header-height: 4rem;
+  /* Standard protected layout: page pad via --dash-pad-x · dash gutters / section gaps */
   --spacing-dash-pad-x: var(--dash-pad-x);
   --spacing-dash-pad-y: 0.75rem;
-  --spacing-dash-gutter: 1rem;
-  --spacing-dash-gap: 1rem;
+  /* Card grid gutters + stacked card lists (horizontal & vertical) */
+  --spacing-dash-gutter: 0.5rem;
+  /* Vertical rhythm between page sections (header → body, overview blocks) */
+  --spacing-dash-gap: 0.5rem;
   --spacing-dash-topbar-gap: 1rem;
   --spacing-dash-control: 2.75rem;
 
@@ -142,13 +142,12 @@
   /* Page inset: 16px < lg, 24px ≥ lg — top bar, page shells, and modal chrome share px-dash-pad-x */
   --dash-pad-x: 16px;
 
-  /* Advertise both schemes so System can resolve; .light/.dark refine via next-themes */
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 /*
  * Light palette — shared by default theme and auth routes (`.auth-light-mode`).
- * Auth pages keep this palette even when `html` has `.dark`.
+ * Auth pages always use this light palette.
  */
 :root,
 .auth-light-mode {
@@ -156,7 +155,7 @@
    * Keep in sync with design system/design.md.
    * Canvas stays cool gray; brand purple is for actions/links/focus/active nav only.
    */
-  --background: #F7F7F8;
+  --background: #FAFAFA;
   --foreground: #1A1A1A;
   --card: #FFFFFF;
   --card-foreground: #1A1A1A;
@@ -212,121 +211,15 @@
   --chart-7: var(--attention); /* Temperature */
   --chart-8: #1E0E28;   /* Brand gradient end — IAS hero */
 
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  /* Sidebar nav idle hover — full-row icon, label, and fill */
-  --sidebar-hover-bg: #F8F7F9;
-  --sidebar-hover-icon: #45404A;
-  --sidebar-hover-text: #1A1A1A;
-  --sidebar-hover: var(--sidebar-hover-bg);
-  --sidebar-border: var(--border);
-  --sidebar-divider: var(--divider);
-  --sidebar-ring: var(--ring);
-  --sidebar-active-bg: var(--table-header);
-  --sidebar-active-border: var(--border);
-  --sidebar-active-icon: var(--primary);
-  --sidebar-active-text: var(--foreground);
-
   /* Literal hex — same nested-var limitation as --search-shortcut-key */
   --segmented-track: #F1F1F2;
   --segmented-track-on-card: var(--segmented-track);
 }
 
-.light,
 .auth-light-mode {
   color-scheme: light;
-}
-
-/* Auth island — inherit light tokens even when html is .dark */
-.auth-light-mode {
   color: var(--foreground);
   background-color: var(--background);
-}
-
-/*
- * Dark palette — skipped on auth and marketing routes so public pages
- * always match the light brand palette, including before hydration.
- */
-html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
-  --background: #0F1013;
-  --foreground: #F4F4F5;
-  --card: #15171B;
-  --card-foreground: #F4F4F5;
-  --popover: #1A1C21;
-  --popover-foreground: #F4F4F5;
-
-  /* Canonical primary; hover/active only lift contrast on dark surfaces */
-  --primary: #6C318E;
-  --primary-hover: #7B3FA0;
-  --primary-active: #8B4DB1;
-  --primary-disabled: #5A4563;
-  --primary-foreground: #FFFFFF;
-  --primary-ui: #8F4DB2;
-
-  --secondary: #1A1C21;
-  --secondary-foreground: #F4F4F5;
-  --muted: var(--secondary);
-  --muted-foreground: #A1A1AA;
-  --table-header: #1D2025;
-  --tertiary-foreground: #8E8E97;
-  --placeholder: #71717A;
-  /* Neutral hover — never purple */
-  --accent: #22252B;
-  --accent-foreground: #F4F4F5;
-  --search-shortcut-key: #1D2025;
-
-  --destructive: #F05252;
-  --destructive-muted: #3A1D20;
-  --success: #34D399;
-  --success-muted: #123128;
-  --warning: #EAB308;
-  --warning-muted: #332B0D;
-  --attention: #FB923C;
-  --attention-muted: #352116;
-  --attention-foreground: #FDBA74;
-  --info: #60A5FA;
-  --info-muted: #172A40;
-
-  --border: #2A2D34;
-  --divider: #23262C;
-  --border-disabled: #24262B;
-  --text-disabled: #5F626A;
-  --input: var(--border);
-  --ring: #A66BCF;
-  --border-focus: #B98BD0;
-
-  /* Same chart roles as light; hues lifted for dark surfaces */
-  --chart-1: var(--primary);
-  --chart-2: #FA5A52;   /* BP Systolic */
-  --chart-3: #3B8FE3;   /* BP Diastolic */
-  --chart-4: #7F91FF;   /* Heart Rate */
-  --chart-5: #19B8C4;   /* SpO₂ */
-  --chart-6: #6C9AF5;   /* Blood Glucose */
-  --chart-7: #FB923C;   /* Temperature */
-  --chart-8: #1E0E28;   /* Brand gradient end — IAS hero */
-
-  --sidebar: #111318;
-  --sidebar-foreground: #E4E4E7;
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-hover-bg: var(--table-header);
-  --sidebar-hover-icon: #C8C8D0;
-  --sidebar-hover-text: var(--foreground);
-  --sidebar-hover: var(--sidebar-hover-bg);
-  --sidebar-border: #292C33;
-  --sidebar-divider: var(--divider);
-  --sidebar-ring: var(--ring);
-  --sidebar-active-bg: var(--accent);
-  --sidebar-active-border: #282534;
-  --sidebar-active-icon: var(--primary);
-  --sidebar-active-text: var(--foreground);
-
-  --segmented-track: #1D2025;
-  --segmented-track-on-card: var(--segmented-track);
-
-  color-scheme: dark;
 }
 
 /* Matches Tailwind `lg` — desktop page inset */
@@ -339,6 +232,24 @@ html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /*
+     * Global thin muted scrollbars (Firefox + WebKit) — brand-neutral clinical
+     * chrome instead of OS/browser black defaults. Hover-reveal utilities
+     * (.thin-hover-scroll, .sidebar-nav-scroll) and scrollbar-none override.
+     */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--border) 55%, transparent) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--border) 55%, transparent);
+    border-radius: 9999px;
   }
   html {
     @apply font-sans;
@@ -362,6 +273,128 @@ html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
 }
 
 /*
+ * Sidebar theme — independent of html light/dark (workspace app theme).
+ * Resolved on `html` via bootstrap script + SidebarThemeProvider.
+ */
+:root {
+  --sidebar: #F3F3F3;
+  --sidebar-foreground: #4D4D4D;
+  --sidebar-section-foreground: #888888;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-hover-bg: #E8E8E8;
+  --sidebar-hover-icon: #1A1A1A;
+  --sidebar-hover-text: #1A1A1A;
+  --sidebar-hover: var(--sidebar-hover-bg);
+  --sidebar-border: #E5E5E5;
+  --sidebar-divider: #E5E5E5;
+  --sidebar-ring: var(--ring);
+  --sidebar-active-bg: #E8E8E8;
+  --sidebar-active-border: transparent;
+  --sidebar-active-shadow: none;
+  --sidebar-active-icon: #1A1A1A;
+  --sidebar-active-text: #1A1A1A;
+  --workspace-shell-border: #E5E4E8;
+  --workspace-chrome-divider: #E5E4E8;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-sidebar-theme="light"]) {
+    --sidebar: #171717;
+    --sidebar-foreground: #a3a3a3;
+    --sidebar-section-foreground: #737373;
+    --sidebar-hover-bg: #262626;
+    --sidebar-hover-icon: #e5e5e5;
+    --sidebar-hover-text: #fafafa;
+    --sidebar-hover: var(--sidebar-hover-bg);
+    --sidebar-border: #2e2e2e;
+    --sidebar-divider: #2e2e2e;
+    --sidebar-active-bg: #353535;
+    --sidebar-active-border: #454545;
+    --sidebar-active-icon: #ffffff;
+    --sidebar-active-text: #fafafa;
+    --workspace-shell-border: #e4e4e7;
+    --workspace-chrome-divider: #e4e4e7;
+    color-scheme: dark;
+  }
+}
+
+html[data-sidebar-theme="light"],
+[data-sidebar-theme="light"] {
+  --sidebar: #F3F3F3;
+  --sidebar-foreground: #4D4D4D;
+  --sidebar-section-foreground: #888888;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-hover-bg: #E8E8E8;
+  --sidebar-hover-icon: #1A1A1A;
+  --sidebar-hover-text: #1A1A1A;
+  --sidebar-hover: var(--sidebar-hover-bg);
+  --sidebar-border: #E5E5E5;
+  --sidebar-divider: #E5E5E5;
+  --sidebar-ring: var(--ring);
+  --sidebar-active-bg: #E8E8E8;
+  --sidebar-active-border: transparent;
+  --sidebar-active-shadow: none;
+  --sidebar-active-icon: #1A1A1A;
+  --sidebar-active-text: #1A1A1A;
+  --workspace-shell-border: #E5E4E8;
+  --workspace-chrome-divider: #E5E4E8;
+  color-scheme: light;
+}
+
+html[data-sidebar-theme="dark"],
+[data-sidebar-theme="dark"] {
+  --sidebar: #171717;
+  --sidebar-foreground: #a3a3a3;
+  --sidebar-section-foreground: #737373;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-hover-bg: #262626;
+  --sidebar-hover-icon: #e5e5e5;
+  --sidebar-hover-text: #fafafa;
+  --sidebar-hover: var(--sidebar-hover-bg);
+  --sidebar-border: #2e2e2e;
+  --sidebar-divider: #2e2e2e;
+  --sidebar-ring: var(--ring);
+  --sidebar-active-bg: #353535;
+  --sidebar-active-border: #454545;
+  --sidebar-active-shadow: none;
+  --sidebar-active-icon: #ffffff;
+  --sidebar-active-text: #fafafa;
+  /*
+   * Workspace pane stays on light `bg-card` — use line colors that read on #FFFFFF,
+   * not sidebar-on-dark tokens (#2e2e2e).
+   */
+  --workspace-shell-border: #e4e4e7;
+  --workspace-chrome-divider: #e4e4e7;
+  color-scheme: dark;
+}
+
+/*
+ * Workspace outline — painted above page chrome so it is not covered by full-bleed
+ * surfaces; border keeps header rows aligned with the sidebar column.
+ */
+html[data-sidebar-theme] .shell-main-workspace::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid var(--workspace-shell-border);
+}
+
+html[data-sidebar-theme] .shell-header-chrome {
+  border-bottom: 1px solid transparent;
+  transition: border-color 150ms ease;
+}
+
+html[data-sidebar-theme] .shell-header-chrome.shell-header-chrome--scrolled {
+  border-bottom-color: var(--workspace-chrome-divider);
+}
+
+/*
  * Protected app shell — viewport-sized flex frame.
  *
  * Scroll lives on [data-dashboard-scroll], not html/body.
@@ -369,8 +402,20 @@ html.dark:not(:has(.auth-light-mode)):not(:has(.marketing-site)) {
  * horizontal overflow gutter.
  */
 .protected-shell {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100dvh;
+  min-height: 0;
+  padding: var(--shell-outer-gutter);
+}
+
+.shell-chrome-header-row {
+  box-sizing: border-box;
+  height: var(--shell-chrome-header-height);
+  min-height: var(--shell-chrome-header-height);
+  flex-shrink: 0;
 }
 
 html:has(.protected-shell),
@@ -392,7 +437,10 @@ html:has(.auth-light-mode) {
   scrollbar-gutter: stable;
 }
 
-/* Sidebar nav — thin scrollbar, visible only while hovering the sidebar */
+/*
+ * Specialty scrollports (override @layer base global scrollbars above).
+ * Sidebar nav — thin scrollbar, visible only while hovering the sidebar.
+ */
 .sidebar-nav-scroll {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -458,22 +506,50 @@ html:has(.auth-light-mode) {
 }
 
 /*
- * Reserve classic-scrollbar space on the dashboard scroller so page height
- * changes (filters, expanding sections) don’t shift layout horizontally.
- *
- * Scrollport is absolute-inset inside a non-scrolling flex item (see AppShell)
- * so the gutter gets a definite containing block — Chromium often skips
- * scrollbar-gutter on flex children that are themselves the overflow box.
- * Use overflow-y: scroll (not auto). Overlay-scrollbar OSes ignore the gutter.
+ * Dashboard primary scrollport — page body below the top bar (AppPageFrame).
+ * Single vertical scrollbar when content overflows; thin 6px thumb.
  */
 [data-dashboard-scroll] {
-  overflow-y: scroll;
-  scrollbar-gutter: stable;
-  /*
-   * Opt the scrollport out of automatic scroll anchoring. Anchoring to rows that
-   * unmount on filter/sort reflows adjusts scrollTop and feels like a jump.
-   */
+  overflow-x: hidden;
+  overflow-y: auto;
   overflow-anchor: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 55%, transparent) transparent;
+}
+
+[data-dashboard-scroll]::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-dashboard-scroll]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-dashboard-scroll]::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--border) 55%, transparent);
+  border-radius: 9999px;
+}
+
+/*
+ * CGA wizard (lg+) — pin to the dashboard scrollport with absolute fill so
+ * Tailwind overflow utilities cannot leave a half-empty shell. Below lg the
+ * page scrolls normally (no nested 0-height columns).
+ */
+@media (min-width: 1024px) {
+  [data-dashboard-scroll]:has([data-cga-wizard]) {
+    position: relative;
+    overflow: hidden !important;
+  }
+
+  [data-dashboard-scroll]:has([data-cga-wizard]) > [data-cga-wizard] {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 /*
@@ -530,28 +606,59 @@ body[data-scroll-locked] {
 }
 
 /**
- * Vital KPI status-pill ping — CSS so it isn't swallowed by parent
- * Framer Motion slide variants (opacity/transform inheritance).
- * Scale 2.5 = 20px ring on an 8px dot; 1.45s ≈ 1.25s pulse + 0.2s gap.
+ * Status-dot ping — compositor-only CSS (no Framer) so parent slide variants
+ * don't drive per-frame JS. ~86% of cycle = pulse; tail = rest (≈0.2s gap).
  */
 @keyframes kpi-status-dot-ping {
   0% {
-    transform: scale(1);
+    transform: scale3d(1, 1, 1);
     opacity: 0.55;
   }
   86% {
-    transform: scale(2.5);
+    transform: scale3d(2.5, 2.5, 1);
     opacity: 0;
   }
   100% {
-    transform: scale(2.5);
+    transform: scale3d(2.5, 2.5, 1);
     opacity: 0;
   }
 }
 
-.kpi-status-dot-ping {
+@keyframes iasp-status-dot-ping {
+  0% {
+    transform: scale3d(1, 1, 1);
+    opacity: 0.55;
+  }
+  86% {
+    transform: scale3d(2.75, 2.75, 1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale3d(2.75, 2.75, 1);
+    opacity: 0;
+  }
+}
+
+.kpi-status-dot-ping,
+.iasp-status-dot-ping {
   transform-origin: center;
-  animation: kpi-status-dot-ping 1.45s ease-out infinite;
+  backface-visibility: hidden;
+  animation-duration: 1.45s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+.kpi-status-dot-ping {
+  animation-name: kpi-status-dot-ping;
+}
+
+.iasp-status-dot-ping {
+  animation-name: iasp-status-dot-ping;
+}
+
+/* Dashboard hero — defer ping until the IAS ring fill finishes (~2.6s). */
+.iasp-status-dot-ping--deferred {
+  animation-delay: 2.6s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -560,7 +667,8 @@ body[data-scroll-locked] {
     transform: none;
   }
 
-  .kpi-status-dot-ping {
+  .kpi-status-dot-ping,
+  .iasp-status-dot-ping {
     animation: none !important;
     opacity: 0;
   }

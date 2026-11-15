@@ -1,4 +1,9 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
+
+/** Pin the Next app root to `client/` (sibling `server/` is a separate Node package). */
+const clientRoot = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Headers that apply everywhere. The directives below cannot break page
@@ -16,6 +21,9 @@ const baseSecurityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: clientRoot,
+  },
   images: {
     remotePatterns: [
       {

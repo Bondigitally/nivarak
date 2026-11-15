@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { hanken, roundedElegance } from '@/lib/fonts';
 import './globals.css';
 import { ConfigureAmplify } from '@/features/auth/lib/amplify';
+import { SIDEBAR_THEME_BOOTSTRAP_SCRIPT } from '@/lib/sidebar-theme';
 
 import { GoogleAnalytics } from '@/components/google-analytics';
 
@@ -16,12 +17,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    /*
-     * suppressHydrationWarning is required because next-themes (dashboard only)
-     * mutates the <html class> attribute client-side before React hydrates.
-     */
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Blocking — must run before first paint; do not defer via next/script. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: SIDEBAR_THEME_BOOTSTRAP_SCRIPT }}
+        />
         <GoogleAnalytics />
       </head>
       <body

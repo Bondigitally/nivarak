@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   dashboardCardClass,
+  dashboardCardStackClass,
   dashboardGridClass,
   dashboardGridFullClass,
   dashboardGridHalfClass,
@@ -13,29 +14,33 @@ import {
   vitalsSummaryGridClass,
 } from "@/lib/tokens/page-shell";
 import { cn } from "@/lib/utils";
-import { shellHeaderChromeClass } from "@/components/layout/shell-chrome";
+import {
+  shellHeaderChromeClass,
+  shellPageChromeClass,
+  shellPageScrollClass,
+} from "@/components/layout/shell-chrome";
 
 function TopBarSkeleton() {
   return (
     <header
       className={cn(
         shellHeaderChromeClass,
-        "sticky top-0 z-20 flex w-full items-center gap-dash-topbar-gap px-dash-pad-x",
+        "relative z-20 flex w-full shrink-0 items-center gap-2 px-dash-pad-x md:gap-dash-topbar-gap",
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center justify-start">
+      <div className="flex shrink-0 items-center justify-start lg:flex-1">
         <Skeleton className="size-8 rounded-md lg:hidden" />
       </div>
       <div
         className={cn(
           dashboardSearchBarClass,
-          "w-full min-w-0 max-w-dash-search flex-none border-transparent bg-border/50 shadow-none",
+          "min-w-0 w-full max-w-dash-search flex-1 border-transparent bg-border/50 shadow-none",
         )}
       >
         <Skeleton className="size-4 shrink-0 rounded-full" />
         <Skeleton className="h-4 w-48 max-w-[60%] rounded-full" />
       </div>
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-dash-topbar-gap">
+      <div className="flex shrink-0 items-center justify-end gap-2 md:gap-dash-topbar-gap lg:flex-1">
         <Skeleton className="hidden h-10 w-40 rounded-full sm:block" />
         <Skeleton className="size-10 rounded-full sm:hidden" />
         <Skeleton className="size-10 rounded-full" />
@@ -102,10 +107,12 @@ function ListRowSkeleton() {
 
 function PageSkeletonShell({ children }: { children: ReactNode }) {
   return (
-    <div className="font-sans" aria-busy="true" aria-live="polite">
+    <div className={shellPageChromeClass} aria-busy="true" aria-live="polite">
       <span className="sr-only">Loading page</span>
       <TopBarSkeleton />
-      <div className={cn(dashboardPageShellClass)}>{children}</div>
+      <div data-dashboard-scroll className={shellPageScrollClass}>
+        <div className={cn(dashboardPageShellClass)}>{children}</div>
+      </div>
     </div>
   );
 }
@@ -232,7 +239,7 @@ export function AppointmentsPageSkeleton() {
       <TitleSkeleton />
       <div className={dashboardGridStackClass}>
         <Skeleton className="h-11 w-full max-w-sm rounded-full" />
-        <div className="flex flex-col gap-3">
+        <div className={dashboardCardStackClass}>
           {Array.from({ length: 4 }, (_, index) => (
             <div
               key={index}
@@ -261,7 +268,7 @@ export function MedicationsPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton wide withAction />
-      <div className="flex flex-col gap-3">
+      <div className={dashboardCardStackClass}>
         {Array.from({ length: 3 }, (_, index) => (
           <div key={index} className={cn(dashboardCardClass, "flex flex-col gap-4 p-5")}>
             <div className="flex items-start justify-between gap-3">
@@ -307,7 +314,7 @@ export function TasksPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton />
-      <div className="flex flex-col gap-5">
+      <div className={dashboardCardStackClass}>
         <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-5")}>
           <div className="flex items-center justify-between gap-3">
             <Skeleton className="h-5 w-36" />
@@ -368,8 +375,9 @@ export function AssessmentsPageSkeleton() {
   return (
     <PageSkeletonShell>
       <TitleSkeleton wide />
-      <Skeleton className={cn(dashboardCardClass, "h-36 w-full border-transparent")} />
-      <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-5")}>
+      <div className={dashboardCardStackClass}>
+        <Skeleton className={cn(dashboardCardClass, "h-36 w-full border-transparent")} />
+        <div className={cn(dashboardCardClass, "flex flex-col gap-4 p-5")}>
         <div className="flex items-center gap-2">
           <Skeleton className="h-7 w-48" />
           <Skeleton className="h-6 w-8 rounded-full" />
@@ -379,6 +387,7 @@ export function AssessmentsPageSkeleton() {
           {Array.from({ length: 5 }, (_, index) => (
             <Skeleton key={index} className="h-11 w-full rounded-md" />
           ))}
+        </div>
         </div>
       </div>
     </PageSkeletonShell>

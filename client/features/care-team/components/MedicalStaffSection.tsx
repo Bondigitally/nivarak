@@ -3,7 +3,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Briefcase01Icon,
@@ -13,11 +12,9 @@ import {
 import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
-import { 
-  cardShadowCss, 
-  cardShadowHoverCss, 
-  cardShadowDarkCss, 
-  cardShadowHoverDarkCss 
+import {
+  cardShadowCss,
+  cardShadowHoverCss,
 } from "@/lib/tokens/elevation";
 import { cn } from "@/lib/utils";
 import type { MedicalStaffMember } from "../data/care-team-data";
@@ -55,15 +52,13 @@ function ContactRow({
 
 function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
   const reduceMotion = useReducedMotion();
-  const { resolvedTheme } = useTheme();
   const [hovered, setHovered] = useState(false);
   const nameRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [shift, setShift] = useState(0);
 
-  const isDark = resolvedTheme === "dark";
-  const restShadow = isDark ? cardShadowDarkCss : cardShadowCss;
-  const hoverShadow = isDark ? cardShadowHoverDarkCss : cardShadowHoverCss;
+  const restShadow = cardShadowCss;
+  const hoverShadow = cardShadowHoverCss;
 
   const staffCardVariants = {
     rest: {
