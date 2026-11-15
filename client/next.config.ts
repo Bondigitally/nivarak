@@ -17,9 +17,17 @@ const baseSecurityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
     /** Include 2560/3840 so full-bleed retina/4K heroes can pick a crisp srcset entry */
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560, 3840],
+    imageSizes: [16, 32, 48, 64, 80, 96, 128, 256],
     /** Next 16+ allowlist — hero slideshow uses 90 for near-lossless AVIF/WebP */
     qualities: [75, 90, 100],
   },
