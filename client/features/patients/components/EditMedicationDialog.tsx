@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   getLocalTimeZone,
@@ -104,6 +104,16 @@ function medicationDurationMinDate(sinceDisplay: string): CalendarDate {
   }
 }
 
+function resolveMedicationFocusField(
+  mode: "edit" | "add",
+  field: MedicationEditFocusField,
+  route: PatientMedicationRoute,
+): MedicationEditFocusField {
+  if (mode === "edit" && field === "name") return "dose";
+  if (field === "routeOther" && route !== "other") return "route";
+  return field;
+}
+
 function focusDialogField(fieldId: string) {
   const el = document.getElementById(fieldId);
   if (!el) return;
@@ -164,6 +174,17 @@ const medicationDialogBodyClass =
   "flex min-h-0 flex-col gap-5 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-8 py-5";
 const medicationDialogFooterClass =
   "flex flex-row items-center justify-end gap-3 border-t border-border bg-card px-8 py-5";
+
+/** Read-only dialog fields (product name on edit, since date). */
+const medicationDialogReadOnlyInputClass = cn(
+  "cursor-not-allowed bg-muted/40 text-muted-foreground",
+  "focus:border-border focus:outline-none focus:ring-0 focus:shadow-none",
+  "focus-visible:border-border focus-visible:outline-none focus-visible:ring-0",
+);
+
+function preventReadOnlyInputFocus(event: MouseEvent<HTMLInputElement>) {
+  event.preventDefault();
+}
 
 function isPortaledOverlayTarget(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
@@ -229,16 +250,17 @@ export function EditMedicationDialog({
 
     focusedSourceKeyRef.current = draftSourceKey;
 
-    const resolved: MedicationEditFocusField =
-      focusField === "routeOther" && medication?.route !== "other"
-        ? "route"
-        : focusField;
+    const resolved = resolveMedicationFocusField(
+      mode,
+      focusField,
+      medication?.route ?? "oral",
+    );
 
     const id = window.setTimeout(() => {
       focusDialogField(FOCUS_FIELD_ELEMENT_ID[resolved]);
     }, 0);
     return () => window.clearTimeout(id);
-  }, [open, draftSourceKey, focusField, draftReady]);
+  }, [open, draftSourceKey, focusField, draftReady, mode, medication?.route]);
 
   function updateDraft<K extends keyof MedicationDraft>(
     key: K,
@@ -249,7 +271,9 @@ export function EditMedicationDialog({
 
   function handleSave() {
     if (!medication || !draft) return;
-    const name = draft.name.trim();
+    const name = (
+      mode === "add" ? draft.name : medication.name
+    ).trim();
     if (!name) return;
 
     const routeOther =
@@ -343,16 +367,40 @@ export function EditMedicationDialog({
 
           {draft ? (
             <div className={medicationDialogBodyClass}>
-              <div className="flex flex-col gap-auth-field">
-                <FieldLabel htmlFor="med-name">Medication</FieldLabel>
+              <div
+                className={cn(
+                  "flex flex-col gap-auth-field",
+                  mode === "edit" && "cursor-not-allowed",
+                )}
+              >
+                {mode === "edit" ? (
+                  <span className={typo.label}>Medication</span>
+                ) : (
+                  <FieldLabel htmlFor="med-name">Medication</FieldLabel>
+                )}
                 <Input
                   id="med-name"
                   name="medicationName"
                   type="text"
                   value={draft.name}
-                  onChange={(e) => updateDraft("name", e.target.value)}
+                  onChange={
+                    mode === "add"
+                      ? (e) => updateDraft("name", e.target.value)
+                      : undefined
+                  }
                   placeholder="e.g. Metformin"
                   autoComplete="off"
+                  readOnly={mode === "edit"}
+                  tabIndex={mode === "edit" ? -1 : undefined}
+                  aria-readonly={mode === "edit" ? true : undefined}
+                  onMouseDown={
+                    mode === "edit" ? preventReadOnlyInputFocus : undefined
+                  }
+                  className={
+                    mode === "edit"
+                      ? medicationDialogReadOnlyInputClass
+                      : undefined
+                  }
                 />
               </div>
 
@@ -429,8 +477,9 @@ export function EditMedicationDialog({
                     value={draft.since}
                     readOnly
                     tabIndex={-1}
-                    className="cursor-default bg-muted/40 text-muted-foreground"
+                    className={medicationDialogReadOnlyInputClass}
                     aria-readonly="true"
+                    onMouseDown={preventReadOnlyInputFocus}
                   />
                 </div>
                 <div className="flex flex-col gap-auth-field">

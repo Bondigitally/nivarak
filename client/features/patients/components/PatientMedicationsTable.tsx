@@ -29,15 +29,15 @@ import { cn } from "@/lib/utils";
 
 /** Table column id → dialog focus field (actions excluded). */
 const COLUMN_FOCUS_FIELD: Record<string, MedicationEditFocusField> = {
-  medication: "name",
+  // Product name is set on add; edit focuses dose and downstream fields.
+  medication: "dose",
   dose: "dose",
   freq: "frequency",
   route: "route",
   duration: "duration",
-  // Auto / display-only columns fall back to name
-  prescribedBy: "name",
-  lastModified: "name",
-  lastModifiedBy: "name",
+  prescribedBy: "dose",
+  lastModified: "dose",
+  lastModifiedBy: "dose",
 };
 
 function PrescriberAvatar({
@@ -414,7 +414,7 @@ export function PatientMedicationsTable({
         cell: (row) => (
           <MedicationActionsMenu
             medicationName={row.name || "medication"}
-            onEdit={() => openEdit(row, "name")}
+            onEdit={() => openEdit(row, "dose")}
             onView={() => openView(row)}
           />
         ),
