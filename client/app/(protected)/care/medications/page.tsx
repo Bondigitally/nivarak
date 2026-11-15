@@ -26,7 +26,7 @@ export default function MedicationsPage() {
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-dash-gutter">
           <PageHeader
             title="Today's Medications"
             subtitle="Medication list managed by your care team, you log adherence only."

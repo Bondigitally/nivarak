@@ -7,7 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { PatientAvatar } from "@/components/shared/PatientAvatar";
+import { ZoomablePatientAvatar } from "@/components/shared/ZoomablePatientAvatar";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { getPatientOverviewIasp } from "@/features/patients/data/patient-chart-data";
 import type { DoctorPatientRow } from "@/lib/domain/doctor";
@@ -49,8 +49,8 @@ function riskPillClasses(level: RiskLevel) {
     case "high":
     case "critical":
       return {
-        wrap: "bg-warning-muted text-warning",
-        dot: "bg-warning",
+        wrap: "bg-destructive-muted text-destructive",
+        dot: "bg-destructive",
       };
   }
 }
@@ -79,10 +79,12 @@ export function PatientPrimaryDetailsCard({
       )}
     >
       <div className="flex min-w-0 flex-wrap items-center gap-5">
-        <PatientAvatar
+        <ZoomablePatientAvatar
           initials={patient.initials}
+          name={patient.name}
           riskLevel={patient.riskLevel}
           size="lg"
+          src={patient.avatarUrl}
           className="size-14 text-base font-semibold tracking-[0.4px]"
         />
 

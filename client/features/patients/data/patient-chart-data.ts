@@ -6,6 +6,7 @@ export type ChartTab =
   | "assessments"
   | "vitals"
   | "care-plan"
+  | "medications"
   | "notes";
 
 export interface PatientChartKpis {
@@ -525,26 +526,181 @@ export function getCarePlanGoal(patientId: string, goalId: string) {
   return getCarePlanDetail(patientId).goals.find((g) => g.id === goalId);
 }
 
-export function getPatientMedications(_patientId: string) {
+export type PatientMedicationTagKind =
+  | "morning"
+  | "evening"
+  | "pre-meal"
+  | "post-meal";
+
+export interface PatientMedicationTag {
+  kind: PatientMedicationTagKind;
+  label: string;
+}
+
+/** Canonical route ids stored on medication rows. */
+export type PatientMedicationRoute =
+  | "oral"
+  | "intravenous"
+  | "intramuscular"
+  | "subcutaneous"
+  | "topical"
+  | "inhalation"
+  | "other";
+
+export const PATIENT_MEDICATION_ROUTE_OPTIONS: readonly {
+  id: PatientMedicationRoute;
+  label: string;
+}[] = [
+  { id: "oral", label: "Oral (PO)" },
+  { id: "intravenous", label: "Intravenous (IV)" },
+  { id: "intramuscular", label: "Intramuscular (IM)" },
+  { id: "subcutaneous", label: "Subcutaneous (SC)" },
+  { id: "topical", label: "Topical (TOP)" },
+  { id: "inhalation", label: "Inhalation (INH)" },
+  { id: "other", label: "Other (Specify)" },
+] as const;
+
+export const PATIENT_MEDICATION_ROUTE_LABEL: Record<
+  PatientMedicationRoute,
+  string
+> = Object.fromEntries(
+  PATIENT_MEDICATION_ROUTE_OPTIONS.map((opt) => [opt.id, opt.label]),
+) as Record<PatientMedicationRoute, string>;
+
+/** Display label for a route; uses custom text when route is `other`. */
+export function getPatientMedicationRouteLabel(
+  route: PatientMedicationRoute,
+  routeOther?: string,
+): string {
+  if (route === "other") {
+    const custom = routeOther?.trim();
+    return custom || PATIENT_MEDICATION_ROUTE_LABEL.other;
+  }
+  return PATIENT_MEDICATION_ROUTE_LABEL[route];
+}
+
+export type PatientMedicationStatus = "Active" | "On hold" | "Discontinued";
+
+export const PATIENT_MEDICATION_STATUS_OPTIONS: readonly PatientMedicationStatus[] =
+  ["Active", "On hold", "Discontinued"] as const;
+
+/** Frequency options for the medications add/edit dialog. */
+export const PATIENT_MEDICATION_FREQUENCY_OPTIONS = ["BD", "OD"] as const;
+export type PatientMedicationFrequency =
+  (typeof PATIENT_MEDICATION_FREQUENCY_OPTIONS)[number];
+
+export interface PatientMedicationRow {
+  id: string;
+  name: string;
+  dose: string;
+  /** Frequency shorthand (OD / BD) — Medications tab Freq column. */
+  frequency: PatientMedicationFrequency | string;
+  route: PatientMedicationRoute;
+  /** Free-text route when `route` is `other`. */
+  routeOther?: string;
+  /** Course end date as ISO `YYYY-MM-DD` (calendar field). */
+  duration: string;
+  /** Start date display (auto-set on add; read-only in dialog). */
+  since: string;
+  /** Current course status shown under duration. */
+  status: PatientMedicationStatus;
+  prescribedBy: string;
+  /** Credential / specialty under Prescribed by (e.g. Geriatrician, MD). */
+  prescriberQualification: string;
+  /** Prescriber photo URL (Unsplash / profile asset). */
+  prescriberAvatarUrl: string;
+  /** Display date for Last Modified (sortable via Date.parse). */
+  lastModified: string;
+  /** Clinician who last saved the row. */
+  lastModifiedBy: string;
+  /** Credential / specialty under Last modified by. */
+  lastModifiedByQualification: string;
+  /** Last modifier photo URL. */
+  lastModifiedByAvatarUrl: string;
+  tags: PatientMedicationTag[];
+  /** Days until refill; shown under dose when set. */
+  refillDaysLeft?: number;
+  /** Amber inline chip when a refill is due soon. */
+  refillSoon?: boolean;
+}
+
+export function getPatientMedications(
+  _patientId: string,
+): PatientMedicationRow[] {
   void _patientId;
+  const mehtaAvatar =
+    "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces&auto=format&q=90";
+  const patelAvatar =
+    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=faces&auto=format&q=90";
+
   return [
     {
       id: "med-1",
-      name: "Amlodipine",
-      dose: "5 mg",
-      schedule: "Once daily · morning",
+      name: "Metformin",
+      dose: "500 mg",
+      frequency: "BD",
+      route: "oral",
+      duration: "2024-04-15",
+      since: "Jan 15, 2024",
+      status: "Active",
+      prescribedBy: "Dr. Mehta",
+      prescriberQualification: "Geriatrician",
+      prescriberAvatarUrl: mehtaAvatar,
+      lastModified: "Oct 28, 2023",
+      lastModifiedBy: "Dr. Mehta",
+      lastModifiedByQualification: "Geriatrician",
+      lastModifiedByAvatarUrl: mehtaAvatar,
+      refillDaysLeft: 28,
+      tags: [
+        { kind: "morning", label: "Morning" },
+        { kind: "evening", label: "Evening" },
+        { kind: "post-meal", label: "Post Meal" },
+      ],
     },
     {
       id: "med-2",
-      name: "Metformin",
-      dose: "500 mg",
-      schedule: "Twice daily · with meals",
+      name: "Losartan",
+      dose: "50 mg",
+      frequency: "OD",
+      route: "oral",
+      duration: "2024-02-01",
+      since: "Aug 1, 2023",
+      status: "On hold",
+      prescribedBy: "Dr. Mehta",
+      prescriberQualification: "MD",
+      prescriberAvatarUrl: mehtaAvatar,
+      lastModified: "Oct 26, 2023",
+      lastModifiedBy: "Dr. Mehta",
+      lastModifiedByQualification: "MD",
+      lastModifiedByAvatarUrl: mehtaAvatar,
+      refillSoon: true,
+      refillDaysLeft: 4,
+      tags: [
+        { kind: "morning", label: "Morning" },
+        { kind: "pre-meal", label: "Pre Meal" },
+      ],
     },
     {
       id: "med-3",
-      name: "Atorvastatin",
+      name: "Omeprazole",
       dose: "20 mg",
-      schedule: "Once daily · evening",
+      frequency: "OD",
+      route: "oral",
+      duration: "2023-12-15",
+      since: "Oct 20, 2023",
+      status: "Discontinued",
+      prescribedBy: "Dr. S. Patel",
+      prescriberQualification: "MBBS",
+      prescriberAvatarUrl: patelAvatar,
+      lastModified: "Oct 20, 2023",
+      lastModifiedBy: "Dr. S. Patel",
+      lastModifiedByQualification: "MBBS",
+      lastModifiedByAvatarUrl: patelAvatar,
+      refillDaysLeft: 45,
+      tags: [
+        { kind: "evening", label: "Evening" },
+        { kind: "pre-meal", label: "Pre Meal" },
+      ],
     },
   ];
 }

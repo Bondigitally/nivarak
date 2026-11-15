@@ -21,6 +21,7 @@ const TABS: { id: ChartTab; label: string; suffix: string }[] = [
   { id: "assessments", label: "Assessments", suffix: "/assessments" },
   { id: "vitals", label: "Vitals", suffix: "/vitals" },
   { id: "care-plan", label: "Care Plan", suffix: "/care-plan" },
+  { id: "medications", label: "Medications", suffix: "/medications" },
   { id: "notes", label: "Notes", suffix: "/notes" },
 ];
 
@@ -29,6 +30,7 @@ function resolveTab(pathname: string, patientId: string): ChartTab {
   if (pathname.startsWith(`${base}/assessments`)) return "assessments";
   if (pathname.startsWith(`${base}/vitals`)) return "vitals";
   if (pathname.startsWith(`${base}/care-plan`)) return "care-plan";
+  if (pathname.startsWith(`${base}/medications`)) return "medications";
   if (pathname.startsWith(`${base}/notes`)) return "notes";
   return "overview";
 }
@@ -70,7 +72,7 @@ export function PatientChartShell({
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-dash-gap">
           <Button asChild variant="ghost" size="sm" className="w-fit -ml-2 gap-1.5">
             <Link href="/patients">
               <HugeiconsIcon
@@ -94,20 +96,25 @@ export function PatientChartShell({
           ) : null}
         </div>
 
-        <SegmentedControl
-          ariaLabel="Patient chart sections"
-          layoutId={`patient-chart-tabs-${patientId}`}
-          options={TABS.map((t) => ({ id: t.id, label: t.label }))}
-          value={tab}
-          onChange={(next) => {
-            const target = TABS.find((t) => t.id === next);
-            if (!target) return;
-            router.push(`/patients/${patientId}${target.suffix}`);
-          }}
-          className="w-fit max-w-full"
-        />
+        {/* gap-6 between chart tabs and section title/body; keep dash-gap among page children. */}
+        <div className="flex flex-col gap-6">
+          <SegmentedControl
+            ariaLabel="Patient chart sections"
+            layoutId={`patient-chart-tabs-${patientId}`}
+            options={TABS.map((t) => ({ id: t.id, label: t.label }))}
+            value={tab}
+            onChange={(next) => {
+              const target = TABS.find((t) => t.id === next);
+              if (!target) return;
+              router.push(`/patients/${patientId}${target.suffix}`);
+            }}
+            surface="card"
+            variant="inset"
+            className="w-fit max-w-full shrink-0"
+          />
 
-        {children}
+          <div className="flex flex-col gap-dash-gap">{children}</div>
+        </div>
       </DashboardReveal>
     </AppPageFrame>
   );

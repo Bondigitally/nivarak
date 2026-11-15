@@ -16,40 +16,62 @@ import type { IconSvgElement } from "@hugeicons/react";
 import {
   Cancel01Icon,
   Moon02Icon,
-  RepeatIcon,
+  NoodlesIcon,
+  SoupIcon,
   Sun03Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { AnimatedStrikeText } from "@/components/shared/AnimatedStrikeText";
+import { MedicationDoseLabel } from "@/features/medications/components/MedicationDoseLabel";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  dashboardCardClass,
+  dashboardCardStackClass,
+  statusBadgeClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import {
   MOCK_TODAY_MEDICATIONS,
+  type DoseMealTiming,
   type DosePeriod,
   type DoseStatus,
   type MedicationDose,
   type MedicationItem,
 } from "@/features/medications/data/medications-data";
+import { medicationScheduleBadgeClass } from "@/features/medications/medication-schedule-badge-styles";
 
 const PERIOD_STYLES: Record<
   DosePeriod,
-  { label: string; bg: string; text: string; icon: IconSvgElement }
+  { label: string; chipClass: string; icon: IconSvgElement }
 > = {
   morning: {
     label: "Morning",
-    bg: "bg-info-muted",
-    text: "text-info",
+    chipClass: medicationScheduleBadgeClass.morning,
     icon: Sun03Icon,
   },
   evening: {
     label: "Evening",
-    bg: "bg-warning-muted",
-    text: "text-warning",
+    chipClass: medicationScheduleBadgeClass.evening,
     icon: Moon02Icon,
+  },
+};
+
+const MEAL_STYLES: Record<
+  DoseMealTiming,
+  { label: string; chipClass: string; icon: IconSvgElement }
+> = {
+  "pre-meal": {
+    label: "Pre Meal",
+    chipClass: medicationScheduleBadgeClass["pre-meal"],
+    icon: NoodlesIcon,
+  },
+  "post-meal": {
+    label: "Post Meal",
+    chipClass: medicationScheduleBadgeClass["post-meal"],
+    icon: SoupIcon,
   },
 };
 
@@ -81,15 +103,56 @@ function PeriodBadge({ period, dimmed = false }: { period: DosePeriod; dimmed?: 
     <span
       className={cn(
         statusBadgeClass,
-        "gap-1 border border-transparent transition-colors duration-200",
+        "gap-1 transition-colors duration-200",
         dimmed
-          ? "border-border bg-muted text-tertiary-foreground"
-          : [style.bg, style.text, "border-border/60"],
+          ? "bg-muted text-tertiary-foreground"
+          : style.chipClass,
       )}
     >
       <AppIcon icon={style.icon} size={BADGE_ICON_SIZE} />
       <AnimatedStrikeText active={dimmed}>{style.label}</AnimatedStrikeText>
     </span>
+  );
+}
+
+function MealTimingBadge({
+  mealTiming,
+  dimmed = false,
+}: {
+  mealTiming: DoseMealTiming;
+  dimmed?: boolean;
+}) {
+  const style = MEAL_STYLES[mealTiming];
+  return (
+    <span
+      className={cn(
+        statusBadgeClass,
+        "gap-1 transition-colors duration-200",
+        dimmed
+          ? "bg-muted text-tertiary-foreground"
+          : style.chipClass,
+      )}
+    >
+      <AppIcon icon={style.icon} size={BADGE_ICON_SIZE} />
+      <AnimatedStrikeText active={dimmed}>{style.label}</AnimatedStrikeText>
+    </span>
+  );
+}
+
+function DoseScheduleBadges({
+  dose,
+  dimmed = false,
+}: {
+  dose: MedicationDose;
+  dimmed?: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <PeriodBadge period={dose.period} dimmed={dimmed} />
+      {dose.mealTiming ? (
+        <MealTimingBadge mealTiming={dose.mealTiming} dimmed={dimmed} />
+      ) : null}
+    </div>
   );
 }
 
@@ -113,7 +176,7 @@ function AdherenceButtons({
             onClick={() => onChange(active ? null : action.value)}
             className={cn(
               "min-w-29 justify-center gap-1 border border-border bg-card",
-              "shadow-[0_1px_2px_rgba(17,24,39,0.04)] dark:shadow-[0_0_0_1px_var(--border),0_1px_2px_rgba(0,0,0,0.25)]",
+              "shadow-[0_1px_2px_rgba(17,24,39,0.04)]",
               active && action.activeClass,
             )}
           >
@@ -136,7 +199,6 @@ function MedicationMeta({
   dimmed?: boolean;
 }) {
   const singleDose = medication.doses.length === 1 ? medication.doses[0] : null;
-  const muted = dimmed ? "text-tertiary-foreground" : "text-muted-foreground";
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
@@ -153,19 +215,15 @@ function MedicationMeta({
             {medication.name}
           </AnimatedStrikeText>
         </h2>
-        <span className={cn("text-base font-normal leading-6 transition-colors duration-200", muted)}>
-          {medication.dosage}
-        </span>
+        <MedicationDoseLabel
+          dose={medication.dosage}
+          variant="inline"
+          dimmed={dimmed}
+        />
       </div>
-      <div className="flex flex-wrap items-center gap-4">
-        <span className={cn("inline-flex items-center gap-1 transition-colors duration-200", muted)}>
-          <AppIcon icon={RepeatIcon} />
-          <span className={cn(typo.button, muted)}>{medication.frequencyLabel}</span>
-        </span>
-        {showPeriodBadge && singleDose ? (
-          <PeriodBadge period={singleDose.period} dimmed={dimmed} />
-        ) : null}
-      </div>
+      {showPeriodBadge && singleDose ? (
+        <DoseScheduleBadges dose={singleDose} dimmed={dimmed} />
+      ) : null}
     </div>
   );
 }
@@ -179,9 +237,11 @@ function DoseRow({
   onChange: (status: DoseStatus) => void;
   className?: string;
 }) {
+  const dimmed = dose.status === "taken";
+
   return (
     <div className={cn("flex flex-wrap items-center justify-between gap-3", className)}>
-      <PeriodBadge period={dose.period} dimmed={dose.status === "taken"} />
+      <DoseScheduleBadges dose={dose} dimmed={dimmed} />
       <AdherenceButtons status={dose.status} onChange={onChange} />
     </div>
   );
@@ -202,7 +262,7 @@ function MedicationCard({
     <article
       className={cn(
         dashboardCardClass,
-        "flex flex-col gap-4 p-6 transition-colors duration-200",
+        "flex flex-col gap-3 p-5 transition-colors duration-200",
         !isMultiDose && "sm:flex-row sm:items-center sm:justify-between",
         allTaken && "bg-muted/30",
       )}
@@ -218,7 +278,7 @@ function MedicationCard({
           onChange={(status) => onDoseChange(singleDose.id, status)}
         />
       ) : (
-        <div className="flex flex-col gap-2 border-t border-border pt-4.25">
+        <div className="flex flex-col gap-2">
           {medication.doses.map((dose, index) => (
             <DoseRow
               key={dose.id}
@@ -256,7 +316,7 @@ export function MedicationCards({
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className={cn("w-full", dashboardCardStackClass)}>
       {items.map((medication) => (
         <MedicationCard
           key={medication.id}
