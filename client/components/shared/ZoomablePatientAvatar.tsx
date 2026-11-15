@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
@@ -22,6 +22,19 @@ import {
 } from "@/lib/dashboard-workspace-drawer";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+
+function subscribeWorkspaceRoot(onStoreChange: () => void) {
+  queueMicrotask(onStoreChange);
+  return () => {};
+}
+
+function useWorkspaceLightboxRoot() {
+  return useSyncExternalStore(
+    subscribeWorkspaceRoot,
+    getDashboardWorkspaceDrawerPanelContainer,
+    () => null,
+  );
+}
 
 /** Absolute fill of the workspace portal host — not the full viewport. */
 const workspaceLightboxOverlayClass =
@@ -58,12 +71,7 @@ export function ZoomablePatientAvatar({
   src,
 }: ZoomablePatientAvatarProps) {
   const [open, setOpen] = useState(false);
-  const [workspaceRoot, setWorkspaceRoot] = useState<HTMLElement | null>(null);
-
-  useLayoutEffect(() => {
-    setWorkspaceRoot(getDashboardWorkspaceDrawerPanelContainer());
-  }, []);
-
+  const workspaceRoot = useWorkspaceLightboxRoot();
   const dockToWorkspace = Boolean(workspaceRoot);
   useLockDashboardPageScroll(open && dockToWorkspace);
 

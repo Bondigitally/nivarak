@@ -173,23 +173,20 @@ export function EditMedicationDialog({
   const [draft, setDraft] = useState<MedicationDraft | null>(null);
   const medicationId = medication?.id ?? null;
   const didFocusRef = useRef(false);
-  // Snapshot for init — avoid putting the whole `medication` object in deps.
-  const medicationRef = useRef(medication);
-  medicationRef.current = medication;
+  const draftSourceKey =
+    open && medication ? `${medication.id}:${mode}` : null;
+  const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
 
-  // Init draft only when dialog opens or the medication/mode changes —
-  // never when draft updates from typing.
-  useEffect(() => {
-    if (!open) {
-      setDraft(null);
-      didFocusRef.current = false;
-      return;
-    }
-    const row = medicationRef.current;
-    if (!row || row.id !== medicationId) return;
-    setDraft(toDraft(row, mode));
+  // Reset draft when the dialog opens for a medication / mode — not on each keystroke.
+  if (draftSourceKey !== activeSourceKey) {
+    setActiveSourceKey(draftSourceKey);
     didFocusRef.current = false;
-  }, [open, medicationId, mode]);
+    setDraft(
+      open && medication && medication.id === medicationId
+        ? toDraft(medication, mode)
+        : null,
+    );
+  }
 
   // Focus the target field once after draft is ready — do NOT depend on
   // `draft` content or every keystroke will re-select and feel like 1-char input.
