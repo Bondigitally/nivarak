@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
@@ -47,18 +47,18 @@ function VitalAnatomyImage({
   const [baseVisible, setBaseVisible] = useState(false);
   const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [pendingSrc, setPendingSrc] = useState(src);
 
-  useEffect(() => {
-    if (src === baseSrc && overlaySrc === null) return;
-    if (src === overlaySrc) return;
+  if (src !== pendingSrc) {
+    setPendingSrc(src);
     if (src === baseSrc) {
       setOverlaySrc(null);
       setOverlayVisible(false);
-      return;
+    } else if (src !== overlaySrc) {
+      setOverlaySrc(src);
+      setOverlayVisible(false);
     }
-    setOverlaySrc(src);
-    setOverlayVisible(false);
-  }, [src, baseSrc, overlaySrc]);
+  }
 
   const reveal = (show: () => void) => {
     // Paint opacity-0 first so the 600ms transition always runs.
