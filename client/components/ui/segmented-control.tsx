@@ -34,6 +34,24 @@ const SEGMENTED_TRACK_BY_SURFACE = {
 
 export type SegmentedControlSurface = keyof typeof SEGMENTED_TRACK_BY_SURFACE;
 
+/**
+ * Proud tab (default) vs compact inset tabs.
+ * Use `inset` for doctor-portal page/header category filters
+ * (Patients care-plan tabs, Assessments, Alerts, chart sections, vitals trend).
+ */
+export type SegmentedControlVariant = "proud" | "inset";
+
+/** Inset tabs — same ~44px chrome height as proud control, compact card shell. */
+const INSET_SHELL_CLASS = cn(
+  radius.lg,
+  "flex w-fit max-w-full items-center gap-1 overflow-x-auto overscroll-x-contain border border-border bg-card p-1 scrollbar-none [&::-webkit-scrollbar]:hidden",
+);
+const INSET_SEGMENT_CLASS = cn(
+  radius.md,
+  "flex h-9 min-h-9 shrink-0 items-center justify-center px-4 text-sm leading-5 whitespace-nowrap transition-colors duration-200 ease-out",
+  "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+);
+
 const SEGMENTED_ACTIVE_TAB_CLASS =
   "border border-border bg-card shadow-[0_1px_2px_rgba(17,24,39,0.06)]";
 
@@ -62,6 +80,7 @@ export function SegmentedControl<T extends string>({
   ariaLabel,
   layoutId: _layoutId = "segmentedControlActiveTab",
   surface = "canvas",
+  variant = "proud",
   className,
 }: {
   value: T;
@@ -72,6 +91,8 @@ export function SegmentedControl<T extends string>({
   layoutId?: string;
   /** Kept for API compatibility — canvas vs card track shades. */
   surface?: SegmentedControlSurface;
+  /** `inset` — compact white shell + neutral active chip (Appointments). */
+  variant?: SegmentedControlVariant;
   className?: string;
 }) {
   const reducedMotion = useReducedMotion();
@@ -79,9 +100,10 @@ export function SegmentedControl<T extends string>({
   const buttonRefs = useRef(new Map<T, HTMLButtonElement>());
   const [indicator, setIndicator] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const selected = options.find((tab) => tab.id === value);
-  const collapseOnMobile = options.length > 2;
+  const collapseOnMobile = options.length > 2 && variant === "proud";
 
   useLayoutEffect(() => {
+    if (variant === "inset") return;
     const list = listRef.current;
     const active = buttonRefs.current.get(value);
     if (!list || !active) return;
@@ -101,7 +123,54 @@ export function SegmentedControl<T extends string>({
     observer.observe(list);
     observer.observe(active);
     return () => observer.disconnect();
-  }, [value, options]);
+  }, [value, options, variant]);
+
+  if (variant === "inset") {
+    return (
+      <div
+        role="tablist"
+        aria-label={ariaLabel}
+        className={cn(INSET_SHELL_CLASS, className)}
+      >
+        {options.map((tab) => {
+          const isActive = value === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => onChange(tab.id)}
+              className={cn(
+                INSET_SEGMENT_CLASS,
+                isActive
+                  ? "bg-table-header text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {/* Invisible semibold ghost keeps tab width stable when weight changes. */}
+              <span className="inline-grid place-items-center">
+                <span
+                  className="invisible col-start-1 row-start-1 font-semibold"
+                  aria-hidden
+                >
+                  {tab.label}
+                </span>
+                <span
+                  className={cn(
+                    "col-start-1 row-start-1",
+                    isActive ? "font-semibold" : "font-medium",
+                  )}
+                >
+                  {tab.label}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className={cn("min-w-0", className)}>

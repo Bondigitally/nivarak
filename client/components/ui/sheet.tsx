@@ -5,6 +5,15 @@ import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AppIcon } from "@/components/shared/AppIcon";
+import {
+  dashboardShellDrawerOverlayClass,
+  dashboardWorkspaceDrawerPanelClass,
+} from "@/components/layout/shell-chrome";
+import {
+  useDashboardWorkspaceDrawerLayers,
+  useLockDashboardPageScroll,
+  type SheetDock,
+} from "@/lib/dashboard-workspace-drawer";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -16,14 +25,24 @@ const SheetClose = SheetPrimitive.Close;
 
 const SheetPortal = SheetPrimitive.Portal;
 
+const viewportOverlayClass =
+  "fixed inset-0 z-50 bg-black/40 backdrop-blur-[0.5px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0";
+
 const SheetOverlay = React.forwardRef<
   React.ComponentRef<typeof SheetPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay> & {
+    dock?: SheetDock;
+  }
+>(({ className, dock = "viewport", ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-black/40 backdrop-blur-[0.5px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
+      dock === "workspace"
+        ? cn(
+            dashboardShellDrawerOverlayClass,
+            "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          )
+        : viewportOverlayClass,
+      className,
     )}
     {...props}
     ref={ref}
@@ -31,7 +50,7 @@ const SheetOverlay = React.forwardRef<
 ));
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
-const sheetVariants = cva(
+const viewportSheetVariants = cva(
   "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
     variants: {
@@ -47,36 +66,109 @@ const sheetVariants = cva(
     defaultVariants: {
       side: "right",
     },
-  }
+  },
 );
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {
+    VariantProps<typeof viewportSheetVariants> {
   showCloseButton?: boolean;
   overlayClassName?: string;
+  /**
+   * `workspace` — shell-wide blurred backdrop + inset right panel in the workspace column.
+   * `viewport` — full-screen portaled overlays (mobile nav, IASP bottom sheet, etc.).
+   */
+  dock?: SheetDock;
+  /** When true, freezes `[data-dashboard-scroll]` (use with `open` on the sheet). */
+  lockDashboardScroll?: boolean;
 }
 
 const SheetContent = React.forwardRef<
   React.ComponentRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, showCloseButton = true, overlayClassName, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay
-      data-iasp-assessment-shell=""
-      className={overlayClassName}
-    />
-    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
-      {children}
-      {showCloseButton && (
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-          <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
-      )}
-    </SheetPrimitive.Content>
-  </SheetPortal>
-));
+>(
+  (
+    {
+      side = "right",
+      dock = "viewport",
+      className,
+      children,
+      showCloseButton = true,
+      overlayClassName,
+      lockDashboardScroll = false,
+      ...props
+    },
+    ref,
+  ) => {
+    const wantsWorkspaceDock = dock === "workspace" && side === "right";
+    const { overlayContainer, panelContainer, ready } =
+      useDashboardWorkspaceDrawerLayers(wantsWorkspaceDock);
+    const resolvedDock: SheetDock =
+      wantsWorkspaceDock && ready ? "workspace" : "viewport";
+
+    useLockDashboardPageScroll(Boolean(lockDashboardScroll));
+
+  const sheetClass =
+    resolvedDock === "workspace"
+      ? cn(
+          dashboardWorkspaceDrawerPanelClass,
+          "transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+        )
+      : viewportSheetVariants({ side });
+
+    if (resolvedDock === "workspace") {
+      return (
+        <>
+          <SheetPortal container={overlayContainer ?? undefined}>
+            <SheetOverlay
+              data-iasp-assessment-shell=""
+              dock="workspace"
+              className={overlayClassName}
+            />
+          </SheetPortal>
+          <SheetPortal container={panelContainer ?? undefined}>
+            <SheetPrimitive.Content
+              ref={ref}
+              className={cn(sheetClass, className)}
+              {...props}
+            >
+              {children}
+              {showCloseButton && (
+                <SheetPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+                  <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
+                  <span className="sr-only">Close</span>
+                </SheetPrimitive.Close>
+              )}
+            </SheetPrimitive.Content>
+          </SheetPortal>
+        </>
+      );
+    }
+
+    return (
+      <SheetPortal>
+        <SheetOverlay
+          data-iasp-assessment-shell=""
+          dock="viewport"
+          className={overlayClassName}
+        />
+        <SheetPrimitive.Content
+          ref={ref}
+          className={cn(sheetClass, className)}
+          {...props}
+        >
+          {children}
+          {showCloseButton && (
+            <SheetPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+              <AppIcon icon={Cancel01Icon} size={BADGE_ICON_SIZE} />
+              <span className="sr-only">Close</span>
+            </SheetPrimitive.Close>
+          )}
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    );
+  },
+);
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

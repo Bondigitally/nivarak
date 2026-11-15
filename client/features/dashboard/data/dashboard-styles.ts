@@ -4,6 +4,7 @@ import { heroPlumWashSurfaceClass } from "@/components/layout/shell-chrome";
 export {
   cardTitleClass,
   dashboardCardClass,
+  dashboardCardStackClass,
   dashboardChromeControlClass,
   dashboardChromeControlFocusVisibleClass,
   dashboardChromeControlFocusWithinClass,
@@ -18,6 +19,10 @@ export {
   dashboardSearchBarIconClass,
   dashboardTwoColGridClass,
   dashboardTwoColSpanFullClass,
+  memberPortraitCardBodyClass,
+  memberPortraitCardClass,
+  memberPortraitCardGridClass,
+  memberPortraitCardMediaClass,
 } from "@/lib/tokens/page-shell";
 
 export { statusBadgeClass } from "@/lib/tokens/status-badges";

@@ -1,3 +1,4 @@
+import { loadStoredDoctorNotes } from "@/features/clinical-notes/data/clinical-notes-store";
 import type {
   DoctorAssessmentRow,
   DoctorCarePlanRow,
@@ -7,12 +8,14 @@ import type {
 } from "@/lib/domain/doctor";
 import type { RiskLevel } from "@/lib/domain";
 
+const AVATAR_QS = "w=400&h=400&fit=crop&crop=faces&auto=format&q=90";
+
 export function getDoctorPatients(): DoctorPatientRow[] {
   return [
     {
       id: "pt-eleanor",
       name: "Eleanor Vance",
-      code: "NVK-4921",
+      code: "NVK-0004921",
       age: 78,
       gender: "F",
       riskLevel: "low",
@@ -20,11 +23,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Active",
       assignedNurse: "Nurse K. Lin",
       initials: "EV",
+      avatarUrl: `https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?${AVATAR_QS}`,
     },
     {
       id: "pt-arthur",
       name: "Arthur Pendelton",
-      code: "NVK-3382",
+      code: "NVK-0003382",
       age: 82,
       gender: "M",
       riskLevel: "high",
@@ -32,11 +36,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Draft",
       assignedNurse: "Nurse K. Lin",
       initials: "AP",
+      avatarUrl: `https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?${AVATAR_QS}`,
     },
     {
       id: "pt-margaret",
       name: "Margaret Sterling",
-      code: "NVK-8810",
+      code: "NVK-0008810",
       age: 74,
       gender: "F",
       riskLevel: "high",
@@ -44,11 +49,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Active",
       assignedNurse: "Anita Roy",
       initials: "MS",
+      avatarUrl: `https://images.unsplash.com/photo-1551836022-d5d88e9218df?${AVATAR_QS}`,
     },
     {
       id: "pt-thomas",
       name: "Thomas Reed",
-      code: "NVK-1045",
+      code: "NVK-0001045",
       age: 69,
       gender: "M",
       riskLevel: "low",
@@ -56,11 +62,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Pending Review",
       assignedNurse: "Raj Pillai",
       initials: "TR",
+      avatarUrl: `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?${AVATAR_QS}`,
     },
     {
       id: "pt-beatrice",
       name: "Beatrice Cole",
-      code: "NVK-7732",
+      code: "NVK-0007732",
       age: 81,
       gender: "F",
       riskLevel: "medium",
@@ -68,11 +75,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Active",
       assignedNurse: "Nurse K. Lin",
       initials: "BC",
+      avatarUrl: `https://images.unsplash.com/photo-1544005313-94ddf0286df2?${AVATAR_QS}`,
     },
     {
       id: "pt-martha",
       name: "Martha Sullivan",
-      code: "NVK-2201",
+      code: "NVK-0002201",
       age: 76,
       gender: "F",
       riskLevel: "medium",
@@ -80,11 +88,12 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "Pending Review",
       assignedNurse: "Anita Roy",
       initials: "MS",
+      avatarUrl: `https://images.unsplash.com/photo-1438761681033-6461ffad8d80?${AVATAR_QS}`,
     },
     {
       id: "pt-janet",
       name: "Janet Park",
-      code: "NVK-5510",
+      code: "NVK-0005510",
       age: 71,
       gender: "F",
       riskLevel: "low",
@@ -92,6 +101,7 @@ export function getDoctorPatients(): DoctorPatientRow[] {
       carePlanStatus: "None",
       assignedNurse: "Raj Pillai",
       initials: "JP",
+      avatarUrl: `https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?${AVATAR_QS}`,
     },
   ];
 }
@@ -106,7 +116,7 @@ export function getDoctorAssessments(): DoctorAssessmentRow[] {
       id: "cga-1",
       patientId: "pt-eleanor",
       patientName: "Eleanor Vance",
-      patientCode: "NVK-4921",
+      patientCode: "NVK-0004921",
       type: "CGA",
       scoreLabel: "36 / 48",
       status: "Signed",
@@ -118,7 +128,7 @@ export function getDoctorAssessments(): DoctorAssessmentRow[] {
       id: "iasp-1",
       patientId: "pt-arthur",
       patientName: "Arthur Pendelton",
-      patientCode: "NVK-3382",
+      patientCode: "NVK-0003382",
       type: "IAS-P",
       scoreLabel: "12 / 20 sections",
       status: "Draft",
@@ -129,7 +139,7 @@ export function getDoctorAssessments(): DoctorAssessmentRow[] {
       id: "cga-2",
       patientId: "pt-margaret",
       patientName: "Margaret Sterling",
-      patientCode: "NVK-8810",
+      patientCode: "NVK-0008810",
       type: "CGA",
       scoreLabel: "42 / 48",
       status: "Signed",
@@ -141,7 +151,7 @@ export function getDoctorAssessments(): DoctorAssessmentRow[] {
       id: "cga-3",
       patientId: "pt-thomas",
       patientName: "Thomas Reed",
-      patientCode: "NVK-1045",
+      patientCode: "NVK-0001045",
       type: "CGA",
       scoreLabel: "48 / 48",
       status: "Needs review",
@@ -153,7 +163,7 @@ export function getDoctorAssessments(): DoctorAssessmentRow[] {
       id: "iasp-2",
       patientId: "pt-beatrice",
       patientName: "Beatrice Cole",
-      patientCode: "NVK-7732",
+      patientCode: "NVK-0007732",
       type: "IAS-P",
       scoreLabel: "20 / 20 sections",
       status: "Signed",
@@ -175,7 +185,7 @@ export function getDoctorVitalsMonitor(): DoctorVitalMonitorRow[] {
       id: "vm-1",
       patientId: "pt-arthur",
       patientName: "Arthur Pendelton",
-      patientCode: "NVK-3382",
+      patientCode: "NVK-0003382",
       metric: "Heart Rate",
       value: "108 bpm",
       status: "Critical",
@@ -186,7 +196,7 @@ export function getDoctorVitalsMonitor(): DoctorVitalMonitorRow[] {
       id: "vm-2",
       patientId: "pt-margaret",
       patientName: "Margaret Sterling",
-      patientCode: "NVK-8810",
+      patientCode: "NVK-0008810",
       metric: "Blood Pressure",
       value: "158/94",
       status: "Warning",
@@ -197,7 +207,7 @@ export function getDoctorVitalsMonitor(): DoctorVitalMonitorRow[] {
       id: "vm-3",
       patientId: "pt-eleanor",
       patientName: "Eleanor Vance",
-      patientCode: "NVK-4921",
+      patientCode: "NVK-0004921",
       metric: "SpO₂",
       value: "97%",
       status: "Normal",
@@ -208,7 +218,7 @@ export function getDoctorVitalsMonitor(): DoctorVitalMonitorRow[] {
       id: "vm-4",
       patientId: "pt-thomas",
       patientName: "Thomas Reed",
-      patientCode: "NVK-1045",
+      patientCode: "NVK-0001045",
       metric: "Weight",
       value: "72.4 kg",
       status: "Normal",
@@ -224,7 +234,7 @@ export function getDoctorCarePlans(): DoctorCarePlanRow[] {
       id: "cp-1",
       patientId: "pt-eleanor",
       patientName: "Eleanor Vance",
-      patientCode: "NVK-4921",
+      patientCode: "NVK-0004921",
       status: "Active",
       goalsCount: 4,
       lastUpdated: "Oct 24, 2023",
@@ -234,7 +244,7 @@ export function getDoctorCarePlans(): DoctorCarePlanRow[] {
       id: "cp-2",
       patientId: "pt-arthur",
       patientName: "Arthur Pendelton",
-      patientCode: "NVK-3382",
+      patientCode: "NVK-0003382",
       status: "Draft",
       goalsCount: 2,
       lastUpdated: "Oct 26, 2023",
@@ -244,7 +254,7 @@ export function getDoctorCarePlans(): DoctorCarePlanRow[] {
       id: "cp-3",
       patientId: "pt-thomas",
       patientName: "Thomas Reed",
-      patientCode: "NVK-1045",
+      patientCode: "NVK-0001045",
       status: "Pending Review",
       goalsCount: 5,
       lastUpdated: "Oct 28, 2023",
@@ -254,7 +264,7 @@ export function getDoctorCarePlans(): DoctorCarePlanRow[] {
       id: "cp-4",
       patientId: "pt-margaret",
       patientName: "Margaret Sterling",
-      patientCode: "NVK-8810",
+      patientCode: "NVK-0008810",
       status: "Active",
       goalsCount: 3,
       lastUpdated: "Oct 21, 2023",
@@ -263,42 +273,48 @@ export function getDoctorCarePlans(): DoctorCarePlanRow[] {
   ];
 }
 
+const FIXTURE_DOCTOR_NOTES: DoctorNoteRow[] = [
+  {
+    id: "note-1",
+    patientId: "pt-eleanor",
+    patientName: "Eleanor Vance",
+    patientCode: "NVK-0004921",
+    type: "SOAP",
+    title: "Follow-up after CGA",
+    status: "Signed",
+    date: "Oct 24, 2023",
+    author: "Dr. Mehta",
+  },
+  {
+    id: "note-2",
+    patientId: "pt-arthur",
+    patientName: "Arthur Pendelton",
+    patientCode: "NVK-0003382",
+    type: "Progress",
+    title: "Cardiac observation",
+    status: "Draft",
+    date: "Oct 26, 2023",
+    author: "Dr. Mehta",
+  },
+  {
+    id: "note-3",
+    patientId: "pt-martha",
+    patientName: "Martha Sullivan",
+    patientCode: "NVK-0002201",
+    type: "Consult",
+    title: "Post-op wound review",
+    status: "Signed",
+    date: "Oct 27, 2023",
+    author: "Dr. Mehta",
+  },
+];
+
+/** Fixture notes plus doctor-authored notes stored in localStorage. */
 export function getDoctorNotes(): DoctorNoteRow[] {
-  return [
-    {
-      id: "note-1",
-      patientId: "pt-eleanor",
-      patientName: "Eleanor Vance",
-      patientCode: "NVK-4921",
-      type: "SOAP",
-      title: "Follow-up after CGA",
-      status: "Signed",
-      date: "Oct 24, 2023",
-      author: "Dr. Mehta",
-    },
-    {
-      id: "note-2",
-      patientId: "pt-arthur",
-      patientName: "Arthur Pendelton",
-      patientCode: "NVK-3382",
-      type: "Progress",
-      title: "Cardiac observation",
-      status: "Draft",
-      date: "Oct 26, 2023",
-      author: "Dr. Mehta",
-    },
-    {
-      id: "note-3",
-      patientId: "pt-martha",
-      patientName: "Martha Sullivan",
-      patientCode: "NVK-2201",
-      type: "Consult",
-      title: "Post-op wound review",
-      status: "Signed",
-      date: "Oct 27, 2023",
-      author: "Dr. Mehta",
-    },
-  ];
+  const stored = loadStoredDoctorNotes();
+  const fixtureIds = new Set(FIXTURE_DOCTOR_NOTES.map((n) => n.id));
+  const extras = stored.filter((n) => !fixtureIds.has(n.id));
+  return [...extras, ...FIXTURE_DOCTOR_NOTES];
 }
 
 export function getDoctorNoteById(id: string): DoctorNoteRow | undefined {

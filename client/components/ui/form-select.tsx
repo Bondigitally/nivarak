@@ -42,6 +42,8 @@ export function FormSelect({
   disabled = false,
   error = false,
   className,
+  contentClassName,
+  container,
   "aria-label": ariaLabel,
 }: {
   id?: string;
@@ -53,6 +55,13 @@ export function FormSelect({
   disabled?: boolean;
   error?: boolean;
   className?: string;
+  /** Extra classes for the menu (e.g. higher z-index inside dialogs). */
+  contentClassName?: string;
+  /**
+   * Portal target for the menu. Pass a Dialog content node so the menu
+   * stacks above the dialog overlay (z-100) and scrolls under scroll lock.
+   */
+  container?: HTMLElement | null;
   "aria-label"?: string;
 }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -75,7 +84,8 @@ export function FormSelect({
   return (
     <>
       {name ? <input type="hidden" name={name} value={value} /> : null}
-      <DropdownMenu>
+      {/* modal={false} avoids focus/dismiss fights when nested in a Radix Dialog */}
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild disabled={disabled}>
           <button
             ref={triggerRef}
@@ -107,6 +117,7 @@ export function FormSelect({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
+          container={container}
           side="bottom"
           align="start"
           sideOffset={8}
@@ -116,7 +127,9 @@ export function FormSelect({
             "max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border-border bg-card p-0 shadow-md",
             !menuWidth && "w-[min(20rem,calc(100vw-2.5rem))]",
             typo.input,
+            contentClassName,
           )}
+          onCloseAutoFocus={(event) => event.preventDefault()}
         >
           <div className="max-h-64 overflow-y-auto overscroll-contain p-1.5">
             {items.map((item) => {

@@ -15,6 +15,7 @@ import {
 } from "@/features/dashboard/data/dashboard-styles";
 import { PatientChartShell } from "@/features/patients/components/PatientChartShell";
 import { PatientOverviewBloodPressureCard } from "@/features/patients/components/PatientOverviewBloodPressureCard";
+import { PatientOverviewMedicationsCard } from "@/features/patients/components/PatientOverviewMedicationsCard";
 import {
   PatientOverviewConcernsCard,
   PatientOverviewIaspPanel,
@@ -25,23 +26,19 @@ import {
   getDoctorNotesForPatient,
   riskToBadgeLevel,
 } from "@/features/patients/data/doctor-patients-data";
-import {
-  getPatientChartActivity,
-  getPatientMedications,
-} from "@/features/patients/data/patient-chart-data";
+import { getPatientChartActivity } from "@/features/patients/data/patient-chart-data";
 import type { DoctorAssessmentRow, DoctorNoteRow } from "@/lib/domain/doctor";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 function OverviewPanel({ patientId }: { patientId: string }) {
   const activity = getPatientChartActivity(patientId);
-  const meds = getPatientMedications(patientId);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-dash-gap">
       <PatientOverviewIaspPanel patientId={patientId} />
 
-      <div className="grid items-stretch gap-4 lg:grid-cols-2">
+      <div className="grid items-stretch gap-dash-gutter lg:grid-cols-2">
         <PatientOverviewBloodPressureCard />
         <PatientOverviewConcernsCard patientId={patientId} />
       </div>
@@ -54,7 +51,7 @@ function OverviewPanel({ patientId }: { patientId: string }) {
               "flex h-full flex-col overflow-hidden p-0",
             )}
           >
-            <div className="flex flex-col gap-0.5 border-b border-divider px-4 py-4">
+            <div className="flex flex-col gap-0.5 border-b border-divider px-4 pb-6 pt-4">
               <h2 className={typo.headingL}>Recent activity</h2>
               <p className={cn(typo.bodyM, "text-muted-foreground")}>
                 Latest clinical events and care updates for this patient.
@@ -65,7 +62,7 @@ function OverviewPanel({ patientId }: { patientId: string }) {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className="flex items-start justify-between gap-3 border-b border-divider px-4 py-4 transition-colors last:border-b-0 hover:bg-muted/40"
+                  className="flex items-start justify-between gap-3 border-b border-divider px-4 py-3 transition-colors last:border-b-0 hover:bg-muted/40"
                 >
                   <div className="min-w-0">
                     <p className={cn(typo.headingS, "text-sm")}>{item.title}</p>
@@ -97,47 +94,7 @@ function OverviewPanel({ patientId }: { patientId: string }) {
         </section>
 
         <section className={cn(dashboardGridThirdClass, "min-h-0")}>
-          <div
-            className={cn(
-              dashboardCardClass,
-              "flex h-full flex-col overflow-hidden p-0",
-            )}
-          >
-            <div className="flex items-start justify-between gap-2 border-b border-divider px-4 py-4">
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <h2 className={typo.headingL}>Medications</h2>
-                <p className={cn(typo.bodyM, "text-muted-foreground")}>
-                  Active prescriptions and dosing schedule.
-                </p>
-              </div>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href={`/patients/${patientId}/care-plan`}>View plan</Link>
-              </Button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              {meds.map((med) => (
-                <div
-                  key={med.id}
-                  className="flex items-start justify-between gap-3 border-b border-divider px-4 py-4 last:border-b-0"
-                >
-                  <div className="min-w-0">
-                    <p className={cn(typo.headingS, "text-sm")}>{med.name}</p>
-                    <p
-                      className={cn(
-                        typo.bodyM,
-                        "mt-0.5 text-muted-foreground",
-                      )}
-                    >
-                      {med.schedule}
-                    </p>
-                  </div>
-                  <span className={cn(typo.bodyM, "shrink-0 font-medium")}>
-                    {med.dose}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <PatientOverviewMedicationsCard patientId={patientId} />
         </section>
       </div>
     </div>
@@ -302,7 +259,7 @@ export function NotesPanel({ patientId }: { patientId: string }) {
       leading={
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className={typo.headingL}>Clinical notes</h2>
-          <Button asChild size="sm">
+          <Button asChild variant="primary-outline" className="shrink-0">
             <Link href={`/patients/${patientId}/notes/new`}>Write note</Link>
           </Button>
         </div>

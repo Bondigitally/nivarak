@@ -39,10 +39,16 @@ const DateRangePicker = AriaDateRangePicker;
 function DatePickerContent({
   className,
   popoverClassName,
+  portalContainer,
   ...props
-}: AriaDialogProps & { popoverClassName?: AriaPopoverProps["className"] }) {
+}: AriaDialogProps & {
+  popoverClassName?: AriaPopoverProps["className"];
+  /** Portal into a dialog node so the calendar receives clicks under Radix modal. */
+  portalContainer?: Element | null;
+}) {
   return (
     <Popover
+      UNSTABLE_portalContainer={portalContainer ?? undefined}
       className={composeRenderProps(popoverClassName, (className) =>
         cn("w-auto p-3", className),
       )}
@@ -63,6 +69,13 @@ interface JollyDatePickerProps<T extends AriaDateValue>
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: AriaValidationResult) => string);
+  /**
+   * Portal target for the calendar popover (e.g. dialog content node).
+   * Required when the picker is used inside a Radix modal Dialog.
+   */
+  portalContainer?: Element | null;
+  /** Extra classes for the calendar popover (e.g. z-110 above dialog). */
+  popoverClassName?: AriaPopoverProps["className"];
 }
 
 function JollyDatePicker<T extends AriaDateValue>({
@@ -70,6 +83,8 @@ function JollyDatePicker<T extends AriaDateValue>({
   description,
   errorMessage,
   className,
+  portalContainer,
+  popoverClassName,
   ...props
 }: JollyDatePickerProps<T>) {
   return (
@@ -96,7 +111,10 @@ function JollyDatePicker<T extends AriaDateValue>({
         </Text>
       ) : null}
       <FieldError>{errorMessage}</FieldError>
-      <DatePickerContent>
+      <DatePickerContent
+        portalContainer={portalContainer}
+        popoverClassName={popoverClassName}
+      >
         <Calendar>
           <CalendarHeading />
           <CalendarGrid>

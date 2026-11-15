@@ -57,6 +57,8 @@ export interface DoctorPatientRow {
   carePlanStatus: "Active" | "Pending Review" | "Draft" | "None";
   assignedNurse: string;
   initials: string;
+  /** Profile photo URL — fixture Unsplash for now. */
+  avatarUrl?: string;
 }
 
 export interface DoctorVitalMonitorRow {

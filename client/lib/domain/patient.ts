@@ -1,6 +1,6 @@
 /**
  * Clinical risk tiers — drive badge color and care pathway routing.
- * critical > high > medium > low maps to destructive/warning/info/success tokens.
+   * critical/high → destructive; medium → info; low → success.
  */
 export type RiskLevel = "critical" | "high" | "medium" | "low";
 
