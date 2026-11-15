@@ -166,12 +166,14 @@ function LabTestCombobox({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState(value);
+  const [syncedValue, setSyncedValue] = useState(value);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setQuery(value);
-  }, [value]);
+  }
 
   useEffect(() => {
     if (!open) return;
