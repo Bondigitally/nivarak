@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { Calendar03Icon } from "@hugeicons/core-free-icons";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
-import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  dashboardCardClass,
+  dashboardCardStackClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailsDrawer } from "./AppointmentDetailsDrawer";
 import { AppointmentRow } from "./AppointmentRow";
@@ -53,7 +56,7 @@ export function AppointmentsList({
 
   return (
     <>
-      <ul className="flex flex-col gap-4">
+      <ul className={dashboardCardStackClass}>
         {appointments.map((appointment) => (
           <li key={appointment.id}>
             <AppointmentRow

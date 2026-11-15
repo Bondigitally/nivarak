@@ -31,15 +31,14 @@ export default function AppointmentsPage() {
         />
 
         <div className={dashboardGridStackClass}>
-          <div className="pt-2">
-            <SegmentedControl
-              value={tab}
-              onChange={setTab}
-              options={APPOINTMENT_TABS}
-              ariaLabel="Appointment filters"
-              layoutId="appointmentsActiveTab"
-            />
-          </div>
+          <SegmentedControl
+            value={tab}
+            onChange={setTab}
+            options={APPOINTMENT_TABS}
+            ariaLabel="Appointment filters"
+            layoutId="appointmentsActiveTab"
+            variant="inset"
+          />
           <AppointmentsList tab={tab} appointments={appointments} />
         </div>
       </DashboardReveal>

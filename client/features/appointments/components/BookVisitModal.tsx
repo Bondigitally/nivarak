@@ -166,7 +166,7 @@ function firstAvailableDateId(dates: DateOption[]) {
 }
 
 const DATE_NAV_BTN =
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] dark:shadow-[0_1px_1px_rgba(0,0,0,0.25)] transition-colors duration-300 ease-out hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-card disabled:hover:text-muted-foreground";
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-colors duration-300 ease-out hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-card disabled:hover:text-muted-foreground";
 
 export function BookVisitModal() {
   const { bookVisitOpen, setBookVisitOpen } = useSidebar();
@@ -454,7 +454,7 @@ export function BookVisitModal() {
                       onClick={() => setTimeId(time.id)}
                       aria-pressed={selected}
                       className={cn(
-                        "flex h-11 items-center justify-center rounded-md border px-4 shadow-[0_1px_1px_rgba(17,24,39,0.04)] dark:shadow-[0_1px_1px_rgba(0,0,0,0.25)] transition-colors sm:px-5",
+                        "flex h-11 items-center justify-center rounded-md border px-4 shadow-[0_1px_1px_rgba(17,24,39,0.04)] transition-colors sm:px-5",
                         typo.button,
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
@@ -471,7 +471,7 @@ export function BookVisitModal() {
             </div>
           </section>
 
-          <div className="flex items-start justify-between gap-4 rounded-md bg-background p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)] dark:shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+          <div className="flex items-start justify-between gap-4 rounded-md bg-background p-4 shadow-[0_2px_4px_rgba(17,24,39,0.05)]">
             <div className="flex min-w-0 flex-col gap-0.5">
               <p className={cn(typo.headingS, "text-sm leading-5 text-foreground")}>
                 {selectedVisit.title}
@@ -500,7 +500,7 @@ export function BookVisitModal() {
               type="button"
               variant="secondary"
               size="cta"
-              className="flex-1 shadow-[0_1px_1px_rgba(17,24,39,0.04)] dark:shadow-[0_1px_1px_rgba(0,0,0,0.25)]"
+              className="flex-1 shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
               onClick={() => setBookVisitOpen(false)}
             >
               Cancel
@@ -508,7 +508,7 @@ export function BookVisitModal() {
             <Button
               type="button"
               size="cta"
-              className="flex-1 shadow-[0_1px_1px_rgba(17,24,39,0.04)] dark:shadow-[0_1px_1px_rgba(0,0,0,0.25)]"
+              className="flex-1 shadow-[0_1px_1px_rgba(17,24,39,0.04)]"
               onClick={handleConfirm}
             >
               <HugeiconsIcon

@@ -82,11 +82,11 @@ export const PRIORITY_BUBBLE: Record<NotificationPriority, string> = {
 /** Soft pastel icon wells — not status-muted — in both themes */
 export const NOTIFICATION_ICON_TILE: Record<NotificationCategory, string> = {
   alert:
-    "bg-[#FCECEC] text-[#1A1A1A] dark:bg-[#E5C4C4] dark:text-[#1A1A1A]",
+    "bg-[#FCECEC] text-[#1A1A1A]",
   reminder:
-    "bg-[#FEFCE8] text-[#1A1A1A] dark:bg-[#E5DFB8] dark:text-[#1A1A1A]",
+    "bg-[#FEFCE8] text-[#1A1A1A]",
   update:
-    "bg-[#E7EFF8] text-[#1A1A1A] dark:bg-[#C5D4E8] dark:text-[#1A1A1A]",
+    "bg-[#E7EFF8] text-[#1A1A1A]",
 };
 
 export const NOTIFICATION_TABS = [

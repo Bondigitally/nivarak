@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Notification01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
@@ -9,13 +9,14 @@ import { typo } from "@/lib/tokens/typography";
 import {
   dashboardPageShellClass,
   dashboardCardClass,
+  dashboardCardStackClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { FilterPillGroup } from "@/components/shared/FilterPillGroup";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { severityConfig } from "@/lib/tokens/status-badges";
 import { useNotificationStore } from "@/features/alerts/store/notification-store";
 import type { AlertSeverity, Notification } from "@/lib/domain";
@@ -25,6 +26,8 @@ import {
   ICON_STROKE,
   iconTileClass,
 } from "@/lib/icons";
+
+type AlertFilter = "all" | "unread" | AlertSeverity;
 
 function DoctorAlertCard({
   alert,
@@ -120,7 +123,7 @@ export function DoctorAlertsView() {
   const markAllCoordinatorRead = useNotificationStore(
     (s) => s.markAllCoordinatorRead,
   );
-  const [filter, setFilter] = useState<"all" | "unread" | AlertSeverity>("all");
+  const [filter, setFilter] = useState<AlertFilter>("all");
 
   const filtered = alerts.filter((a) => {
     if (filter === "unread") return !a.read;
@@ -131,10 +134,30 @@ export function DoctorAlertsView() {
   const unread = alerts.filter((a) => !a.read).length;
   const critical = alerts.filter((a) => a.severity === "critical").length;
 
+  const filterTabs = useMemo(
+    () => [
+      { id: "all" as const, label: `All (${alerts.length})` },
+      { id: "unread" as const, label: `Open (${unread})` },
+      {
+        id: "critical" as const,
+        label: `Critical (${alerts.filter((a) => a.severity === "critical").length})`,
+      },
+      {
+        id: "warning" as const,
+        label: `Warning (${alerts.filter((a) => a.severity === "warning").length})`,
+      },
+      {
+        id: "info" as const,
+        label: `Info (${alerts.filter((a) => a.severity === "info").length})`,
+      },
+    ],
+    [alerts, unread],
+  );
+
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex min-w-0 items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start justify-between gap-dash-gutter">
           <PageHeader
             title="Alerts"
             subtitle={
@@ -161,32 +184,19 @@ export function DoctorAlertsView() {
           ) : null}
         </div>
 
-        <FilterPillGroup
+        <SegmentedControl
           value={filter}
           onChange={setFilter}
-          options={[
-            { id: "all", label: "All", count: alerts.length },
-            { id: "unread", label: "Open", count: unread },
-            {
-              id: "critical",
-              label: "Critical",
-              count: alerts.filter((a) => a.severity === "critical").length,
-            },
-            {
-              id: "warning",
-              label: "Warning",
-              count: alerts.filter((a) => a.severity === "warning").length,
-            },
-            {
-              id: "info",
-              label: "Info",
-              count: alerts.filter((a) => a.severity === "info").length,
-            },
-          ]}
+          options={filterTabs}
+          ariaLabel="Alert filters"
+          layoutId="doctorAlertsFilterTabs"
+          surface="card"
+          variant="inset"
+          className="shrink-0"
         />
 
         {filtered.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className={dashboardCardStackClass}>
             {filtered.map((alert) => (
               <DoctorAlertCard
                 key={alert.id}

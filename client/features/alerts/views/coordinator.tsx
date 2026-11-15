@@ -8,6 +8,7 @@ import { typo } from "@/lib/tokens/typography";
 import {
   dashboardPageShellClass,
   dashboardCardClass,
+  dashboardCardStackClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { EmptyState } from "@/features/dashboard/components/EmptyState";
@@ -112,7 +113,7 @@ export function CoordinatorAlertsView() {
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <div className="flex min-w-0 items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start justify-between gap-dash-gutter">
           <PageHeader
             title="Alerts"
             subtitle={
@@ -146,7 +147,7 @@ export function CoordinatorAlertsView() {
         />
 
         {filtered.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className={dashboardCardStackClass}>
             {filtered.map((alert) => (
               <AlertCard key={alert.id} alert={alert} onMarkRead={markCoordinatorRead} />
             ))}

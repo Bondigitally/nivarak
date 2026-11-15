@@ -208,7 +208,6 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
         className={cn(
           "aspect-square w-full overflow-visible [&_.recharts-surface]:overflow-visible [&_svg]:overflow-visible",
           "[&_.recharts-polar-grid-concentric-circle]:stroke-[#D4DAF0]! [&_.recharts-polar-grid-concentric-circle]:stroke-[0.8]! [&_.recharts-polar-grid-concentric-circle]:opacity-70",
-          "dark:[&_.recharts-polar-grid-concentric-circle]:stroke-[#5A5470]! dark:[&_.recharts-polar-grid-concentric-circle]:opacity-80",
         )}
         initialDimension={{ width: 280, height: 280 }}
       >
@@ -223,7 +222,7 @@ function RiskRadarChart({ risk }: { risk: RiskStatus }) {
           <PolarGrid
             gridType="circle"
             radialLines={false}
-            className="fill-[#A8C4F5]/22 dark:fill-[#3A3550]/20"
+            className="fill-[#A8C4F5]/22"
           />
           <PolarAngleAxis
             dataKey="axis"

@@ -9,7 +9,14 @@ import {
   Call02Icon,
   Mail02Icon,
 } from "@hugeicons/core-free-icons";
-import { dashboardCardClass, statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  dashboardCardClass,
+  memberPortraitCardBodyClass,
+  memberPortraitCardClass,
+  memberPortraitCardGridClass,
+  memberPortraitCardMediaClass,
+  statusBadgeClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { typo } from "@/lib/tokens/typography";
 import {
@@ -103,9 +110,9 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       transition={{ duration: 0.32, ease: CARD_EASE }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className="flex w-61.5 shrink-0 flex-col gap-4 rounded-lg bg-card p-0.75"
+      className={memberPortraitCardClass}
     >
-      <div className="relative h-48 w-full overflow-hidden rounded-md">
+      <div className={memberPortraitCardMediaClass}>
         <motion.div
           variants={staffImageVariants}
           transition={{ duration: 0.32, ease: CARD_EASE }}
@@ -121,7 +128,7 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
         </motion.div>
       </div>
 
-      <div className="flex flex-col gap-2 p-4">
+      <div className={memberPortraitCardBodyClass}>
         <div className="flex min-w-0 items-center gap-2">
           <div ref={nameRef} className="relative min-w-0 flex-1 overflow-hidden">
             <span
@@ -183,7 +190,7 @@ export function MedicalStaffSection({
           Doctors, nurses, and care coordinators assigned to you.
         </p>
       </div>
-      <div className="flex flex-wrap justify-center gap-dash-gutter lg:justify-start">
+      <div className={memberPortraitCardGridClass}>
         {members.map((member) => (
           <MedicalStaffCard key={member.id} member={member} />
         ))}

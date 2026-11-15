@@ -12,6 +12,8 @@ import { EmptyState } from "@/features/dashboard/components/EmptyState";
 import {
   cardTitleClass,
   dashboardCardClass,
+  dashboardCardStackClass,
+  dashboardGridStackClass,
   dashboardSearchBarClass,
   dashboardSearchBarIconClass,
 } from "@/features/dashboard/data/dashboard-styles";
@@ -116,17 +118,18 @@ export function AlertsList() {
   const filtered = filterNotifications(MOCK_NOTIFICATIONS, activeTab, query);
   const groups = groupNotifications(filtered);
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className={dashboardGridStackClass}>
+      <div className="flex flex-col gap-dash-gutter lg:flex-row lg:items-center lg:justify-between">
         <SegmentedControl
           value={activeTab}
           onChange={setActiveTab}
           options={NOTIFICATION_TABS}
           ariaLabel="Filter notifications by category"
           layoutId="alertsActiveTab"
+          variant="inset"
         />
 
-        <div className="flex w-full min-w-0 items-center gap-3 lg:w-auto lg:max-w-105 lg:justify-end">
+        <div className="flex w-full min-w-0 items-center gap-dash-gutter lg:w-auto lg:max-w-105 lg:justify-end">
           <SearchBar value={query} onChange={setQuery} />
           {unread > 0 ? (
             <button
@@ -151,7 +154,7 @@ export function AlertsList() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className={dashboardCardStackClass}>
         {groups.length === 0 ? (
           <div className={cn(dashboardCardClass, "overflow-hidden bg-card p-0")}>
             <EmptyState
