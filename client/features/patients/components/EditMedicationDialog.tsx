@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { parseDate, type DateValue } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  parseDate,
+  today,
+  type CalendarDate,
+  type DateValue,
+} from "@internationalized/date";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { useUserRole } from "@/components/layout/user-role-context";
@@ -14,10 +20,7 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  dialogBodyShellClass,
   dialogCloseButtonClass,
-  dialogFooterShellClass,
-  dialogHeaderShellClass,
   dialogPrimitiveContentClass,
   useDialogPortalContainer,
 } from "@/components/ui/dialog";
@@ -87,6 +90,20 @@ function toDateValue(iso: string): DateValue | null {
   }
 }
 
+/** Course end date: today or later, and not before the since date when that is later. */
+function medicationDurationMinDate(sinceDisplay: string): CalendarDate {
+  const todayDate = today(getLocalTimeZone());
+  const sinceMs = Date.parse(sinceDisplay);
+  if (Number.isNaN(sinceMs)) return todayDate;
+  const sinceIso = new Date(sinceMs).toISOString().slice(0, 10);
+  try {
+    const sinceDate = parseDate(sinceIso);
+    return sinceDate.compare(todayDate) > 0 ? sinceDate : todayDate;
+  } catch {
+    return todayDate;
+  }
+}
+
 function focusDialogField(fieldId: string) {
   const el = document.getElementById(fieldId);
   if (!el) return;
@@ -136,6 +153,18 @@ function FieldLabel({
 /** Nested menus / calendar popovers must stack above dialog shell (z-100). */
 const dialogOverlayClass = "z-110";
 
+/**
+ * Medication dialog sections use fixed inset (not `px-dash-pad-x`) so padding
+ * cannot collapse against the page shell token or lose a twMerge conflict.
+ * Corner radii match the shell so header/footer never square-bleed the card.
+ */
+const medicationDialogHeaderClass =
+  "flex flex-row items-start justify-between gap-4 border-b border-border bg-card px-8 py-5 text-left";
+const medicationDialogBodyClass =
+  "flex min-h-0 flex-col gap-5 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-8 py-5";
+const medicationDialogFooterClass =
+  "flex flex-row items-center justify-end gap-3 border-t border-border bg-card px-8 py-5";
+
 function isPortaledOverlayTarget(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   return Boolean(
@@ -169,7 +198,6 @@ export function EditMedicationDialog({
 }) {
   const { role } = useUserRole();
   const clinician = getCurrentUserProfile(role);
-  const { contentRef, portalContainer } = useDialogPortalContainer();
   const [draft, setDraft] = useState<MedicationDraft | null>(null);
   const medicationId = medication?.id ?? null;
   const draftSourceKey =
@@ -249,6 +277,7 @@ export function EditMedicationDialog({
 
   const title = mode === "add" ? "Add medicine" : "Edit medicine";
   const canSave = Boolean(draft?.name.trim());
+  const { contentRef, portalContainer } = useDialogPortalContainer();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -258,8 +287,10 @@ export function EditMedicationDialog({
           ref={contentRef}
           className={cn(
             dialogPrimitiveContentClass("max-w-lg"),
-            // Allow portaled calendar/menus to escape the shell without clipping.
-            "max-h-[min(92vh,720px)] overflow-visible",
+            // Grid keeps header/footer sized to content and gives the body a
+            // bounded scrollport, so fields never paint under the footer.
+            // Overflow stays hidden so rounded corners clip cleanly.
+            "grid max-h-[min(calc(100dvh-1.5rem),880px)] grid-rows-[auto_minmax(0,1fr)_auto]",
           )}
           onOpenAutoFocus={(event) => {
             // Defer to focusField effect so the double-clicked column wins.
@@ -281,8 +312,8 @@ export function EditMedicationDialog({
             }
           }}
         >
-          <div className={dialogHeaderShellClass}>
-            <div className="min-w-0">
+          <div className={medicationDialogHeaderClass}>
+            <div className="min-w-0 flex-1 pr-3">
               <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
                 {title}
               </DialogTitle>
@@ -304,7 +335,7 @@ export function EditMedicationDialog({
           </div>
 
           {draft ? (
-            <div className={cn(dialogBodyShellClass, "gap-5 sm:gap-5")}>
+            <div className={medicationDialogBodyClass}>
               <div className="flex flex-col gap-auth-field">
                 <FieldLabel htmlFor="med-name">Medication</FieldLabel>
                 <Input
@@ -320,7 +351,7 @@ export function EditMedicationDialog({
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <div className="flex flex-col gap-auth-field">
                   <FieldLabel htmlFor="med-dose">Dose</FieldLabel>
                   <Input
@@ -347,7 +378,6 @@ export function EditMedicationDialog({
                       )
                     }
                     placeholder="Select frequency"
-                    container={portalContainer}
                     contentClassName={dialogOverlayClass}
                   />
                 </div>
@@ -367,7 +397,6 @@ export function EditMedicationDialog({
                     updateDraft("route", value as PatientMedicationRoute)
                   }
                   placeholder="Select route"
-                  container={portalContainer}
                   contentClassName={dialogOverlayClass}
                 />
               </div>
@@ -387,7 +416,7 @@ export function EditMedicationDialog({
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <div className="flex flex-col gap-auth-field">
                   <FieldLabel htmlFor="med-since">Since</FieldLabel>
                   <Input
@@ -400,33 +429,32 @@ export function EditMedicationDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-auth-field">
-                  <div id="med-duration">
-                    <JollyDatePicker
-                      label="Duration"
-                      aria-label="Duration"
-                      value={toDateValue(draft.duration)}
-                      onChange={(value) =>
-                        updateDraft(
-                          "duration",
-                          value ? value.toString() : "",
-                        )
-                      }
-                      className="w-full"
-                      portalContainer={portalContainer}
-                      popoverClassName={dialogOverlayClass}
-                    />
-                  </div>
+                  <FieldLabel htmlFor="med-duration">Duration</FieldLabel>
+                  <JollyDatePicker
+                    id="med-duration"
+                    showLabel={false}
+                    aria-label="Duration"
+                    minValue={medicationDurationMinDate(draft.since)}
+                    value={toDateValue(draft.duration)}
+                    onChange={(value) =>
+                      updateDraft(
+                        "duration",
+                        value ? value.toString() : "",
+                      )
+                    }
+                    className="w-full"
+                    portalContainer={portalContainer}
+                    popoverClassName={cn(
+                      dialogOverlayClass,
+                      "pointer-events-auto",
+                    )}
+                  />
                 </div>
               </div>
             </div>
           ) : null}
 
-          <div
-            className={cn(
-              dialogFooterShellClass,
-              "flex-row justify-end gap-2",
-            )}
-          >
+          <div className={medicationDialogFooterClass}>
             <Button
               type="button"
               variant="secondary"

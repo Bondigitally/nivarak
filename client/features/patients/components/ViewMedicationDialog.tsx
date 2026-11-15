@@ -10,10 +10,7 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  dialogBodyShellClass,
   dialogCloseButtonClass,
-  dialogFooterShellClass,
-  dialogHeaderShellClass,
   dialogPrimitiveContentClass,
 } from "@/components/ui/dialog";
 import {
@@ -23,6 +20,18 @@ import {
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
+
+/**
+ * Medication dialog sections use fixed inset (not `px-dash-pad-x`) so padding
+ * cannot collapse against the page shell token or lose a twMerge conflict.
+ * Corner radii match the shell so header/footer never square-bleed the card.
+ */
+const medicationDialogHeaderClass =
+  "flex flex-row items-start justify-between gap-4 border-b border-border bg-card px-8 py-5 text-left";
+const medicationDialogBodyClass =
+  "flex min-h-0 flex-col gap-5 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-8 py-5";
+const medicationDialogFooterClass =
+  "flex flex-row items-center justify-end gap-3 border-t border-border bg-card px-8 py-5";
 
 function formatDurationDate(value: string) {
   if (!value) return "—";
@@ -85,11 +94,11 @@ export function ViewMedicationDialog({
         <DialogPrimitive.Content
           className={cn(
             dialogPrimitiveContentClass("max-w-lg"),
-            "max-h-[min(92vh,720px)]",
+            "grid max-h-[min(calc(100dvh-1.5rem),880px)] grid-rows-[auto_minmax(0,1fr)_auto]",
           )}
         >
-          <div className={dialogHeaderShellClass}>
-            <div className="min-w-0">
+          <div className={medicationDialogHeaderClass}>
+            <div className="min-w-0 flex-1 pr-3">
               <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
                 Medication details
               </DialogTitle>
@@ -110,17 +119,17 @@ export function ViewMedicationDialog({
             </DialogPrimitive.Close>
           </div>
 
-          <div className={cn(dialogBodyShellClass, "gap-5 sm:gap-5")}>
+          <div className={medicationDialogBodyClass}>
             <DetailItem label="Medication" value={medication.name} />
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-7">
               <DetailItem label="Dose" value={medication.dose} />
               <DetailItem label="Freq" value={medication.frequency} />
             </div>
 
             <DetailItem label="Route" value={routeLabel} />
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-7">
               <DetailItem label="Since" value={medication.since} />
               <DetailItem
                 label="Duration"
@@ -131,18 +140,13 @@ export function ViewMedicationDialog({
             <DetailItem label="Status" value={medication.status} />
             <DetailItem label="Prescribed by" value={prescribedBy} />
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-7">
               <DetailItem label="Last modified" value={medication.lastModified} />
               <DetailItem label="Last modified by" value={lastModifiedBy} />
             </div>
           </div>
 
-          <div
-            className={cn(
-              dialogFooterShellClass,
-              "flex-row justify-end gap-2",
-            )}
-          >
+          <div className={medicationDialogFooterClass}>
             <Button type="button" onClick={() => onOpenChange(false)}>
               Close
             </Button>

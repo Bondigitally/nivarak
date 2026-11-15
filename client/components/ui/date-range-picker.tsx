@@ -31,10 +31,26 @@ import {
 import { DateInput } from "@/components/ui/datefield";
 import { FieldError, FieldGroup, Label } from "@/components/ui/field";
 import { Popover } from "@/components/ui/popover";
-import { BADGE_ICON_SIZE } from "@/lib/icons";
+import { BADGE_ICON_SIZE, ICON_SIZE } from "@/lib/icons";
+import { typo } from "@/lib/tokens/typography";
 
 const DatePicker = AriaDatePicker;
 const DateRangePicker = AriaDateRangePicker;
+
+/** Match {@link fieldInputClassName} chrome when the label is rendered externally. */
+const jollyDatePickerFieldGroupClassName = cn(
+  "relative flex h-11 w-full min-w-0 items-center overflow-hidden rounded-md border border-border bg-card p-0",
+  "transition-[border-color,box-shadow] duration-150 ease-in-out",
+  "hover:border-border",
+  "data-[focus-within]:border-border-focus data-[focus-within]:outline-none data-[focus-within]:ring-2 data-[focus-within]:ring-ring/40",
+  "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+);
+
+const jollyDatePickerInputClassName = cn(
+  typo.input,
+  "min-w-0 flex-1 border-0 bg-transparent px-4 shadow-none ring-0",
+  "[&_[data-placeholder]]:text-placeholder",
+);
 
 function DatePickerContent({
   className,
@@ -50,7 +66,7 @@ function DatePickerContent({
     <Popover
       UNSTABLE_portalContainer={portalContainer ?? undefined}
       className={composeRenderProps(popoverClassName, (className) =>
-        cn("w-auto p-3", className),
+        cn("pointer-events-auto w-auto p-3", className),
       )}
     >
       <AriaDialog
@@ -76,6 +92,11 @@ interface JollyDatePickerProps<T extends AriaDateValue>
   portalContainer?: Element | null;
   /** Extra classes for the calendar popover (e.g. z-110 above dialog). */
   popoverClassName?: AriaPopoverProps["className"];
+  /** When false, omit the built-in label (use an external `FieldLabel` instead). */
+  showLabel?: boolean;
+  labelClassName?: string;
+  fieldGroupClassName?: string;
+  dateInputClassName?: string;
 }
 
 function JollyDatePicker<T extends AriaDateValue>({
@@ -85,24 +106,40 @@ function JollyDatePicker<T extends AriaDateValue>({
   className,
   portalContainer,
   popoverClassName,
+  showLabel = true,
+  labelClassName,
+  fieldGroupClassName,
+  dateInputClassName,
   ...props
 }: JollyDatePickerProps<T>) {
   return (
     <DatePicker
       className={composeRenderProps(className, (className) =>
-        cn("group flex flex-col gap-2", className),
+        cn(
+          "group flex w-full flex-col",
+          showLabel ? "gap-2" : "gap-0",
+          className,
+        ),
       )}
       {...props}
     >
-      <Label>{label}</Label>
-      <FieldGroup>
-        <DateInput className="flex-1" variant="ghost" />
+      {showLabel && label ? (
+        <Label className={cn(typo.label, labelClassName)}>{label}</Label>
+      ) : null}
+      <FieldGroup
+        variant="ghost"
+        className={cn(jollyDatePickerFieldGroupClassName, fieldGroupClassName)}
+      >
+        <DateInput
+          className={cn(jollyDatePickerInputClassName, dateInputClassName)}
+          variant="ghost"
+        />
         <AriaIconButton
           variant="ghost"
           size="icon"
-          className="mr-1 size-6 data-[focus-visible]:ring-offset-0"
+          className="mr-3 size-9 shrink-0 text-muted-foreground hover:text-foreground data-[focus-visible]:ring-offset-0"
         >
-          <AppIcon icon={Calendar03Icon} size={BADGE_ICON_SIZE} aria-hidden />
+          <AppIcon icon={Calendar03Icon} size={ICON_SIZE} aria-hidden />
         </AriaIconButton>
       </FieldGroup>
       {description ? (

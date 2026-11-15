@@ -1128,8 +1128,8 @@ export function DataTable<T>({
         </div>
       ) : null}
 
-      <div className="horizontal-scroll-stable w-full [overflow-anchor:none]">
-        <table className="w-full min-w-160 table-fixed border-collapse">
+      <div className="horizontal-scroll-stable min-w-0 w-full max-w-full [overflow-anchor:none]">
+        <table className="w-max min-w-full table-auto border-collapse">
           <colgroup>
             <col className="w-14" />
             {columns.map((column) => (
@@ -1226,7 +1226,7 @@ export function DataTable<T>({
                       <td
                         key={column.id}
                         className={cn(
-                          "h-16 px-4 align-middle text-sm leading-5 text-muted-foreground",
+                          "h-16 min-w-0 px-4 align-middle text-sm leading-5 text-muted-foreground overflow-hidden",
                           rowIndex > 0 && "border-t border-divider",
                           column.className,
                           column.cellClassName,
@@ -1277,7 +1277,7 @@ export function DataTable<T>({
     return (
       <div
         ref={cardRef}
-        className={cn("w-full", className)}
+        className={cn("min-w-0 w-full", className)}
         style={cardMinHeight != null ? { minHeight: cardMinHeight } : undefined}
       >
         {table}
@@ -1286,12 +1286,12 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("min-w-0 w-full", className)}>
       <div
         ref={cardRef}
         className={cn(
           radius.lg,
-          "overflow-hidden bg-card",
+          "min-w-0 overflow-hidden bg-card",
           cardShadowClass,
         )}
         style={cardMinHeight != null ? { minHeight: cardMinHeight } : undefined}
