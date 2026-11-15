@@ -103,7 +103,7 @@ export function DoctorCarePlanOverview({ patientId }: { patientId: string }) {
               Review
             </Button>
           ) : null}
-          <Button asChild>
+          <Button asChild variant="primary-outline">
             <Link href={`/patients/${patientId}/care-plan/edit`}>Edit plan</Link>
           </Button>
         </div>

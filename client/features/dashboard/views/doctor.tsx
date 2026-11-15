@@ -19,9 +19,11 @@ import { AppointmentDetailsDrawer } from "@/features/appointments/components/App
 import type { AppointmentItem } from "@/features/appointments/data/appointments-data";
 import {
   dashboardCardClass,
+  dashboardDividedItemClass,
   dashboardGridClass,
   dashboardGridHalfClass,
   dashboardPageShellClass,
+  dashboardRowDividerClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import {
   getDoctorAttentionItems,
@@ -86,12 +88,7 @@ function StatCard({
 
 function AttentionRow({ item }: { item: DoctorAttentionItem }) {
   return (
-    <div
-      className={cn(
-        dashboardCardClass,
-        "flex min-w-0 items-center justify-between gap-3 px-4 py-5",
-      )}
-    >
+    <div className="relative z-[1] flex min-w-0 items-center justify-between gap-3 px-4 py-5">
       <div className="flex min-w-0 items-center gap-3">
         <span
           className={cn(
@@ -250,10 +247,17 @@ export function DoctorDashboardView() {
         <div className={dashboardGridClass}>
           <section className={cn(dashboardGridHalfClass, "flex flex-col gap-3")}>
             <h2 className={cn(typo.headingL, "px-1")}>Needs your attention</h2>
-            <div className="flex flex-col gap-3">
-              {attention.map((item) => (
-                <AttentionRow key={item.id} item={item} />
-              ))}
+            <div className={cn(dashboardCardClass, "overflow-hidden p-0")}>
+              <ul className="flex min-w-0 flex-col">
+                {attention.map((item, index) => (
+                  <li key={item.id} className={dashboardDividedItemClass}>
+                    {index > 0 ? (
+                      <div className={dashboardRowDividerClass} aria-hidden />
+                    ) : null}
+                    <AttentionRow item={item} />
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 

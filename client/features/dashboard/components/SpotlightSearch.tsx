@@ -347,7 +347,7 @@ export function SpotlightSearch({
                 initial={reducedMotion ? false : { opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={FADE}
-                className="overflow-hidden rounded-md border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.55)]"
+                className="overflow-hidden rounded-md border border-border bg-card shadow-[0_8px_32px_rgba(17,24,39,0.12)]"
               >
                 <p className={cn(typo.overline, "px-4 pt-3 pb-1")}>
                   {hasQuery ? "Results" : "Suggested"}

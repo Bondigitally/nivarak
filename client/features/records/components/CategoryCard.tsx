@@ -5,7 +5,6 @@ import { radius } from "@/lib/tokens/radius";
 import {
   cardLiftActiveClass,
   cardLiftHoverClass,
-  cardLiftHoverWashClass,
   cardLiftTransitionClass,
   cardShadowClass,
 } from "@/lib/tokens/elevation";
@@ -40,16 +39,11 @@ export function CategoryCard({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         "@min-[304px]:flex-row @min-[304px]:items-center @min-[304px]:gap-2 @min-[304px]:p-6",
         selected
-          ? "border border-primary"
+          ? "bg-muted"
           : cn(cardLiftHoverClass, cardLiftActiveClass),
       )}
     >
-      {selected ? (
-        <span
-          aria-hidden
-          className={cn(cardLiftHoverWashClass, "opacity-100")}
-        />
-      ) : (
+      {!selected ? (
         <span
           aria-hidden
           className={cn(
@@ -59,7 +53,7 @@ export function CategoryCard({
             "motion-safe:group-hover:opacity-100",
           )}
         />
-      )}
+      ) : null}
       <div
         className={cn(
           "relative z-1 flex size-12 shrink-0 items-center justify-center border border-border bg-table-header p-2",

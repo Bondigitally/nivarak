@@ -9,7 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
-import { cardTitleClass, dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
+import {
+  cardTitleClass,
+  dashboardCardClass,
+  dashboardCardStackClass,
+} from "@/features/dashboard/data/dashboard-styles";
 import { BADGE_ICON_SIZE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
@@ -52,18 +56,24 @@ function TasksSectionCollapsible({
   const isDestructive = tone === "destructive";
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div
+      className={cn(
+        dashboardCardClass,
+        "flex w-full flex-col overflow-hidden",
+        isDestructive && "border border-destructive shadow-none",
+      )}
+    >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
         className={cn(
-          dashboardCardClass,
-          "flex min-h-16 w-full min-w-0 items-center justify-between gap-3 px-4 py-4 text-left sm:min-h-[4.5rem] sm:px-5",
+          "flex min-h-16 w-full min-w-0 items-center justify-between gap-3 border-0 bg-transparent px-4 py-4 text-left shadow-none sm:min-h-[4.5rem] sm:px-5",
           "transition-colors duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          expanded && children ? "border-b border-divider" : null,
           isDestructive
-            ? "border border-destructive shadow-none hover:bg-destructive-muted hover:shadow-none focus-visible:ring-destructive"
+            ? "hover:bg-destructive-muted focus-visible:ring-destructive"
             : "hover:bg-accent focus-visible:ring-ring",
         )}
       >
@@ -156,7 +166,7 @@ export function TasksList() {
   return (
     <>
       <LayoutGroup>
-        <div className="flex w-full flex-col gap-5">
+        <div className={cn("flex w-full flex-col", dashboardCardStackClass)}>
           {hasTodayProgress ? (
             <TasksProgressCard
               completed={progress.completed}
@@ -175,6 +185,7 @@ export function TasksList() {
               >
                 <TasksGroupedCard
                   tasks={overdueTasks}
+                  embedded
                   {...groupedCardProps}
                 />
               </TasksSectionCollapsible>
@@ -219,6 +230,7 @@ export function TasksList() {
               >
                 <TasksGroupedCard
                   tasks={completedTasks}
+                  embedded
                   {...groupedCardProps}
                 />
               </TasksSectionCollapsible>

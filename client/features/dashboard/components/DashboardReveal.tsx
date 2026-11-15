@@ -47,7 +47,12 @@ export function DashboardReveal({
       {Children.map(children, (child, index) => {
         if (!isValidElement(child)) return child;
         return (
-          <motion.div key={child.key ?? index} variants={variants} className="w-full">
+          <motion.div
+            key={child.key ?? index}
+            variants={variants}
+            layout={false}
+            className="w-full"
+          >
             {child}
           </motion.div>
         );

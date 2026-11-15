@@ -30,18 +30,21 @@ export function TasksGroupedCard({
   onComplete,
   onIncomplete,
   header,
+  embedded = false,
 }: {
   tasks: CareTask[];
   onComplete: (id: string) => void;
   onIncomplete?: (id: string) => void;
   header?: ReactNode;
+  /** List only — parent supplies the card surface (collapsible sections). */
+  embedded?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
 
   if (tasks.length === 0) return null;
 
-  return (
-    <div className={`${dashboardCardClass} overflow-hidden`}>
+  const body = (
+    <>
       {header ? (
         <div className="px-4 py-3.5 sm:px-4 sm:py-4">
           {header}
@@ -79,6 +82,14 @@ export function TasksGroupedCard({
           ))}
         </AnimatePresence>
       </ul>
-    </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="min-w-0">{body}</div>;
+  }
+
+  return (
+    <div className={cn(dashboardCardClass, "overflow-hidden")}>{body}</div>
   );
 }

@@ -5,7 +5,7 @@ import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Alert02Icon,
   Cancel01Icon,
@@ -15,7 +15,6 @@ import {
   Home03Icon,
   Image01Icon,
   Stethoscope02Icon,
-  Tick02Icon,
   Video01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
@@ -39,19 +38,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { statusBadgeClass } from "@/features/dashboard/data/dashboard-styles";
 import {
   SIDEBAR_DESKTOP_MEDIA,
   useSidebar,
 } from "@/components/layout/sidebar-context";
-import { BADGE_ICON_SIZE, EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { EMPTY_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
-import {
-  appointmentStatusBadgeStyles,
-  type AppointmentItem,
-  type AppointmentStatus,
-} from "../data/appointments-data";
+import type { AppointmentItem } from "../data/appointments-data";
+import { AppointmentStatusBadge } from "./AppointmentStatusBadge";
 
 /** Same compact breakpoint as the sidebar drawer — bottom sheet below `lg`. */
 function subscribeCompact(onChange: () => void) {
@@ -67,15 +62,6 @@ function getCompactSnapshot() {
 function useIsCompactScreen() {
   return useSyncExternalStore(subscribeCompact, getCompactSnapshot, () => true);
 }
-
-const STATUS_ICONS: Record<
-  (typeof appointmentStatusBadgeStyles)[AppointmentStatus]["icon"],
-  IconSvgElement
-> = {
-  tick: Tick02Icon,
-  clock: Clock01Icon,
-  close: Cancel01Icon,
-};
 
 function FieldLabel({ children }: { children: ReactNode }) {
   return (
@@ -129,9 +115,6 @@ export function AppointmentDetailsDrawer({
   const { openBookVisit } = useSidebar();
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const sheetSide = isCompact ? "bottom" : "right";
-  const statusStyle = appointment
-    ? appointmentStatusBadgeStyles[appointment.status]
-    : appointmentStatusBadgeStyles.Scheduled;
   const locationIcon =
     appointment?.placeKind === "video" ? Video01Icon : Home03Icon;
   const locationLabel =
@@ -160,14 +143,15 @@ export function AppointmentDetailsDrawer({
       <SheetContent
         key={sheetSide}
         side={sheetSide}
+        dock={isCompact ? "viewport" : "workspace"}
+        lockDashboardScroll={open && !isCompact}
         showCloseButton={false}
         className={cn(
           "flex w-full flex-col gap-0 overflow-hidden bg-card p-0",
-          "shadow-[0_12px_24px_rgba(17,24,39,0.12)]",
           "data-[state=closed]:duration-300 data-[state=open]:duration-500",
           isCompact
-            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-xl border-t border-border sm:max-w-none"
-            : "h-full w-full max-w-none border-l border-border rounded-bl-xl rounded-tl-xl sm:max-w-xl",
+            ? "inset-x-0 bottom-0 top-auto h-auto max-h-[90dvh] rounded-t-xl border-t border-border shadow-[0_12px_24px_rgba(17,24,39,0.12)] sm:max-w-none"
+            : "h-auto w-full max-w-none sm:max-w-xl",
         )}
       >
         {appointment ? (
@@ -213,20 +197,9 @@ export function AppointmentDetailsDrawer({
               <div className="flex flex-col gap-7 sm:gap-8">
                 <div className="flex items-center justify-between gap-4">
                   <FieldLabel>Status</FieldLabel>
-                  <span
-                    className={cn(
-                      statusBadgeClass,
-                      "gap-1.5 border",
-                      statusStyle.className,
-                    )}
-                  >
-                    <AppIcon
-                      icon={STATUS_ICONS[statusStyle.icon]}
-                      size={BADGE_ICON_SIZE}
-                      aria-hidden
-                    />
-                    {appointment.status}
-                  </span>
+                  {appointment ? (
+                    <AppointmentStatusBadge status={appointment.status} />
+                  ) : null}
                 </div>
 
                 <div className="flex flex-col gap-6">
@@ -392,7 +365,6 @@ export function AppointmentDetailsDrawer({
               <SheetFooter
                 className={cn(
                   "mt-auto flex shrink-0 flex-col gap-3 border-t border-border bg-card px-dash-pad-x py-6 sm:flex-col sm:space-x-0 sm:p-8",
-                  !isCompact && "rounded-bl-xl",
                 )}
               >
                 <Button

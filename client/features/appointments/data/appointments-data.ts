@@ -33,22 +33,22 @@ export type AppointmentItem = {
   patientName?: string;
 };
 
-/** Shared row + drawer badge styles. */
+/** Shared row + drawer status — colored dot + label. */
 export const appointmentStatusBadgeStyles: Record<
   AppointmentStatus,
-  { className: string; icon: "tick" | "clock" | "close" }
+  { dotClassName: string; label: string }
 > = {
   Scheduled: {
-    className: "border-info-muted bg-info-muted text-info",
-    icon: "clock",
+    dotClassName: "bg-info",
+    label: "Scheduled",
   },
   Completed: {
-    className: "border-success-muted bg-success-muted text-success",
-    icon: "tick",
+    dotClassName: "bg-success",
+    label: "Completed",
   },
   Cancelled: {
-    className: "border-border bg-muted text-muted-foreground",
-    icon: "close",
+    dotClassName: "bg-destructive",
+    label: "Cancelled",
   },
 };
 

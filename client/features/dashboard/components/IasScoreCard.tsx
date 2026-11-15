@@ -329,7 +329,7 @@ export function IasScoreCard({
   return (
     <section className={cn(
       dashboardCardClass,
-      "flex flex-col items-stretch gap-5 overflow-hidden px-5 py-4",
+      "flex flex-col items-stretch gap-5 overflow-x-clip overflow-y-visible px-5 py-4",
       desktop
         ? "flex-row items-center justify-between"
         : "sm:flex-row sm:items-center sm:justify-between",
@@ -367,7 +367,7 @@ export function IasScoreCard({
         <div className="flex flex-col gap-3">
           {isFilled ? (
             <div className="flex flex-wrap items-center gap-2">
-              <IaspBandPingBadge percentage={assessment.score} />
+              <IaspBandPingBadge percentage={assessment.score} deferPulse />
               {assessment.deltaLabel ? (
                 <span className="text-xs font-medium text-success/80">
                   {assessment.deltaLabel}

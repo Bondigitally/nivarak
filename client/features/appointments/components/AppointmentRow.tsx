@@ -1,71 +1,23 @@
 "use client";
 
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import {
-  Cancel01Icon,
-  Clock01Icon,
-  Home03Icon,
-  Tick02Icon,
-  Video01Icon,
-} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Home03Icon, Video01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
-import { AppIcon } from "@/components/shared/AppIcon";
-import {
-  dashboardCardClass,
-  statusBadgeClass,
-} from "@/features/dashboard/data/dashboard-styles";
+import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { cardElevatedHoverShadowClass } from "@/lib/tokens/elevation";
-import { BADGE_ICON_SIZE, ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 import {
-  appointmentStatusBadgeStyles,
   type AppointmentItem,
-  type AppointmentStatus,
   type AppointmentVisitType,
 } from "../data/appointments-data";
+import { AppointmentStatusBadge } from "./AppointmentStatusBadge";
 
 const visitTypeTextClass: Record<AppointmentVisitType, string> = {
   "Home Visit": "text-success",
   Teleconsult: "text-info",
 };
-
-const STATUS_ICONS: Record<
-  (typeof appointmentStatusBadgeStyles)[AppointmentStatus]["icon"],
-  IconSvgElement
-> = {
-  tick: Tick02Icon,
-  clock: Clock01Icon,
-  close: Cancel01Icon,
-};
-
-function StatusBadge({
-  status,
-  className,
-}: {
-  status: AppointmentStatus;
-  className?: string;
-}) {
-  const statusStyle = appointmentStatusBadgeStyles[status];
-
-  return (
-    <span
-      className={cn(
-        statusBadgeClass,
-        "shrink-0 gap-1.5 border",
-        statusStyle.className,
-        className,
-      )}
-    >
-      <AppIcon
-        icon={STATUS_ICONS[statusStyle.icon]}
-        size={BADGE_ICON_SIZE}
-        aria-hidden
-      />
-      {status}
-    </span>
-  );
-}
 
 function PlaceLabel({ appointment }: { appointment: AppointmentItem }) {
   const placeIcon =
@@ -149,7 +101,7 @@ export function AppointmentRow({
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-3 self-stretch border-t border-border pt-3">
-          <StatusBadge status={appointment.status} />
+          <AppointmentStatusBadge status={appointment.status} />
           <Button
             type="button"
             variant="primary-outline"
@@ -201,7 +153,7 @@ export function AppointmentRow({
         </div>
 
         <div className="flex shrink-0 items-center gap-4">
-          <StatusBadge status={appointment.status} />
+          <AppointmentStatusBadge status={appointment.status} />
           <Button
             type="button"
             variant="primary-outline"

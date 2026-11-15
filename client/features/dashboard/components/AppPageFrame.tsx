@@ -18,6 +18,10 @@ import {
 import { dashboardHeaderIconButtonClass } from "@/lib/tokens/page-shell";
 import { getPageFrameConfig } from "@/lib/auth/page-frame-config";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
+import {
+  shellPageChromeClass,
+  shellPageScrollClass,
+} from "@/components/layout/shell-chrome";
 import { cn } from "@/lib/utils";
 
 export function AppPageFrame({
@@ -87,7 +91,7 @@ export function AppPageFrame({
           };
 
   return (
-    <div className="font-sans">
+    <div className={shellPageChromeClass}>
       <AppTopBar
         searchPlaceholder={frameConfig.searchPlaceholder}
         searchAriaLabel={frameConfig.searchAriaLabel}
@@ -158,7 +162,9 @@ export function AppPageFrame({
           onOpenChange={setStartCgaOpen}
         />
       ) : null}
-      {children}
+      <div data-dashboard-scroll className={shellPageScrollClass}>
+        {children}
+      </div>
     </div>
   );
 }
