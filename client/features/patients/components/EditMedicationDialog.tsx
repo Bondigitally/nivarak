@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { parseDate, type DateValue } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  parseDate,
+  today,
+  type CalendarDate,
+  type DateValue,
+} from "@internationalized/date";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { useUserRole } from "@/components/layout/user-role-context";
@@ -14,12 +20,8 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  dialogBodyShellClass,
   dialogCloseButtonClass,
-  dialogFooterShellClass,
-  dialogHeaderShellClass,
   dialogPrimitiveContentClass,
-  useDialogPortalContainer,
 } from "@/components/ui/dialog";
 import { FormSelect } from "@/components/ui/form-select";
 import { Input } from "@/components/ui/input";
@@ -87,6 +89,30 @@ function toDateValue(iso: string): DateValue | null {
   }
 }
 
+/** Course end date: today or later, and not before the since date when that is later. */
+function medicationDurationMinDate(sinceDisplay: string): CalendarDate {
+  const todayDate = today(getLocalTimeZone());
+  const sinceMs = Date.parse(sinceDisplay);
+  if (Number.isNaN(sinceMs)) return todayDate;
+  const sinceIso = new Date(sinceMs).toISOString().slice(0, 10);
+  try {
+    const sinceDate = parseDate(sinceIso);
+    return sinceDate.compare(todayDate) > 0 ? sinceDate : todayDate;
+  } catch {
+    return todayDate;
+  }
+}
+
+function resolveMedicationFocusField(
+  mode: "edit" | "add",
+  field: MedicationEditFocusField,
+  route: PatientMedicationRoute,
+): MedicationEditFocusField {
+  if (mode === "edit" && field === "name") return "dose";
+  if (field === "routeOther" && route !== "other") return "route";
+  return field;
+}
+
 function focusDialogField(fieldId: string) {
   const el = document.getElementById(fieldId);
   if (!el) return;
@@ -136,6 +162,29 @@ function FieldLabel({
 /** Nested menus / calendar popovers must stack above dialog shell (z-100). */
 const dialogOverlayClass = "z-110";
 
+/**
+ * Medication dialog sections use fixed inset (not `px-dash-pad-x`) so padding
+ * cannot collapse against the page shell token or lose a twMerge conflict.
+ * Corner radii match the shell so header/footer never square-bleed the card.
+ */
+const medicationDialogHeaderClass =
+  "flex flex-row items-start justify-between gap-4 border-b border-border bg-card px-8 py-5 text-left";
+const medicationDialogBodyClass =
+  "flex min-h-0 flex-col gap-5 overflow-x-hidden overflow-y-auto overscroll-contain bg-card px-8 py-5";
+const medicationDialogFooterClass =
+  "flex flex-row items-center justify-end gap-3 border-t border-border bg-card px-8 py-5";
+
+/** Read-only dialog fields (product name on edit, since date). */
+const medicationDialogReadOnlyInputClass = cn(
+  "cursor-not-allowed bg-muted/40 text-muted-foreground",
+  "focus:border-border focus:outline-none focus:ring-0 focus:shadow-none",
+  "focus-visible:border-border focus-visible:outline-none focus-visible:ring-0",
+);
+
+function preventReadOnlyInputFocus(event: MouseEvent<HTMLInputElement>) {
+  event.preventDefault();
+}
+
 function isPortaledOverlayTarget(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   return Boolean(
@@ -145,6 +194,7 @@ function isPortaledOverlayTarget(target: EventTarget | null) {
         "[data-radix-popper-content-wrapper]",
         "[data-radix-menu-content]",
         ".react-aria-Popover",
+        ".react-aria-Calendar",
         "[data-trigger='DatePicker']",
       ].join(", "),
     ),
@@ -169,41 +219,48 @@ export function EditMedicationDialog({
 }) {
   const { role } = useUserRole();
   const clinician = getCurrentUserProfile(role);
-  const { contentRef, portalContainer } = useDialogPortalContainer();
   const [draft, setDraft] = useState<MedicationDraft | null>(null);
-  const medicationId = medication?.id ?? null;
   const draftSourceKey =
     open && medication ? `${medication.id}:${mode}` : null;
-  const [activeSourceKey, setActiveSourceKey] = useState<string | null>(null);
   const focusedSourceKeyRef = useRef<string | null>(null);
+  const hydratedSourceKeyRef = useRef<string | null>(null);
 
-  // Reset draft when the dialog opens for a medication / mode — not on each keystroke.
-  if (draftSourceKey !== activeSourceKey) {
-    setActiveSourceKey(draftSourceKey);
+  // Hydrate draft only when the dialog opens for a new row / mode — not on each keystroke.
+  if (draftSourceKey !== hydratedSourceKeyRef.current) {
+    hydratedSourceKeyRef.current = draftSourceKey;
     setDraft(
-      open && medication && medication.id === medicationId
+      draftSourceKey && open && medication
         ? toDraft(medication, mode)
         : null,
     );
   }
 
-  // Focus the target field once after draft is ready — do NOT depend on
-  // `draft` content or every keystroke will re-select and feel like 1-char input.
   useEffect(() => {
-    if (!open || !draft || !draftSourceKey) return;
+    if (!open) {
+      focusedSourceKeyRef.current = null;
+    }
+  }, [open]);
+
+  const draftReady = draft != null;
+
+  // Focus once after draft exists — `draftReady` avoids per-keystroke re-select (not `draft` itself).
+  useEffect(() => {
+    if (!open || !draftSourceKey || !draftReady) return;
     if (focusedSourceKeyRef.current === draftSourceKey) return;
+
     focusedSourceKeyRef.current = draftSourceKey;
 
-    const resolved: MedicationEditFocusField =
-      focusField === "routeOther" && draft.route !== "other"
-        ? "route"
-        : focusField;
+    const resolved = resolveMedicationFocusField(
+      mode,
+      focusField,
+      medication?.route ?? "oral",
+    );
 
     const id = window.setTimeout(() => {
       focusDialogField(FOCUS_FIELD_ELEMENT_ID[resolved]);
     }, 0);
     return () => window.clearTimeout(id);
-  }, [open, draft, draftSourceKey, focusField]);
+  }, [open, draftSourceKey, focusField, draftReady, mode, medication?.route]);
 
   function updateDraft<K extends keyof MedicationDraft>(
     key: K,
@@ -214,7 +271,9 @@ export function EditMedicationDialog({
 
   function handleSave() {
     if (!medication || !draft) return;
-    const name = draft.name.trim();
+    const name = (
+      mode === "add" ? draft.name : medication.name
+    ).trim();
     if (!name) return;
 
     const routeOther =
@@ -249,17 +308,17 @@ export function EditMedicationDialog({
 
   const title = mode === "add" ? "Add medicine" : "Edit medicine";
   const canSave = Boolean(draft?.name.trim());
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogOverlay />
         <DialogPrimitive.Content
-          ref={contentRef}
           className={cn(
             dialogPrimitiveContentClass("max-w-lg"),
-            // Allow portaled calendar/menus to escape the shell without clipping.
-            "max-h-[min(92vh,720px)] overflow-visible",
+            // Grid keeps header/footer sized to content and gives the body a
+            // bounded scrollport, so fields never paint under the footer.
+            // Overflow stays hidden so rounded corners clip cleanly.
+            "grid max-h-[min(calc(100dvh-1.5rem),880px)] grid-rows-[auto_minmax(0,1fr)_auto]",
           )}
           onOpenAutoFocus={(event) => {
             // Defer to focusField effect so the double-clicked column wins.
@@ -281,8 +340,8 @@ export function EditMedicationDialog({
             }
           }}
         >
-          <div className={dialogHeaderShellClass}>
-            <div className="min-w-0">
+          <div className={medicationDialogHeaderClass}>
+            <div className="min-w-0 flex-1 pr-3">
               <DialogTitle className={cn(typo.headingXl, "text-foreground")}>
                 {title}
               </DialogTitle>
@@ -304,23 +363,45 @@ export function EditMedicationDialog({
           </div>
 
           {draft ? (
-            <div className={cn(dialogBodyShellClass, "gap-5 sm:gap-5")}>
-              <div className="flex flex-col gap-auth-field">
-                <FieldLabel htmlFor="med-name">Medication</FieldLabel>
+            <div className={medicationDialogBodyClass}>
+              <div
+                className={cn(
+                  "flex flex-col gap-auth-field",
+                  mode === "edit" && "cursor-not-allowed",
+                )}
+              >
+                {mode === "edit" ? (
+                  <span className={typo.label}>Medication</span>
+                ) : (
+                  <FieldLabel htmlFor="med-name">Medication</FieldLabel>
+                )}
                 <Input
                   id="med-name"
                   name="medicationName"
                   type="text"
                   value={draft.name}
-                  onChange={(e) => updateDraft("name", e.target.value)}
+                  onChange={
+                    mode === "add"
+                      ? (e) => updateDraft("name", e.target.value)
+                      : undefined
+                  }
                   placeholder="e.g. Metformin"
                   autoComplete="off"
-                  readOnly={false}
-                  disabled={false}
+                  readOnly={mode === "edit"}
+                  tabIndex={mode === "edit" ? -1 : undefined}
+                  aria-readonly={mode === "edit" ? true : undefined}
+                  onMouseDown={
+                    mode === "edit" ? preventReadOnlyInputFocus : undefined
+                  }
+                  className={
+                    mode === "edit"
+                      ? medicationDialogReadOnlyInputClass
+                      : undefined
+                  }
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <div className="flex flex-col gap-auth-field">
                   <FieldLabel htmlFor="med-dose">Dose</FieldLabel>
                   <Input
@@ -347,7 +428,6 @@ export function EditMedicationDialog({
                       )
                     }
                     placeholder="Select frequency"
-                    container={portalContainer}
                     contentClassName={dialogOverlayClass}
                   />
                 </div>
@@ -367,7 +447,6 @@ export function EditMedicationDialog({
                     updateDraft("route", value as PatientMedicationRoute)
                   }
                   placeholder="Select route"
-                  container={portalContainer}
                   contentClassName={dialogOverlayClass}
                 />
               </div>
@@ -387,7 +466,7 @@ export function EditMedicationDialog({
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <div className="flex flex-col gap-auth-field">
                   <FieldLabel htmlFor="med-since">Since</FieldLabel>
                   <Input
@@ -395,38 +474,37 @@ export function EditMedicationDialog({
                     value={draft.since}
                     readOnly
                     tabIndex={-1}
-                    className="cursor-default bg-muted/40 text-muted-foreground"
+                    className={medicationDialogReadOnlyInputClass}
                     aria-readonly="true"
+                    onMouseDown={preventReadOnlyInputFocus}
                   />
                 </div>
                 <div className="flex flex-col gap-auth-field">
-                  <div id="med-duration">
-                    <JollyDatePicker
-                      label="Duration"
-                      aria-label="Duration"
-                      value={toDateValue(draft.duration)}
-                      onChange={(value) =>
-                        updateDraft(
-                          "duration",
-                          value ? value.toString() : "",
-                        )
-                      }
-                      className="w-full"
-                      portalContainer={portalContainer}
-                      popoverClassName={dialogOverlayClass}
-                    />
-                  </div>
+                  <FieldLabel htmlFor="med-duration">Duration</FieldLabel>
+                  <JollyDatePicker
+                    id="med-duration"
+                    showLabel={false}
+                    aria-label="Duration"
+                    minValue={medicationDurationMinDate(draft.since)}
+                    value={toDateValue(draft.duration)}
+                    onChange={(value) =>
+                      updateDraft(
+                        "duration",
+                        value ? value.toString() : "",
+                      )
+                    }
+                    className="w-full"
+                    popoverClassName={cn(
+                      dialogOverlayClass,
+                      "pointer-events-auto",
+                    )}
+                  />
                 </div>
               </div>
             </div>
           ) : null}
 
-          <div
-            className={cn(
-              dialogFooterShellClass,
-              "flex-row justify-end gap-2",
-            )}
-          >
+          <div className={medicationDialogFooterClass}>
             <Button
               type="button"
               variant="secondary"

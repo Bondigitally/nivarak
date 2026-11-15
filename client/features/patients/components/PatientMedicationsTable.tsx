@@ -29,15 +29,15 @@ import { cn } from "@/lib/utils";
 
 /** Table column id → dialog focus field (actions excluded). */
 const COLUMN_FOCUS_FIELD: Record<string, MedicationEditFocusField> = {
-  medication: "name",
+  // Product name is set on add; edit focuses dose and downstream fields.
+  medication: "dose",
   dose: "dose",
   freq: "frequency",
   route: "route",
   duration: "duration",
-  // Auto / display-only columns fall back to name
-  prescribedBy: "name",
-  lastModified: "name",
-  lastModifiedBy: "name",
+  prescribedBy: "dose",
+  lastModified: "dose",
+  lastModifiedBy: "dose",
 };
 
 function PrescriberAvatar({
@@ -237,7 +237,7 @@ export function PatientMedicationsTable({
     const field = COLUMN_FOCUS_FIELD[columnId] ?? "name";
     return (
       <div
-        className="min-h-10 w-full"
+        className="min-h-10 min-w-0 w-full overflow-hidden"
         onDoubleClick={(event) => {
           event.stopPropagation();
           openEdit(row, field);
@@ -266,13 +266,17 @@ export function PatientMedicationsTable({
       {
         id: "medication",
         header: "Medication",
+        className: "min-w-[9.5rem] w-40",
+        cellClassName: "max-w-none",
         sortValue: (row) => row.name,
         filterValue: (row) => row.name,
         cell: (row) =>
           editableCell(
             "medication",
             row,
-            <span className="font-medium text-foreground">{row.name}</span>,
+            <span className="block truncate font-medium text-foreground">
+              {row.name}
+            </span>,
           ),
       },
       {
@@ -330,7 +334,7 @@ export function PatientMedicationsTable({
               <p
                 className={cn(
                   typo.caption,
-                  "mt-0.5 text-muted-foreground",
+                  "mt-0.5 truncate text-muted-foreground",
                 )}
               >
                 {row.status}
@@ -410,7 +414,7 @@ export function PatientMedicationsTable({
         cell: (row) => (
           <MedicationActionsMenu
             medicationName={row.name || "medication"}
-            onEdit={() => openEdit(row, "name")}
+            onEdit={() => openEdit(row, "dose")}
             onView={() => openView(row)}
           />
         ),
@@ -422,7 +426,7 @@ export function PatientMedicationsTable({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-0.5">
           <h1 className={cn(typo.headingXl, "leading-[30px]")}>Medication</h1>

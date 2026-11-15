@@ -113,7 +113,7 @@ export function PatientChartShell({
             className="w-fit max-w-full shrink-0"
           />
 
-          <div className="flex flex-col gap-dash-gap">{children}</div>
+          <div className="flex min-w-0 flex-col gap-dash-gap">{children}</div>
         </div>
       </DashboardReveal>
     </AppPageFrame>

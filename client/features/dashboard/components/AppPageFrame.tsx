@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Notification01Icon } from "@hugeicons/core-free-icons";
 import { AppTopBar } from "@/components/layout/app-top-bar";
+import {
+  shellPageChromeClass,
+  shellPageScrollClass,
+} from "@/components/layout/shell-chrome";
 import { useSidebar } from "@/components/layout/sidebar-context";
 import { useUserRole } from "@/components/layout/user-role-context";
 import { DashboardIconButton } from "@/components/shared/DashboardIconButton";
@@ -18,10 +22,6 @@ import {
 import { dashboardHeaderIconButtonClass } from "@/lib/tokens/page-shell";
 import { getPageFrameConfig } from "@/lib/auth/page-frame-config";
 import { ICON_SIZE, ICON_STROKE } from "@/lib/icons";
-import {
-  shellPageChromeClass,
-  shellPageScrollClass,
-} from "@/components/layout/shell-chrome";
 import { cn } from "@/lib/utils";
 
 export function AppPageFrame({
