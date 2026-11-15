@@ -1,6 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import {
   getIaspBand,
   IASP_BAND_PING_STYLES,
@@ -12,43 +9,31 @@ import {
 } from "@/features/assessments/data/iasp-assessment-styles";
 import { cn } from "@/lib/utils";
 
-/** Inner dot ~7px; ring expands to ~20px. */
-const PULSE_SCALE_END = 20 / 7;
-
 function StatusBadgeDot({
   className,
   pulse = false,
+  deferPulse = false,
 }: {
   className?: string;
   pulse?: boolean;
+  /** Wait for heavy hero animations (IAS score ring) before starting the ping loop. */
+  deferPulse?: boolean;
 }) {
-  const reducedMotion = useReducedMotion();
-  const shouldPulse = pulse && !reducedMotion;
-
   return (
     <span
-      className="relative flex size-1.75 shrink-0 items-center justify-center overflow-visible"
+      className="relative isolate flex size-1.75 shrink-0 items-center justify-center overflow-visible"
       aria-hidden
     >
-      {shouldPulse ? (
-        <motion.span
+      {pulse ? (
+        <span
           className={cn(
-            "pointer-events-none absolute inset-0 rounded-full will-change-transform",
+            "iasp-status-dot-ping pointer-events-none absolute inset-0 rounded-full",
+            deferPulse && "iasp-status-dot-ping--deferred",
             className,
           )}
-          style={{ transformOrigin: "center" }}
-          animate={{ scale: [1, PULSE_SCALE_END], opacity: [0.55, 0] }}
-          transition={{
-            duration: 1.25,
-            ease: "easeOut",
-            repeat: Infinity,
-            repeatDelay: 0.2,
-          }}
         />
       ) : null}
-      <span
-        className={cn("relative z-1 size-1.75 rounded-full", className)}
-      />
+      <span className={cn("relative z-1 size-1.75 rounded-full", className)} />
     </span>
   );
 }
@@ -58,17 +43,23 @@ export function IaspBandPingBadge({
   percentage,
   band: bandProp,
   className,
+  deferPulse = false,
 }: {
   percentage?: number;
   band?: IaspBandResult;
   className?: string;
+  deferPulse?: boolean;
 }) {
   const band = bandProp ?? getIaspBand(percentage ?? 0);
   const style = IASP_BAND_PING_STYLES[band.band];
 
   return (
     <span className={cn(iaspBandPingBadgeClass, style.shell, className)}>
-      <StatusBadgeDot className={style.dot} pulse={style.pulse} />
+      <StatusBadgeDot
+        className={style.dot}
+        pulse={style.pulse}
+        deferPulse={deferPulse}
+      />
       {band.label}
     </span>
   );

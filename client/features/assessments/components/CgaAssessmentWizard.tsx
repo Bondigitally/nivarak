@@ -9,14 +9,8 @@ import {
   ArrowRight01Icon,
   Cancel01Icon,
   Delete02Icon,
-  FavouriteIcon,
-  Hospital01Icon,
   InformationCircleIcon,
-  UserGroupIcon,
-  UserIcon,
-  UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
-import type { IconSvgElement } from "@hugeicons/react";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
 import { CheckboxIndicator } from "@/components/shared/checkbox-indicator";
@@ -29,10 +23,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FieldErrorMessage } from "@/components/ui/field-error-message";
 import {
+  fieldInputAutofillClassName,
   fieldInputClassName,
   fieldTextareaClassName,
 } from "@/components/ui/input";
+import { PhoneField } from "@/features/auth/components/primitives/PhoneField";
+import { getDefaultCountry } from "@/features/auth/lib/country-codes";
 import { AppPageFrame } from "@/features/dashboard/components/AppPageFrame";
 import { DashboardReveal } from "@/features/dashboard/components/DashboardReveal";
 import {
@@ -40,6 +38,7 @@ import {
   dashboardPageShellClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
+import { dashboardContentWidthClass } from "@/lib/tokens/page-shell";
 import {
   clearCgaDraft,
   createEmptyCgaDraft,
@@ -49,16 +48,23 @@ import {
   type CgaDraftState,
   type CgaSectionValues,
 } from "@/features/assessments/data/cga-assessment-draft";
+import { CgaInvestigationsSection } from "@/features/assessments/components/CgaInvestigationsSection";
 import {
   approximateDobFromAge,
+  CGA_COGNITION_LIMITS,
   CGA_GENDER_OPTIONS,
   CGA_LANGUAGE_OPTIONS,
   CGA_LIVING_SITUATION_OPTIONS,
+  CGA_ORIENTATION_OPTIONS,
+  CGA_PHYSICAL_LIMITS,
   CGA_RELATIONSHIP_OPTIONS,
   CGA_SECTIONS,
+  CGA_SIGN_OFF_ATTESTATION_OPTIONS,
   mapPatientGenderToCga,
   type CgaField,
   type CgaMedicationRow,
+  type CgaOtcRow,
+  type CgaProblemRow,
   type CgaSection,
 } from "@/features/assessments/data/cga-sections-data";
 import { getDoctorPatientById } from "@/features/patients/data/doctor-patients-data";
@@ -80,7 +86,8 @@ const optionCardClass = cn(
   "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/40",
 );
 const optionCardSelectedClass =
-  "border-primary bg-primary/5 shadow-[0_0_0_1px_var(--primary)] hover:bg-primary/5";
+  "border-primary bg-primary/5 hover:bg-primary/5";
+
 const cgaTextareaClass = cn(fieldTextareaClassName, "min-h-[6.5rem]");
 const cgaTableInputClass = cn(
   fieldInputClassName,
@@ -228,14 +235,6 @@ function CgaSelect({
   );
 }
 
-const LIVING_SITUATION_ICONS: Record<string, IconSvgElement> = {
-  alone: UserIcon,
-  spouse: FavouriteIcon,
-  "adult-child": UserMultiple02Icon,
-  "hired-help": UserGroupIcon,
-  "care-home": Hospital01Icon,
-};
-
 function FieldLabel({
   htmlFor,
   children,
@@ -277,12 +276,14 @@ function ChipGroup({
   multi,
   onChange,
   ariaLabel,
+  layout = "wrap",
 }: {
   options: readonly { id: string; label: string }[];
   value: string | string[];
   multi?: boolean;
   onChange: (next: string | string[]) => void;
   ariaLabel?: string;
+  layout?: "wrap" | "stack";
 }) {
   const selected = Array.isArray(value) ? value : value ? [value] : [];
 
@@ -290,7 +291,10 @@ function ChipGroup({
     <div
       role={multi ? "group" : "radiogroup"}
       aria-label={ariaLabel}
-      className="flex flex-wrap gap-2"
+      className={cn(
+        "flex gap-2",
+        layout === "stack" ? "flex-col" : "flex-wrap",
+      )}
     >
       {options.map((opt) => {
         const active = selected.includes(opt.id);
@@ -313,6 +317,7 @@ function ChipGroup({
               radius.md,
               typo.button,
               "h-10 border px-3.5 transition-colors",
+              layout === "stack" && "w-full justify-start text-left",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
               active
                 ? "border-primary bg-primary/10 text-primary"
@@ -369,6 +374,24 @@ function FieldRenderer({
         {field.kind === "text" && field.hint ? (
           <p className={fieldHintClass}>{field.hint}</p>
         ) : null}
+      </div>
+    );
+  }
+
+  if (field.kind === "select") {
+    return (
+      <div className={fieldStackClass}>
+        <FieldLabel htmlFor={inputId}>{field.label}</FieldLabel>
+        <CgaSelect
+          id={inputId}
+          value={typeof value === "string" ? value : ""}
+          options={field.options.map((opt) => ({
+            value: opt.id,
+            label: opt.label,
+          }))}
+          onChange={onChange}
+          placeholder={field.placeholder ?? "Select…"}
+        />
       </div>
     );
   }
@@ -482,6 +505,12 @@ function FieldRenderer({
 
 function strValue(value: string | string[] | undefined, fallback = "") {
   return typeof value === "string" ? value : fallback;
+}
+
+/** Normalize stored phone text for PhoneField (E.164, no spaces). */
+function phoneFieldValue(value: string | string[] | undefined) {
+  const raw = strValue(value).replace(/\s+/g, "");
+  return raw || getDefaultCountry().dialCode;
 }
 
 function LanguageTagField({
@@ -749,13 +778,13 @@ function VisitDetailsSection({
 
         <div className={fieldStackClass}>
           <FieldLabel htmlFor="cga-mobile">Mobile Numbers</FieldLabel>
-          <input
+          <PhoneField
             id="cga-mobile"
-            type="text"
-            value={strValue(values.mobileNumbers)}
-            onChange={(e) => setField("mobileNumbers", e.target.value)}
-            placeholder="+91 …"
-            className={fieldInputClassName}
+            showLabel={false}
+            showError={false}
+            value={phoneFieldValue(values.mobileNumbers)}
+            onChange={(next) => setField("mobileNumbers", next)}
+            placeholder="9823456789"
           />
         </div>
 
@@ -793,43 +822,20 @@ function VisitDetailsSection({
           />
         </div>
 
-        <div className={cn(fieldStackClass, "sm:col-span-2")}>
-          <p className={fieldLabelClass}>Living Situation</p>
-          <div
-            role="radiogroup"
-            aria-label="Living Situation"
-            className="flex flex-wrap gap-3"
-          >
-            {CGA_LIVING_SITUATION_OPTIONS.map((opt) => {
-              const active = livingSituation === opt.id;
-              const icon = LIVING_SITUATION_ICONS[opt.id] ?? UserIcon;
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setField("livingSituation", opt.id)}
-                  className={cn(
-                    radius.md,
-                    "flex min-w-24 flex-1 flex-col items-center gap-2 border px-4 py-3 transition-colors sm:min-w-28 sm:flex-none",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                    active
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border bg-card text-foreground hover:border-foreground/20 hover:bg-accent",
-                  )}
-                >
-                  <AppIcon
-                    icon={icon}
-                    size={ICON_SIZE}
-                    className={active ? "text-primary" : "text-foreground"}
-                  />
-                  <span className={cn(typo.caption, "font-medium")}>
-                    {opt.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className={fieldStackClass}>
+          <FieldLabel htmlFor="cga-living-situation">
+            Living Situation
+          </FieldLabel>
+          <CgaSelect
+            id="cga-living-situation"
+            value={livingSituation}
+            options={CGA_LIVING_SITUATION_OPTIONS.map((opt) => ({
+              value: opt.id,
+              label: opt.label,
+            }))}
+            onChange={(next) => setField("livingSituation", next)}
+            placeholder="Select living situation"
+          />
         </div>
 
         <div className={fieldStackClass}>
@@ -861,13 +867,17 @@ function VisitDetailsSection({
 function MedicationsSection({
   values,
   medications,
+  otcMedications,
   onValuesChange,
   onMedicationsChange,
+  onOtcMedicationsChange,
 }: {
   values: CgaSectionValues;
   medications: CgaMedicationRow[];
+  otcMedications: CgaOtcRow[];
   onValuesChange: (next: CgaSectionValues) => void;
   onMedicationsChange: (next: CgaMedicationRow[]) => void;
+  onOtcMedicationsChange: (next: CgaOtcRow[]) => void;
 }) {
   function setField(id: string, next: string | string[]) {
     onValuesChange({ ...values, [id]: next });
@@ -883,6 +893,16 @@ function MedicationsSection({
     onMedicationsChange(medications.filter((row) => row.id !== id));
   }
 
+  function updateOtc(id: string, patch: Partial<CgaOtcRow>) {
+    onOtcMedicationsChange(
+      otcMedications.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+    );
+  }
+
+  function removeOtc(id: string) {
+    onOtcMedicationsChange(otcMedications.filter((row) => row.id !== id));
+  }
+
   const stoppedMeds = values.stoppedMeds === "true";
 
   return (
@@ -893,7 +913,7 @@ function MedicationsSection({
           "border border-warning/30 bg-warning-muted px-4 py-3.5",
         )}
       >
-        <p className={cn(typo.headingS, "text-warning")}>STOPP/START Criteria</p>
+        <p className={cn(typo.headingS, "text-warning")}>STOP/START Criteria</p>
         <p className={cn(typo.bodyS, "mt-1 text-muted-foreground")}>
           Review for potentially inappropriate medications and omitted clinical
           indications in older patients.
@@ -1045,86 +1065,153 @@ function MedicationsSection({
         </div>
       </section>
 
-      <section className={cn(dashboardCardClass, "flex flex-col gap-3 p-5")}>
-        <div className={fieldStackClass}>
-          <FieldLabel htmlFor="cga-supplements">Supplements &amp; OTC</FieldLabel>
-          <p className={fieldHintClass}>
+      <section className={cn(dashboardCardClass, "overflow-hidden p-0")}>
+        <div className="border-b border-divider px-5 py-4">
+          <h3 className={typo.headingL}>Supplements &amp; OTC</h3>
+          <p className={cn(typo.caption, "mt-1")}>
             List active over-the-counter medications
           </p>
-          <textarea
-            id="cga-supplements"
-            value={
-              typeof values.supplements === "string" ? values.supplements : ""
-            }
-            onChange={(e) => setField("supplements", e.target.value)}
-            rows={3}
-            className={cgaTextareaClass}
-          />
         </div>
-        <label
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 text-left">
+            <thead>
+              <tr className="border-b border-divider bg-muted/50 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <th className="px-4 py-3 font-medium">Product</th>
+                <th className="px-2 py-3 font-medium">Dose</th>
+                <th className="px-2 py-3 font-medium">Freq</th>
+                <th className="px-2 py-3 font-medium">Notes</th>
+                <th className="w-12 px-2 py-3">
+                  <span className="sr-only">Remove</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {otcMedications.map((row) => (
+                <tr key={row.id} className="border-b border-divider last:border-0">
+                  <td className="px-3 py-2">
+                    <input
+                      value={row.drug}
+                      onChange={(e) =>
+                        updateOtc(row.id, { drug: e.target.value })
+                      }
+                      placeholder="Product name"
+                      className={cn(cgaTableInputClass, "font-medium")}
+                    />
+                  </td>
+                  <td className="px-1 py-2">
+                    <input
+                      value={row.dose}
+                      onChange={(e) =>
+                        updateOtc(row.id, { dose: e.target.value })
+                      }
+                      placeholder="Dose"
+                      className={cn(cgaTableInputClass, "w-20")}
+                    />
+                  </td>
+                  <td className="px-1 py-2">
+                    <input
+                      value={row.frequency}
+                      onChange={(e) =>
+                        updateOtc(row.id, { frequency: e.target.value })
+                      }
+                      placeholder="OD"
+                      className={cn(cgaTableInputClass, "w-16")}
+                    />
+                  </td>
+                  <td className="px-1 py-2">
+                    <input
+                      value={row.notes}
+                      onChange={(e) =>
+                        updateOtc(row.id, { notes: e.target.value })
+                      }
+                      placeholder="Notes"
+                      className={cgaTableInputClass}
+                    />
+                  </td>
+                  <td className="px-2 py-2">
+                    <button
+                      type="button"
+                      aria-label={`Remove ${row.drug || "item"}`}
+                      onClick={() => removeOtc(row.id)}
+                      className={cn(
+                        radius.md,
+                        "inline-flex size-8 items-center justify-center text-muted-foreground transition-colors",
+                        "hover:bg-destructive-muted hover:text-destructive",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                      )}
+                    >
+                      <AppIcon icon={Delete02Icon} size={BADGE_ICON_SIZE} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="border-t border-divider px-5 py-3">
+          <button
+            type="button"
+            className={cn(
+              typo.button,
+              "inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-primary transition-colors",
+              "hover:bg-primary/10",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+            )}
+            onClick={() =>
+              onOtcMedicationsChange([
+                ...otcMedications,
+                {
+                  id: `otc-${Date.now()}`,
+                  drug: "",
+                  dose: "",
+                  frequency: "",
+                  notes: "",
+                },
+              ])
+            }
+          >
+            <AppIcon icon={Add01Icon} size={BADGE_ICON_SIZE} />
+            Add OTC / Supplement
+          </button>
+        </div>
+      </section>
+
+      <section className={cn(dashboardCardClass, "p-5")}>
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={stoppedMeds}
+          onClick={() =>
+            setField("stoppedMeds", stoppedMeds ? "false" : "true")
+          }
           className={cn(
-            optionCardClass,
-            "items-center",
-            stoppedMeds && optionCardSelectedClass,
+            "flex w-full items-center gap-3 text-left transition-colors",
+            "rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
           )}
         >
-          <input
-            type="checkbox"
-            checked={stoppedMeds}
-            onChange={(e) =>
-              setField("stoppedMeds", e.target.checked ? "true" : "false")
-            }
-            className="sr-only"
-          />
           <CheckboxIndicator checked={stoppedMeds} />
           <span className={cn(typo.bodyM, "font-medium text-foreground")}>
             Patient has independently stopped one or more prescribed medications
           </span>
-        </label>
+        </button>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className={cn(dashboardCardClass, "flex flex-col gap-3 p-5")}>
           <p className={fieldLabelClass}>Adherence Assessment</p>
-          <div
-            role="radiogroup"
-            aria-label="Adherence Assessment"
-            className="flex flex-col gap-2"
-          >
-            {(
-              [
-                { id: "full", label: "Full adherence" },
-                { id: "partial", label: "Partial adherence" },
-                { id: "poor", label: "Poor / Non-adherent" },
-              ] as const
-            ).map((opt) => {
-              const checked = values.adherence === opt.id;
-              return (
-                <label
-                  key={opt.id}
-                  className={cn(
-                    optionCardClass,
-                    "items-center",
-                    checked && optionCardSelectedClass,
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="adherence"
-                    checked={checked}
-                    onChange={() => setField("adherence", opt.id)}
-                    className="sr-only"
-                  />
-                  <RadioMark checked={checked} />
-                  <span
-                    className={cn(typo.bodyM, "font-medium text-foreground")}
-                  >
-                    {opt.label}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+          <ChipGroup
+            layout="stack"
+            ariaLabel="Adherence Assessment"
+            options={[
+              { id: "full", label: "Full adherence" },
+              { id: "partial", label: "Partial adherence" },
+              { id: "poor", label: "Poor / Non-adherent" },
+            ]}
+            value={
+              typeof values.adherence === "string" ? values.adherence : ""
+            }
+            onChange={(v) => setField("adherence", v as string)}
+          />
         </section>
 
         <div className="flex flex-col gap-4">
@@ -1178,6 +1265,639 @@ function MedicationsSection({
         />
       </section>
     </div>
+  );
+}
+
+const EXAM_NOTES_MAX = 500;
+const METRIC_LIMIT_ERROR =
+  "Value exceeds the allowed limit for this measurement.";
+
+/** Weight field shell — input + unit selector as one control. */
+const physicalWeightShellClassName = cn(
+  "flex h-11 w-full items-center rounded-md border border-border bg-card",
+  "transition-[border-color,box-shadow] duration-150 ease-in-out",
+  "focus-within:border-border-focus focus-within:outline-none",
+  "focus-within:shadow-[0_0_0_2px_color-mix(in_oklab,var(--ring)_40%,transparent)]",
+);
+
+type MetricParseResult = { value: string; exceeded: boolean };
+
+/** Integer metric: digits only, never above `max` (empty allowed while typing). */
+function clampIntMetric(raw: string, max: number): MetricParseResult {
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return { value: "", exceeded: false };
+  const n = Number(digits);
+  if (!Number.isFinite(n)) return { value: "", exceeded: false };
+  if (n > max) return { value: String(max), exceeded: true };
+  return { value: String(n), exceeded: false };
+}
+
+/** Decimal metric: at most one fractional part, never above `max`. */
+function clampDecimalMetric(
+  raw: string,
+  max: number,
+  maxDecimals = 1,
+): MetricParseResult {
+  const cleaned = raw.replace(/[^\d.]/g, "");
+  if (!cleaned) return { value: "", exceeded: false };
+  const parts = cleaned.split(".");
+  const normalized =
+    parts.length <= 1
+      ? cleaned
+      : `${parts[0]}.${parts.slice(1).join("").slice(0, maxDecimals)}`;
+  // Allow trailing "." while typing (e.g. "72.")
+  if (normalized.endsWith(".")) {
+    const whole = Number(normalized.slice(0, -1));
+    if (!Number.isFinite(whole)) return { value: "", exceeded: false };
+    if (whole > max) return { value: String(max), exceeded: true };
+    return { value: normalized, exceeded: false };
+  }
+  const n = Number(normalized);
+  if (!Number.isFinite(n)) return { value: "", exceeded: false };
+  if (n > max) return { value: String(max), exceeded: true };
+  return { value: normalized, exceeded: false };
+}
+
+function weightMaxForUnit(unit: "kg" | "lbs") {
+  return unit === "lbs"
+    ? CGA_PHYSICAL_LIMITS.weightLbs.max
+    : CGA_PHYSICAL_LIMITS.weightKg.max;
+}
+
+function PhysicalAssessmentSection({
+  values,
+  onChange,
+}: {
+  values: CgaSectionValues;
+  onChange: (next: CgaSectionValues) => void;
+}) {
+  const [limitError, setLimitError] = useState(false);
+
+  function setField(id: string, next: string) {
+    onChange({ ...values, [id]: next });
+  }
+
+  function applyMetric(result: MetricParseResult, apply: (value: string) => void) {
+    if (result.exceeded) setLimitError(true);
+    else setLimitError(false);
+    apply(result.value);
+  }
+
+  useEffect(() => {
+    if (!strValue(values.weightUnit)) {
+      onChange({ ...values, weightUnit: "kg" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only default
+  }, []);
+
+  // Migrate legacy single "bp" value ("128/82") into systolic/diastolic once.
+  const legacyBp = strValue(values.bp);
+  const systolic =
+    strValue(values.bpSystolic) ||
+    (legacyBp.includes("/") ? legacyBp.split("/")[0]?.trim() ?? "" : "");
+  const diastolic =
+    strValue(values.bpDiastolic) ||
+    (legacyBp.includes("/") ? legacyBp.split("/")[1]?.trim() ?? "" : "");
+  const hr = strValue(values.hr);
+  const weight = strValue(values.weight);
+  const weightUnit =
+    strValue(values.weightUnit) === "lbs" ? "lbs" : "kg";
+  const examNotes = strValue(values.examNotes).slice(0, EXAM_NOTES_MAX);
+
+  function setBp(nextSystolic: string, nextDiastolic: string) {
+    onChange({
+      ...values,
+      bpSystolic: nextSystolic,
+      bpDiastolic: nextDiastolic,
+      bp:
+        nextSystolic && nextDiastolic
+          ? `${nextSystolic}/${nextDiastolic}`
+          : "",
+    });
+  }
+
+  function setWeightUnit(nextUnit: "kg" | "lbs") {
+    const result = clampDecimalMetric(weight, weightMaxForUnit(nextUnit));
+    applyMetric(result, (nextWeight) => {
+      onChange({
+        ...values,
+        weightUnit: nextUnit,
+        weight: nextWeight,
+      });
+    });
+  }
+
+  return (
+    <section
+      className={cn(dashboardCardClass, "flex flex-col gap-5 p-5 sm:p-6")}
+    >
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+        <div className={fieldStackClass}>
+          <p className={fieldLabelClass}>Blood pressure</p>
+          <div className="flex items-center gap-2.5">
+            <input
+              id="cga-bp-systolic"
+              type="number"
+              inputMode="numeric"
+              min={CGA_PHYSICAL_LIMITS.bpSystolic.min}
+              max={CGA_PHYSICAL_LIMITS.bpSystolic.max}
+              autoComplete="off"
+              aria-label={`Systolic blood pressure, max ${CGA_PHYSICAL_LIMITS.bpSystolic.max} mmHg`}
+              placeholder="Systolic (mmHg)"
+              value={systolic}
+              onChange={(e) => {
+                const result = clampIntMetric(
+                  e.target.value,
+                  CGA_PHYSICAL_LIMITS.bpSystolic.max,
+                );
+                applyMetric(result, (next) => setBp(next, diastolic));
+              }}
+              className={cn(
+                fieldInputClassName,
+                "min-w-0 flex-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+              )}
+            />
+            <span
+              className={cn(
+                typo.input,
+                "shrink-0 text-muted-foreground",
+              )}
+              aria-hidden
+            >
+              /
+            </span>
+            <input
+              id="cga-bp-diastolic"
+              type="number"
+              inputMode="numeric"
+              min={CGA_PHYSICAL_LIMITS.bpDiastolic.min}
+              max={CGA_PHYSICAL_LIMITS.bpDiastolic.max}
+              autoComplete="off"
+              aria-label={`Diastolic blood pressure, max ${CGA_PHYSICAL_LIMITS.bpDiastolic.max} mmHg`}
+              placeholder="Diastolic (mmHg)"
+              value={diastolic}
+              onChange={(e) => {
+                const result = clampIntMetric(
+                  e.target.value,
+                  CGA_PHYSICAL_LIMITS.bpDiastolic.max,
+                );
+                applyMetric(result, (next) => setBp(systolic, next));
+              }}
+              className={cn(
+                fieldInputClassName,
+                "min-w-0 flex-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+              )}
+            />
+          </div>
+        </div>
+
+        <div className={fieldStackClass}>
+          <FieldLabel htmlFor="cga-hr">Heart rate</FieldLabel>
+          <input
+            id="cga-hr"
+            type="number"
+            inputMode="numeric"
+            min={CGA_PHYSICAL_LIMITS.hr.min}
+            max={CGA_PHYSICAL_LIMITS.hr.max}
+            autoComplete="off"
+            placeholder="e.g., 78 bpm"
+            value={hr}
+            onChange={(e) => {
+              const result = clampIntMetric(
+                e.target.value,
+                CGA_PHYSICAL_LIMITS.hr.max,
+              );
+              applyMetric(result, (next) => setField("hr", next));
+            }}
+            className={fieldInputClassName}
+          />
+        </div>
+
+        <div className={fieldStackClass}>
+          <FieldLabel htmlFor="cga-weight">Weight</FieldLabel>
+          <div className={physicalWeightShellClassName}>
+            <input
+              id="cga-weight"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="e.g., 72.5"
+              value={weight}
+              onChange={(e) => {
+                const result = clampDecimalMetric(
+                  e.target.value,
+                  weightMaxForUnit(weightUnit),
+                );
+                applyMetric(result, (next) => setField("weight", next));
+              }}
+              className={cn(
+                "h-full min-w-0 flex-1 border-0 bg-transparent px-4 shadow-none",
+                typo.input,
+                fieldInputAutofillClassName,
+                "outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0",
+                "placeholder:text-placeholder",
+              )}
+            />
+            <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Weight unit"
+                  className={cn(
+                    "inline-flex h-full shrink-0 items-center gap-1 rounded-r-md px-3",
+                    typo.input,
+                    "text-foreground outline-none transition-colors hover:bg-accent/60",
+                    "focus:outline-none focus-visible:bg-accent/60 focus-visible:ring-0",
+                  )}
+                >
+                  <span className="tabular-nums">{weightUnit}</span>
+                  <ChevronIcon
+                    direction="down"
+                    size={BADGE_ICON_SIZE}
+                    className="text-muted-foreground"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={8}
+                className="min-w-24 rounded-md border-border bg-card p-1.5 shadow-md"
+              >
+                {(["kg", "lbs"] as const).map((unit) => (
+                  <DropdownMenuItem
+                    key={unit}
+                    onSelect={() => setWeightUnit(unit)}
+                    className={cn(
+                      "cursor-pointer rounded-sm px-3 py-2",
+                      typo.input,
+                      weightUnit === unit && "bg-background text-foreground",
+                    )}
+                  >
+                    {unit}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+
+      {limitError ? (
+        <FieldErrorMessage error={METRIC_LIMIT_ERROR} />
+      ) : null}
+
+      <div className={fieldStackClass}>
+        <FieldLabel htmlFor="cga-exam-notes">Examination notes</FieldLabel>
+        <textarea
+          id="cga-exam-notes"
+          value={examNotes}
+          maxLength={EXAM_NOTES_MAX}
+          rows={5}
+          placeholder="Add relevant findings, observations, or comments..."
+          onChange={(e) =>
+            setField("examNotes", e.target.value.slice(0, EXAM_NOTES_MAX))
+          }
+          className={cn(fieldTextareaClassName, "min-h-[8.5rem] w-full resize-y")}
+        />
+      </div>
+    </section>
+  );
+}
+
+function SignOffSection({
+  values,
+  onChange,
+}: {
+  values: CgaSectionValues;
+  onChange: (next: CgaSectionValues) => void;
+}) {
+  const { role } = useUserRole();
+  const clinician = getCurrentUserProfile(role);
+  const signer = clinician.displayName;
+
+  function setField(id: string, next: string | string[]) {
+    onChange({ ...values, [id]: next });
+  }
+
+  useEffect(() => {
+    if (strValue(values.signer) === signer) return;
+    onChange({ ...values, signer });
+    // Keep signer locked to the logged-in clinician profile.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signer]);
+
+  const attestation = Array.isArray(values.attestation)
+    ? values.attestation
+    : [];
+
+  return (
+    <section
+      className={cn(
+        dashboardCardClass,
+        "grid grid-cols-1 gap-x-4 gap-y-5 p-5 sm:grid-cols-2 sm:p-6",
+      )}
+    >
+      <div className={cn(fieldStackClass, "sm:col-span-2")}>
+        <FieldLabel htmlFor="cga-sign-summary">Clinician summary</FieldLabel>
+        <textarea
+          id="cga-sign-summary"
+          value={strValue(values.summary)}
+          onChange={(e) => setField("summary", e.target.value)}
+          placeholder="Overall impression and next steps…"
+          rows={4}
+          className={cgaTextareaClass}
+        />
+      </div>
+
+      <div
+        role="group"
+        aria-label="Attestation"
+        className={cn(fieldStackClass, "sm:col-span-2")}
+      >
+        <p className={fieldLabelClass}>Attestation</p>
+        <div className="flex flex-col gap-2">
+          {CGA_SIGN_OFF_ATTESTATION_OPTIONS.map((opt) => {
+            const checked = attestation.includes(opt.id);
+            return (
+              <label
+                key={opt.id}
+                className={cn(
+                  optionCardClass,
+                  "items-center",
+                  checked && optionCardSelectedClass,
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => {
+                    setField(
+                      "attestation",
+                      checked
+                        ? attestation.filter((id) => id !== opt.id)
+                        : [...attestation, opt.id],
+                    );
+                  }}
+                  className="sr-only"
+                />
+                <CheckboxIndicator checked={checked} />
+                <span className={cn(typo.bodyM, "font-medium text-foreground")}>
+                  {opt.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={fieldStackClass}>
+        <FieldLabel htmlFor="cga-signer">Signing clinician</FieldLabel>
+        <input
+          id="cga-signer"
+          type="text"
+          value={signer}
+          readOnly
+          tabIndex={-1}
+          aria-readonly="true"
+          className={cgaReadonlyInputClass}
+        />
+      </div>
+    </section>
+  );
+}
+
+function ProblemListSection({
+  problems,
+  onProblemsChange,
+}: {
+  problems: CgaProblemRow[];
+  onProblemsChange: (next: CgaProblemRow[]) => void;
+}) {
+  function updateProblem(id: string, patch: Partial<CgaProblemRow>) {
+    onProblemsChange(
+      problems.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+    );
+  }
+
+  function removeProblem(id: string) {
+    onProblemsChange(problems.filter((row) => row.id !== id));
+  }
+
+  return (
+    <section className={cn(dashboardCardClass, "overflow-hidden p-0")}>
+      <div className="border-b border-divider px-5 py-4">
+        <h3 className={typo.headingL}>Active problems</h3>
+        <p className={cn(typo.caption, "mt-1")}>
+          Prioritized list — highest priority first. Edit inline.
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-140 text-left">
+          <thead>
+            <tr className="border-b border-divider bg-muted/50 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <th className="w-12 px-4 py-3 font-medium">#</th>
+              <th className="px-2 py-3 font-medium">Problem</th>
+              <th className="px-2 py-3 font-medium">Notes</th>
+              <th className="w-12 px-2 py-3">
+                <span className="sr-only">Remove</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {problems.map((row, index) => (
+              <tr
+                key={row.id}
+                className="border-b border-divider last:border-0"
+              >
+                <td className="px-4 py-2">
+                  <span
+                    className={cn(
+                      typo.bodyM,
+                      "tabular-nums font-medium text-muted-foreground",
+                    )}
+                  >
+                    {index + 1}
+                  </span>
+                </td>
+                <td className="px-1 py-2">
+                  <input
+                    value={row.problem}
+                    onChange={(e) =>
+                      updateProblem(row.id, { problem: e.target.value })
+                    }
+                    placeholder="Describe the problem"
+                    className={cn(cgaTableInputClass, "font-medium")}
+                  />
+                </td>
+                <td className="px-1 py-2">
+                  <input
+                    value={row.notes}
+                    onChange={(e) =>
+                      updateProblem(row.id, { notes: e.target.value })
+                    }
+                    placeholder="Optional notes"
+                    className={cgaTableInputClass}
+                  />
+                </td>
+                <td className="px-2 py-2">
+                  <button
+                    type="button"
+                    aria-label={`Remove problem ${index + 1}`}
+                    onClick={() => removeProblem(row.id)}
+                    className={cn(
+                      radius.md,
+                      "inline-flex size-8 items-center justify-center text-muted-foreground transition-colors",
+                      "hover:bg-destructive-muted hover:text-destructive",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                    )}
+                  >
+                    <AppIcon icon={Delete02Icon} size={BADGE_ICON_SIZE} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="border-t border-divider px-5 py-3">
+        <button
+          type="button"
+          className={cn(
+            typo.button,
+            "inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-primary transition-colors",
+            "hover:bg-primary/10",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+          )}
+          onClick={() =>
+            onProblemsChange([
+              ...problems,
+              {
+                id: `prob-${Date.now()}`,
+                problem: "",
+                notes: "",
+              },
+            ])
+          }
+        >
+          <AppIcon icon={Add01Icon} size={BADGE_ICON_SIZE} />
+          Add Problem
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function CognitionSection({
+  values,
+  onChange,
+}: {
+  values: CgaSectionValues;
+  onChange: (next: CgaSectionValues) => void;
+}) {
+  const [limitError, setLimitError] = useState(false);
+
+  function setField(id: string, next: string | string[]) {
+    onChange({ ...values, [id]: next });
+  }
+
+  function applyMetric(
+    result: MetricParseResult,
+    apply: (value: string) => void,
+  ) {
+    if (result.exceeded) setLimitError(true);
+    else setLimitError(false);
+    apply(result.value);
+  }
+
+  // Legacy drafts may store MoCA as "26/30" — show the numerator only.
+  const mocaStored = strValue(values.moca);
+  const moca = mocaStored.includes("/")
+    ? mocaStored.split("/")[0]?.trim() ?? ""
+    : mocaStored;
+  const mmse = strValue(values.mmse);
+  const cognitiveConcerns = strValue(values.cognitiveConcerns);
+  const orientation =
+    typeof values.orientation === "string" ? values.orientation : "";
+
+  return (
+    <section
+      className={cn(dashboardCardClass, "flex flex-col gap-5 p-5 sm:p-6")}
+    >
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+        <div className={fieldStackClass}>
+          <FieldLabel htmlFor="cga-moca">MoCA</FieldLabel>
+          <input
+            id="cga-moca"
+            type="number"
+            inputMode="numeric"
+            min={CGA_COGNITION_LIMITS.moca.min}
+            max={CGA_COGNITION_LIMITS.moca.max}
+            autoComplete="off"
+            placeholder="0–30"
+            value={moca}
+            onChange={(e) => {
+              const result = clampIntMetric(
+                e.target.value,
+                CGA_COGNITION_LIMITS.moca.max,
+              );
+              applyMetric(result, (next) => setField("moca", next));
+            }}
+            className={fieldInputClassName}
+          />
+        </div>
+
+        <div className={fieldStackClass}>
+          <FieldLabel htmlFor="cga-mmse">MMSE</FieldLabel>
+          <input
+            id="cga-mmse"
+            type="number"
+            inputMode="numeric"
+            min={CGA_COGNITION_LIMITS.mmse.min}
+            max={CGA_COGNITION_LIMITS.mmse.max}
+            autoComplete="off"
+            placeholder="0–30"
+            value={mmse}
+            onChange={(e) => {
+              const result = clampIntMetric(
+                e.target.value,
+                CGA_COGNITION_LIMITS.mmse.max,
+              );
+              applyMetric(result, (next) => setField("mmse", next));
+            }}
+            className={fieldInputClassName}
+          />
+        </div>
+      </div>
+
+      {limitError ? (
+        <FieldErrorMessage error={METRIC_LIMIT_ERROR} />
+      ) : null}
+
+      <div className={fieldStackClass}>
+        <FieldLabel htmlFor="cga-cognitive-concerns">
+          Cognitive concerns
+        </FieldLabel>
+        <textarea
+          id="cga-cognitive-concerns"
+          value={cognitiveConcerns}
+          rows={4}
+          placeholder="Describe memory, attention, or other cognitive concerns..."
+          onChange={(e) => setField("cognitiveConcerns", e.target.value)}
+          className={cgaTextareaClass}
+        />
+      </div>
+
+      <div className={fieldStackClass}>
+        <p className={fieldLabelClass}>Orientation</p>
+        <ChipGroup
+          ariaLabel="Orientation"
+          options={CGA_ORIENTATION_OPTIONS}
+          value={orientation}
+          onChange={(v) => setField("orientation", v as string)}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -1315,245 +2035,297 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
 
   return (
     <AppPageFrame>
-      {/*
-        Single child so DashboardReveal's motion wrapper can fill height.
-        Sections nav stays full-height; only the right column scrolls.
-      */}
-      <DashboardReveal
+      <div
+        data-cga-wizard
         className={cn(
-          dashboardPageShellClass,
-          "lg:h-[calc(100dvh-4rem)] lg:min-h-0 lg:overflow-hidden lg:pb-4 lg:[&>div]:flex lg:[&>div]:h-full lg:[&>div]:min-h-0 lg:[&>div]:flex-col",
+          dashboardContentWidthClass,
+          "flex w-full flex-col gap-dash-gap pt-dash-pad-y pb-5",
+          "lg:pb-4",
         )}
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-4">
-          <div className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/health/assessments" className="hover:text-foreground">
-              Clinical
-            </Link>
-            <span aria-hidden>/</span>
-            <Link href="/health/assessments" className="hover:text-foreground">
-              Assessments
-            </Link>
-            <span aria-hidden>/</span>
-            <span className="text-foreground">CGA</span>
+        <div className="flex shrink-0 flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/health/assessments" className="hover:text-foreground">
+            Clinical
+          </Link>
+          <span aria-hidden>/</span>
+          <Link href="/health/assessments" className="hover:text-foreground">
+            Assessments
+          </Link>
+          <span aria-hidden>/</span>
+          <span className="text-foreground">CGA</span>
+        </div>
+
+        <div
+          className={cn(
+            dashboardCardClass,
+            "flex shrink-0 flex-wrap items-center justify-between gap-4 p-4",
+          )}
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <PatientAvatar
+              initials={patient.initials}
+              riskLevel={patient.riskLevel}
+              size="md"
+            />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className={typo.headingL}>{patient.name}</p>
+                <PatientRiskBadge level={patient.riskLevel} />
+                <span
+                  className={cn(
+                    statusBadgeClass,
+                    "border border-destructive-muted bg-destructive-muted text-destructive",
+                  )}
+                >
+                  Allergy: {allergy}
+                </span>
+              </div>
+              <p className={cn(typo.bodyS, "text-muted-foreground")}>
+                {patient.age}, {patient.gender} · {patient.code}
+              </p>
+            </div>
           </div>
+          <Button asChild variant="primary-outline" size="sm">
+            <Link href={`/patients/${patientId}/vitals`}>
+              Open patient chart
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:items-stretch lg:overflow-hidden xl:grid-cols-[16rem_minmax(0,1fr)]">
+          <nav
+            className={cn(
+              "group/thin-scroll flex flex-col border border-border bg-card p-2",
+              "lg:h-full lg:min-h-0 lg:overflow-hidden",
+              radius.lg,
+            )}
+            aria-label="CGA sections"
+          >
+            <div className="shrink-0 border-b border-divider px-4 pb-3 pt-3">
+              <h2 className="text-lg font-semibold leading-6 text-foreground">
+                Sections
+              </h2>
+            </div>
+            <ul
+              className={cn(
+                "flex flex-col gap-1 px-2 pb-4 pt-2",
+                "lg:thin-hover-scroll lg:min-h-0 lg:flex-1 lg:overflow-x-hidden lg:overflow-y-auto",
+              )}
+            >
+              {CGA_SECTIONS.map((s) => {
+                const active = s.id === section.id;
+                return (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      onClick={() => updateDraft({ activeSectionId: s.id })}
+                      aria-current={active ? "step" : undefined}
+                      className={cn(
+                        "flex w-full items-center rounded-full px-3 py-2.5 text-left transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-tertiary-foreground hover:bg-accent/70 hover:text-muted-foreground",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "w-6 shrink-0 text-sm font-medium leading-5 tabular-nums",
+                          active
+                            ? "text-primary"
+                            : "text-tertiary-foreground",
+                        )}
+                      >
+                        {String(s.number).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={cn(
+                          "min-w-0 truncate text-sm font-medium leading-5",
+                          active
+                            ? "text-primary"
+                            : "text-tertiary-foreground",
+                        )}
+                      >
+                        {s.title}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
           <div
             className={cn(
-              dashboardCardClass,
-              "flex shrink-0 flex-wrap items-center justify-between gap-4 p-4",
+              "flex min-w-0 flex-col gap-4",
+              /* px/py gutter keeps card hairline shadows from clipping */
+              "lg:min-h-0 lg:overflow-hidden lg:px-1.5 lg:py-1",
             )}
           >
-            <div className="flex min-w-0 items-center gap-3">
-              <PatientAvatar
-                initials={patient.initials}
-                riskLevel={patient.riskLevel}
-                size="md"
-              />
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className={typo.headingL}>{patient.name}</p>
-                  <PatientRiskBadge level={patient.riskLevel} />
-                  <span
-                    className={cn(
-                      statusBadgeClass,
-                      "border border-destructive-muted bg-destructive-muted text-destructive",
-                    )}
-                  >
-                    Allergy: {allergy}
-                  </span>
+            <div
+              className={cn(
+                dashboardCardClass,
+                "flex shrink-0 flex-col gap-4 p-4 sm:p-5",
+              )}
+            >
+              <div className="flex min-w-0 flex-wrap items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <p className={cn(typo.bodyL, "font-semibold text-primary")}>
+                    Section {section.number} of {CGA_SECTIONS.length}
+                  </p>
+                  <h1 className={cn(typo.headingXxl, "mt-1")}>
+                    {section.number}. {section.title}
+                  </h1>
                 </div>
-                <p className={cn(typo.bodyS, "text-muted-foreground")}>
-                  {patient.age}, {patient.gender} · {patient.code}
+                <p
+                  className={cn(
+                    typo.bodyL,
+                    "shrink-0 tabular-nums text-muted-foreground",
+                  )}
+                  aria-hidden
+                >
+                  <span className="font-semibold text-primary">
+                    {draft.completedSectionIds.length}
+                  </span>
+                  {" of "}
+                  {CGA_SECTIONS.length} complete
                 </p>
               </div>
-            </div>
-            <Button asChild variant="primary-outline" size="sm">
-              <Link href={`/patients/${patientId}/vitals`}>
-                Open patient chart
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:items-stretch xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <nav
-              className={cn(
-                "group/thin-scroll flex min-h-0 flex-col overflow-hidden border border-border bg-card p-2",
-                radius.lg,
-              )}
-              aria-label="CGA sections"
-            >
-              <div className="shrink-0 border-b border-divider px-4 pb-3 pt-3">
-                <h2 className="text-lg font-semibold leading-6 text-foreground">
-                  Sections
-                </h2>
-              </div>
-              <ul className="thin-hover-scroll flex min-h-0 flex-1 flex-col gap-1 overflow-x-hidden overflow-y-auto px-2 pb-4 pt-2">
-                {CGA_SECTIONS.map((s) => {
-                  const active = s.id === section.id;
-                  return (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        onClick={() => updateDraft({ activeSectionId: s.id })}
-                        aria-current={active ? "step" : undefined}
-                        className={cn(
-                          "flex w-full items-center rounded-full px-3 py-2.5 text-left transition-colors",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                          active
-                            ? "bg-primary/10 text-primary"
-                            : "text-tertiary-foreground hover:bg-accent/70 hover:text-muted-foreground",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "w-6 shrink-0 text-sm font-medium leading-5 tabular-nums",
-                            active
-                              ? "text-primary"
-                              : "text-tertiary-foreground",
-                          )}
-                        >
-                          {String(s.number).padStart(2, "0")}
-                        </span>
-                        <span
-                          className={cn(
-                            "min-w-0 truncate text-sm font-medium leading-5",
-                            active
-                              ? "text-primary"
-                              : "text-tertiary-foreground",
-                          )}
-                        >
-                          {s.title}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
-
-            <div className="flex min-h-0 min-w-0 flex-col gap-4 overflow-y-auto overscroll-contain px-1.5 py-1">
               <div
-                className={cn(
-                  dashboardCardClass,
-                  "flex shrink-0 flex-col gap-4 p-4 sm:p-5",
-                )}
+                className="flex w-full gap-1"
+                role="progressbar"
+                aria-valuenow={draft.completedSectionIds.length}
+                aria-valuemin={0}
+                aria-valuemax={CGA_SECTIONS.length}
+                aria-label={`${draft.completedSectionIds.length} of ${CGA_SECTIONS.length} sections complete`}
               >
-                <div className="flex min-w-0 flex-wrap items-end justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className={cn(typo.bodyL, "font-semibold text-primary")}>
-                      Section {section.number} of {CGA_SECTIONS.length}
-                    </p>
-                    <h1 className={cn(typo.headingXxl, "mt-1")}>
-                      {section.number}. {section.title}
-                    </h1>
-                  </div>
-                  <p
-                    className={cn(typo.bodyL, "shrink-0 tabular-nums text-muted-foreground")}
+                {CGA_SECTIONS.map((s) => (
+                  <div
+                    key={s.id}
+                    className={cn(
+                      "h-2 min-w-0 flex-1 rounded-full transition-colors duration-500 ease-out",
+                      draft.completedSectionIds.includes(s.id)
+                        ? "bg-primary"
+                        : "bg-accent",
+                    )}
                     aria-hidden
-                  >
-                    <span className="font-semibold text-primary">
-                      {draft.completedSectionIds.length}
-                    </span>
-                    {" of "}
-                    {CGA_SECTIONS.length} complete
-                  </p>
-                </div>
-                <div
-                  className="flex w-full gap-1"
-                  role="progressbar"
-                  aria-valuenow={draft.completedSectionIds.length}
-                  aria-valuemin={0}
-                  aria-valuemax={CGA_SECTIONS.length}
-                  aria-label={`${draft.completedSectionIds.length} of ${CGA_SECTIONS.length} sections complete`}
-                >
-                  {CGA_SECTIONS.map((s) => (
-                    <div
-                      key={s.id}
-                      className={cn(
-                        "h-2 min-w-0 flex-1 rounded-full transition-colors duration-500 ease-out",
-                        draft.completedSectionIds.includes(s.id)
-                          ? "bg-primary"
-                          : "bg-accent",
-                      )}
-                      aria-hidden
-                    />
-                  ))}
-                </div>
+                  />
+                ))}
               </div>
+            </div>
 
-              <div className="flex flex-col gap-4">
-                {section.id === "visit-details" ? (
-                  <VisitDetailsSection
-                    patient={patient}
-                    values={sectionValues}
-                    onChange={setSectionValues}
-                  />
-                ) : section.id === "medications" ? (
-                  <MedicationsSection
-                    values={sectionValues}
-                    medications={draft.medications}
-                    onValuesChange={setSectionValues}
-                    onMedicationsChange={(medications) =>
-                      updateDraft({ medications })
-                    }
-                  />
-                ) : (
-                  <GenericSectionForm
-                    section={section}
-                    values={sectionValues}
-                    onChange={setSectionValues}
-                  />
-                )}
-              </div>
+            <div
+              className={cn(
+                "flex flex-col gap-4",
+                "lg:thin-hover-scroll lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain",
+                "lg:px-0.5 lg:py-1",
+              )}
+            >
+              {section.id === "visit-details" ? (
+                <VisitDetailsSection
+                  patient={patient}
+                  values={sectionValues}
+                  onChange={setSectionValues}
+                />
+              ) : section.id === "medications" ? (
+                <MedicationsSection
+                  values={sectionValues}
+                  medications={draft.medications}
+                  otcMedications={draft.otcMedications ?? []}
+                  onValuesChange={setSectionValues}
+                  onMedicationsChange={(medications) =>
+                    updateDraft({ medications })
+                  }
+                  onOtcMedicationsChange={(otcMedications) =>
+                    updateDraft({ otcMedications })
+                  }
+                />
+              ) : section.id === "physical" ? (
+                <PhysicalAssessmentSection
+                  values={sectionValues}
+                  onChange={setSectionValues}
+                />
+              ) : section.id === "cognition" ? (
+                <CognitionSection
+                  values={sectionValues}
+                  onChange={setSectionValues}
+                />
+              ) : section.id === "problem-list" ? (
+                <ProblemListSection
+                  problems={draft.problems ?? []}
+                  onProblemsChange={(problems) => updateDraft({ problems })}
+                />
+              ) : section.id === "investigations" ? (
+                <CgaInvestigationsSection
+                  labs={draft.labs ?? []}
+                  imaging={draft.imaging ?? []}
+                  pending={draft.pendingInvestigations ?? []}
+                  onLabsChange={(labs) => updateDraft({ labs })}
+                  onImagingChange={(imaging) => updateDraft({ imaging })}
+                  onPendingChange={(pendingInvestigations) =>
+                    updateDraft({ pendingInvestigations })
+                  }
+                />
+              ) : section.id === "sign-off" ? (
+                <SignOffSection
+                  values={sectionValues}
+                  onChange={setSectionValues}
+                />
+              ) : (
+                <GenericSectionForm
+                  section={section}
+                  values={sectionValues}
+                  onChange={setSectionValues}
+                />
+              )}
+            </div>
 
-              <div
-                className={cn(
-                  dashboardCardClass,
-                  "flex shrink-0 flex-wrap items-center justify-between gap-3 p-4",
-                )}
+            <div
+              className={cn(
+                dashboardCardClass,
+                "flex shrink-0 flex-wrap items-center justify-between gap-3 p-4",
+              )}
+            >
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSaveDraft}
               >
+                {savedFlash ? "Draft saved" : "Save draft"}
+              </Button>
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
-                  variant="secondary"
-                  onClick={handleSaveDraft}
+                  variant="primary-outline"
+                  disabled={sectionIndex <= 0}
+                  onClick={() => {
+                    const prev = CGA_SECTIONS[sectionIndex - 1];
+                    if (prev) updateDraft({ activeSectionId: prev.id });
+                  }}
                 >
-                  {savedFlash ? "Draft saved" : "Save draft"}
+                  <AppIcon icon={ArrowLeft01Icon} />
+                  Previous
                 </Button>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="primary-outline"
-                    disabled={sectionIndex <= 0}
-                    onClick={() => {
-                      const prev = CGA_SECTIONS[sectionIndex - 1];
-                      if (prev) updateDraft({ activeSectionId: prev.id });
-                    }}
-                  >
-                    <AppIcon icon={ArrowLeft01Icon} />
-                    Previous
-                  </Button>
-                  <Button
-                    type="button"
-                    disabled={!canContinue}
-                    title={
-                      canContinue
-                        ? undefined
-                        : "Fill in all fields in this section to continue"
-                    }
-                    onClick={() => markCompleteAndGo(sectionIndex + 1)}
-                  >
-                    {sectionIndex >= CGA_SECTIONS.length - 1
-                      ? "Sign & finish"
-                      : "Save & continue"}
-                    <AppIcon icon={ArrowRight01Icon} />
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  disabled={!canContinue}
+                  title={
+                    canContinue
+                      ? undefined
+                      : "Fill in all fields in this section to continue"
+                  }
+                  onClick={() => markCompleteAndGo(sectionIndex + 1)}
+                >
+                  {sectionIndex >= CGA_SECTIONS.length - 1
+                    ? "Sign & finish"
+                    : "Save & continue"}
+                  <AppIcon icon={ArrowRight01Icon} />
+                </Button>
               </div>
             </div>
           </div>
         </div>
-      </DashboardReveal>
+      </div>
     </AppPageFrame>
   );
 }

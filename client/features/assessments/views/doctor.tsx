@@ -26,7 +26,6 @@ import type {
   DoctorAssessmentRow,
   DoctorAssessmentType,
 } from "@/lib/domain/doctor";
-import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 type AssessmentTab = "all" | DoctorAssessmentType | "Draft";
@@ -173,29 +172,18 @@ export function DoctorAssessmentsView() {
   return (
     <AppPageFrame>
       <DashboardReveal className={cn(dashboardPageShellClass)}>
-        <PageHeader
-          title="Assessments"
-          subtitle="Review IAS-P and CGA results across your patient panel."
-        />
-
-        <DataTable
-          leading={
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <h2 className={cn(typo.headingL)}>Assessment list</h2>
-              <p className={typo.bodyM}>
-                Filter by instrument or draft status, then open a patient chart.
-              </p>
-            </div>
-          }
-          tools={
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-dash-gutter">
+          <PageHeader
+            title="Assessments"
+            subtitle="Review IAS-P and CGA results across your patient panel."
+          />
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <TableSearch
               value={query}
               onChange={setQuery}
               placeholder="Search assessments…"
               aria-label="Search assessments"
             />
-          }
-          subheader={
             <SegmentedControl
               value={tab}
               onChange={setTab}
@@ -203,8 +191,14 @@ export function DoctorAssessmentsView() {
               ariaLabel="Assessment type"
               layoutId="doctorAssessmentsTabs"
               surface="card"
+              variant="inset"
+              className="shrink-0"
             />
-          }
+          </div>
+        </div>
+
+        <DataTable
+          toolbar={false}
           columns={columns}
           data={filtered}
           getRowId={(row) => row.id}

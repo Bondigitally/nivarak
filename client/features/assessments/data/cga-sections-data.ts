@@ -15,6 +15,13 @@ export type CgaField =
   | {
       id: string;
       label: string;
+      kind: "select";
+      options: readonly CgaFieldOption[];
+      placeholder?: string;
+    }
+  | {
+      id: string;
+      label: string;
       kind: "radio" | "chips";
       options: readonly CgaFieldOption[];
       multi?: boolean;
@@ -44,6 +51,20 @@ export type CgaMedicationRow = {
   frequency: string;
   indication: string;
   flag?: string;
+};
+
+export type CgaOtcRow = {
+  id: string;
+  drug: string;
+  dose: string;
+  frequency: string;
+  notes: string;
+};
+
+export type CgaProblemRow = {
+  id: string;
+  problem: string;
+  notes: string;
 };
 
 /** Visit Details — Figma node 644:35321 */
@@ -137,7 +158,42 @@ export const CGA_DEFAULT_MEDICATIONS: CgaMedicationRow[] = [
     dose: "25mg",
     frequency: "ON",
     indication: "Neuropathy",
-    flag: "STOPP: Anticholinergic",
+    flag: "STOP: Anticholinergic",
+  },
+];
+
+export const CGA_DEFAULT_OTC: CgaOtcRow[] = [
+  {
+    id: "otc-1",
+    drug: "Calcium + Vit D",
+    dose: "Combo tab",
+    frequency: "Daily",
+    notes: "Patient self-reports",
+  },
+  {
+    id: "otc-2",
+    drug: "Paracetamol",
+    dose: "500mg",
+    frequency: "Occasional",
+    notes: "OTC",
+  },
+];
+
+export const CGA_DEFAULT_PROBLEMS: CgaProblemRow[] = [
+  {
+    id: "prob-1",
+    problem: "Polypharmacy / anticholinergic burden (amitriptyline)",
+    notes: "Deprescribing review",
+  },
+  {
+    id: "prob-2",
+    problem: "Type 2 diabetes mellitus",
+    notes: "On metformin",
+  },
+  {
+    id: "prob-3",
+    problem: "Hypertension",
+    notes: "On amlodipine",
   },
 ];
 
@@ -183,7 +239,7 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     title: "Medications",
     callout: {
       tone: "warning",
-      title: "STOPP/START Criteria",
+      title: "STOP/START Criteria",
       body: "Review for potentially inappropriate medications and omitted clinical indications in older patients.",
     },
     fields: [], // custom UI
@@ -192,31 +248,7 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     id: "physical",
     number: 4,
     title: "Physical Assessment",
-    fields: [
-      {
-        id: "bp",
-        label: "Blood pressure",
-        kind: "text",
-        placeholder: "e.g. 128/82",
-      },
-      {
-        id: "hr",
-        label: "Heart rate",
-        kind: "text",
-        placeholder: "e.g. 78 bpm",
-      },
-      {
-        id: "weight",
-        label: "Weight",
-        kind: "text",
-        placeholder: "kg",
-      },
-      {
-        id: "examNotes",
-        label: "Examination notes",
-        kind: "textarea",
-      },
-    ],
+    fields: [], // custom UI — PhysicalAssessmentSection
   },
   {
     id: "mobility-falls",
@@ -285,29 +317,7 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     id: "cognition",
     number: 7,
     title: "Cognition",
-    fields: [
-      {
-        id: "moca",
-        label: "MoCA / MMSE score",
-        kind: "text",
-        placeholder: "e.g. 26/30",
-      },
-      {
-        id: "cognitiveConcerns",
-        label: "Cognitive concerns",
-        kind: "textarea",
-      },
-      {
-        id: "orientation",
-        label: "Orientation",
-        kind: "chips",
-        options: [
-          { id: "oriented", label: "Oriented ×3" },
-          { id: "partial", label: "Partially oriented" },
-          { id: "disoriented", label: "Disoriented" },
-        ],
-      },
-    ],
+    fields: [], // custom UI — CognitionSection
   },
   {
     id: "mood",
@@ -400,8 +410,9 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
       {
         id: "livingSituation",
         label: "Living situation",
-        kind: "text",
-        placeholder: "Alone / with family / assisted living…",
+        kind: "select",
+        placeholder: "Select living situation",
+        options: CGA_LIVING_SITUATION_OPTIONS,
       },
       {
         id: "caregiver",
@@ -507,24 +518,7 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     id: "investigations",
     number: 15,
     title: "Investigations",
-    fields: [
-      {
-        id: "labs",
-        label: "Relevant labs",
-        kind: "textarea",
-        placeholder: "CBC, BMP, HbA1c, etc.",
-      },
-      {
-        id: "imaging",
-        label: "Imaging",
-        kind: "textarea",
-      },
-      {
-        id: "pending",
-        label: "Pending investigations",
-        kind: "textarea",
-      },
-    ],
+    fields: [], // custom UI — CgaInvestigationsSection
   },
   {
     id: "frailty-flags",
@@ -554,14 +548,7 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     id: "problem-list",
     number: 17,
     title: "Problem List",
-    fields: [
-      {
-        id: "problems",
-        label: "Active problems (prioritized)",
-        kind: "textarea",
-        placeholder: "1. …\n2. …",
-      },
-    ],
+    fields: [], // custom UI — ProblemListSection
   },
   {
     id: "care-plan",
@@ -611,36 +598,40 @@ export const CGA_SECTIONS: readonly CgaSection[] = [
     id: "sign-off",
     number: 20,
     title: "Sign-off",
-    fields: [
-      {
-        id: "summary",
-        label: "Clinician summary",
-        kind: "textarea",
-        placeholder: "Overall impression and next steps…",
-      },
-      {
-        id: "attestation",
-        label: "Attestation",
-        kind: "checkbox-list",
-        options: [
-          {
-            id: "reviewed",
-            label: "I have reviewed all completed sections",
-          },
-          {
-            id: "accurate",
-            label: "Findings accurately reflect this encounter",
-          },
-        ],
-      },
-      {
-        id: "signer",
-        label: "Signing clinician",
-        kind: "text",
-        placeholder: "Dr. Mehta",
-      },
-    ],
+    fields: [], // custom UI — SignOffSection (signer locked to logged-in clinician)
   },
+] as const;
+
+export const CGA_SIGN_OFF_ATTESTATION_OPTIONS = [
+  {
+    id: "reviewed",
+    label: "I have reviewed all completed sections",
+  },
+  {
+    id: "accurate",
+    label: "Findings accurately reflect this encounter",
+  },
+] as const;
+
+/** Clinical entry ceilings for CGA physical vitals. */
+export const CGA_PHYSICAL_LIMITS = {
+  bpSystolic: { min: 40, max: 300 },
+  bpDiastolic: { min: 20, max: 200 },
+  hr: { min: 20, max: 300 },
+  weightKg: { min: 1, max: 500 },
+  weightLbs: { min: 2, max: 1100 },
+} as const;
+
+/** Cognition screen scores — integer 0–30. */
+export const CGA_COGNITION_LIMITS = {
+  moca: { min: 0, max: 30 },
+  mmse: { min: 0, max: 30 },
+} as const;
+
+export const CGA_ORIENTATION_OPTIONS = [
+  { id: "oriented", label: "Oriented ×3" },
+  { id: "partial", label: "Partially oriented" },
+  { id: "disoriented", label: "Disoriented" },
 ] as const;
 
 export const CGA_SECTION_COUNT = CGA_SECTIONS.length;

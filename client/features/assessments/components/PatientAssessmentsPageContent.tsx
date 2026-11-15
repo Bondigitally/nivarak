@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Button } from "@/components/ui/button";
 import {
   dashboardCardClass,
+  dashboardGridStackClass,
   statusBadgeClass,
 } from "@/features/dashboard/data/dashboard-styles";
 import { PatientChartShell } from "@/features/patients/components/PatientChartShell";
@@ -30,19 +30,13 @@ export function PatientAssessmentsPageContent({
 
   return (
     <PatientChartShell patientId={patientId} showKpis={false}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className={dashboardGridStackClass}>
         <PageHeader
           title="Assessments"
           subtitle={`IAS-P and CGA history for ${patient.name}.`}
         />
-        <Button asChild size="sm">
-          <Link href={`/patients/${patientId}/assessments/cga-new`}>
-            Start CGA
-          </Link>
-        </Button>
-      </div>
 
-      {assessments.length === 0 ? (
+        {assessments.length === 0 ? (
         <div
           className={cn(
             dashboardCardClass,
@@ -51,7 +45,7 @@ export function PatientAssessmentsPageContent({
         >
           <p className={typo.headingL}>No assessments yet</p>
           <p className={cn(typo.bodyM, "text-muted-foreground")}>
-            Start a CGA for this patient.
+            No IAS-P or CGA assessments recorded for this patient.
           </p>
         </div>
       ) : (
@@ -98,7 +92,8 @@ export function PatientAssessmentsPageContent({
             ))}
           </ul>
         </div>
-      )}
+        )}
+      </div>
     </PatientChartShell>
   );
 }
