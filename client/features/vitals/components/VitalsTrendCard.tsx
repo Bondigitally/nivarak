@@ -25,10 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useOnceAnimation } from "@/components/ui/use-once-animation";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { SectionTitle } from "@/features/dashboard/components/EmptyState";
 import { dashboardCardClass } from "@/features/dashboard/data/dashboard-styles";
 import { vitalStatusConfig, type VitalStatus } from "@/lib/tokens/status-badges";
-import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
 const SYSTOLIC_COLOR = "var(--chart-2)";
@@ -293,9 +291,14 @@ export type VitalsTrendTab = Tab;
 export function VitalsTrendCard({
   activeTab: controlledTab,
   onActiveTabChange,
+  bare = false,
+  className,
 }: {
   activeTab?: Tab;
   onActiveTabChange?: (tab: Tab) => void;
+  /** When true, omit the outer card chrome (embed inside another card). */
+  bare?: boolean;
+  className?: string;
 } = {}) {
   const [uncontrolledTab, setUncontrolledTab] = useState<Tab>("bp");
   const activeTab = controlledTab ?? uncontrolledTab;
@@ -323,150 +326,163 @@ export function VitalsTrendCard({
   }
 
   return (
-    <div className={cn(dashboardCardClass, "flex h-full w-full flex-col items-stretch gap-5 p-5")}>
-      {/* Title + controls, then legends */}
-      <div className="flex w-full flex-col gap-4">
-        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <SectionTitle className="flex-none pr-0 text-foreground">
-              Vitals Trend
-            </SectionTitle>
-            <p className={typo.bodyM}>
-              View and compare your vital signs over time
-            </p>
-          </div>
+    <div
+      className={cn(
+        "flex h-full w-full flex-col items-stretch gap-5",
+        bare ? "p-0" : cn(dashboardCardClass, "p-5"),
+        className,
+      )}
+    >
+      {/* Controls + legends */}
+      <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-end sm:gap-3">
+        <SegmentedControl
+          value={activeTab}
+          onChange={onTabChange}
+          options={TABS}
+          ariaLabel="Vital type"
+          layoutId="vitalsTrendActiveTab"
+          surface="card"
+          variant="inset"
+          className="w-full min-w-0 sm:w-auto sm:max-w-full"
+        />
 
-          <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-end sm:gap-3 lg:w-auto">
-            <SegmentedControl
-              value={activeTab}
-              onChange={onTabChange}
-              options={TABS}
-              ariaLabel="Vital type"
-              layoutId="vitalsTrendActiveTab"
-              surface="card"
-              className="w-full min-w-0 sm:w-auto sm:max-w-full"
-            />
-
-            <div className="flex shrink-0 flex-col items-end gap-3 self-end sm:self-start">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="group inline-flex h-dash-control min-h-dash-control shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-full border border-border bg-transparent px-3 outline-none transition-colors hover:bg-accent sm:px-4"
-                  >
-                    <span className="inline-grid shrink-0 text-sm font-medium leading-5 font-sans [&>*]:col-start-1 [&>*]:row-start-1">
-                      {TIMELINE_OPTIONS.map((option) => (
-                        <span
-                          key={option}
-                          className="invisible whitespace-nowrap"
-                          aria-hidden
-                        >
-                          {option}
-                        </span>
-                      ))}
-                      <span className="whitespace-nowrap text-muted-foreground transition-colors group-hover:text-foreground">
-                        {timeline}
-                      </span>
-                    </span>
-                    <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground transition-colors group-hover:text-primary">
-                      <svg
-                        width="8"
-                        height="5"
-                        viewBox="0 0 8 5"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden
-                      >
-                        <path
-                          d="M1 1L4 4L7 1"
-                          stroke="currentColor"
-                          strokeWidth="1.75"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="min-w-0 w-(--radix-dropdown-menu-trigger-width) p-1"
-                >
+        <div className="flex shrink-0 flex-col items-end gap-3 self-end sm:self-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="group inline-flex h-dash-control min-h-dash-control shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-full border border-border bg-transparent px-3 outline-none transition-colors hover:bg-accent sm:px-4"
+              >
+                <span className="inline-grid shrink-0 text-sm font-medium leading-5 font-sans [&>*]:col-start-1 [&>*]:row-start-1">
                   {TIMELINE_OPTIONS.map((option) => (
-                    <DropdownMenuItem
+                    <span
                       key={option}
-                      className="cursor-pointer px-2.5 py-2"
-                      onClick={() => setTimeline(option)}
+                      className="invisible whitespace-nowrap"
+                      aria-hidden
                     >
                       {option}
-                    </DropdownMenuItem>
+                    </span>
                   ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <span className="whitespace-nowrap text-muted-foreground transition-colors group-hover:text-foreground">
+                    {timeline}
+                  </span>
+                </span>
+                <span className="flex size-3 shrink-0 items-center justify-center text-muted-foreground transition-colors group-hover:text-primary">
+                  <svg
+                    width="8"
+                    height="5"
+                    viewBox="0 0 8 5"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden
+                  >
+                    <path
+                      d="M1 1L4 4L7 1"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="min-w-0 w-(--radix-dropdown-menu-trigger-width) p-1"
+            >
+              {TIMELINE_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option}
+                  className="cursor-pointer px-2.5 py-2"
+                  onClick={() => setTimeline(option)}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-              {/* Legend — end-aligned under timeline */}
-              <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-4 gap-y-2 select-none">
-                {activeTab === "bp" && (
-                  <>
-                    <div className="flex items-center gap-1.5">
-                      <div className={cn(chartLegendSwatchClass, "bg-chart-2")} />
-                      <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                        Systolic
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={cn(chartLegendSwatchClass, "bg-chart-3")} />
-                      <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                        Diastolic
-                      </div>
-                    </div>
-                  </>
-                )}
-                {activeTab === "hr" && (
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={chartLegendSwatchClass}
-                      style={{ backgroundColor: HEART_RATE_COLOR }}
-                    />
-                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                      Heart Rate
-                    </div>
-                  </div>
-                )}
-                {activeTab === "spo2" && (
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={chartLegendSwatchClass}
-                      style={{ backgroundColor: SPO2_COLOR }}
-                    />
-                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                      SpO₂
-                    </div>
-                  </div>
-                )}
-                {activeTab === "glucose" && (
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={chartLegendSwatchClass}
-                      style={{ backgroundColor: GLUCOSE_COLOR }}
-                    />
-                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                      Blood Glucose
-                    </div>
-                  </div>
-                )}
-                {activeTab === "temp" && (
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={chartLegendSwatchClass}
-                      style={{ backgroundColor: TEMP_COLOR }}
-                    />
-                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
-                      Temperature
-                    </div>
-                  </div>
-                )}
+          {/* Legend — reserved to BP width so tab row doesn't shift on switch */}
+          <div className="relative select-none">
+            <div
+              className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 invisible"
+              aria-hidden
+            >
+              <div className="flex items-center gap-1.5">
+                <div className={chartLegendSwatchClass} />
+                <div className="text-xs font-normal leading-5 font-sans">
+                  Systolic
+                </div>
               </div>
+              <div className="flex items-center gap-1.5">
+                <div className={chartLegendSwatchClass} />
+                <div className="text-xs font-normal leading-5 font-sans">
+                  Diastolic
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-0 flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+              {activeTab === "bp" && (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <div className={cn(chartLegendSwatchClass, "bg-chart-2")} />
+                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                      Systolic
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className={cn(chartLegendSwatchClass, "bg-chart-3")} />
+                    <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                      Diastolic
+                    </div>
+                  </div>
+                </>
+              )}
+              {activeTab === "hr" && (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className={chartLegendSwatchClass}
+                    style={{ backgroundColor: HEART_RATE_COLOR }}
+                  />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                    Heart Rate
+                  </div>
+                </div>
+              )}
+              {activeTab === "spo2" && (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className={chartLegendSwatchClass}
+                    style={{ backgroundColor: SPO2_COLOR }}
+                  />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                    SpO₂
+                  </div>
+                </div>
+              )}
+              {activeTab === "glucose" && (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className={chartLegendSwatchClass}
+                    style={{ backgroundColor: GLUCOSE_COLOR }}
+                  />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                    Blood Glucose
+                  </div>
+                </div>
+              )}
+              {activeTab === "temp" && (
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className={chartLegendSwatchClass}
+                    style={{ backgroundColor: TEMP_COLOR }}
+                  />
+                  <div className="text-xs font-normal leading-5 text-muted-foreground font-sans">
+                    Temperature
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
