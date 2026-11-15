@@ -61,6 +61,9 @@ export function WriteClinicalNotePage({ patientId }: { patientId: string }) {
 
   if (!patient) notFound();
 
+  // Capture after the guard so nested handlers keep the narrowed patient type.
+  const notePatient = patient;
+
   function updateField(key: keyof typeof fields, value: string) {
     setFields((current) => ({ ...current, [key]: value }));
   }
@@ -69,9 +72,9 @@ export function WriteClinicalNotePage({ patientId }: { patientId: string }) {
     const clinician = getCurrentUserProfile(role);
     saveDoctorNote({
       id: `note-${Date.now()}`,
-      patientId: patient.id,
-      patientName: patient.name,
-      patientCode: patient.code,
+      patientId: notePatient.id,
+      patientName: notePatient.name,
+      patientCode: notePatient.code,
       type: noteType,
       title: title.trim() || "Untitled note",
       status,
