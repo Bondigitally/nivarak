@@ -3,6 +3,8 @@
  * Tiers: badge 16 · chrome/control 20 · tile 40 · empty state 32
  */
 export const BADGE_ICON_SIZE = 16;
+/** Select / dropdown trigger chevron (smaller than {@link ICON_SIZE}). */
+export const DROPDOWN_CHEVRON_SIZE = 14;
 export const ICON_SIZE = 20;
 export const EMPTY_ICON_SIZE = 32;
 export const ICON_TILE_SIZE = 40;

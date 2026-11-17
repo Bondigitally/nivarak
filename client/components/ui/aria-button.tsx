@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 const ariaButtonVariants = cva(
   [
     "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors",
+    "data-[hovered]:rounded-md data-[focus-visible]:rounded-md",
     "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
     "data-[focus-visible]:outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2",
     "focus-visible:outline-none",

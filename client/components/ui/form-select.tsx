@@ -9,7 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { fieldInputClassName } from "@/components/ui/input";
-import { ICON_SIZE } from "@/lib/icons";
+import { DROPDOWN_CHEVRON_SIZE } from "@/lib/icons";
+import { TruncateHoverMarquee } from "@/components/shared/TruncateHoverMarquee";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,7 @@ export function FormSelect({
   className,
   contentClassName,
   container,
+  enableHoverScroll = false,
   "aria-label": ariaLabel,
 }: {
   id?: string;
@@ -62,12 +64,17 @@ export function FormSelect({
    * stacks above the dialog overlay (z-100) and scrolls under scroll lock.
    */
   container?: HTMLElement | null;
+  /** Scroll truncated trigger label on hover (overflow only). */
+  enableHoverScroll?: boolean;
   "aria-label"?: string;
 }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [menuWidth, setMenuWidth] = useState<number>();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredItemValue, setHoveredItemValue] = useState<string | null>(null);
   const items = useMemo(() => toSelectOptions(options), [options]);
   const selected = items.find((item) => item.value === value);
+  const triggerLabel = selected?.label ?? placeholder;
 
   useEffect(() => {
     const el = triggerRef.current;
@@ -85,7 +92,14 @@ export function FormSelect({
     <>
       {name ? <input type="hidden" name={name} value={value} /> : null}
       {/* modal={false} avoids focus/dismiss fights when nested in a Radix Dialog */}
-      <DropdownMenu modal={false}>
+      <DropdownMenu
+        modal={false}
+        open={menuOpen}
+        onOpenChange={(open) => {
+          setMenuOpen(open);
+          if (!open) setHoveredItemValue(null);
+        }}
+      >
         <DropdownMenuTrigger asChild disabled={disabled}>
           <button
             ref={triggerRef}
@@ -100,18 +114,26 @@ export function FormSelect({
               className,
             )}
           >
-            <span
-              className={cn(
-                "min-w-0 flex-1 truncate",
-                !selected && "text-placeholder",
-              )}
-            >
-              {selected?.label ?? placeholder}
-            </span>
+            {enableHoverScroll && !menuOpen ? (
+              <TruncateHoverMarquee
+                className="min-w-0 flex-1"
+                textClassName={cn(!selected && "text-placeholder")}
+              >
+                {triggerLabel}
+              </TruncateHoverMarquee>
+            ) : (
+              <span
+                className={cn(
+                  "min-w-0 flex-1 truncate",
+                  !selected && "text-placeholder",
+                )}
+              >
+                {triggerLabel}
+              </span>
+            )}
             <ChevronIcon
               direction="down"
-              size={ICON_SIZE}
-              className="shrink-0 text-muted-foreground"
+              size={DROPDOWN_CHEVRON_SIZE}
             />
           </button>
         </DropdownMenuTrigger>
@@ -138,13 +160,28 @@ export function FormSelect({
                 <DropdownMenuItem
                   key={item.value}
                   onSelect={() => onChange(item.value)}
+                  onMouseEnter={() =>
+                    enableHoverScroll && setHoveredItemValue(item.value)
+                  }
+                  onMouseLeave={() =>
+                    enableHoverScroll && setHoveredItemValue(null)
+                  }
                   className={cn(
-                    "cursor-pointer gap-3 rounded-sm px-3 py-2.5",
+                    "min-w-0 w-full cursor-pointer gap-3 overflow-hidden rounded-sm px-3 py-2.5",
                     typo.input,
                     isSelected && "bg-background text-foreground",
                   )}
                 >
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {enableHoverScroll ? (
+                    <TruncateHoverMarquee
+                      className="min-w-0 flex-1"
+                      hovered={hoveredItemValue === item.value}
+                    >
+                      {item.label}
+                    </TruncateHoverMarquee>
+                  ) : (
+                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  )}
                 </DropdownMenuItem>
               );
             })}

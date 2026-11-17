@@ -118,20 +118,23 @@ function CalendarCell({ className, ...props }: AriaCalendarCellProps) {
         cn(
           ariaButtonVariants({ variant: "ghost" }),
           "relative flex size-9 items-center justify-center p-0 text-sm font-normal",
+          "rounded-md outline-none",
+          "data-[hovered]:rounded-md data-[focused]:rounded-md data-[focus-visible]:rounded-md",
+          "data-[focus-visible]:ring-0 data-[focus-visible]:ring-offset-0",
+          "transition-[color,background-color]",
           renderProps.isDisabled && "text-muted-foreground opacity-50",
-          renderProps.isSelected &&
-            "bg-primary text-primary-foreground data-[focused]:bg-primary data-[focused]:text-primary-foreground",
-          renderProps.isHovered &&
-            renderProps.isSelected &&
-            (renderProps.isSelectionStart ||
-              renderProps.isSelectionEnd ||
-              !isRange) &&
-            "data-[hovered]:bg-primary data-[hovered]:text-primary-foreground",
+          renderProps.isFocusVisible &&
+            renderProps.isFocused &&
+            "ring-2 ring-ring ring-offset-2 ring-offset-background",
           renderProps.isSelected &&
             isRange &&
             !renderProps.isSelectionStart &&
             !renderProps.isSelectionEnd &&
-            "rounded-none bg-muted text-accent-foreground",
+            "rounded-none bg-muted text-accent-foreground data-[hovered]:rounded-none",
+          ((renderProps.isSelected && !isRange) ||
+            renderProps.isSelectionStart ||
+            renderProps.isSelectionEnd) &&
+            "rounded-md bg-primary text-primary-foreground data-[hovered]:rounded-md data-[focused]:rounded-md data-[hovered]:bg-primary data-[hovered]:text-primary-foreground data-[focused]:bg-primary data-[focused]:text-primary-foreground",
           renderProps.isOutsideMonth &&
             "text-muted-foreground opacity-50 data-[selected]:bg-muted/50 data-[selected]:text-muted-foreground data-[selected]:opacity-30",
           renderProps.date.compare(today(getLocalTimeZone())) === 0 &&
@@ -139,7 +142,7 @@ function CalendarCell({ className, ...props }: AriaCalendarCellProps) {
             "bg-accent text-accent-foreground",
           renderProps.isUnavailable && "cursor-default text-destructive",
           renderProps.isInvalid &&
-            "bg-destructive text-destructive-foreground data-[focused]:bg-destructive data-[hovered]:bg-destructive data-[focused]:text-destructive-foreground data-[hovered]:text-destructive-foreground",
+            "rounded-md bg-destructive text-destructive-foreground data-[hovered]:rounded-md data-[focused]:rounded-md data-[focused]:bg-destructive data-[hovered]:bg-destructive data-[focused]:text-destructive-foreground data-[hovered]:text-destructive-foreground",
           className,
         ),
       )}
