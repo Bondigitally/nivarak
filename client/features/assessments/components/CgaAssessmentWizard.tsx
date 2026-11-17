@@ -2258,12 +2258,17 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
               ) : section.id === "investigations" ? (
                 <CgaInvestigationsSection
                   labs={draft.labs ?? []}
-                  imaging={draft.imaging ?? []}
-                  pending={draft.pendingInvestigations ?? []}
+                  testsRequestedToday={
+                    typeof sectionValues.testsRequestedToday === "string"
+                      ? sectionValues.testsRequestedToday
+                      : ""
+                  }
                   onLabsChange={(labs) => updateDraft({ labs })}
-                  onImagingChange={(imaging) => updateDraft({ imaging })}
-                  onPendingChange={(pendingInvestigations) =>
-                    updateDraft({ pendingInvestigations })
+                  onTestsRequestedTodayChange={(testsRequestedToday) =>
+                    setSectionValues({
+                      ...sectionValues,
+                      testsRequestedToday,
+                    })
                   }
                 />
               ) : section.id === "sign-off" ? (
