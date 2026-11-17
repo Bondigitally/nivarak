@@ -2140,14 +2140,14 @@ function ProblemListSection({
                         }
                         placeholder=""
                         className={cn(fieldInputClassName, "font-medium")}
-                        aria-label={`${row.domain} problem`}
+                        aria-label={`${row.domain ?? "Problem"} problem`}
                       />
                     </td>
                     <td className="min-w-0 px-3 py-2.5 align-top">
                       <CgaSelect
                         id={`cga-problem-priority-${row.id}`}
-                        aria-label={`${row.domain} priority`}
-                        value={row.priority}
+                        aria-label={`${row.domain ?? "Problem"} priority`}
+                        value={row.priority ?? ""}
                         options={CGA_PROBLEM_PRIORITY_OPTIONS.map((opt) => ({
                           value: opt.id,
                           label: opt.label,
