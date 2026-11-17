@@ -7,11 +7,14 @@ export function ToggleSwitch({
   onCheckedChange,
   id,
   labelledBy,
+  tone = "primary",
 }: {
   checked: boolean;
   onCheckedChange: (next: boolean) => void;
   id: string;
   labelledBy?: string;
+  /** Checked track color — `info` for review / status accents. */
+  tone?: "primary" | "info";
 }) {
   return (
     <button
@@ -24,7 +27,11 @@ export function ToggleSwitch({
       className={cn(
         "relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        checked ? "bg-primary" : "bg-border",
+        checked
+          ? tone === "info"
+            ? "bg-info"
+            : "bg-primary"
+          : "bg-border",
       )}
     >
       <span
