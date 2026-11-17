@@ -33,13 +33,18 @@ import {
 } from "@/components/layout/sidebar-context";
 import { PATIENT_NAV } from "@/components/layout/sidebar-nav";
 import {
+  shellMainWorkspaceClass,
   sidebarFooterClass,
   sidebarHeaderClass,
   sidebarNavActiveSurfaceClass,
 } from "@/components/layout/shell-chrome";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { AppointmentRow } from "@/features/appointments/components/AppointmentRow";
-import { getAppointmentsByTab } from "@/features/appointments/data/appointments-data";
+import {
+  getAppointmentsByTab,
+  type AppointmentTab,
+} from "@/features/appointments/data/appointments-data";
 import { RecentAssessmentsTable } from "@/features/assessments/components/RecentAssessmentsTable";
 import { ASSESSMENT_ROWS } from "@/features/assessments/data/assessments-data";
 import { AppointmentsCard } from "@/features/appointments/components/AppointmentsCard";
@@ -63,7 +68,6 @@ import {
   dashboardHeaderIconButtonClass,
   dashboardSearchBarPlaceholderClass,
 } from "@/lib/tokens/page-shell";
-import { radius } from "@/lib/tokens/radius";
 import { typo } from "@/lib/tokens/typography";
 import { cn } from "@/lib/utils";
 
@@ -110,6 +114,11 @@ const PAGE_SHELL = cn(
 const HOME_DATA = getHomeDashboardData();
 const PREVIEW_APPOINTMENTS = getAppointmentsByTab("upcoming").slice(0, 3);
 
+const PREVIEW_APPOINTMENT_TABS: { id: AppointmentTab; label: string }[] = [
+  { id: "upcoming", label: "Upcoming" },
+  { id: "past", label: "Past" },
+];
+
 /** Initials-only — skips decoding large care-team PNGs in the hero. */
 const PREVIEW_CARE_TEAM =
   HOME_DATA.careTeam?.map(({ imageSrc, ...member }) => {
@@ -129,7 +138,7 @@ const StaticSidebar = memo(function StaticSidebar({
 }) {
   return (
     <aside
-      className="flex h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar font-sans"
+      className="flex h-full shrink-0 flex-col bg-sidebar font-sans"
       style={{ width: SIDEBAR_WIDTH_EXPANDED }}
     >
       <div className={cn(sidebarHeaderClass, "flex items-center gap-2 px-3")}>
@@ -148,12 +157,12 @@ const StaticSidebar = memo(function StaticSidebar({
               "truncate",
               roundedElegance.className,
               typo.logo,
-              "text-2xl leading-6 tracking-[0.08em]",
+              "text-2xl leading-6 tracking-[0.08em] text-white",
             )}
           >
             nivarak
           </span>
-          <span className={cn("truncate", typo.caption, "text-muted-foreground")}>
+          <span className={cn("truncate", typo.caption, "text-sidebar-foreground")}>
             Unifying Eldercare
           </span>
         </span>
@@ -215,18 +224,18 @@ const StaticSidebar = memo(function StaticSidebar({
 
       <div className={cn(sidebarFooterClass, "flex items-center px-2")}>
         <div className="flex w-full min-w-0 items-center gap-2">
-          <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold text-foreground">
+          <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sidebar-border bg-sidebar-hover-bg text-xs font-semibold text-white">
             A
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold leading-none text-foreground">
+            <p className="truncate text-sm font-semibold leading-none text-white">
               Alex
             </p>
-            <p className="mt-0.5 truncate text-xs font-normal leading-4 text-muted-foreground">
+            <p className="mt-0.5 truncate text-xs font-normal leading-4 text-sidebar-foreground">
               alex@example.com
             </p>
           </div>
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md text-sidebar-foreground">
             <HugeiconsIcon
               icon={Logout01Icon}
               size={ICON_SIZE}
@@ -245,7 +254,7 @@ const StaticSidebar = memo(function StaticSidebar({
 
 const StaticTopBar = memo(function StaticTopBar() {
   return (
-    <header className="flex w-full shrink-0 items-center gap-3 border-b border-transparent bg-background px-6 py-3">
+    <header className="flex w-full shrink-0 items-center gap-3 border-0 border-b-0 bg-card px-6 py-3">
       <div className="flex min-w-0 flex-1" />
       <div className={cn(dashboardSearchBarClass, "max-w-md")}>
         <HugeiconsIcon
@@ -357,27 +366,14 @@ const StaticAppointmentsBody = memo(function StaticAppointmentsBody() {
         subtitle="Manage and track all your scheduled visits."
       />
       <div className={cn(dashboardGridStackClass, "!gap-3")}>
-        <div className="pt-1">
-          <div className="relative flex h-11 w-fit items-stretch">
-            <span
-              className={cn(
-                radius.md,
-                "pointer-events-none absolute top-1/2 right-0 left-0 z-0 h-10 -translate-y-1/2 bg-table-header",
-              )}
-            />
-            <span
-              className={cn(
-                radius.md,
-                "relative z-10 flex h-full items-center justify-center border border-border bg-card px-5 text-sm font-medium leading-5 text-foreground shadow-[0_1px_2px_rgba(17,24,39,0.06)]",
-              )}
-            >
-              Upcoming
-            </span>
-            <span className="relative z-10 flex h-full items-center justify-center px-5 text-sm leading-5 text-muted-foreground">
-              Past
-            </span>
-          </div>
-        </div>
+        <SegmentedControl
+          value="upcoming"
+          onChange={() => {}}
+          options={PREVIEW_APPOINTMENT_TABS}
+          ariaLabel="Appointment filters"
+          layoutId="heroAppointmentsActiveTab"
+          variant="inset"
+        />
         <ul className="flex flex-col gap-3">
           {PREVIEW_APPOINTMENTS.map((appointment) => (
             <li key={appointment.id}>
@@ -466,12 +462,18 @@ export function HeroAppPreview({
   return (
     <div
       ref={shellRef}
-      className="pointer-events-none relative size-full select-none overflow-hidden bg-background"
+      className="pointer-events-none relative size-full select-none overflow-hidden bg-sidebar"
+      data-sidebar-theme="dark"
       aria-hidden
     >
       <SidebarProvider>
+        {/*
+          Match protected AppShell: dark sidebar canvas + 24px-rounded main
+          workspace inside the outer gutter (no shell outline).
+        */}
         <div
-          className="absolute top-0 left-0 flex overflow-hidden bg-background"
+          className="absolute top-0 left-0 flex overflow-hidden bg-sidebar p-2"
+          data-sidebar-theme="dark"
           style={{
             width: DESIGN_WIDTH,
             height: DESIGN_HEIGHT,
@@ -480,33 +482,35 @@ export function HeroAppPreview({
           }}
         >
           <StaticSidebar activeHref={SCREEN_HREF[screen]} />
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <StaticTopBar />
-            {/*
-              Single-track slide: one translate3d on the strip (not per-panel
-              opacity/transform). Percentages resolve against the track’s
-              definite width (= viewport), so -100% == one screen.
-            */}
-            <div className="relative min-h-0 w-full flex-1 overflow-hidden">
-              <div
-                className={cn(
-                  "flex h-full w-full transform-gpu will-change-transform",
-                  "transition-transform duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-                  "motion-reduce:transition-none",
-                )}
-                style={{
-                  transform: `translate3d(-${activeIdx * 100}%, 0, 0)`,
-                }}
-              >
-                {SCREEN_ORDER.map((panel) => (
-                  <div
-                    key={panel}
-                    className="h-full w-full min-w-full shrink-0 grow-0 basis-full overflow-hidden [contain:layout_paint]"
-                    aria-hidden={panel !== screen}
-                  >
-                    {SCREEN_BODIES[panel]()}
-                  </div>
-                ))}
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className={cn(shellMainWorkspaceClass, "rounded-[1.5rem]")}>
+              <StaticTopBar />
+              {/*
+                Single-track slide: one translate3d on the strip (not per-panel
+                opacity/transform). Percentages resolve against the track’s
+                definite width (= viewport), so -100% == one screen.
+              */}
+              <div className="relative min-h-0 w-full flex-1 overflow-hidden">
+                <div
+                  className={cn(
+                    "flex h-full w-full transform-gpu will-change-transform",
+                    "transition-transform duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+                    "motion-reduce:transition-none",
+                  )}
+                  style={{
+                    transform: `translate3d(-${activeIdx * 100}%, 0, 0)`,
+                  }}
+                >
+                  {SCREEN_ORDER.map((panel) => (
+                    <div
+                      key={panel}
+                      className="h-full w-full min-w-full shrink-0 grow-0 basis-full overflow-hidden [contain:layout_paint]"
+                      aria-hidden={panel !== screen}
+                    >
+                      {SCREEN_BODIES[panel]()}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
