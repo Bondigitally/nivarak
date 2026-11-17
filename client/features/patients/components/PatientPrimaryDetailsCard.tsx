@@ -75,29 +75,23 @@ export function PatientPrimaryDetailsCard({
     <section
       className={cn(
         dashboardCardClass,
-        "flex flex-wrap items-center justify-between gap-4 border-border/90 p-6",
+        "flex flex-wrap items-center justify-between gap-4 border-border/90 p-4",
       )}
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-5">
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
         <ZoomablePatientAvatar
           initials={patient.initials}
           name={patient.name}
           riskLevel={patient.riskLevel}
-          size="lg"
+          size="md"
           src={patient.avatarUrl}
-          className="size-14 text-base font-semibold tracking-[0.4px]"
         />
 
         <div className="min-w-0">
-          <h1
-            className={cn(
-              typo.headingL,
-              "text-[17px] font-bold leading-[1.375] tracking-[-0.025em] text-foreground",
-            )}
-          >
+          <h1 className={cn(typo.headingL, "text-foreground")}>
             {patient.name}
           </h1>
-          <p className={cn(typo.bodyM, "mt-0.5 text-muted-foreground")}>
+          <p className={cn(typo.bodyS, "text-muted-foreground")}>
             {patient.age} yrs
             <span className="mx-1.5 text-border" aria-hidden>
               ·
