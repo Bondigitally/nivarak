@@ -1,10 +1,29 @@
 import {
+  barthelItemFieldId,
+  CGA_BARTHEL_ITEMS,
   CGA_COGNITION_LIMITS,
+  CGA_DEFAULT_CARE_PLAN_ACTIONS,
+  CGA_DEFAULT_CARE_PLAN_REFERRALS,
   CGA_DEFAULT_MEDICATIONS,
   CGA_DEFAULT_OTC,
   CGA_DEFAULT_PROBLEMS,
+  CGA_GDS15_LIMITS,
+  CGA_MUST_LIMITS,
+  CGA_NOTTINGHAM_ITEMS,
   CGA_PHYSICAL_LIMITS,
+  CGA_SYSTEMIC_EXAM_FIELDS,
   CGA_SECTIONS,
+  ensureCarePlanActionRows,
+  ensureCarePlanReferralRows,
+  ensureProblemRows,
+  hasCompletedCarePlanAction,
+  hasCompletedProblem,
+  isCarePlanActionRowValid,
+  isCarePlanReferralRowValid,
+  isProblemRowValid,
+  nottinghamItemFieldId,
+  type CgaCarePlanActionRow,
+  type CgaCarePlanReferralRow,
   type CgaField,
   type CgaMedicationRow,
   type CgaOtcRow,
@@ -12,13 +31,27 @@ import {
   type CgaSection,
 } from "./cga-sections-data";
 import {
+  CGA_DEFAULT_ACTIVE_DIAGNOSES,
+  CGA_DEFAULT_HOSPITALISATIONS,
+  CGA_DEFAULT_PAST_SURGERIES,
+  isActiveDiagnosisRowValid,
+  isHospitalisationRowValid,
+  isPastSurgeryRowValid,
+  normalizeActiveDiagnosisRow,
+  normalizeHospitalisationRow,
+  normalizePastSurgeryRow,
+  type CgaActiveDiagnosisRow,
+  type CgaHospitalisationRow,
+  type CgaPastSurgeryRow,
+} from "./cga-medical-history-data";
+import {
   CGA_DEFAULT_IMAGING,
   CGA_DEFAULT_LABS,
   CGA_DEFAULT_PENDING,
+  ensureRecentResultRows,
   findLabCatalogItem,
-  isImagingRowValid,
+  hasCompletedRecentResult,
   isLabRowValid,
-  isPendingRowValid,
   type CgaImagingRow,
   type CgaLabRow,
   type CgaPendingRow,
@@ -34,7 +67,12 @@ export type CgaDraftState = {
   valuesBySection: Record<string, CgaSectionValues>;
   medications: CgaMedicationRow[];
   otcMedications: CgaOtcRow[];
+  activeDiagnoses: CgaActiveDiagnosisRow[];
+  pastSurgeries: CgaPastSurgeryRow[];
+  hospitalisations: CgaHospitalisationRow[];
   problems: CgaProblemRow[];
+  carePlanActions: CgaCarePlanActionRow[];
+  carePlanReferrals: CgaCarePlanReferralRow[];
   labs: CgaLabRow[];
   imaging: CgaImagingRow[];
   pendingInvestigations: CgaPendingRow[];
@@ -60,14 +98,15 @@ export function createEmptyCgaDraft(patientId: string): CgaDraftState {
         address: "42 Lotus Apartments, Navrangpura, Ahmedabad 380009",
         mobileNumbers: "+91 98234 56789",
         language: ["english", "gujarati"],
-        familyContact: "Rahul Patil (+91 98765 43210)",
+        familyContactName: "Rahul Patil",
+        familyContactPhone: "+91 98765 43210",
         relationship: "Son",
         livingSituation: "spouse",
         referralSource: "Self-referred",
         gpName: "Dr. Amit Desai",
       },
       medications: {
-        adherence: "partial",
+        adherence: "occasional",
         administration: "self",
         storage: "dosette",
         reviewSummary:
@@ -78,11 +117,19 @@ export function createEmptyCgaDraft(patientId: string): CgaDraftState {
       },
       "sign-off": {
         signer: clinician.displayName,
+        designation: clinician.designation ?? "Geriatrician",
       },
     },
     medications: CGA_DEFAULT_MEDICATIONS.map((m) => ({ ...m })),
     otcMedications: CGA_DEFAULT_OTC.map((m) => ({ ...m })),
+    activeDiagnoses: CGA_DEFAULT_ACTIVE_DIAGNOSES.map((row) => ({ ...row })),
+    pastSurgeries: CGA_DEFAULT_PAST_SURGERIES.map((row) => ({ ...row })),
+    hospitalisations: CGA_DEFAULT_HOSPITALISATIONS.map((row) => ({ ...row })),
     problems: CGA_DEFAULT_PROBLEMS.map((p) => ({ ...p })),
+    carePlanActions: CGA_DEFAULT_CARE_PLAN_ACTIONS.map((row) => ({ ...row })),
+    carePlanReferrals: CGA_DEFAULT_CARE_PLAN_REFERRALS.map((row) => ({
+      ...row,
+    })),
     labs: CGA_DEFAULT_LABS.map((row) => ({ ...row })),
     imaging: CGA_DEFAULT_IMAGING.map((row) => ({ ...row })),
     pendingInvestigations: CGA_DEFAULT_PENDING.map((row) => ({ ...row })),
@@ -96,11 +143,16 @@ function problemsFromLegacyText(raw: string): CgaProblemRow[] {
     .map((line) => line.replace(/^\s*\d+[.)]\s*/, "").trim())
     .filter(Boolean);
   if (lines.length === 0) return CGA_DEFAULT_PROBLEMS.map((p) => ({ ...p }));
-  return lines.map((problem, index) => ({
-    id: `prob-legacy-${index + 1}`,
-    problem,
-    notes: "",
-  }));
+  const seeded = ensureProblemRows([]);
+  return ensureProblemRows(
+    lines.map((problem, index) => ({
+      ...(seeded[index] ?? seeded[0]!),
+      id: seeded[index]?.id ?? `prob-legacy-${index + 1}`,
+      problem,
+      notes: "",
+      priority: "" as const,
+    })),
+  );
 }
 
 function labsFromLegacyText(raw: string): CgaLabRow[] {
@@ -120,6 +172,7 @@ function labsFromLegacyText(raw: string): CgaLabRow[] {
       testDate: "",
       status: "ordered" as const,
       resultType: catalog?.resultType ?? "text",
+      action: "",
     };
   });
 }
@@ -139,6 +192,33 @@ function imagingFromLegacyText(raw: string): CgaImagingRow[] {
     reportName: "",
     status: "ordered" as const,
   }));
+}
+
+function splitLegacyFamilyContact(raw: string): {
+  name: string;
+  phone: string;
+} {
+  const trimmed = raw.trim();
+  if (!trimmed) return { name: "", phone: "" };
+
+  const parenMatch = trimmed.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+  if (parenMatch) {
+    return { name: parenMatch[1].trim(), phone: parenMatch[2].trim() };
+  }
+
+  return { name: trimmed, phone: "" };
+}
+
+function pastSurgeriesFromLegacyPmh(raw: string): CgaPastSurgeryRow[] {
+  const trimmed = raw.trim();
+  if (!trimmed) return CGA_DEFAULT_PAST_SURGERIES.map((row) => ({ ...row }));
+  return [
+    {
+      id: "surg-legacy-1",
+      surgeryDate: "",
+      surgeryType: trimmed,
+    },
+  ];
 }
 
 function pendingFromLegacyText(raw: string): CgaPendingRow[] {
@@ -176,6 +256,45 @@ function normalizeCgaDraft(draft: CgaDraftState): CgaDraftState {
     }
   }
 
+  let activeDiagnoses = draft.activeDiagnoses;
+  if (!Array.isArray(activeDiagnoses) || activeDiagnoses.length === 0) {
+    activeDiagnoses = CGA_DEFAULT_ACTIVE_DIAGNOSES.map((row) => ({ ...row }));
+  } else {
+    activeDiagnoses = activeDiagnoses.map((row) =>
+      normalizeActiveDiagnosisRow(row),
+    );
+  }
+
+  let pastSurgeries = draft.pastSurgeries;
+  if (!Array.isArray(pastSurgeries) || pastSurgeries.length === 0) {
+    const legacy = draft.valuesBySection?.["medical-history"]?.pmh;
+    if (typeof legacy === "string" && legacy.trim().length > 0) {
+      pastSurgeries = pastSurgeriesFromLegacyPmh(legacy);
+    } else {
+      pastSurgeries = CGA_DEFAULT_PAST_SURGERIES.map((row) => ({ ...row }));
+    }
+  } else {
+    pastSurgeries = pastSurgeries.map((row) => normalizePastSurgeryRow(row));
+  }
+
+  let hospitalisations = draft.hospitalisations;
+  if (!Array.isArray(hospitalisations) || hospitalisations.length === 0) {
+    hospitalisations = CGA_DEFAULT_HOSPITALISATIONS.map((row) => ({ ...row }));
+  } else {
+    hospitalisations = hospitalisations.map((row) =>
+      normalizeHospitalisationRow(row),
+    );
+  }
+
+  const medicalHistorySection = draft.valuesBySection?.["medical-history"];
+  if (medicalHistorySection && "pmh" in medicalHistorySection) {
+    const { pmh: _removed, ...rest } = medicalHistorySection;
+    draft.valuesBySection = {
+      ...draft.valuesBySection,
+      "medical-history": rest,
+    };
+  }
+
   let problems = draft.problems;
   if (!Array.isArray(problems) || problems.length === 0) {
     const legacy = draft.valuesBySection?.["problem-list"]?.problems;
@@ -185,6 +304,21 @@ function normalizeCgaDraft(draft: CgaDraftState): CgaDraftState {
       problems = CGA_DEFAULT_PROBLEMS.map((p) => ({ ...p }));
     }
   }
+  problems = ensureProblemRows(problems);
+
+  let carePlanActions = draft.carePlanActions;
+  if (!Array.isArray(carePlanActions) || carePlanActions.length === 0) {
+    carePlanActions = CGA_DEFAULT_CARE_PLAN_ACTIONS.map((row) => ({ ...row }));
+  }
+  carePlanActions = ensureCarePlanActionRows(carePlanActions);
+
+  let carePlanReferrals = draft.carePlanReferrals;
+  if (!Array.isArray(carePlanReferrals) || carePlanReferrals.length === 0) {
+    carePlanReferrals = CGA_DEFAULT_CARE_PLAN_REFERRALS.map((row) => ({
+      ...row,
+    }));
+  }
+  carePlanReferrals = ensureCarePlanReferralRows(carePlanReferrals);
 
   let labs = draft.labs;
   if (!Array.isArray(labs) || labs.length === 0) {
@@ -195,6 +329,7 @@ function normalizeCgaDraft(draft: CgaDraftState): CgaDraftState {
       labs = CGA_DEFAULT_LABS.map((row) => ({ ...row }));
     }
   }
+  labs = ensureRecentResultRows(labs);
 
   let imaging = draft.imaging;
   if (!Array.isArray(imaging) || imaging.length === 0) {
@@ -220,11 +355,33 @@ function normalizeCgaDraft(draft: CgaDraftState): CgaDraftState {
   }
 
   const medicationsSection = draft.valuesBySection?.medications;
-  if (medicationsSection && "supplements" in medicationsSection) {
+  if (medicationsSection) {
+    const adherenceMap: Record<string, string> = {
+      full: "good",
+      partial: "occasional",
+      poor: "frequent",
+    };
+    const administrationMap: Record<string, string> = {
+      caregiver: "carer",
+      professional: "carer",
+    };
+    const rawAdherence =
+      typeof medicationsSection.adherence === "string"
+        ? medicationsSection.adherence
+        : "";
+    const rawAdministration =
+      typeof medicationsSection.administration === "string"
+        ? medicationsSection.administration
+        : "";
     const { supplements: _removed, ...rest } = medicationsSection;
     draft.valuesBySection = {
       ...draft.valuesBySection,
-      medications: rest,
+      medications: {
+        ...rest,
+        adherence: adherenceMap[rawAdherence] ?? rawAdherence,
+        administration:
+          administrationMap[rawAdministration] ?? rawAdministration,
+      },
     };
   }
 
@@ -251,10 +408,45 @@ function normalizeCgaDraft(draft: CgaDraftState): CgaDraftState {
     };
   }
 
+  const visitDetails = draft.valuesBySection?.["visit-details"];
+  if (visitDetails && "familyContact" in visitDetails) {
+    const legacy =
+      typeof visitDetails.familyContact === "string"
+        ? visitDetails.familyContact
+        : "";
+    const { familyContact: _removed, ...rest } = visitDetails;
+    let familyContactName =
+      typeof rest.familyContactName === "string" ? rest.familyContactName : "";
+    let familyContactPhone =
+      typeof rest.familyContactPhone === "string"
+        ? rest.familyContactPhone
+        : "";
+
+    if (legacy.trim()) {
+      const split = splitLegacyFamilyContact(legacy);
+      if (!familyContactName.trim()) familyContactName = split.name;
+      if (!familyContactPhone.trim()) familyContactPhone = split.phone;
+    }
+
+    draft.valuesBySection = {
+      ...draft.valuesBySection,
+      "visit-details": {
+        ...rest,
+        familyContactName,
+        familyContactPhone,
+      },
+    };
+  }
+
   return {
     ...draft,
     otcMedications,
+    activeDiagnoses,
+    pastSurgeries,
+    hospitalisations,
     problems,
+    carePlanActions,
+    carePlanReferrals,
     labs,
     imaging,
     pendingInvestigations,
@@ -319,7 +511,8 @@ const VISIT_DETAILS_REQUIRED_KEYS = [
   "address",
   "mobileNumbers",
   "language",
-  "familyContact",
+  "familyContactName",
+  "familyContactPhone",
   "relationship",
   "livingSituation",
   "referralSource",
@@ -337,16 +530,35 @@ const PHYSICAL_REQUIRED_KEYS = [
   "bpSystolic",
   "bpDiastolic",
   "hr",
+  "spo2",
+  "temp",
   "weight",
-  "weightUnit",
-  "examNotes",
+  "heightCm",
+  "posturalBp",
+  "nutritionalAppearance",
 ] as const;
+
+function isOtherSelected(value: string | string[] | undefined): boolean {
+  if (Array.isArray(value)) return value.includes("other");
+  return value === "other";
+}
 
 function isGenericFieldFilled(
   field: CgaField,
   values: CgaSectionValues,
 ): boolean {
-  return isFilledValue(values[field.id]);
+  if (!isFilledValue(values[field.id])) return false;
+  if (
+    (field.kind === "select" ||
+      field.kind === "radio" ||
+      field.kind === "chips" ||
+      field.kind === "checkbox-list") &&
+    field.options.some((opt) => opt.id === "other") &&
+    isOtherSelected(values[field.id])
+  ) {
+    return isFilledValue(values[`${field.id}Other`]);
+  }
+  return true;
 }
 
 /** True when every editable field in the active section has a value. */
@@ -357,15 +569,30 @@ export function isCgaSectionFormFilled(
   const values = draft.valuesBySection[section.id] ?? {};
 
   if (section.id === "visit-details") {
-    return VISIT_DETAILS_REQUIRED_KEYS.every((key) =>
-      isFilledValue(values[key]),
-    );
+    if (
+      !VISIT_DETAILS_REQUIRED_KEYS.every((key) => isFilledValue(values[key]))
+    ) {
+      return false;
+    }
+    if (values.gender === "other" && !isFilledValue(values.genderOther)) {
+      return false;
+    }
+    return true;
   }
 
   if (section.id === "medications") {
     if (
       !MEDICATIONS_REQUIRED_KEYS.every((key) => isFilledValue(values[key]))
     ) {
+      return false;
+    }
+    if (
+      values.stoppedMeds === "true" &&
+      !isFilledValue(values.stoppedMedsNotes)
+    ) {
+      return false;
+    }
+    if (values.storage === "other" && !isFilledValue(values.storageOther)) {
       return false;
     }
     // Every listed medication row must have core fields filled.
@@ -396,14 +623,12 @@ export function isCgaSectionFormFilled(
     const systolic = Number(values.bpSystolic);
     const diastolic = Number(values.bpDiastolic);
     const hr = Number(values.hr);
+    const spo2 = Number(values.spo2);
+    const temp = Number(values.temp);
     const weight = Number(values.weight);
-    const unit = values.weightUnit === "lbs" ? "lbs" : "kg";
-    const weightLimit =
-      unit === "lbs"
-        ? CGA_PHYSICAL_LIMITS.weightLbs
-        : CGA_PHYSICAL_LIMITS.weightKg;
+    const heightCm = Number(values.heightCm);
 
-    return (
+    const vitalsValid =
       Number.isFinite(systolic) &&
       systolic >= CGA_PHYSICAL_LIMITS.bpSystolic.min &&
       systolic <= CGA_PHYSICAL_LIMITS.bpSystolic.max &&
@@ -413,67 +638,354 @@ export function isCgaSectionFormFilled(
       Number.isFinite(hr) &&
       hr >= CGA_PHYSICAL_LIMITS.hr.min &&
       hr <= CGA_PHYSICAL_LIMITS.hr.max &&
+      Number.isFinite(spo2) &&
+      spo2 >= CGA_PHYSICAL_LIMITS.spo2.min &&
+      spo2 <= CGA_PHYSICAL_LIMITS.spo2.max &&
+      Number.isFinite(temp) &&
+      temp >= CGA_PHYSICAL_LIMITS.temp.min &&
+      temp <= CGA_PHYSICAL_LIMITS.temp.max &&
       Number.isFinite(weight) &&
-      weight >= weightLimit.min &&
-      weight <= weightLimit.max
-    );
+      weight >= CGA_PHYSICAL_LIMITS.weightKg.min &&
+      weight <= CGA_PHYSICAL_LIMITS.weightKg.max &&
+      Number.isFinite(heightCm) &&
+      heightCm >= CGA_PHYSICAL_LIMITS.heightCm.min &&
+      heightCm <= CGA_PHYSICAL_LIMITS.heightCm.max;
+
+    if (!vitalsValid) return false;
+
+    return CGA_SYSTEMIC_EXAM_FIELDS.every((field) => {
+      if (!isFilledValue(values[field.id])) return false;
+      if (
+        field.options.some((opt) => opt.id === "other") &&
+        isOtherSelected(values[field.id])
+      ) {
+        return isFilledValue(values[`${field.id}Other`]);
+      }
+      return true;
+    });
   }
 
-  if (section.id === "cognition") {
+  if (section.id === "medical-history") {
+    const dxRows = draft.activeDiagnoses ?? [];
+    if (dxRows.length === 0 || !dxRows.every(isActiveDiagnosisRowValid)) {
+      return false;
+    }
+    const surgeryRows = draft.pastSurgeries ?? [];
     if (
-      !isFilledValue(values.moca) ||
-      !isFilledValue(values.mmse) ||
-      !isFilledValue(values.cognitiveConcerns) ||
-      !isFilledValue(values.orientation)
+      surgeryRows.length === 0 ||
+      !surgeryRows.every(isPastSurgeryRowValid)
     ) {
       return false;
     }
-    const moca = Number(values.moca);
-    const mmse = Number(values.mmse);
+    const hospitalRows = draft.hospitalisations ?? [];
+    if (
+      hospitalRows.length === 0 ||
+      !hospitalRows.every(isHospitalisationRowValid)
+    ) {
+      return false;
+    }
+    return isFilledValue(values.allergies);
+  }
+
+  if (section.id === "cognition") {
+    if (!isFilledValue(values.cognitionLastUpdated)) return false;
+
+    function scoreInRange(
+      raw: string | string[] | undefined,
+      limits: { min: number; max: number },
+    ) {
+      const n = Number(raw);
+      return Number.isFinite(n) && n >= limits.min && n <= limits.max;
+    }
+
+    const gpcogComplete =
+      isFilledValue(values.gpcogScore) &&
+      isFilledValue(values.gpcogInterpretation) &&
+      scoreInRange(values.gpcogScore, CGA_COGNITION_LIMITS.gpcog);
+    const mocaRaw =
+      typeof values.moca === "string" && values.moca.includes("/")
+        ? values.moca.split("/")[0]?.trim()
+        : values.moca;
+    const mocaComplete =
+      isFilledValue(mocaRaw) &&
+      isFilledValue(values.mocaInterpretation) &&
+      scoreInRange(mocaRaw, CGA_COGNITION_LIMITS.moca);
+    const amtsComplete =
+      isFilledValue(values.amtsScore) &&
+      isFilledValue(values.amtsInterpretation) &&
+      scoreInRange(values.amtsScore, CGA_COGNITION_LIMITS.amts);
+
+    if (!(gpcogComplete || mocaComplete || amtsComplete)) return false;
+
     return (
-      Number.isFinite(moca) &&
-      moca >= CGA_COGNITION_LIMITS.moca.min &&
-      moca <= CGA_COGNITION_LIMITS.moca.max &&
-      Number.isFinite(mmse) &&
-      mmse >= CGA_COGNITION_LIMITS.mmse.min &&
-      mmse <= CGA_COGNITION_LIMITS.mmse.max
+      isFilledValue(values.alertnessAttention) &&
+      isFilledValue(values.cognitionOrientation) &&
+      isFilledValue(values.memoryImpression) &&
+      isFilledValue(values.languageCommunication) &&
+      isFilledValue(values.informantReport) &&
+      isFilledValue(values.deliriumRisk) &&
+      isFilledValue(values.cognitiveObservations)
     );
   }
 
   if (section.id === "problem-list") {
-    const rows = draft.problems ?? [];
-    if (rows.length === 0) return false;
-    return rows.every((row) => row.problem.trim().length > 0);
+    const rows = ensureProblemRows(draft.problems ?? []);
+    return hasCompletedProblem(rows) && rows.every(isProblemRowValid);
   }
 
   if (section.id === "investigations") {
-    const labRows = draft.labs ?? [];
-    const imagingRows = draft.imaging ?? [];
-    const pendingRows = draft.pendingInvestigations ?? [];
-    if (
-      labRows.length === 0 ||
-      imagingRows.length === 0 ||
-      pendingRows.length === 0
-    ) {
+    const labRows = ensureRecentResultRows(draft.labs ?? []);
+    if (!hasCompletedRecentResult(labRows) || !labRows.every(isLabRowValid)) {
       return false;
     }
-    return (
-      labRows.every(isLabRowValid) &&
-      imagingRows.every(isImagingRowValid) &&
-      pendingRows.every(isPendingRowValid)
-    );
+    return isFilledValue(values.testsRequestedToday);
   }
 
   if (section.id === "sign-off") {
-    const attestation = Array.isArray(values.attestation)
-      ? values.attestation
-      : [];
     return (
-      isFilledValue(values.summary) &&
       isFilledValue(values.signer) &&
-      attestation.includes("reviewed") &&
-      attestation.includes("accurate")
+      isFilledValue(values.designation) &&
+      isFilledValue(values.signOffDate) &&
+      isFilledValue(values.timeCompleted) &&
+      isFilledValue(values.visitDurationMins) &&
+      isFilledValue(values.informedFindings) &&
+      isFilledValue(values.summaryImpression)
     );
+  }
+
+  if (section.id === "mobility-falls") {
+    if (
+      !isFilledValue(values.falls12m) ||
+      !isFilledValue(values.fallsConsequences) ||
+      !isFilledValue(values.fearOfFalling)
+    ) {
+      return false;
+    }
+    if (values.falls12m === "one" || values.falls12m === "twoPlus") {
+      if (
+        !isFilledValue(values.fallsCircumstances) ||
+        !isFilledValue(values.lastFall) ||
+        !isFilledValue(values.medicalAttentionSought)
+      ) {
+        return false;
+      }
+    }
+
+    if (values.mobilityVisitParams !== "true") return false;
+
+    return (
+      isFilledValue(values.walkingAids) &&
+      isFilledValue(values.outdoorMobility) &&
+      isFilledValue(values.tugTime) &&
+      isFilledValue(values.tugInterpretation) &&
+      isFilledValue(values.turnSteps) &&
+      isFilledValue(values.turnInterpretation) &&
+      isFilledValue(values.gaitSpeedTime) &&
+      isFilledValue(values.gaitSpeedInterpretation) &&
+      isFilledValue(values.chairStand) &&
+      isFilledValue(values.gaitPattern) &&
+      isFilledValue(values.balanceImpression) &&
+      isFilledValue(values.mobilityObservations) &&
+      isFilledValue(values.environmentalHazards) &&
+      isFilledValue(values.environmentalObservations)
+    );
+  }
+
+  if (section.id === "bone-health") {
+    if (
+      !isFilledValue(values.fragilityFractureHistory) ||
+      !isFilledValue(values.osteoporosisDiagnosis) ||
+      !isFilledValue(values.boneTreatment) ||
+      !isFilledValue(values.boneHealthPlan)
+    ) {
+      return false;
+    }
+    const fragility = Array.isArray(values.fragilityFractureHistory)
+      ? values.fragilityFractureHistory
+      : [];
+    if (fragility.includes("other") && !isFilledValue(values.fragilityFractureOther)) {
+      return false;
+    }
+    const treatment = Array.isArray(values.boneTreatment)
+      ? values.boneTreatment
+      : [];
+    if (treatment.includes("other") && !isFilledValue(values.boneTreatmentOther)) {
+      return false;
+    }
+    return true;
+  }
+
+  if (section.id === "mood") {
+    const gdsScore = Number(values.gds15Score);
+    const gdsComplete =
+      isFilledValue(values.gds15Score) &&
+      isFilledValue(values.gds15Interpretation) &&
+      Number.isFinite(gdsScore) &&
+      gdsScore >= CGA_GDS15_LIMITS.min &&
+      gdsScore <= CGA_GDS15_LIMITS.max;
+    const phqComplete = isFilledValue(values.phq2Screen);
+    if (!(gdsComplete || phqComplete)) return false;
+
+    return (
+      isFilledValue(values.affect) &&
+      isFilledValue(values.psychomotor) &&
+      isFilledValue(values.sleep) &&
+      isFilledValue(values.suicidalIdeation) &&
+      isFilledValue(values.anxiety) &&
+      isFilledValue(values.lonelinessIsolation) &&
+      isFilledValue(values.psychologicalPlan)
+    );
+  }
+
+  if (section.id === "delirium") {
+    return (
+      isFilledValue(values.at4Alertness) &&
+      isFilledValue(values.at4Amt4) &&
+      isFilledValue(values.at4Attention) &&
+      isFilledValue(values.at4AcuteChange) &&
+      isFilledValue(values.camAcuteFluctuating) &&
+      isFilledValue(values.camInattention) &&
+      isFilledValue(values.camDisorganisedThinking) &&
+      isFilledValue(values.camAlteredConsciousness) &&
+      isFilledValue(values.deliriumPlan)
+    );
+  }
+
+  if (section.id === "function") {
+    const barthelFilled = CGA_BARTHEL_ITEMS.every((item) =>
+      isFilledValue(values[barthelItemFieldId(item.id)]),
+    );
+    const nottinghamFilled = CGA_NOTTINGHAM_ITEMS.every((item) =>
+      isFilledValue(values[nottinghamItemFieldId(item.id)]),
+    );
+    return (
+      barthelFilled &&
+      nottinghamFilled &&
+      isFilledValue(values.functionalTrajectory)
+    );
+  }
+
+  if (section.id === "social-home") {
+    return (
+      isFilledValue(values.primaryCarer) &&
+      isFilledValue(values.carerStrain) &&
+      isFilledValue(values.socialEngagement) &&
+      isFilledValue(values.communityParticipation) &&
+      isFilledValue(values.drivingTransport) &&
+      isFilledValue(values.financialSituation) &&
+      isFilledValue(values.propertyType) &&
+      isFilledValue(values.homeStairs) &&
+      isFilledValue(values.bathroomSafety) &&
+      isFilledValue(values.homeSafetyDevices) &&
+      isFilledValue(values.socialEnvironmentalPlan)
+    );
+  }
+
+  if (section.id === "continence") {
+    return (
+      isFilledValue(values.urinaryType) &&
+      isFilledValue(values.urinaryOnset) &&
+      isFilledValue(values.urinarySeverity) &&
+      isFilledValue(values.nocturia) &&
+      isFilledValue(values.urgencyToToilet) &&
+      isFilledValue(values.urinaryExam) &&
+      isFilledValue(values.urineDipstick) &&
+      isFilledValue(values.msuSent) &&
+      isFilledValue(values.incontinencePlan)
+    );
+  }
+
+  if (section.id === "nutrition") {
+    const mustScore = Number(values.mustScore);
+    const weightToday = Number(values.weightTodayKg);
+    const weightPrior = Number(values.weightThreeMonthsKg);
+    if (
+      !isFilledValue(values.mustScore) ||
+      !isFilledValue(values.mustInterpretation) ||
+      !Number.isFinite(mustScore) ||
+      mustScore < CGA_MUST_LIMITS.min ||
+      mustScore > CGA_MUST_LIMITS.max ||
+      !isFilledValue(values.weightTodayKg) ||
+      !isFilledValue(values.weightThreeMonthsKg) ||
+      !Number.isFinite(weightToday) ||
+      weightToday < CGA_PHYSICAL_LIMITS.weightKg.min ||
+      weightToday > CGA_PHYSICAL_LIMITS.weightKg.max ||
+      !Number.isFinite(weightPrior) ||
+      weightPrior < CGA_PHYSICAL_LIMITS.weightKg.min ||
+      weightPrior > CGA_PHYSICAL_LIMITS.weightKg.max
+    ) {
+      return false;
+    }
+
+    return (
+      isFilledValue(values.appetite) &&
+      isFilledValue(values.swallowing) &&
+      isFilledValue(values.oralHealthEating) &&
+      isFilledValue(values.tasteChanges) &&
+      isFilledValue(values.hydration) &&
+      isFilledValue(values.alcoholIntake) &&
+      isFilledValue(values.dietaryPlan)
+    );
+  }
+
+  if (section.id === "advance-care") {
+    return (
+      isFilledValue(values.prognosisAwareness) &&
+      isFilledValue(values.acpDiscussed) &&
+      isFilledValue(values.preferredPlaceOfCare) &&
+      isFilledValue(values.cprDecision) &&
+      isFilledValue(values.palliativeNeeds) &&
+      isFilledValue(values.carerWishesAwareness) &&
+      isFilledValue(values.eolAcpNotes)
+    );
+  }
+
+  if (section.id === "care-plan") {
+    const actions = ensureCarePlanActionRows(draft.carePlanActions ?? []);
+    const referrals = ensureCarePlanReferralRows(
+      draft.carePlanReferrals ?? [],
+    );
+    if (
+      !isFilledValue(values.patientGoal1) ||
+      !isFilledValue(values.patientGoal2) ||
+      !isFilledValue(values.familyCarerPriorities) ||
+      !isFilledValue(values.escalationGpContact) ||
+      !isFilledValue(values.escalationEmergency) ||
+      !isFilledValue(values.nextScheduledReview) ||
+      !isFilledValue(values.reviewType) ||
+      !isFilledValue(values.otherReviewArrangements)
+    ) {
+      return false;
+    }
+    if (!actions.every((row) => isCarePlanActionRowValid(row))) return false;
+    if (!referrals.every((row) => isCarePlanReferralRowValid(row))) {
+      return false;
+    }
+    return hasCompletedCarePlanAction(actions);
+  }
+
+  if (section.id === "capacity") {
+    if (
+      !isFilledValue(values.capacityToday) ||
+      !isFilledValue(values.formalCapacityAssessment) ||
+      !isFilledValue(values.lastingPowerOfAttorney) ||
+      !isFilledValue(values.decisionMaker) ||
+      !isFilledValue(values.mentalCapacityNotes)
+    ) {
+      return false;
+    }
+    if (
+      (values.decisionMaker === "family-member" ||
+        values.decisionMaker === "legal-guardian") &&
+      !isFilledValue(values.namedDecisionMaker)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  if (section.id === "frailty-flags") {
+    return isFilledValue(values.frailtyFlags);
   }
 
   if (section.fields.length === 0) return true;

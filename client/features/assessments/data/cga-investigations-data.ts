@@ -33,7 +33,31 @@ export type CgaLabRow = {
   testDate: string;
   status: CgaInvestigationStatus;
   resultType: CgaLabResultType;
+  /** 15.1 Action / flag */
+  action: string;
 };
+
+/** Fixed 15.1 Recent results available checklist. */
+export const CGA_RECENT_RESULT_TESTS = [
+  { id: "ue", label: "Urea & electrolytes" },
+  { id: "creatinine-egfr", label: "Serum creatinine / eGFR" },
+  { id: "glucose-hba1c", label: "Glucose / HbA1c" },
+  { id: "fbc", label: "Full blood count (FBC)" },
+  { id: "haemoglobin", label: "Haemoglobin" },
+  { id: "lft", label: "Liver function tests" },
+  { id: "calcium-phosphate", label: "Calcium / phosphate" },
+  { id: "tsh", label: "Thyroid function (TSH)" },
+  { id: "vitd", label: "Vitamin D (25-OH)" },
+  { id: "b12-folate", label: "Vitamin B12 / folate" },
+  { id: "lipid", label: "Lipid profile" },
+  { id: "crp", label: "C-reactive protein (CRP)" },
+  { id: "psa", label: "PSA (if appropriate)" },
+  { id: "ecg", label: "ECG" },
+  { id: "cxr", label: "Chest X-ray" },
+  { id: "urine-msu", label: "Urinalysis / MSU" },
+  { id: "dxa", label: "Bone density (DXA)" },
+  { id: "other", label: "Other" },
+] as const;
 
 export type CgaImagingModality =
   | "xray"
@@ -125,28 +149,45 @@ export const CGA_QUALITATIVE_RESULT_OPTIONS = [
   { id: "indeterminate", label: "Indeterminate" },
 ] as const;
 
-export const CGA_DEFAULT_LABS: CgaLabRow[] = [
-  {
-    id: "lab-1",
-    testName: "HbA1c",
-    result: "7.2",
-    unit: "%",
-    referenceRange: "",
-    testDate: "2023-10-10",
-    status: "reviewed",
-    resultType: "numeric",
-  },
-  {
-    id: "lab-2",
-    testName: "CBC",
+export function emptyRecentResultRow(
+  test: (typeof CGA_RECENT_RESULT_TESTS)[number],
+): CgaLabRow {
+  return {
+    id: test.id,
+    testName: test.label,
     result: "",
     unit: "",
     referenceRange: "",
-    testDate: "2023-10-20",
+    testDate: "",
     status: "ordered",
     resultType: "text",
-  },
-];
+    action: "",
+  };
+}
+
+/** Ensure draft labs match the fixed 15.1 test list, preserving entered values. */
+export function ensureRecentResultRows(labs: CgaLabRow[]): CgaLabRow[] {
+  return CGA_RECENT_RESULT_TESTS.map((test) => {
+    const existing =
+      labs.find((row) => row.id === test.id) ??
+      labs.find(
+        (row) => row.testName.trim().toLowerCase() === test.label.toLowerCase(),
+      );
+    if (!existing) return emptyRecentResultRow(test);
+    return {
+      ...emptyRecentResultRow(test),
+      result: existing.result ?? "",
+      unit: existing.unit ?? "",
+      referenceRange: existing.referenceRange ?? "",
+      testDate: existing.testDate ?? "",
+      status: existing.status || "ordered",
+      resultType: existing.resultType || "text",
+      action: existing.action ?? "",
+    };
+  });
+}
+
+export const CGA_DEFAULT_LABS: CgaLabRow[] = ensureRecentResultRows([]);
 
 export const CGA_DEFAULT_IMAGING: CgaImagingRow[] = [
   {
@@ -181,6 +222,7 @@ export function emptyLabRow(): CgaLabRow {
     testDate: "",
     status: "ordered",
     resultType: "text",
+    action: "",
   };
 }
 
@@ -215,10 +257,24 @@ export function findLabCatalogItem(
   return CGA_LAB_CATALOG.find((item) => item.name.toLowerCase() === needle);
 }
 
+export function isRecentResultRowEmpty(row: CgaLabRow): boolean {
+  return (
+    !row.result.trim() && !row.testDate.trim() && !(row.action ?? "").trim()
+  );
+}
+
 export function isLabRowValid(row: CgaLabRow): boolean {
-  if (!row.testName.trim() || !row.testDate.trim() || !row.status) return false;
-  if (row.status === "ordered") return true;
-  return row.result.trim().length > 0;
+  if (isRecentResultRowEmpty(row)) return true;
+  return (
+    row.testName.trim().length > 0 &&
+    row.result.trim().length > 0 &&
+    row.testDate.trim().length > 0 &&
+    (row.action ?? "").trim().length > 0
+  );
+}
+
+export function hasCompletedRecentResult(rows: CgaLabRow[]): boolean {
+  return rows.some((row) => !isRecentResultRowEmpty(row) && isLabRowValid(row));
 }
 
 export function isImagingRowValid(row: CgaImagingRow): boolean {
