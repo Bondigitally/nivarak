@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -9,6 +9,7 @@ import {
   Call02Icon,
   Mail02Icon,
 } from "@hugeicons/core-free-icons";
+import { TruncateHoverMarquee } from "@/components/shared/TruncateHoverMarquee";
 import {
   dashboardCardClass,
   memberPortraitCardBodyClass,
@@ -60,9 +61,6 @@ function ContactRow({
 function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
   const reduceMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
-  const nameRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [shift, setShift] = useState(0);
 
   const restShadow = cardShadowCss;
   const hoverShadow = cardShadowHoverCss;
@@ -82,24 +80,6 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
       boxShadow: restShadow,
     },
   };
-
-  useLayoutEffect(() => {
-    const container = nameRef.current;
-    const measure = measureRef.current;
-    if (!container || !measure) return;
-
-    const update = () => {
-      const overflow = measure.scrollWidth - container.clientWidth;
-      setShift(overflow > 1 ? overflow : 0);
-    };
-
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [member.name]);
-
-  const marquee = shift > 0 && hovered && !reduceMotion;
 
   return (
     <motion.article
@@ -130,31 +110,14 @@ function MedicalStaffCard({ member }: { member: MedicalStaffMember }) {
 
       <div className={memberPortraitCardBodyClass}>
         <div className="flex min-w-0 items-center gap-2">
-          <div ref={nameRef} className="relative min-w-0 flex-1 overflow-hidden">
-            <span
-              ref={measureRef}
-              className={cn(typo.headingS, "invisible absolute whitespace-nowrap")}
-              aria-hidden
-            >
-              {member.name}
-            </span>
-            <motion.h3
-              title={shift > 0 ? member.name : undefined}
-              className={cn(
-                typo.headingS,
-                "min-w-0 whitespace-nowrap text-foreground",
-                marquee ? "inline-block" : "truncate",
-              )}
-              animate={marquee ? { x: [0, -shift, 0] } : { x: 0 }}
-              transition={
-                marquee
-                  ? { duration: 5, repeat: Infinity, ease: "easeInOut" }
-                  : undefined
-              }
-            >
-              {member.name}
-            </motion.h3>
-          </div>
+          <TruncateHoverMarquee
+            as="h3"
+            hovered={hovered}
+            className="flex-1"
+            textClassName={cn(typo.headingS, "text-foreground")}
+          >
+            {member.name}
+          </TruncateHoverMarquee>
           <span
             className={cn(
               statusBadgeClass,

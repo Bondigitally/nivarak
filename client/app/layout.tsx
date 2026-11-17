@@ -5,6 +5,7 @@ import { ConfigureAmplify } from '@/features/auth/lib/amplify';
 import { SIDEBAR_THEME_BOOTSTRAP_SCRIPT } from '@/lib/sidebar-theme';
 
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Nivarak - Unifying Eldercare',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* ConfigureAmplify must run client-side before any Amplify auth call. */}
         <ConfigureAmplify />
         {children}
+        <Toaster closeButton position="top-center" />
       </body>
     </html>
   );
