@@ -780,6 +780,13 @@ export const CGA_DESIGNATION_OPTIONS = [
   "Care Coordinator",
 ] as const;
 
+/** Cognition orientation chips — kept for mid-stack wizard until tip rewrite lands. */
+export const CGA_ORIENTATION_OPTIONS = [
+  { id: "oriented", label: "Oriented ×3" },
+  { id: "partial", label: "Partially oriented" },
+  { id: "disoriented", label: "Disoriented" },
+] as const;
+
 export const CGA_RELATIONSHIP_OPTIONS = [
   "Son",
   "Daughter",
@@ -1046,6 +1053,18 @@ export const CGA_SIGN_OFF_INFORMED_OPTIONS = [
   { id: "verbal-debrief", label: "Yes - verbal debrief given" },
   { id: "written-report", label: "Written report to follow" },
   { id: "pending-supervisor", label: "Pending supervisor review" },
+] as const;
+
+/** Legacy sign-off checkboxes — kept so mid-stack wizard builds before the tip rewrite. */
+export const CGA_SIGN_OFF_ATTESTATION_OPTIONS = [
+  {
+    id: "reviewed",
+    label: "I have reviewed all completed sections",
+  },
+  {
+    id: "accurate",
+    label: "Findings accurately reflect this encounter",
+  },
 ] as const;
 
 /** Clinical entry ceilings for CGA physical vitals (4.1 baseline). */
