@@ -70,6 +70,39 @@ export function LoginForm({
   async function handleCredentialsSubmit(values: CredentialsValues) {
     setError(null);
     try {
+      // TEMPORARY(basic-auth-gate) — remove this branch when Cognito is sole auth.
+      // See `lib/auth/basic-gate.ts` removal checklist.
+      if (process.env.NEXT_PUBLIC_BASIC_AUTH_GATE !== 'false') {
+        const basicRes = await fetch('/api/basic-auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: values.email,
+            password: values.password,
+          }),
+        });
+        if (basicRes.ok) {
+          const redirect =
+            new URLSearchParams(window.location.search).get('redirect') ||
+            '/dashboard';
+          router.push(redirect);
+          return;
+        }
+        if (basicRes.status === 401) {
+          const payload = (await basicRes.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          setError(payload?.error || 'Incorrect email or password');
+          return;
+        }
+        // 503 / unexpected — fall through to Cognito when gate is off or unavailable.
+        if (basicRes.status !== 503) {
+          setError('Sign in failed.');
+          return;
+        }
+      }
+
+      // Cognito email/password (permanent path once TEMPORARY(basic-auth-gate) is removed).
       const { isSignedIn, nextStep } = await signInWithEmailPassword(
         values.email,
         values.password,

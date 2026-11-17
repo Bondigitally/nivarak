@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+// TEMPORARY(basic-auth-gate) — remove this import + hasBasicAuthSession + gate block below when Cognito is sole auth.
+import {
+  BASIC_AUTH_COOKIE,
+  getBasicAuthCredentials,
+  isBasicAuthGateEnabled,
+} from "@/lib/auth/basic-gate";
 import { getPrimaryRole, type UserRole } from "@/lib/auth/roles";
 import { isRoleAllowedForPath } from "@/lib/auth/permissions";
 import { decodeJwtPayload, getRolesFromJwtPayload } from "@/lib/auth/jwt";
@@ -25,6 +31,13 @@ function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api")
   );
+}
+
+/** TEMPORARY(basic-auth-gate) — delete with basic-gate when Cognito is ready. */
+function hasBasicAuthSession(request: NextRequest): boolean {
+  const { sessionToken } = getBasicAuthCredentials();
+  const cookie = request.cookies.get(BASIC_AUTH_COOKIE)?.value;
+  return Boolean(cookie && cookie === sessionToken);
 }
 
 function getAuthToken(request: NextRequest): string | null {
@@ -89,10 +102,20 @@ export function proxy(request: NextRequest) {
   }
 
   const token = getAuthToken(request);
-  const devRole = process.env.NEXT_PUBLIC_DEV_USER_ROLE;
 
-  // Require auth unless dev role override is active (UI testing)
-  if (!token && !devRole) {
+  // TEMPORARY(basic-auth-gate) — shared password gate until Cognito is ready.
+  // DEV_USER_ROLE only selects UI role; it must not bypass this gate.
+  // Remove this whole block (+ hasBasicAuthSession) when Cognito is sole auth.
+  const basicGateOn = isBasicAuthGateEnabled();
+  const basicAuthed = basicGateOn && hasBasicAuthSession(request);
+  if (basicGateOn && !basicAuthed) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Cognito path (kept for after TEMPORARY(basic-auth-gate) is removed).
+  if (!basicGateOn && !token) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
