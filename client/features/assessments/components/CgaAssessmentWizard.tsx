@@ -13,6 +13,7 @@ import {
   Chart01Icon,
   Delete02Icon,
   InformationCircleIcon,
+  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { AppIcon } from "@/components/shared/AppIcon";
 import { ChevronIcon } from "@/components/shared/ChevronIcon";
@@ -5239,6 +5240,8 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
   const reviewModeSwitchId = "cga-review-mode-switch";
   const REVIEW_MODE_EDIT_BLOCKED =
     "No edits or changes are allowed while in Review Mode. Turn off Review Mode to make changes.";
+  const REVIEW_MODE_ON =
+    "Review Mode is on. Fields are read-only until you turn it off.";
   const REVIEW_MODE_TOAST_LOCK_MS = 600;
 
   useEffect(() => {
@@ -5437,12 +5440,19 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
             <div
               className={cn(
                 radius.full,
-                "inline-flex h-11 shrink-0 items-center gap-2 bg-muted px-6",
+                "inline-flex h-11 shrink-0 items-center gap-2 px-6 transition-colors duration-200",
+                reviewMode ? "bg-info-muted" : "bg-muted",
               )}
             >
+              <AppIcon
+                icon={ViewIcon}
+                size={ICON_SIZE}
+                className="shrink-0 text-info"
+                aria-hidden
+              />
               <span
                 id={reviewModeLabelId}
-                className="whitespace-nowrap text-[13.5px] font-medium text-foreground"
+                className="whitespace-nowrap text-[13.5px] font-medium text-info"
               >
                 Review Mode
               </span>
@@ -5450,7 +5460,11 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
                 id={reviewModeSwitchId}
                 labelledBy={reviewModeLabelId}
                 checked={reviewMode}
-                onCheckedChange={setReviewMode}
+                onCheckedChange={(next) => {
+                  setReviewMode(next);
+                  if (next) toast.info(REVIEW_MODE_ON);
+                }}
+                tone="info"
               />
             </div>
             <Link
@@ -5536,9 +5550,10 @@ export function CgaAssessmentWizard({ patientId }: { patientId: string }) {
           <div
             className={cn(
               CGA_SECTION_SHELL_CLASS,
-              "flex min-w-0 flex-col transition-[border-color] duration-200",
+              "flex min-w-0 flex-col transition-[border-color,box-shadow] duration-200",
               "lg:min-h-0 lg:overflow-hidden",
-              reviewMode && "border-info",
+              reviewMode &&
+                "border-info shadow-[0_0_0_3px_rgba(37,99,235,0.12),0_8px_28px_rgba(37,99,235,0.14)]",
             )}
           >
             <div className="flex shrink-0 flex-col gap-4 border-b border-divider p-4 sm:p-5">
