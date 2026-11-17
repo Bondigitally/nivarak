@@ -294,7 +294,7 @@
   --sidebar-active-shadow: none;
   --sidebar-active-icon: #1A1A1A;
   --sidebar-active-text: #1A1A1A;
-  --workspace-shell-border: #E5E4E8;
+  --workspace-shell-border: transparent;
   --workspace-chrome-divider: #E5E4E8;
 }
 
@@ -312,8 +312,8 @@
     --sidebar-active-bg: #353535;
     --sidebar-active-border: #454545;
     --sidebar-active-icon: #ffffff;
-    --sidebar-active-text: #fafafa;
-    --workspace-shell-border: #e4e4e7;
+    --sidebar-active-text: #ffffff;
+    --workspace-shell-border: transparent;
     --workspace-chrome-divider: #e4e4e7;
     color-scheme: dark;
   }
@@ -338,7 +338,7 @@ html[data-sidebar-theme="light"],
   --sidebar-active-shadow: none;
   --sidebar-active-icon: #1A1A1A;
   --sidebar-active-text: #1A1A1A;
-  --workspace-shell-border: #E5E4E8;
+  --workspace-shell-border: transparent;
   --workspace-chrome-divider: #E5E4E8;
   color-scheme: light;
 }
@@ -361,28 +361,33 @@ html[data-sidebar-theme="dark"],
   --sidebar-active-border: #454545;
   --sidebar-active-shadow: none;
   --sidebar-active-icon: #ffffff;
-  --sidebar-active-text: #fafafa;
+  --sidebar-active-text: #ffffff;
   /*
-   * Workspace pane stays on light `bg-card` — use line colors that read on #FFFFFF,
-   * not sidebar-on-dark tokens (#2e2e2e).
+   * Workspace pane stays on light `bg-card` — no shell outline against the dark
+   * frame; keep chrome divider for scrolled top-bar only.
    */
-  --workspace-shell-border: #e4e4e7;
+  --workspace-shell-border: transparent;
   --workspace-chrome-divider: #e4e4e7;
   color-scheme: dark;
 }
 
 /*
- * Workspace outline — painted above page chrome so it is not covered by full-bleed
- * surfaces; border keeps header rows aligned with the sidebar column.
+ * Workspace outline disabled — a 1px light border read as a thin white edge
+ * against the dark sidebar canvas. Radius still clips via overflow-hidden.
+ * Match both `html[data-sidebar-theme]` (app) and nested `[data-sidebar-theme]`
+ * (marketing hero preview).
  */
-html[data-sidebar-theme] .shell-main-workspace::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  border-radius: inherit;
-  pointer-events: none;
-  border: 1px solid var(--workspace-shell-border);
+html[data-sidebar-theme] .shell-main-workspace::after,
+[data-sidebar-theme] .shell-main-workspace::after {
+  content: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.shell-main-workspace {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 html[data-sidebar-theme] .shell-header-chrome {

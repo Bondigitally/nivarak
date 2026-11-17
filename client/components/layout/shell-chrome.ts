@@ -26,6 +26,7 @@ export const shellWorkspaceRadiusClass = "lg:rounded-[1.5rem]";
 
 export const shellMainWorkspaceClass = cn(
   "shell-main-workspace relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-card",
+  "border-0 outline-none ring-0 shadow-none",
   shellWorkspaceRadiusClass,
 );
 

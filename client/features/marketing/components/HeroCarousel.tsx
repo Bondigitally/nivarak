@@ -172,8 +172,8 @@ export function HeroCarousel() {
       <div
         className={cn(
           "relative z-[1] w-full overflow-hidden rounded-[calc(var(--radius-xl)+1px)] p-1 sm:p-1.5",
-          "border border-white/8 bg-gradient-to-b from-[#2a2433] to-[var(--color-neutral-900)]",
-          "shadow-[var(--shadow-xl),0_0_0_1px_rgba(108,48,144,0.08)]",
+          "border-0 bg-gradient-to-b from-[#2a2433] to-[var(--color-neutral-900)]",
+          "shadow-[var(--shadow-xl)]",
         )}
         aria-roledescription="carousel"
         aria-label="Nivarak platform product screens"
@@ -190,7 +190,7 @@ export function HeroCarousel() {
         <div
           className={cn(
             "relative aspect-[1440/1024] touch-manipulation select-none overflow-hidden rounded-[var(--radius-l)]",
-            "bg-background",
+            "bg-sidebar",
             previewReady
               ? dragging
                 ? "cursor-grabbing"
