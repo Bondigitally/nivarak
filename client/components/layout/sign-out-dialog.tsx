@@ -28,16 +28,10 @@ export function SignOutDialog() {
 
   async function handleSignOut() {
     setSigningOut(true);
-    // TEMPORARY(basic-auth-gate) — remove this fetch when Cognito is sole auth.
-    try {
-      await fetch("/api/basic-auth/logout", { method: "POST" });
-    } catch {
-      // Cookie clear is best-effort.
-    }
     try {
       await signOut();
     } catch {
-      // Cognito may be unused while TEMPORARY(basic-auth-gate) is active.
+      // Auth is optional while the dashboard is open without a session.
     }
     router.replace("/login");
   }

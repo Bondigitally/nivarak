@@ -61,11 +61,7 @@ const FORGOT_COPY: Record<
 export function AuthScreen({ mode, initialPhone }: AuthScreenProps) {
   const [registerStep, setRegisterStep] = useState<RegisterStep>('phone');
   const [phone, setPhone] = useState(initialPhone ?? '');
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>(
-    // TEMPORARY(basic-auth-gate) — prefer email while shared password gate is on.
-    // Restore phone default (or Cognito preference) when removing the gate.
-    process.env.NEXT_PUBLIC_BASIC_AUTH_GATE === 'false' ? 'phone' : 'email',
-  );
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>('phone');
   const [loginOtpSent, setLoginOtpSent] = useState(false);
   const [loginPhone, setLoginPhone] = useState('');
   const [forgotStep, setForgotStep] = useState<ForgotPasswordStep>('email');
