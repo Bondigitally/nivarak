@@ -65,11 +65,14 @@ export type CgaProblemPriority = "high" | "medium" | "low" | "";
 
 export type CgaProblemRow = {
   id: string;
-  /** Fixed domain id from CGA_PROBLEM_DOMAINS */
-  domainId: string;
-  domain: string;
+  /**
+   * Fixed domain id from CGA_PROBLEM_DOMAINS.
+   * Optional so mid-stack wizard builds stay valid before the tip rewrite.
+   */
+  domainId?: string;
+  domain?: string;
   problem: string;
-  priority: CgaProblemPriority;
+  priority?: CgaProblemPriority;
   notes: string;
 };
 
@@ -202,7 +205,7 @@ export const CGA_CARE_PLAN_ACTION_STATUS_OPTIONS = [
   { id: "low", label: "Low" },
 ] as const;
 
-const CGA_CARE_PLAN_ACTION_IDS = new Set(
+const CGA_CARE_PLAN_ACTION_IDS = new Set<string>(
   CGA_CARE_PLAN_ACTION_OPTIONS.map((opt) => opt.id),
 );
 
@@ -338,7 +341,7 @@ export const CGA_CARE_PLAN_REFERRAL_URGENCY_OPTIONS = [
   { id: "urgent", label: "Urgent" },
 ] as const;
 
-const CGA_CARE_PLAN_REFERRAL_TO_IDS = new Set(
+const CGA_CARE_PLAN_REFERRAL_TO_IDS = new Set<string>(
   CGA_CARE_PLAN_REFERRAL_TO_OPTIONS.map((opt) => opt.id),
 );
 
@@ -1082,6 +1085,8 @@ export const CGA_PHYSICAL_LIMITS = {
 
 /** Cognition screen scores. */
 export const CGA_COGNITION_LIMITS = {
+  /** Kept for mid-stack wizard until tip cognition UI drops MMSE. */
+  mmse: { min: 0, max: 30 },
   gpcog: { min: 0, max: 6 },
   moca: { min: 0, max: 30 },
   amts: { min: 0, max: 10 },
